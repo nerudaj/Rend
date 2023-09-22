@@ -1,0 +1,7 @@
+src/bin/.clang-format
+src/lib-engines/.clang-format
+src/lib-events/.clang-format
+src/lib-game/.clang-format
+src/lib-app/.clang-format
+src/lib-settings/.clang-format
+src/tests/.clang-format

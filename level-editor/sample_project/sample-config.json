@@ -1,0 +1,48 @@
+{
+    "toolMesh": {
+        "texture": {
+            "path": "./textures/tileset.png",
+            "tileDimensions": [32, 32],
+            "tileSpacing": [0, 0],
+            "boundaries": [0, 0, 96, 64]
+        },
+        "defaultProperties": {
+            "count": 6,
+            "solids": [1, 0, 0, 1, 0, 1]
+        }
+    },
+	"toolItem" : {
+		"items": [
+			{
+				"texture": {
+					"path": "./textures/actor.png",
+					"clip": [0, 0, 64, 64]
+				}
+			}, {
+				"texture": {
+					"path": "./textures/items.png",
+					"clip": [0, 0, 32, 32]
+				}
+			}, {
+				"texture": {
+					"path": "./textures/items.png",
+					"clip": [32, 0, 32, 32]
+				}
+			}
+		]
+	},
+	"toolTrigger": {
+		"actionDefinitions": [
+			{
+				"id": 0,
+				"name": "No action",
+				"params": []
+			},
+			{
+				"id": 1,
+				"name": "Open door",
+				"params": [ "Speed", "Close delay" ]
+			}
+		]
+	}
+}

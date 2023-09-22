@@ -1,0 +1,105 @@
+{
+    "toolMesh": {
+        "texture": {
+            "path": "./graphics/tileset.png",
+            "tileDimensions": [16, 16],
+            "tileSpacing": [0, 0],
+            "boundaries": [0, 0, 64, 64]
+        },
+        "defaultProperties": {
+            "count": 16,
+            "solids": [0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
+        }
+    },
+	"toolItem" : {
+		"items": [
+			{
+				"texture": {
+					"path": "./graphics/items.png",
+					"clip": [0, 0, 16, 16]
+				}
+			},
+			{
+				"texture": {
+					"path": "./graphics/items.png",
+					"clip": [16, 0, 16, 16]
+				}
+			},
+			{
+				"texture": {
+					"path": "./graphics/items.png",
+					"clip": [32, 0, 16, 16]
+				}
+			},
+			{
+				"texture": {
+					"path": "./graphics/items.png",
+					"clip": [48, 0, 16, 16]
+				}
+			},
+			{
+				"texture": {
+					"path": "./graphics/items.png",
+					"clip": [64, 0, 16, 16]
+				}
+			},
+			{
+				"texture": {
+					"path": "./graphics/items.png",
+					"clip": [80, 0, 16, 16]
+				}
+			},
+			{
+				"texture": {
+					"path": "./graphics/items.png",
+					"clip": [0, 16, 16, 16]
+				}
+			},
+			{
+				"texture": {
+					"path": "./graphics/items.png",
+					"clip": [16, 16, 16, 16]
+				}
+			},
+			{
+				"texture": {
+					"path": "./graphics/items.png",
+					"clip": [32, 16, 16, 16]
+				}
+			},
+			{
+				"texture": {
+					"path": "./graphics/items.png",
+					"clip": [48, 16, 16, 16]
+				}
+			},
+			{
+				"texture": {
+					"path": "./graphics/items.png",
+					"clip": [64, 16, 16, 16]
+				}
+			},
+			{
+				"texture": {
+					"path": "./graphics/items.png",
+					"clip": [80, 16, 16, 16]
+				}
+			},
+			{
+				"texture": {
+					"path": "./graphics/items.png",
+					"clip": [0, 32, 16, 16]
+				}
+			}
+		]
+	},
+	"toolTrigger": {
+		"actionDefinitions": [
+			{
+				"id": 0,
+				"name": "No action",
+				"params": []
+			}
+		]
+	}
+}

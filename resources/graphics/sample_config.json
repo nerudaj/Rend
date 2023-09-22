@@ -1,0 +1,51 @@
+{
+	"defaults": {
+		"frame": {
+			"width": 80,
+			"height": 64
+		},
+		"spacing": {
+			"horizontal": 0,
+			"vertical": 8
+		}
+	},
+	"states": [
+		{
+			"name": "idle-right",
+			"bounds": {
+				"left": 0,
+				"top": 0,
+				"width": 80,
+				"height": 64
+			},
+			"nframes": 1
+		},
+		{
+			"name": "idle-left",
+			"bounds": {
+				"left": 0,
+				"top": 72,
+				"width": 80,
+				"height": 64
+			}
+		},
+		{
+			"name": "run-right",
+			"bounds": {
+				"left": 0,
+				"top": 0,
+				"width": 320,
+				"height": 64
+			}
+		},
+		{
+			"name": "run-left",
+			"bounds": {
+				"left": 0,
+				"top": 72,
+				"width": 320,
+				"height": 64
+			}
+		}
+	]
+}
