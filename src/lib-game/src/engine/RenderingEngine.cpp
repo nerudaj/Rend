@@ -43,8 +43,6 @@ void RenderingEngine::renderWorldTo(dgm::Window&) {}
 
 void RenderingEngine::renderHudTo(dgm::Window& window)
 {
-    caster.prepare();
-
     if (debugRender)
         render2d(window);
     else
@@ -64,7 +62,7 @@ void RenderingEngine::render2d(dgm::Window& window)
     auto W = float(scene.level.bottomMesh.getVoxelSize().x);
     auto pos = player.body.getPosition() / W;
     auto plane = getPerpendicular(player.direction) * settings.FOV;
-
+    caster.prepare();
     for (unsigned col = 0; col < settings.WIDTH; col++)
     {
         float cameraX = 2 * float(col) / settings.WIDTH - 1;
@@ -110,6 +108,28 @@ void RenderingEngine::render3d(dgm::Window& window)
             col == settings.WIDTH - 1);
     };
 
+    const float c = dgm::Math::getDotProduct(-player.direction, pos);
+    auto getHeight =
+        [this, c, player](
+            const sf::Vector2f& point) { // Normally this should be divided by
+                                         // camera direction vector size, but
+                                         // that is guaranteed to be unit
+            return settings.HEIGHT
+                   / std::abs(
+                       (dgm::Math::getDotProduct(point, player.direction) + c));
+        };
+
+    auto getColumn = [this, pos, plane, player](const sf::Vector2f& v)
+    {
+        const auto V = v - pos;
+        const auto size = dgm::Math::getSize(V);
+        const float k = size / (dgm::Math::getDotProduct(V, player.direction));
+        const auto scaledPlane = V / size * k - player.direction;
+        float col =
+            plane.x == 0.f ? scaledPlane.y / plane.y : scaledPlane.x / plane.x;
+        return int(((col + 1) / 2) * settings.WIDTH);
+    };
+
     /*
      * Leftmost and rightmost rays need to be fired first
      * because the upper level might add multiple faces with
@@ -119,33 +139,13 @@ void RenderingEngine::render3d(dgm::Window& window)
      * fixing a display bug that only happened when there were
      * two upper faces per rightmost column at once.
      */
+    caster.prepare();
     fireRay(0);
     fireRay(settings.WIDTH - 1);
     for (unsigned col = 1; col < settings.WIDTH - 1; col++)
     {
         fireRay(col);
     }
-
-    float c = -player.direction * pos;
-    auto getHeight =
-        [this, c, player](
-            const sf::Vector2f& point) { // Normally this should be divided by
-                                         // camera direction vector size, but
-                                         // that is guaranteed to be unit
-            return settings.HEIGHT / std::abs((point * player.direction + c));
-        };
-
-    auto getColumn = [this, pos, plane, player](const sf::Vector2f& v)
-    {
-        const auto V = v - pos;
-        const auto size = dgm::Math::getSize(V);
-        const float k = size / (V * player.direction);
-        const auto scaledPlane = V / size * k - player.direction;
-        float col =
-            plane.x == 0.f ? scaledPlane.y / plane.y : scaledPlane.x / plane.x;
-        return int(((col + 1) / 2) * settings.WIDTH);
-    };
-
     caster.finalize();
 
     renderLevelMesh(window, getHeight, getColumn);
@@ -282,51 +282,26 @@ void RenderingEngine::renderSprites(
         const auto height = getHeight(thing.center);
         auto leftColumn = getColumn(thing.center - thingPlane);
         auto rightColumn = getColumn(thing.center + thingPlane);
-        const auto originalWidth = rightColumn - leftColumn + 1;
-        int movedLeftColumnBy = 0;
-        int movedRightColumnBy = 0;
 
-        if (leftColumn >= int(settings.WIDTH) || rightColumn < 0) continue;
-
-        while (leftColumn < rightColumn && leftColumn < int(settings.WIDTH)
-               && (leftColumn < 0
-                   || context.depthBuffer[leftColumn] < thing.distance))
-        {
-            ++leftColumn;
-            ++movedLeftColumnBy;
-        }
-
-        // Fully obscured or outside of view
-        if (leftColumn >= settings.WIDTH || leftColumn >= rightColumn) continue;
-
-        while (leftColumn < rightColumn && rightColumn >= 0
-               && (rightColumn >= settings.WIDTH
-                   || context.depthBuffer[rightColumn] < thing.distance))
-        {
-            --rightColumn;
-            ++movedRightColumnBy;
-        }
-
-        // Fully obscured or outside of view
-        if (leftColumn >= rightColumn || rightColumn < 0) continue;
+        const auto hints =
+            cropSpriteIfObscured(leftColumn, rightColumn, thing.distance);
+        if (!hints) [[unlikely]]
+            continue;
 
         VertexObjectBuilder::makeFace(
             quads,
             midHeight,
-            TexturedFace {
-                .leftColumn = leftColumn,
-                .rightColumn = rightColumn,
-                .leftHeight = height,
-                .rightHeight = height,
-                .leftTexHint =
-                    movedLeftColumnBy / static_cast<float>(originalWidth),
-                .rightTexHint =
-                    1.f
-                    - movedRightColumnBy / static_cast<float>(originalWidth),
-                .heightHint = 0.f,
-                .textureId = static_cast<std::uint8_t>(thing.textureId),
-                .brightness = 255,
-                .flipTexture = thing.flipTexture },
+            TexturedFace { .leftColumn = leftColumn,
+                           .rightColumn = rightColumn,
+                           .leftHeight = height,
+                           .rightHeight = height,
+                           .leftTexHint = hints->first,
+                           .rightTexHint = hints->second,
+                           .heightHint = 0.f,
+                           .textureId =
+                               static_cast<std::uint8_t>(thing.textureId),
+                           .brightness = 255,
+                           .flipTexture = thing.flipTexture },
             context.spritesheetClipping);
     }
 
@@ -383,4 +358,43 @@ RenderingEngine::getFilteredAndOrderedThingsToRender(
         [](auto& a, auto& b) -> bool { return a.distance > b.distance; });
 
     return result;
+}
+
+std::optional<std::pair<float, float>> RenderingEngine::cropSpriteIfObscured(
+    int& leftColumn, int& rightColumn, float thingDistance)
+{
+    const auto originalWidth = rightColumn - leftColumn + 1;
+    int movedLeftColumnBy = 0;
+    int movedRightColumnBy = 0;
+
+    if (leftColumn >= int(settings.WIDTH) || rightColumn < 0)
+        return std::nullopt;
+
+    while (
+        leftColumn < rightColumn && leftColumn < int(settings.WIDTH)
+        && (leftColumn < 0 || context.depthBuffer[leftColumn] < thingDistance))
+    {
+        ++leftColumn;
+        ++movedLeftColumnBy;
+    }
+
+    // Fully obscured or outside of view
+    if (leftColumn >= int(settings.WIDTH) || leftColumn >= rightColumn)
+        return std::nullopt;
+
+    while (leftColumn < rightColumn && rightColumn >= 0
+           && (rightColumn >= int(settings.WIDTH)
+               || context.depthBuffer[rightColumn] < thingDistance))
+    {
+        --rightColumn;
+        ++movedRightColumnBy;
+    }
+
+    // Fully obscured or outside of view
+    if (leftColumn >= rightColumn || rightColumn < 0) return std::nullopt;
+
+    return std::pair {
+        movedLeftColumnBy / static_cast<float>(originalWidth),
+        1.f - movedRightColumnBy / static_cast<float>(originalWidth)
+    };
 }

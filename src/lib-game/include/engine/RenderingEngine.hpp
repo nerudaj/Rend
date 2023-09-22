@@ -3,9 +3,9 @@
 #include "core/Scene.hpp"
 #include "events/RenderingEvents.hpp"
 #include "render/FpsCounter.hpp"
+#include "render/Raycaster.hpp"
 #include "render/RenderContext.hpp"
 #include <DGM/DGM.hpp>
-#include "render/Raycaster.hpp"
 
 import Memory;
 
@@ -65,6 +65,17 @@ private:
         const std::vector<std::size_t>& candidateIds,
         const sf::Vector2f& cameraPosition,
         const sf::Vector2f& cameraDirection);
+
+    /// <summary>
+    /// Manipulates leftColumn and rightColumn references
+    /// if the function returns nothing then the sprite is
+    /// fully out-of-view and should be skipped
+    /// </summary>
+    /// <param name="leftColumn"></param>
+    /// <param name="rightColumn"></param>
+    /// <returns>left/right texture hints or nothing</returns>
+    std::optional<std::pair<float, float>> cropSpriteIfObscured(
+        int& leftColumn, int& rightColumn, float thingDistance);
 
 private:
     mem::Rc<const dgm::ResourceManager> resmgr;

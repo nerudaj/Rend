@@ -123,7 +123,7 @@ struct Projectile : CollidableObject
             initialSpriteId,
             true,
             std::forward<decltype(dir)>(dir))
-        , forward({0.f, 0.f})
+        , forward({ 0.f, 0.f })
         , damage(damage)
     {
     }
@@ -176,14 +176,7 @@ struct overloaded : Ts...
 };
 
 // TODO: move somewhere else
-static inline float operator*(const sf::Vector2f& a, const sf::Vector2f& b)
-{
-    return a.x * b.x + a.y * b.y;
-}
-
-// TODO: move somewhere else
-static inline sf::Vector2f
-getPerpendicular(const sf::Vector2f& v) noexcept
+static inline sf::Vector2f getPerpendicular(const sf::Vector2f& v) noexcept
 {
     return { -v.y, v.x };
 }
