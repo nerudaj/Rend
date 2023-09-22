@@ -34,7 +34,8 @@ struct Sprite
 class Raycaster final
 {
 private:
-    using VisitedFacesBitset = std::bitset<MAX_LEVEL_WIDTH * MAX_LEVEL_HEIGHT * 4>;
+    using VisitedFacesBitset =
+        std::bitset<MAX_LEVEL_WIDTH * MAX_LEVEL_HEIGHT * 4>;
 
 public:
     [[nodiscard]] Raycaster();
@@ -54,7 +55,8 @@ public:
     void finalize();
 
 public: // getters
-    [[nodiscard]] constexpr const std::vector<Face>& getBottomFaces() const noexcept
+    [[nodiscard]] constexpr const std::vector<Face>&
+    getBottomFaces() const noexcept
     {
         return faces;
     }
@@ -64,7 +66,8 @@ public: // getters
         return flats;
     }
 
-    [[nodiscard]] constexpr const auto& getVisibleThingIds() const noexcept {
+    [[nodiscard]] constexpr const auto& getVisibleThingIds() const noexcept
+    {
         return thingIds;
     }
 
@@ -83,6 +86,19 @@ private:
         float interceptSize,
         bool leftmostRay,
         bool rightmostRay);
+
+    void addFloorFlatAndThings(
+        const sf::Vector2u& tile,
+        const sf::Vector2f& pos,
+        unsigned tileId,
+        const dgm::SpatialBuffer<GameObject>& things,
+        const sf::Vector2f& voxelSize);
+
+    void addCeilFlat(
+        const sf::Vector2u& tile,
+        const sf::Vector2f& pos,
+        unsigned tileId,
+        bool upperPlaneTracker);
 
     void addFlat(
         const sf::Vector2u& tile,
@@ -105,5 +121,8 @@ private:
     VisitedFacesBitset visitedFaces;      // map resolution * four sides
     VisitedFacesBitset visitedUpperFaces; // map resolution * four sides
     std::vector<decltype(Scene::things)::IndexListType::value_type> thingIds;
-    std::bitset<MAX_LEVEL_WIDTH * MAX_LEVEL_HEIGHT> visitedFlats;
+    std::bitset<MAX_LEVEL_WIDTH * MAX_LEVEL_HEIGHT>
+        visitedFlats; // TODO: remove this
+    std::bitset<MAX_LEVEL_WIDTH * MAX_LEVEL_HEIGHT> visitedFloors;
+    std::bitset<MAX_LEVEL_WIDTH * MAX_LEVEL_HEIGHT> visitedCeils;
 };

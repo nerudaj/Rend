@@ -25,12 +25,12 @@ function (copy_dlls_to_build_folders )
 	endforeach ( DLL )
 
 	file (
-		COPY "${TGUI_FOLDER}/lib/tgui-d.dll"
+		COPY "${TGUI_FOLDER}/bin/tgui-d.dll"
 		DESTINATION "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/Debug"
 	)
 	
 	file (
-		COPY "${TGUI_FOLDER}/lib/tgui.dll"
+		COPY "${TGUI_FOLDER}/bin/tgui.dll"
 		DESTINATION "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/Release"
 	)
 endfunction (copy_dlls_to_build_folders)

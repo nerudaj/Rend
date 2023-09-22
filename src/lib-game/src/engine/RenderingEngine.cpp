@@ -2,8 +2,7 @@
 #include "utils/VertexArrayBuilder.hpp"
 #include <numbers>
 
-[[nodiscard]]
-static std::pair<std::uint8_t, bool> getRotatedSpriteClipId(
+[[nodiscard]] static std::pair<std::uint8_t, bool> getRotatedSpriteClipId(
     const sf::Vector2f& cameraDir,
     const sf::Vector2f& thingDir,
     std::uint8_t baseClipIndex)
@@ -30,7 +29,8 @@ RenderingEngine::RenderingEngine(
     , scene(scene)
     , tileset(_resmgr->get<sf::Texture>("tileset.png").value().get())
     , settings(RenderSettings {})
-    , context(RenderContext::buildRenderContext(*resmgr, scene.mapname, settings.WIDTH))
+    , context(RenderContext::buildRenderContext(
+          *resmgr, scene.mapname, settings.WIDTH))
 {
 }
 
@@ -138,7 +138,7 @@ void RenderingEngine::render3d(dgm::Window& window)
     auto getColumn = [this, pos, plane, player](const sf::Vector2f& v)
     {
         const auto V = v - pos;
-        const auto size = dgm::Math::vectorSize(V);
+        const auto size = dgm::Math::getSize(V);
         const float k = size / (V * player.direction);
         const auto scaledPlane = V / size * k - player.direction;
         float col =
@@ -357,18 +357,19 @@ RenderingEngine::getFilteredAndOrderedThingsToRender(
             [&](BaseObject& thing)
             {
                 const auto& thingPosition = thing.body.getPosition() / W;
-                const auto [textureId, flipTexture] = thing.directionalSprite ? 
-                    getRotatedSpriteClipId(
+                const auto [textureId, flipTexture] =
+                    thing.directionalSprite
+                        ? getRotatedSpriteClipId(
                             cameraDirection,
                             -thing.direction,
-                            static_cast<std::uint8_t> (thing.currentSpriteId))
+                            static_cast<std::uint8_t>(thing.currentSpriteId))
                         : std::pair { static_cast<std::uint8_t>(
                                           thing.currentSpriteId),
                                       false };
 
                 result.push_back(ThingToRender {
                     .distance =
-                        dgm::Math::vectorSize(thingPosition - cameraPosition),
+                        dgm::Math::getSize(thingPosition - cameraPosition),
                     .center = thingPosition,
                     .textureId = textureId,
                     .flipTexture = flipTexture });

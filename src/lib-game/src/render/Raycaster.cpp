@@ -77,7 +77,8 @@ float Raycaster::castRay(
             {
                 const auto interceptSize =
                     getInterceptSize(side, intercept, rayStep);
-                bottomHitDistance = dgm::Math::vectorSize(computeHitloc(
+                bottomHitDistance = dgm::Math::getSize(
+                    computeHitloc(
                         pos, dir, getInterceptSize(side, intercept, rayStep))
                     - pos);
                 tryAddFace(
@@ -119,22 +120,19 @@ float Raycaster::castRay(
 
         if (lowPlaneTracker && upperPlaneTracker) break;
 
-        if (!visitedFlats[tileId])
+        if (!visitedFloors[tileId] && !lowPlaneTracker)
         {
-            visitedFlats[tileId] = true;
-            addFlat(tile, pos, tileId, -0.5f);
-            addFlat(tile, pos, tileId, upperPlaneTracker ? 0.5f : 1.5f);
+            addFloorFlatAndThings(
+                tile,
+                pos,
+                tileId,
+                things,
+                sf::Vector2f(map.bottomMesh.getVoxelSize()));
+        }
 
-            // Add sprites, ignore those that are fully obscured
-            if (!lowPlaneTracker)
-            {
-                auto&& candidates = things.getOverlapCandidates(dgm::Rect(
-                    sf::Vector2f(tile)
-                        * sf::Vector2f(map.bottomMesh.getVoxelSize()).x,
-                    sf::Vector2f(map.bottomMesh.getVoxelSize())));
-                thingIds.insert(
-                    thingIds.end(), candidates.begin(), candidates.end());
-            }
+        if (!visitedCeils[tileId])
+        {
+            addCeilFlat(tile, pos, tileId, upperPlaneTracker);
         }
 
         if (intercept.x < intercept.y)
@@ -163,6 +161,8 @@ void Raycaster::prepare()
     visitedFaces.reset();
     visitedUpperFaces.reset();
     visitedFlats.reset();
+    visitedFloors.reset();
+    visitedCeils.reset();
 }
 
 void Raycaster::finalize()
@@ -227,7 +227,7 @@ void Raycaster::tryAddFace(
                                 .rightVertex = rightVertex,
                                 .side = side,
                                 .tileId = tileId,
-                                .distance = dgm::Math::vectorSize(
+                                .distance = dgm::Math::getSize(
                                     (leftVertex + rightVertex) / 2.f - pos),
                                 .heightHint = heightHint });
     }
@@ -236,17 +236,46 @@ void Raycaster::tryAddFace(
 
     if (leftmostRay)
     {
-        // Calling back because the face was just added, this is the first ray fired
+        // Calling back because the face was just added, this is the first ray
+        // fired
         _faces.back().leftVertex = hitloc;
         _faces.back().leftTexHint = getTexHint(realSide, hitloc);
     }
 
     if (rightmostRay)
     {
-        // Since the rightmostRay is the second one fired, the faces were just added
+        // Since the rightmostRay is the second one fired, the faces were just
+        // added
         _faces.back().rightVertex = hitloc;
         _faces.back().rightTexHint = getTexHint(realSide, hitloc);
     }
+}
+
+void Raycaster::addFloorFlatAndThings(
+    const sf::Vector2u& tile,
+    const sf::Vector2f& pos,
+    unsigned tileId,
+    const dgm::SpatialBuffer<GameObject>& things,
+    const sf::Vector2f& voxelSize)
+{
+    visitedFloors[tileId] = true;
+    addFlat(tile, pos, tileId, -0.5f);
+
+    // Add sprites, ignore those that are fully obscured
+    auto&& candidates = things.getOverlapCandidates(
+        dgm::Rect(sf::Vector2f(tile) * voxelSize.x, voxelSize));
+    thingIds.insert(thingIds.end(), candidates.begin(), candidates.end());
+    // TODO: use set to deduplicate right away?
+}
+
+void Raycaster::addCeilFlat(
+    const sf::Vector2u& tile,
+    const sf::Vector2f& pos,
+    unsigned tileId,
+    bool upperPlaneTracker)
+{
+    visitedCeils[tileId] = true;
+    addFlat(tile, pos, tileId, upperPlaneTracker ? 0.5f : 1.5f);
 }
 
 void Raycaster::addFlat(
@@ -264,7 +293,7 @@ void Raycaster::addFlat(
                       baseTile2,
                       { baseTile.x, baseTile.y + 1.f } },
         .heightHint = heightHint,
-        .distance = dgm::Math::vectorSize((baseTile + baseTile2) / 2.f - pos),
+        .distance = dgm::Math::getSize((baseTile + baseTile2) / 2.f - pos),
         .tileId = tileId });
 }
 
@@ -282,6 +311,9 @@ float Raycaster::getTexHint(
     case 3:
         return mymodff(hitloc.y);
     }
+
+    // Never happens
+    return NAN;
 }
 
 sf::Vector2f Raycaster::computeHitloc(
@@ -289,5 +321,5 @@ sf::Vector2f Raycaster::computeHitloc(
     const sf::Vector2f& rayDir,
     float interceptSize) noexcept
 {
-    return cameraPos + dgm::Math::getUnitVector(rayDir) * interceptSize;
+    return cameraPos + dgm::Math::toUnit(rayDir) * interceptSize;
 }

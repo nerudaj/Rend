@@ -16,10 +16,12 @@ void VertexObjectBuilder::makeFace(
     const float rightHint =
         clipRect.width
         * (face.flipTexture ? 1.f - face.leftTexHint : face.rightTexHint);
-    const float ltx = clipRect.left + (face.flipTexture ? rightHint : leftHint);
-    const float rtx = clipRect.left + (face.flipTexture ? leftHint : rightHint);
-    const float tty = clipRect.top;
-    const float bty = clipRect.top + clipRect.heightHint;
+    const float ltx = static_cast<float>(
+        clipRect.left + (face.flipTexture ? rightHint : leftHint));
+    const float rtx = static_cast<float>(
+        clipRect.left + (face.flipTexture ? leftHint : rightHint));
+    const float tty = static_cast<float>(clipRect.top);
+    const float bty = static_cast<float>(clipRect.top + clipRect.height);
     const float leftHeightTop =
         midHeight - face.leftHeight / 2 - face.leftHeight * face.heightHint;
     const float leftHeightBottom =
@@ -70,10 +72,10 @@ void VertexObjectBuilder::makeFlat(
     dgm::Clip& clip)
 {
     auto&& clipRect = clip.getFrame(flat.textureId);
-    const float ltx = clipRect.left;
-    const float rtx = clipRect.left + clipRect.width;
-    const float tty = clipRect.top;
-    const float bty = clipRect.top + clipRect.heightHint;
+    const float ltx = static_cast<float>(clipRect.left);
+    const float rtx = static_cast<float>(clipRect.left + clipRect.width);
+    const float tty = static_cast<float>(clipRect.top);
+    const float bty = static_cast<float>(clipRect.top + clipRect.height);
     auto light = sf::Color(flat.brightness, flat.brightness, flat.brightness);
 
     const float h0 = midHeight - flat.vertices[0].y * flat.heightHint;

@@ -7,12 +7,12 @@ void PhysicsEngine::update(const dgm::Time& time)
     {
         scene.things.removeFromLookup(id, actor.body);
 
-        actor.direction = dgm::Math::rotateVector(
+        actor.direction = dgm::Math::getRotated(
             actor.direction,
             actor.input->getSteer() * PLAYER_RADIAL_SPEED
                 * time.getDeltaTime());
 
-        auto&& forward = dgm::Math::getUnitVector(
+        auto&& forward = dgm::Math::toUnit(
                              actor.direction * actor.input->getThrust()
                              + getPerpendicular(actor.direction)
                                    * actor.input->getSidewardThrust())
