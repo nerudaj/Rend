@@ -54,28 +54,14 @@ enum class SpriteId : std::uint8_t
     ExplosionF
 };
 
-enum class PickupId
-{
-    Medkit,
-    ArmorShard,
-    MegaHealth,
-    MegaArmor,
-    Bullets,
-    Shells,
-    EnergyPack,
-    Rockets
-};
-
-enum class WeaponId
-{
-    Shotgun
-};
-
 enum class EntityType
 {
     Marker,
     StaticDecoration,
     Player,
+
+    PickableBegin,
+
     PickupHealth,
     PickupArmor,
     PickupMegaHealth,
@@ -84,7 +70,15 @@ enum class EntityType
     PickupShells,
     PickupEnergy,
     PickupRockets,
+
+    WeaponPickableBegin,
+
     PickupShotgun,
+
+    WeaponPickableEnd,
+
+    PickableEnd,
+
     ProjectileRocket,
     EffectExplosion,
 };

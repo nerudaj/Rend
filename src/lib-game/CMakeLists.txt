@@ -17,6 +17,7 @@ target_include_directories ( ${PROJECT_NAME}
 	PUBLIC "${SFML_FOLDER}/include"
 	PUBLIC "${ENTT_FOLDER}/single_include"
 	PUBLIC "${DSH_FOLDER}/include"
+	PUBLIC "${JSON_FOLDER}/include"
 )
 
 target_link_libraries ( ${PROJECT_NAME}

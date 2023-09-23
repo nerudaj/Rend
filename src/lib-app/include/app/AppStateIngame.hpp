@@ -10,6 +10,9 @@
 #include <TGUI/Backend/SFML-Graphics.hpp>
 #include <TGUI/TGUI.hpp>
 #include <core/Scene.hpp>
+#include <input/ControllerInterface.hpp>
+#include <input/InputSchema.hpp>
+#include <utils/RoundRobinBuffer.hpp>
 
 import Memory;
 
@@ -35,6 +38,20 @@ public:
 
     virtual void restoreFocus() override {}
 
+private:
+    struct FrameState
+    {
+        dgm::DynamicBuffer<Entity> things;
+        InputSchema inputs[MAX_PLAYER_COUNT];
+    };
+
+    void snapshotInputs(FrameState& state);
+    void simulateFrameFromState(const FrameState& state);
+    void restoreState(const FrameState& state);
+    void runEnginesUpdate();
+    void processEvents();
+    void backupState(FrameState&& state);
+
 protected:
     mem::Rc<const dgm::ResourceManager> resmgr;
     mem::Rc<tgui::Gui> gui;
@@ -44,8 +61,10 @@ protected:
     const sf::Vector2f GAME_RESOLUTION;
 
     Scene scene;
+    RoundRobinBuffer<FrameState, 10> stateBuffer;
     AudioEngine audioEngine;
     GameRulesEngine gameRulesEngine;
     PhysicsEngine physicsEngine;
     RenderingEngine renderingEngine;
+    std::array<mem::Box<ControllerInterface>, MAX_PLAYER_COUNT> inputs;
 };

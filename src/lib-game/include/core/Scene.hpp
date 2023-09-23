@@ -3,139 +3,26 @@
 #include <DGM/dgm.hpp>
 #include <Settings.hpp>
 #include <core/Constants.hpp>
-#include <input/ControllerInterface.hpp>
+#include <input/SimpleController.hpp>
 
 import Memory;
 
-/// <summary>
-/// Base class for all game objects
-/// </summary>
-struct BaseObject
+struct Entity
 {
-    dgm::Circle body;
-    unsigned currentSpriteId = 0;
-    bool directionalSprite = false;
-    sf::Vector2f direction;
+    EntityType typeId;
+    SpriteId spriteClipIndex;
+    dgm::Circle hitbox;
+    sf::Vector2f direction = NULL_VECTOR;
 
-    BaseObject(
-        dgm::UniversalReference<dgm::Circle> auto&& body,
-        SpriteId initialSpriteId,
-        bool directionalSprite = false,
-        const sf::Vector2f& direction = { 0.f, 0.f })
-        : body(std::forward<decltype(body)>(body))
-        , currentSpriteId(static_cast<unsigned>(initialSpriteId))
-        , directionalSprite(directionalSprite)
-        , direction(direction)
-    {
-    }
+    // player stuff
+    short inputId = 0;
+    short health = 0;
+    short armor = 0;
+    short bulletCount = 0;
+    short shellCount = 0;
+    short energyCount = 0;
+    short rocketCount = 0;
 };
-
-/// <summary>
-/// Physical blockers in the world
-/// </summary>
-struct CollidableObject : public BaseObject
-{
-    CollidableObject(
-        dgm::UniversalReference<dgm::Circle> auto&& body,
-        SpriteId initialSpriteId,
-        bool directionalSprite = false,
-        const sf::Vector2f& direction = { 0.f, 0.f })
-        : BaseObject(
-            std::forward<decltype(body)>(body),
-            initialSpriteId,
-            directionalSprite,
-            direction)
-    {
-    }
-};
-
-/// <summary>
-/// Medkit, ammo, etc
-/// </summary>
-struct GenericPickup : public CollidableObject
-{
-    PickupId id;
-
-    GenericPickup(
-        dgm::UniversalReference<dgm::Circle> auto&& body,
-        SpriteId initialSpriteId,
-        PickupId id)
-        : CollidableObject(std::forward<decltype(body)>(body), initialSpriteId)
-        , id(id)
-    {
-    }
-};
-
-/// <summary>
-/// Weapons on the floor
-/// </summary>
-struct WeaponPickup : public CollidableObject
-{
-    WeaponId id;
-
-    WeaponPickup(
-        dgm::UniversalReference<dgm::Circle> auto&& body,
-        SpriteId initialSpriteId,
-        WeaponId id)
-        : CollidableObject(std::forward<decltype(body)>(body), initialSpriteId)
-        , id(id)
-    {
-    }
-};
-
-struct Player : public CollidableObject
-{
-    mem::Rc<ControllerInterface> input;
-    int health = 0;
-    int armor = 0;
-    int bulletCount = 0;
-    int shellCount = 0;
-    int energyCount = 0;
-    int rocketCount = 0;
-
-    Player(
-        dgm::UniversalReference<dgm::Circle> auto&& body,
-        dgm::UniversalReference<sf::Vector2f> auto&& dir,
-        mem::Rc<ControllerInterface> in,
-        SpriteId initialSpriteId)
-        : CollidableObject(
-            std::forward<decltype(body)>(body),
-            initialSpriteId,
-            true,
-            std::forward<decltype(dir)>(dir))
-        , input(in)
-    {
-    }
-};
-
-struct Projectile : CollidableObject
-{
-    sf::Vector2f forward;
-    float damage;
-
-    Projectile(
-        dgm::UniversalReference<dgm::Circle> auto&& body,
-        dgm::UniversalReference<sf::Vector2f> auto&& dir,
-        SpriteId initialSpriteId,
-        float damage)
-        : CollidableObject(
-            std::forward<decltype(body)>(body),
-            initialSpriteId,
-            true,
-            std::forward<decltype(dir)>(dir))
-        , forward({ 0.f, 0.f })
-        , damage(damage)
-    {
-    }
-};
-
-using GameObject = std::variant<
-    BaseObject,
-    Player,
-    CollidableObject,
-    GenericPickup,
-    WeaponPickup,
-    Projectile>;
 
 struct Level
 {
@@ -143,6 +30,16 @@ struct Level
     unsigned heightHint;
     dgm::Mesh bottomMesh;
     dgm::Mesh upperMesh;
+};
+
+struct Position
+{
+    sf::Vector2f value;
+};
+
+struct Direction
+{
+    sf::Vector2f value;
 };
 
 // Add all game actors and objects to this struct as it is passed
@@ -155,24 +52,23 @@ struct Scene
     dgm::Camera worldCamera;
     dgm::Camera hudCamera;
 
-    // Player player;
+    dgm::DynamicBuffer<Entity> things;
     Level level;
-    dgm::SpatialBuffer<GameObject> things;
+    dgm::SpatialBuffer<Entity> spatialIndex;
+    std::array<SimpleController, MAX_PLAYER_COUNT> inputs;
     std::vector<sf::Vector2f> spawns;
     std::string mapname;
     unsigned playerId = 0;
 
-    static Scene buildScene(
+    [[nodiscard]] static Scene buildScene(
         const dgm::ResourceManager& resmgr,
         const sf::Vector2f& baseResolution,
         const Settings& settings);
-};
 
-// TODO: move somewhere else
-template<class... Ts>
-struct overloaded : Ts...
-{
-    using Ts::operator()...;
+    [[nodiscard]] static Entity createPlayer(
+        const Position& position,
+        const Direction& lookDirection,
+        short inputId);
 };
 
 // TODO: move somewhere else
@@ -180,20 +76,3 @@ static inline sf::Vector2f getPerpendicular(const sf::Vector2f& v) noexcept
 {
     return { -v.y, v.x };
 }
-
-struct Entity
-{
-    EntityType typeId;
-    SpriteId spriteClipIndex;
-    dgm::Circle hitbox;
-    sf::Vector2f direction;
-
-    // player stuff
-    short inputId;
-    short health;
-    short armor;
-    short bulletCount;
-    short shellCount;
-    short rocketCount;
-    short energyCount;
-};

@@ -17,8 +17,7 @@ Raycaster::Raycaster()
 float Raycaster::castRay(
     const sf::Vector2f& pos,
     const sf::Vector2f& dir,
-    const Level& map,
-    const dgm::SpatialBuffer<GameObject>& things,
+    const Scene& scene,
     bool leftmostRay,
     bool rightmostRay)
 {
@@ -58,21 +57,22 @@ float Raycaster::castRay(
 
     bool side = 0;
     unsigned tileId = 0;
-    bool lowPlaneTracker = false;                    // false if floor
-    bool upperPlaneTracker = map.upperMesh.at(tile); // true if low ceiling
+    bool lowPlaneTracker = false; // false if floor
+    bool upperPlaneTracker =
+        scene.level.upperMesh.at(tile); // true if low ceiling
     float bottomHitDistance = 0.f;
     while (true)
     {
-        tileId = tile.y * map.width + tile.x;
+        tileId = tile.y * scene.level.width + tile.x;
 
         unsigned realSide =
             side == 1 ? (dir.y > 0 ? 0 : 2) : (dir.x > 0 ? 3 : 1);
         unsigned visitedFacesIndex =
-            realSide * map.width * map.heightHint + tileId;
+            realSide * scene.level.width * scene.level.heightHint + tileId;
 
         if (!lowPlaneTracker)
         {
-            lowPlaneTracker = map.bottomMesh[tileId];
+            lowPlaneTracker = scene.level.bottomMesh[tileId];
             if (lowPlaneTracker)
             {
                 const auto interceptSize =
@@ -98,7 +98,7 @@ float Raycaster::castRay(
             }
         }
 
-        bool upperTrackerNew = map.upperMesh.at(tile);
+        bool upperTrackerNew = scene.level.upperMesh.at(tile);
         if (upperTrackerNew && !upperPlaneTracker)
         {
             tryAddFace(
@@ -126,8 +126,8 @@ float Raycaster::castRay(
                 tile,
                 pos,
                 tileId,
-                things,
-                sf::Vector2f(map.bottomMesh.getVoxelSize()));
+                scene.spatialIndex,
+                sf::Vector2f(scene.level.bottomMesh.getVoxelSize()));
         }
 
         if (!visitedCeils[tileId])
@@ -255,14 +255,14 @@ void Raycaster::addFloorFlatAndThings(
     const sf::Vector2u& tile,
     const sf::Vector2f& pos,
     unsigned tileId,
-    const dgm::SpatialBuffer<GameObject>& things,
+    const dgm::SpatialBuffer<Entity>& spatialIndex,
     const sf::Vector2f& voxelSize)
 {
     visitedFloors[tileId] = true;
     addFlat(tile, pos, tileId, -0.5f);
 
     // Add sprites, ignore those that are fully obscured
-    auto&& candidates = things.getOverlapCandidates(
+    auto&& candidates = spatialIndex.getOverlapCandidates(
         dgm::Rect(sf::Vector2f(tile) * voxelSize.x, voxelSize));
     thingIds.insert(thingIds.end(), candidates.begin(), candidates.end());
     // TODO: use set to deduplicate right away?

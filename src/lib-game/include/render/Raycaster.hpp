@@ -47,8 +47,7 @@ public:
     float castRay(
         const sf::Vector2f& pos,
         const sf::Vector2f& dir,
-        const Level& map,
-        const dgm::SpatialBuffer<GameObject>& things,
+        const Scene& scene,
         bool leftmostRay,
         bool rightmostRay);
 
@@ -91,7 +90,7 @@ private:
         const sf::Vector2u& tile,
         const sf::Vector2f& pos,
         unsigned tileId,
-        const dgm::SpatialBuffer<GameObject>& things,
+        const dgm::SpatialBuffer<Entity>& things,
         const sf::Vector2f& voxelSize);
 
     void addCeilFlat(
@@ -120,7 +119,8 @@ private:
     std::vector<Flat> flats;
     VisitedFacesBitset visitedFaces;      // map resolution * four sides
     VisitedFacesBitset visitedUpperFaces; // map resolution * four sides
-    std::vector<decltype(Scene::things)::IndexListType::value_type> thingIds;
+    std::vector<decltype(Scene::spatialIndex)::IndexListType::value_type>
+        thingIds;
     std::bitset<MAX_LEVEL_WIDTH * MAX_LEVEL_HEIGHT>
         visitedFlats; // TODO: remove this
     std::bitset<MAX_LEVEL_WIDTH * MAX_LEVEL_HEIGHT> visitedFloors;

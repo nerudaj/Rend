@@ -1,8 +1,14 @@
 #pragma once
 
+#include <DGM/dgm.hpp>
+#include <core/Enums.hpp>
 #include <variant>
 
-struct DummyGameEvent
-{};
+struct PickablePickedUpGameEvent
+{
+    unsigned id;
 
-using GameEvent = std::variant<DummyGameEvent>;
+    PickablePickedUpGameEvent(unsigned id) : id(id) {}
+};
+
+using GameEvent = std::variant<PickablePickedUpGameEvent>;

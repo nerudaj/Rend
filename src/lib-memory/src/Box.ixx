@@ -25,8 +25,7 @@ export namespace mem
 		constexpr Box(Args&& ... args)
 		{
 			ptr = new T(std::forward<Args>(args)...);
-			[[unlikely]]
-			if (!ptr) throw std::bad_alloc();
+			if (!ptr) [[unlikely]] throw std::bad_alloc();
 		}
 
 		Box(std::nullptr_t) = delete;

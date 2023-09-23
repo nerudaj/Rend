@@ -15,12 +15,12 @@
     if (angle < std::numbers::pi_v<float> / 8.f)
         return { baseClipIndex, false };
     else if (angle < std::numbers::pi_v<float> * 3.f / 8.f)
-        return { baseClipIndex + 1, flip };
+        return { baseClipIndex + 1u, flip };
     else if (angle < std::numbers::pi_v<float> * 5.f / 8.f)
-        return { baseClipIndex + 2, flip };
+        return { baseClipIndex + 2u, flip };
     else if (angle < std::numbers::pi_v<float> * 7.f / 8.f)
-        return { baseClipIndex + 3, flip };
-    return { baseClipIndex + 4, false };
+        return { baseClipIndex + 3u, flip };
+    return { baseClipIndex + 4u, false };
 }
 
 RenderingEngine::RenderingEngine(
@@ -54,26 +54,20 @@ void RenderingEngine::renderHudTo(dgm::Window& window)
 
 void RenderingEngine::render2d(dgm::Window& window)
 {
-    const auto& player = std::get<Player>(scene.things[scene.playerId]);
+    const auto& player = scene.things[scene.playerId];
 
     // window.draw(context.level);
-    player.body.debugRender(window, sf::Color::Red);
+    player.hitbox.debugRender(window, sf::Color::Red);
 
     auto W = float(scene.level.bottomMesh.getVoxelSize().x);
-    auto pos = player.body.getPosition() / W;
+    auto pos = player.hitbox.getPosition() / W;
     auto plane = getPerpendicular(player.direction) * settings.FOV;
     caster.prepare();
     for (unsigned col = 0; col < settings.WIDTH; col++)
     {
         float cameraX = 2 * float(col) / settings.WIDTH - 1;
         auto&& rayDir = player.direction + plane * cameraX;
-        caster.castRay(
-            pos,
-            rayDir,
-            scene.level,
-            scene.things,
-            col == 0,
-            col == settings.WIDTH - 1);
+        caster.castRay(pos, rayDir, scene, col == 0, col == settings.WIDTH - 1);
     }
 
     auto&& lines = sf::VertexArray(sf::Lines);
@@ -91,8 +85,8 @@ void RenderingEngine::render2d(dgm::Window& window)
 void RenderingEngine::render3d(dgm::Window& window)
 {
     const auto W = float(scene.level.bottomMesh.getVoxelSize().x);
-    const auto& player = std::get<Player>(scene.things[scene.playerId]);
-    const auto pos = player.body.getPosition() / W;
+    const auto& player = scene.things[scene.playerId];
+    const auto pos = player.hitbox.getPosition() / W;
     const auto plane = getPerpendicular(player.direction) * settings.FOV;
 
     auto fireRay = [&](unsigned col)
@@ -100,12 +94,7 @@ void RenderingEngine::render3d(dgm::Window& window)
         float cameraX = 2 * float(col) / settings.WIDTH - 1;
         auto&& rayDir = player.direction + plane * cameraX;
         context.depthBuffer[col] = caster.castRay(
-            pos,
-            rayDir,
-            scene.level,
-            scene.things,
-            col == 0,
-            col == settings.WIDTH - 1);
+            pos, rayDir, scene, col == 0, col == settings.WIDTH - 1);
     };
 
     const float c = dgm::Math::getDotProduct(-player.direction, pos);
@@ -328,28 +317,22 @@ RenderingEngine::getFilteredAndOrderedThingsToRender(
         if (id == scene.playerId) [[unlikely]]
             continue;
 
-        std::visit(
-            [&](BaseObject& thing)
-            {
-                const auto& thingPosition = thing.body.getPosition() / W;
-                const auto [textureId, flipTexture] =
-                    thing.directionalSprite
-                        ? getRotatedSpriteClipId(
-                            cameraDirection,
-                            -thing.direction,
-                            static_cast<std::uint8_t>(thing.currentSpriteId))
-                        : std::pair { static_cast<std::uint8_t>(
-                                          thing.currentSpriteId),
-                                      false };
+        auto&& thing = scene.things[id];
+        const auto& thingPosition = thing.hitbox.getPosition() / W;
+        const auto [textureId, flipTexture] =
+            isDirectional(thing.typeId)
+                ? getRotatedSpriteClipId(
+                    cameraDirection,
+                    -thing.direction,
+                    static_cast<std::uint8_t>(thing.spriteClipIndex))
+                : std::pair { static_cast<std::uint8_t>(thing.spriteClipIndex),
+                              false };
 
-                result.push_back(ThingToRender {
-                    .distance =
-                        dgm::Math::getSize(thingPosition - cameraPosition),
-                    .center = thingPosition,
-                    .textureId = textureId,
-                    .flipTexture = flipTexture });
-            },
-            scene.things[id]);
+        result.push_back(ThingToRender {
+            .distance = dgm::Math::getSize(thingPosition - cameraPosition),
+            .center = thingPosition,
+            .textureId = textureId,
+            .flipTexture = flipTexture });
     }
 
     std::sort(

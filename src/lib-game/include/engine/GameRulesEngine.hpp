@@ -10,13 +10,17 @@ public:
     [[nodiscard]] GameRulesEngine(Scene& scene) noexcept : scene(scene) {}
 
 public: // Must visit on all related events
-    void operator()(const DummyGameEvent&) {}
+    void operator()(const PickablePickedUpGameEvent&);
 
 public:
     void update(const dgm::Time& time);
 
 private:
-    void give(Player& actor, PickupId pickup);
+    void
+    handleGrabbedPickable(Entity grabber, Entity pickup, unsigned pickupId);
+
+    /// <returns>True if thing was succesfully given</returns>
+    bool give(Entity& thing, EntityType pickupId);
 
 private:
     Scene& scene;
