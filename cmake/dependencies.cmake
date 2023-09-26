@@ -168,3 +168,10 @@ target_link_libraries ( Dep_dgm_fsm INTERFACE ${LIB_DGM_FSM} )
 add_library ( Dep_tgui INTERFACE )
 target_include_directories ( Dep_tgui INTERFACE "${TGUI_FOLDER}/include" )
 target_link_libraries ( Dep_tgui INTERFACE ${LIB_TGUI} )
+
+add_library ( Dep_json INTERFACE )
+target_include_directories ( Dep_json INTERFACE "${JSON_FOLDER}/include" )
+
+add_library ( Dep_opts INTERFACE )
+target_include_directories ( Dep_opts INTERFACE "${CXXOPTS_FOLDER}/include" )
+
