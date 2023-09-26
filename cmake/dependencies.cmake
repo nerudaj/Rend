@@ -148,3 +148,23 @@ find_library ( LIB_TGUI_R "tgui" NAMES "tgui.lib" HINTS "${TGUI_FOLDER}/lib" )
 
 set ( LIB_TGUI optimized ${LIB_TGUI_R} debug ${LIB_TGUI_D} )
 message ( "OK" )
+
+add_library ( Dep_sfml INTERFACE )
+target_include_directories ( Dep_sfml INTERFACE "${SFML_FOLDER}/include" )
+target_link_libraries ( Dep_sfml INTERFACE ${LIB_SFML} )
+
+add_library ( Dep_lvd INTERFACE )
+target_include_directories ( Dep_lvd INTERFACE "{DSH_FOLDER}/include" )
+target_link_libraries ( Dep_lvd INTERFACE ${LIB_LVLD} )
+
+add_library ( Dep_dgm INTERFACE )
+target_include_directories ( Dep_dgm INTERFACE "${DGM_FOLDER}/include" )
+target_link_libraries ( Dep_dgm INTERFACE ${LIB_DGM} Dep_sfml Dep_lvd xinput.lib )
+
+add_library ( Dep_dgm_fsm INTERFACE )
+target_include_directories ( Dep_dgm_fsm INTERFACE "${DGM_FSM_FOLDER}/include" )
+target_link_libraries ( Dep_dgm_fsm INTERFACE ${LIB_DGM_FSM} )
+
+add_library ( Dep_tgui INTERFACE )
+target_include_directories ( Dep_tgui INTERFACE "${TGUI_FOLDER}/include" )
+target_link_libraries ( Dep_tgui INTERFACE ${LIB_TGUI} )
