@@ -12,14 +12,12 @@ add_executable ( ${PROJECT_NAME} WIN32
 	"${CMAKE_CURRENT_SOURCE_DIR}/.clang-format"
 )
 
-target_link_libraries ( ${PROJECT_NAME}
-	lib-app
-)
-
 target_include_directories ( ${PROJECT_NAME}
 	PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include"
-	PRIVATE "${JSON_FOLDER}/include"
-	PRIVATE "${CXXOPTS_FOLDER}/include"
+)
+
+target_link_libraries ( ${PROJECT_NAME}
+	lib-app Dep_opts
 )
 
 set_target_properties ( ${PROJECT_NAME} PROPERTIES
