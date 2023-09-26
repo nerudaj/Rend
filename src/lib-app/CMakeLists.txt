@@ -16,12 +16,11 @@ add_library ( ${PROJECT_NAME} STATIC
 )
 
 target_include_directories ( ${PROJECT_NAME}
-	PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include"
-	PUBLIC "${TGUI_FOLDER}/include"
+	PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include
 )
 
 target_link_libraries ( ${PROJECT_NAME}
-	lib-game
+	lib-game Dep_tgui
 )
 
 autoset_target_compile_options ( ${PROJECT_NAME} FALSE )
