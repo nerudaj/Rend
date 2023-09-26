@@ -15,13 +15,13 @@ struct Entity
     sf::Vector2f direction = NULL_VECTOR;
 
     // player stuff
-    short inputId = 0;
-    short health = 0;
-    short armor = 0;
-    short bulletCount = 0;
-    short shellCount = 0;
-    short energyCount = 0;
-    short rocketCount = 0;
+    int inputId = 0;
+    int health = 0;
+    int armor = 0;
+    int bulletCount = 0;
+    int shellCount = 0;
+    int energyCount = 0;
+    int rocketCount = 0;
 };
 
 struct Level
@@ -58,7 +58,7 @@ struct Scene
     std::array<SimpleController, MAX_PLAYER_COUNT> inputs;
     std::vector<sf::Vector2f> spawns;
     std::string mapname;
-    unsigned playerId = 0;
+    std::size_t playerId = 0;
 
     [[nodiscard]] static Scene buildScene(
         const dgm::ResourceManager& resmgr,

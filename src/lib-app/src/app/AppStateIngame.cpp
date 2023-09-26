@@ -33,10 +33,8 @@ void AppStateIngame::update()
     FrameState stateToBackup;
     snapshotInputs(stateToBackup);
 
-    if (stateBuffer.getSize() > 0) [[likely]]
-    {
-        simulateFrameFromState(stateBuffer.last());
-    }
+    for (unsigned i = 0; i < stateBuffer.getSize(); i++)
+        simulateFrameFromState(stateBuffer[i]);
 
     backupState(std::move(stateToBackup));
 }
@@ -140,7 +138,7 @@ AppStateIngame::AppStateIngame(
         Direction { sf::Vector2f { 1.f, 0.f } },
         0));
 
-    for (unsigned i = 1; i < MAX_PLAYER_COUNT; i++)
+    for (short i = 1; i < MAX_PLAYER_COUNT; i++)
     {
         scene.things.emplaceBack(Scene::createPlayer(
             Position { scene.spawns[i] },

@@ -9,7 +9,7 @@
 {
     const float angle =
         std::acos(cameraDir.x * thingDir.x + cameraDir.y * thingDir.y);
-    const float flip =
+    const bool flip =
         (-cameraDir.y * thingDir.x + cameraDir.x * thingDir.y) > 0.f;
 
     if (angle < std::numbers::pi_v<float> / 8.f)

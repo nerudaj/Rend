@@ -75,7 +75,7 @@ void GuiState::createButtonListInLayout(
 
     if (textAutoSize)
     {
-        unsigned minTextSize = -1;
+        unsigned minTextSize = std::numeric_limits<unsigned>::max();
 
         // In first pass, loop over all buttons and get their font sizes
         // (already sanitized to correct value) Find the smallest value

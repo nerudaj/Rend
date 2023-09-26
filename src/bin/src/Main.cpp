@@ -1,5 +1,4 @@
 #include "Loader.hpp"
-#include <Config.hpp>
 #include <DGM/dgm.hpp>
 #include <Settings.hpp>
 #include <app/AppStateMainMenu.hpp>

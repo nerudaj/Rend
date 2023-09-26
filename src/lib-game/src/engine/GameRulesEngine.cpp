@@ -31,7 +31,7 @@ void GameRulesEngine::update(const dgm::Time&)
 }
 
 void GameRulesEngine::handleGrabbedPickable(
-    Entity grabber, Entity pickup, unsigned pickupId)
+    Entity grabber, Entity pickup, std::size_t pickupId)
 {
     if (give(grabber, pickup.typeId) && !isWeaponPickable(pickup.typeId))
     {
