@@ -22,6 +22,7 @@ struct Entity
     int shellCount = 0;
     int energyCount = 0;
     int rocketCount = 0;
+    float fireCooldown = 0.f;
 };
 
 struct Level
@@ -52,6 +53,7 @@ struct Scene
     dgm::Camera worldCamera;
     dgm::Camera hudCamera;
 
+    std::size_t frameId = 0;
     dgm::DynamicBuffer<Entity> things;
     Level level;
     dgm::SpatialBuffer<Entity> spatialIndex;
@@ -69,6 +71,12 @@ struct Scene
         const Position& position,
         const Direction& lookDirection,
         short inputId);
+
+    [[nodiscard]] static Entity createProjectile(
+        EntityType type, const Position& position, const Direction& direction);
+
+    [[nodiscard]] static Entity
+    createEffect(SpriteId spriteClipIndex, const Position& position);
 };
 
 // TODO: move somewhere else

@@ -154,7 +154,7 @@ target_include_directories ( Dep_sfml INTERFACE "${SFML_FOLDER}/include" )
 target_link_libraries ( Dep_sfml INTERFACE ${LIB_SFML} )
 
 add_library ( Dep_lvd INTERFACE )
-target_include_directories ( Dep_lvd INTERFACE "{DSH_FOLDER}/include" )
+target_include_directories ( Dep_lvd INTERFACE "${DSH_FOLDER}/include" )
 target_link_libraries ( Dep_lvd INTERFACE ${LIB_LVLD} )
 
 add_library ( Dep_dgm INTERFACE )

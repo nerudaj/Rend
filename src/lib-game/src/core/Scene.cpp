@@ -167,3 +167,19 @@ Entity Scene::createPlayer(
                     .energyCount = PLAYER_INITIAL_NONBULLET_AMMO,
                     .rocketCount = PLAYER_INITIAL_NONBULLET_AMMO };
 }
+
+Entity Scene::createProjectile(
+    EntityType type, const Position& position, const Direction& direction)
+{
+    return Entity { .typeId = type,
+                    .spriteClipIndex = SpriteId::RocketA0,
+                    .hitbox = dgm::Circle(position.value, PX2_RADIUS),
+                    .direction = direction.value };
+}
+
+Entity Scene::createEffect(SpriteId spriteClipIndex, const Position& position)
+{
+    return Entity { .typeId = EntityType::EffectClip,
+                    .spriteClipIndex = spriteClipIndex,
+                    .hitbox = dgm::Circle(position.value, EXPLOSION_RADIUS) };
+}

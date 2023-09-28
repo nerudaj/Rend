@@ -1,5 +1,6 @@
 #pragma once
 
+#include "AnimationEvents.hpp"
 #include "AudioEvents.hpp"
 #include "GameRuleEvents.hpp"
 #include "PhysicsEvents.hpp"
@@ -19,7 +20,11 @@ public:
     template<class T, class... Args>
     constexpr inline static void add(Args&&... args)
     {
-        if constexpr (isTypeInVariant<T>(audioEvents))
+        if constexpr (isTypeInVariant<T>(animationEvents))
+        {
+            animationEvents.emplace_back<T>(std::forward<Args>(args)...);
+        }
+        else if constexpr (isTypeInVariant<T>(audioEvents))
         {
             audioEvents.emplace_back<T>(std::forward<Args>(args)...);
         }
@@ -40,6 +45,10 @@ public:
     template<class EventType, class Visitor>
     constexpr inline static void processEvents(Visitor& visitor)
     {
+        if constexpr (std::is_same_v<EventType, AnimationEvent>)
+        {
+            visit(visitor, animationEvents);
+        }
         if constexpr (std::is_same_v<EventType, AudioEvent>)
         {
             visit(visitor, audioEvents);
@@ -68,12 +77,15 @@ private:
 
     constexpr inline static void visit(auto&& visitor, auto& events)
     {
-        for (auto&& event : events)
-            std::visit(visitor, event);
+        for (unsigned i = 0; i < events.size(); i++)
+        {
+            std::visit(visitor, events[i]);
+        }
         events.clear();
     }
 
 public:
+    static inline std::vector<AnimationEvent> animationEvents;
     static inline std::vector<AudioEvent> audioEvents;
     static inline std::vector<GameEvent> gameEvents;
     static inline std::vector<PhysicsEvent> physicsEvents;

@@ -13,6 +13,11 @@ public:
         input = std::forward<decltype(schema)>(schema);
     }
 
+    [[nodiscard]] constexpr bool isShooting() const override
+    {
+        return input.shooting;
+    }
+
     [[nodiscard]] constexpr float getThrust() const override
     {
         return input.thrust;

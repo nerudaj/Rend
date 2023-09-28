@@ -2,6 +2,7 @@
 
 #include "Settings.hpp"
 #include "audio/AudioPlayer.hpp"
+#include "engine/AnimationEngine.hpp"
 #include "engine/AudioEngine.hpp"
 #include "engine/GameRulesEngine.hpp"
 #include "engine/PhysicsEngine.hpp"
@@ -41,6 +42,7 @@ public:
 private:
     struct FrameState
     {
+        std::size_t frameId = 0;
         dgm::DynamicBuffer<Entity> things;
         InputSchema inputs[MAX_PLAYER_COUNT];
     };
@@ -48,9 +50,9 @@ private:
     void snapshotInputs(FrameState& state);
     void simulateFrameFromState(const FrameState& state);
     void restoreState(const FrameState& state);
-    void runEnginesUpdate();
+    void updateEngines();
     void processEvents();
-    void backupState(FrameState&& state);
+    void backupState(FrameState& state);
 
 protected:
     mem::Rc<const dgm::ResourceManager> resmgr;
@@ -62,9 +64,11 @@ protected:
 
     Scene scene;
     RoundRobinBuffer<FrameState, 10> stateBuffer;
+    AnimationEngine animationEngine;
     AudioEngine audioEngine;
     GameRulesEngine gameRulesEngine;
     PhysicsEngine physicsEngine;
     RenderingEngine renderingEngine;
     std::array<mem::Box<ControllerInterface>, MAX_PLAYER_COUNT> inputs;
+    std::ofstream demoStream;
 };

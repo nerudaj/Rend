@@ -318,6 +318,9 @@ RenderingEngine::getFilteredAndOrderedThingsToRender(
             continue;
 
         auto&& thing = scene.things[id];
+
+        if (!isDrawable(thing.typeId)) continue;
+
         const auto& thingPosition = thing.hitbox.getPosition() / W;
         const auto [textureId, flipTexture] =
             isDirectional(thing.typeId)

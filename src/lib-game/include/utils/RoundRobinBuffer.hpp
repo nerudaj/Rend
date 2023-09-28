@@ -37,6 +37,11 @@ public:
         return C;
     }
 
+    [[nodiscard]] constexpr bool isEmpty() const noexcept
+    {
+        return getSize() == 0u;
+    }
+
 private:
     unsigned endIndex = 0;
     unsigned used = 0;

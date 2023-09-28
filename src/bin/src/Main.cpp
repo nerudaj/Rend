@@ -61,6 +61,8 @@ int main(int argc, char* argv[])
     };
 
     dgm::Window window(windowSettings);
+    window.getWindowContext().setFramerateLimit(60);
+
     dgm::App app(window);
     auto&& gui = mem::Rc<tgui::Gui>();
     gui->setTarget(window.getWindowContext());

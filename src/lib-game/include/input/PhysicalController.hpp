@@ -1,9 +1,10 @@
 #pragma once
 
-#include <input/ControllerInterface.hpp>
 #include <DGM/dgm.hpp>
+#include <input/ControllerInterface.hpp>
 
-class PhysicalController : public ControllerInterface {
+class PhysicalController : public ControllerInterface
+{
 public:
     enum InputCode
     {
@@ -12,13 +13,16 @@ public:
         StrafeLeft,
         StrafeRight,
         TurnLeft,
-        TurnRight
+        TurnRight,
+        Shoot
     };
 
 public:
     PhysicalController();
 
 public:
+    bool isShooting() const override;
+
     float getThrust() const override;
 
     float getSidewardThrust() const override;

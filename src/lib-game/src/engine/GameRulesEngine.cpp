@@ -6,7 +6,63 @@ void GameRulesEngine::operator()(const PickablePickedUpGameEvent& e)
     scene.things.eraseAtIndex(e.id);
 }
 
-void GameRulesEngine::update(const dgm::Time&)
+void GameRulesEngine::operator()(const ProjectileCreatedGameEvent& e)
+{
+    scene.things.emplaceBack(Scene::createProjectile(
+        e.type, Position { e.position }, Direction { e.direction }));
+}
+
+void GameRulesEngine::operator()(const ProjectileDestroyedGameEvent& e)
+{
+    auto&& projectileHitbox = scene.things[e.entityIndex].hitbox;
+    const auto&& explosionHitbox =
+        dgm::Circle(projectileHitbox.getPosition(), EXPLOSION_RADIUS);
+
+    // Delete projectile
+    scene.spatialIndex.removeFromLookup(e.entityIndex, projectileHitbox);
+    scene.things.eraseAtIndex(e.entityIndex);
+
+    // Damage all destructibles in vicinity
+    for (auto&& [candidateId, candidate] :
+         getOverlapCandidates(explosionHitbox))
+    {
+        if (isDestructible(candidate.typeId)
+            && dgm::Collision::basic(explosionHitbox, candidate.hitbox))
+        {
+            damage(candidate, candidateId, ROCKET_DAMAGE);
+        }
+    }
+
+    // Spawn explosion effect
+    scene.things.emplaceBack(Scene::createEffect(
+        SpriteId::ExplosionA, Position { explosionHitbox.getPosition() }));
+}
+
+void GameRulesEngine::operator()(const EntityDestroyedGameEvent& e)
+{
+    auto&& thing = scene.things[e.entityIndex];
+    const bool playerWasDestroyed = thing.typeId == EntityType::Player;
+
+    if (playerWasDestroyed)
+    {
+        scene.things.emplaceBack(Scene::createEffect(
+            SpriteId::DeathA, Position { thing.hitbox.getPosition() }));
+
+        auto idx = scene.things.emplaceBack(
+            Entity { .typeId = EntityType::MarkerDeadPlayer,
+                     .spriteClipIndex = SpriteId::NoRender,
+                     .hitbox = thing.hitbox,
+                     .direction = thing.direction,
+                     .inputId = thing.inputId });
+
+        if (scene.playerId == e.entityIndex) scene.playerId = idx;
+    }
+
+    scene.spatialIndex.removeFromLookup(e.entityIndex, thing.hitbox);
+    scene.things.eraseAtIndex(e.entityIndex);
+}
+
+void GameRulesEngine::update(const dgm::Time& time)
 {
     for (auto&& [thing, id] : scene.things)
     {
@@ -14,11 +70,9 @@ void GameRulesEngine::update(const dgm::Time&)
 
         scene.spatialIndex.removeFromLookup(id, thing.hitbox);
 
-        auto&& candidates =
-            scene.spatialIndex.getOverlapCandidates(thing.hitbox);
-        for (auto&& candidateId : candidates)
+        for (auto&& [candidateId, candidate] :
+             getOverlapCandidates(thing.hitbox))
         {
-            auto&& candidate = scene.things[candidateId];
             if (isPickable(candidate.typeId)
                 && dgm::Collision::basic(thing.hitbox, candidate.hitbox))
             {
@@ -27,6 +81,19 @@ void GameRulesEngine::update(const dgm::Time&)
         }
 
         scene.spatialIndex.returnToLookup(id, thing.hitbox);
+
+        if (thing.fireCooldown > 0.f)
+            thing.fireCooldown -= time.getDeltaTime();
+        else if (scene.inputs[thing.inputId].isShooting())
+        {
+            thing.fireCooldown = WEAPON_LAUNCHER_COOLDOWN;
+            EventQueue::add<ProjectileCreatedGameEvent>(
+                ProjectileCreatedGameEvent(
+                    EntityType::ProjectileRocket,
+                    thing.hitbox.getPosition()
+                        + thing.direction * thing.hitbox.getRadius() * 2.f,
+                    thing.direction));
+        }
     }
 }
 
@@ -88,4 +155,19 @@ bool GameRulesEngine::give(Entity& thing, EntityType pickupId)
     }
 
     return true;
+}
+
+void GameRulesEngine::damage(Entity& thing, std::size_t thingIndex, int damage)
+{
+    // TODO: max 2/3 of armor above 100?
+    // Max 1/3 of the damage can be absorbed by the armor
+    int amountAbsorbedByArmor = std::min(thing.armor, damage / 3);
+    thing.armor -= amountAbsorbedByArmor;
+    damage -= amountAbsorbedByArmor;
+
+    thing.health -= damage;
+    if (thing.health <= 0)
+    {
+        EventQueue::add<EntityDestroyedGameEvent>(thingIndex);
+    }
 }

@@ -30,13 +30,34 @@ void AppStateIngame::input()
 
 void AppStateIngame::update()
 {
-    FrameState stateToBackup;
-    snapshotInputs(stateToBackup);
+    if (stateBuffer.getSize() == 0u)
+    {
+        stateBuffer.pushBack(
+            FrameState { .frameId = 0, .things = scene.things.clone() });
+        snapshotInputs(stateBuffer.last());
+        return;
+    }
 
-    for (unsigned i = 0; i < stateBuffer.getSize(); i++)
-        simulateFrameFromState(stateBuffer[i]);
+    stateBuffer.pushBack(FrameState {});
+    snapshotInputs(stateBuffer.last());
 
-    backupState(std::move(stateToBackup));
+    unsigned howMuchToUnroll = 2u; // Can be more, based on network latency
+    unsigned startIndex =
+        stateBuffer.isEmpty() ? 0u : stateBuffer.getSize() - howMuchToUnroll;
+    // Excluding state pushed back earlier - that is the next
+    // frame
+    unsigned endIndex = stateBuffer.isEmpty() ? 0u : stateBuffer.getSize() - 1u;
+    for (unsigned i = startIndex; i < endIndex; ++i)
+    {
+        auto&& state = stateBuffer[i];
+        restoreState(state);
+        updateEngines();
+        processEvents();
+        ++scene.frameId; // advancing frame
+        // Write the resulting simulated state into the next
+        // frame
+        backupState(stateBuffer[i + 1u]);
+    }
 }
 
 void AppStateIngame::draw()
@@ -54,23 +75,22 @@ void AppStateIngame::snapshotInputs(FrameState& state)
 {
     for (unsigned i = 0; i < MAX_PLAYER_COUNT; i++)
     {
-        state.inputs[i] = InputSchema {
-            .thrust = inputs[i]->getThrust(),
-            .sidewardThrust = inputs[i]->getSidewardThrust(),
-            .steer = inputs[i]->getSteer(),
-        };
+        state.inputs[i] = inputs[i]->getSnapshot();
     }
+
+    demoStream << nlohmann::json(state.inputs[0]).dump() << "\n";
 }
 
 void AppStateIngame::simulateFrameFromState(const FrameState& state)
 {
     restoreState(state);
-    runEnginesUpdate();
+    updateEngines();
     processEvents();
 }
 
 void AppStateIngame::restoreState(const FrameState& state)
 {
+    scene.frameId = state.frameId;
     scene.things = state.things.clone(); // restore things
     for (unsigned i = 0; i < MAX_PLAYER_COUNT; i++)
     {
@@ -84,26 +104,33 @@ void AppStateIngame::restoreState(const FrameState& state)
         scene.spatialIndex.returnToLookup(id, thing.hitbox);
 }
 
-void AppStateIngame::runEnginesUpdate()
+void AppStateIngame::updateEngines()
 {
+    animationEngine.update(app.time);
     audioEngine.update(app.time);
-    physicsEngine.update(app.time);
+    physicsEngine.update(app.time.getDeltaTime());
     gameRulesEngine.update(app.time);
     renderingEngine.update(app.time);
 }
 
 void AppStateIngame::processEvents()
 {
-    EventQueue::processEvents<AudioEvent>(audioEngine);
+    // Animation, Physics and Game can produce GameEvent
+    EventQueue::processEvents<AnimationEvent>(animationEngine);
     EventQueue::processEvents<PhysicsEvent>(physicsEngine);
     EventQueue::processEvents<GameEvent>(gameRulesEngine);
+
+    // Audio can only produce Audio events
+    EventQueue::processEvents<AudioEvent>(audioEngine);
+
+    // Rendering can only produce Rendering events
     EventQueue::processEvents<RenderingEvent>(renderingEngine);
 }
 
-void AppStateIngame::backupState(FrameState&& state)
+void AppStateIngame::backupState(FrameState& state)
 {
+    state.frameId = scene.frameId;
     state.things = scene.things.clone();
-    stateBuffer.pushBack(std::move(state));
 }
 
 AppStateIngame::AppStateIngame(
@@ -119,6 +146,7 @@ AppStateIngame::AppStateIngame(
     , audioPlayer(_audioPlayer)
     , GAME_RESOLUTION(sf::Vector2f(app.window.getSize()))
     , scene(Scene::buildScene(*resmgr, GAME_RESOLUTION, *settings))
+    , animationEngine(scene)
     , audioEngine(resmgr, audioPlayer)
     , gameRulesEngine(scene)
     , physicsEngine(scene)
@@ -129,6 +157,7 @@ AppStateIngame::AppStateIngame(
           mem::Box<NullController>(),
           mem::Box<NullController>(),
       })
+    , demoStream(settings->cmdSettings.demoFile, std::ios_base::trunc)
 {
     scene.worldCamera.setPosition(GAME_RESOLUTION / 2.f);
     scene.hudCamera.setPosition(GAME_RESOLUTION / 2.f);
