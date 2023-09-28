@@ -31,8 +31,10 @@ struct RenderContext
     DrawableLevel level;
     const sf::Texture& tilesetTexture;
     const sf::Texture& spritesheetTexture;
+    const sf::Texture& weaponHudTexture;
     dgm::Clip tilesetClipping;
     dgm::Clip spritesheetClipping;
+    dgm::Clip weaponHudClipping;
     const sf::Shader& shader;
     std::vector<float> depthBuffer;
 

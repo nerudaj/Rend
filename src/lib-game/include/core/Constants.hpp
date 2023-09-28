@@ -57,7 +57,7 @@ const float PROJECTILE_FORWARD_SPEED = 108.f;
 const int ROCKET_DAMAGE = 150;
 
 // Other
-const std::size_t ANIMATION_FPS = 2;
+const std::size_t ANIMATION_FPS = 60 / 4; // four updates per second
 const unsigned MAX_LEVEL_WIDTH = 32;
 const unsigned MAX_LEVEL_HEIGHT = 32;
 const unsigned MAX_PLAYER_COUNT = 4;

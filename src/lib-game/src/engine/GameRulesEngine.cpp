@@ -3,7 +3,7 @@
 
 void GameRulesEngine::operator()(const PickablePickedUpGameEvent& e)
 {
-    scene.things.eraseAtIndex(e.id);
+    removeEntity(e.entityIndex);
 }
 
 void GameRulesEngine::operator()(const ProjectileCreatedGameEvent& e)
@@ -14,13 +14,11 @@ void GameRulesEngine::operator()(const ProjectileCreatedGameEvent& e)
 
 void GameRulesEngine::operator()(const ProjectileDestroyedGameEvent& e)
 {
-    auto&& projectileHitbox = scene.things[e.entityIndex].hitbox;
-    const auto&& explosionHitbox =
-        dgm::Circle(projectileHitbox.getPosition(), EXPLOSION_RADIUS);
+    const auto&& explosionHitbox = dgm::Circle(
+        scene.things[e.entityIndex].hitbox.getPosition(), EXPLOSION_RADIUS);
 
     // Delete projectile
-    scene.spatialIndex.removeFromLookup(e.entityIndex, projectileHitbox);
-    scene.things.eraseAtIndex(e.entityIndex);
+    removeEntity(e.entityIndex);
 
     // Damage all destructibles in vicinity
     for (auto&& [candidateId, candidate] :
@@ -40,7 +38,7 @@ void GameRulesEngine::operator()(const ProjectileDestroyedGameEvent& e)
 
 void GameRulesEngine::operator()(const EntityDestroyedGameEvent& e)
 {
-    auto&& thing = scene.things[e.entityIndex];
+    const auto thing = scene.things[e.entityIndex];
     const bool playerWasDestroyed = thing.typeId == EntityType::Player;
 
     if (playerWasDestroyed)
@@ -58,42 +56,76 @@ void GameRulesEngine::operator()(const EntityDestroyedGameEvent& e)
         if (scene.playerId == e.entityIndex) scene.playerId = idx;
     }
 
-    scene.spatialIndex.removeFromLookup(e.entityIndex, thing.hitbox);
-    scene.things.eraseAtIndex(e.entityIndex);
+    removeEntity(e.entityIndex);
+}
+
+void GameRulesEngine::operator()(const PlayerRespawnedGameEvent& e)
+{
+    const auto thing = scene.things[e.entityIndex];
+
+    // TODO: pick ideal spawn
+    // TODO: pick ideal direction
+    auto idx = scene.things.emplaceBack(Scene::createPlayer(
+        Position { scene.spawns[0] },
+        Direction { sf::Vector2 { 1.f, 0.f } },
+        thing.inputId));
+
+    if (e.entityIndex == scene.playerId) scene.playerId = idx;
+
+    removeEntity(e.entityIndex);
 }
 
 void GameRulesEngine::update(const dgm::Time& time)
 {
     for (auto&& [thing, id] : scene.things)
     {
-        if (thing.typeId != EntityType::Player) continue;
-
-        scene.spatialIndex.removeFromLookup(id, thing.hitbox);
-
-        for (auto&& [candidateId, candidate] :
-             getOverlapCandidates(thing.hitbox))
+        switch (thing.typeId)
         {
-            if (isPickable(candidate.typeId)
-                && dgm::Collision::basic(thing.hitbox, candidate.hitbox))
-            {
-                handleGrabbedPickable(thing, candidate, candidateId);
-            }
+        case EntityType::Player:
+            handlePlayer(thing, id, time);
+            break;
+        case EntityType::MarkerDeadPlayer:
+            handleDeadPlayer(thing, id);
+            break;
+        default:
+            break;
         }
+    }
+}
 
-        scene.spatialIndex.returnToLookup(id, thing.hitbox);
+void GameRulesEngine::handlePlayer(
+    Entity& thing, std::size_t id, const dgm::Time& time)
+{
+    scene.spatialIndex.removeFromLookup(id, thing.hitbox);
 
-        if (thing.fireCooldown > 0.f)
-            thing.fireCooldown -= time.getDeltaTime();
-        else if (scene.inputs[thing.inputId].isShooting())
+    for (auto&& [candidateId, candidate] : getOverlapCandidates(thing.hitbox))
+    {
+        if (isPickable(candidate.typeId)
+            && dgm::Collision::basic(thing.hitbox, candidate.hitbox))
         {
-            thing.fireCooldown = WEAPON_LAUNCHER_COOLDOWN;
-            EventQueue::add<ProjectileCreatedGameEvent>(
-                ProjectileCreatedGameEvent(
-                    EntityType::ProjectileRocket,
-                    thing.hitbox.getPosition()
-                        + thing.direction * thing.hitbox.getRadius() * 2.f,
-                    thing.direction));
+            handleGrabbedPickable(thing, candidate, candidateId);
         }
+    }
+
+    scene.spatialIndex.returnToLookup(id, thing.hitbox);
+
+    if (thing.fireCooldown > 0.f)
+        thing.fireCooldown -= time.getDeltaTime();
+    else if (scene.inputs[thing.inputId].isShooting())
+    {
+        thing.fireCooldown = WEAPON_LAUNCHER_COOLDOWN;
+        auto position = thing.hitbox.getPosition()
+                        + thing.direction * thing.hitbox.getRadius() * 2.f;
+        EventQueue::add<ProjectileCreatedGameEvent>(ProjectileCreatedGameEvent(
+            EntityType::ProjectileRocket, position, thing.direction));
+    }
+}
+
+void GameRulesEngine::handleDeadPlayer(Entity& thing, std::size_t id)
+{
+    if (scene.inputs[thing.inputId].isShooting())
+    {
+        EventQueue::add<PlayerRespawnedGameEvent>(id);
     }
 }
 
@@ -103,7 +135,6 @@ void GameRulesEngine::handleGrabbedPickable(
     if (give(grabber, pickup.typeId) && !isWeaponPickable(pickup.typeId))
     {
         EventQueue::add<PickablePickedUpGameEvent>(pickupId);
-        scene.spatialIndex.removeFromLookup(pickupId, pickup.hitbox);
     }
 }
 
@@ -170,4 +201,10 @@ void GameRulesEngine::damage(Entity& thing, std::size_t thingIndex, int damage)
     {
         EventQueue::add<EntityDestroyedGameEvent>(thingIndex);
     }
+}
+
+void GameRulesEngine::removeEntity(std::size_t index)
+{
+    scene.spatialIndex.removeFromLookup(index, scene.things[index].hitbox);
+    scene.things.eraseAtIndex(index);
 }

@@ -23,6 +23,11 @@ struct Entity
     int energyCount = 0;
     int rocketCount = 0;
     float fireCooldown = 0.f;
+
+    AnimationId animationStateId;
+    std::size_t animationFrameIndex;
+    std::size_t
+        lastAnimationUpdate; // number of frames since last animation update
 };
 
 struct Level

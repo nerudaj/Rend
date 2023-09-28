@@ -6,9 +6,12 @@
 
 struct PickablePickedUpGameEvent
 {
-    unsigned id;
+    std::size_t entityIndex;
 
-    PickablePickedUpGameEvent(unsigned id) : id(id) {}
+    PickablePickedUpGameEvent(std::size_t entityIndex)
+        : entityIndex(entityIndex)
+    {
+    }
 };
 
 struct ProjectileCreatedGameEvent
@@ -45,8 +48,18 @@ struct EntityDestroyedGameEvent
     }
 };
 
+struct PlayerRespawnedGameEvent
+{
+    std::size_t entityIndex;
+
+    PlayerRespawnedGameEvent(std::size_t entityIndex) : entityIndex(entityIndex)
+    {
+    }
+};
+
 using GameEvent = std::variant<
     PickablePickedUpGameEvent,
     ProjectileCreatedGameEvent,
     ProjectileDestroyedGameEvent,
-    EntityDestroyedGameEvent>;
+    EntityDestroyedGameEvent,
+    PlayerRespawnedGameEvent>;

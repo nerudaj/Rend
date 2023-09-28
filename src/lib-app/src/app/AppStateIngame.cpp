@@ -78,7 +78,16 @@ void AppStateIngame::snapshotInputs(FrameState& state)
         state.inputs[i] = inputs[i]->getSnapshot();
     }
 
-    demoStream << nlohmann::json(state.inputs[0]).dump() << "\n";
+    if (settings->cmdSettings.playDemo)
+    {
+        std::string line;
+        std::getline(demoStream, line);
+        state.inputs[0] = nlohmann::json::parse(line);
+    }
+    else
+    {
+        demoStream << nlohmann::json(state.inputs[0]).dump() << "\n";
+    }
 }
 
 void AppStateIngame::simulateFrameFromState(const FrameState& state)
@@ -125,6 +134,13 @@ void AppStateIngame::processEvents()
 
     // Rendering can only produce Rendering events
     EventQueue::processEvents<RenderingEvent>(renderingEngine);
+
+    // No events should be unprocessed
+    assert(EventQueue::animationEvents.empty());
+    assert(EventQueue::audioEvents.empty());
+    assert(EventQueue::gameEvents.empty());
+    assert(EventQueue::physicsEvents.empty());
+    assert(EventQueue::renderingEvents.empty());
 }
 
 void AppStateIngame::backupState(FrameState& state)
@@ -157,7 +173,10 @@ AppStateIngame::AppStateIngame(
           mem::Box<NullController>(),
           mem::Box<NullController>(),
       })
-    , demoStream(settings->cmdSettings.demoFile, std::ios_base::trunc)
+    , demoStream(
+          settings->cmdSettings.demoFile,
+          settings->cmdSettings.playDemo ? std::ios_base::in
+                                         : std::ios_base::trunc)
 {
     scene.worldCamera.setPosition(GAME_RESOLUTION / 2.f);
     scene.hudCamera.setPosition(GAME_RESOLUTION / 2.f);

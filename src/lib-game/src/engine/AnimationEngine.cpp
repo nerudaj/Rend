@@ -4,6 +4,13 @@
 
 using AnimationClip = std::vector<SpriteId>;
 
+struct AnimationState
+{
+    AnimationClip clip;
+    std::size_t updateFrequency; // how many frames pass before next update
+    AnimationStateId transition;
+};
+
 static std::map<SpriteId, SpriteId>
 buildAnimationTransitions(const std::vector<AnimationClip>& clips)
 {
@@ -23,19 +30,21 @@ buildAnimationTransitions(const std::vector<AnimationClip>& clips)
 }
 
 using enum SpriteId;
-const auto&& ANIMATION_TRANSITIONS =
-    buildAnimationTransitions({ { ExplosionA,
-                                  ExplosionB,
-                                  ExplosionC,
-                                  ExplosionD,
-                                  ExplosionE,
-                                  ExplosionF,
-                                  MarkerDestroy },
-                                { RocketA0, RocketB0, RocketA0 },
-                                { DeathA, DeathB, DeathC, DeathD, DeathD } });
+const auto&& ANIMATION_TRANSITIONS = buildAnimationTransitions(
+    { { ExplosionA,
+        ExplosionB,
+        ExplosionC,
+        ExplosionD,
+        ExplosionE,
+        ExplosionF,
+        MarkerDestroy },
+      { RocketA0, RocketB0, RocketA0 },
+      { DeathA, DeathB, DeathC, DeathD, DeathD },
+      { FlagA, FlagB, FlagC, FlagA },
+      { SpawnItemA, SpawnItemB, SpawnItemC, MarkerDestroy } });
 
-const std::map<std::pair<AnimationId, EntityType>, SpriteId>
-    STATE_TRANSITIONS = { { { AnimationId::Idle, EntityType::Player },
+const std::map<std::pair<AnimationStateId, EntityType>, SpriteId>
+    STATE_TRANSITIONS = { { { AnimationStateId::Idle, EntityType::Player },
                             SpriteId::PlayerA0 } };
 
 [[nodiscard]] static constexpr inline bool isAnimationMarker(SpriteId id)
@@ -68,7 +77,7 @@ void AnimationEngine::handleMarker(Entity& entity, std::size_t index)
     if (entity.spriteClipIndex == SpriteId::MarkerIdle)
     {
         entity.spriteClipIndex =
-            STATE_TRANSITIONS.at({ AnimationId::Idle, entity.typeId });
+            STATE_TRANSITIONS.at({ AnimationStateId::Idle, entity.typeId });
     }
     else if (entity.spriteClipIndex == SpriteId::MarkerDestroy)
     {

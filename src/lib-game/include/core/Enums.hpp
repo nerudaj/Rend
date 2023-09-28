@@ -23,6 +23,8 @@ enum class SpriteId : std::uint8_t
 {
     NoRender,
     FlagA = 1,
+    FlagB,
+    FlagC,
     MedikitA,
     ArmorShardA,
     MegaHealthA,
@@ -34,7 +36,7 @@ enum class SpriteId : std::uint8_t
     ShotgunA,
     PillarA,
     FloorLampA,
-    PlayerA0 = 13,
+    PlayerA0,
     PlayerA1,
     PlayerA2,
     PlayerA3,
@@ -64,6 +66,9 @@ enum class SpriteId : std::uint8_t
     DeathB,
     DeathC,
     DeathD,
+    SpawnItemA,
+    SpawnItemB,
+    SpawnItemC,
 
     MarkerBegin,
     MarkerIdle,    // If animation reaches this mark, it should return to idle
@@ -106,9 +111,10 @@ enum class EntityType
     EffectClip,
 };
 
-enum class AnimationId
+enum class AnimationStateId
 {
     Idle,
     Run,
     Missile,
+    MarkerDestroy,
 };

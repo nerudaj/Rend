@@ -11,4 +11,5 @@ struct CmdSettings
     std::filesystem::path resourcesDir = "../resources";
     std::string mapname = "demo2.lvd";
     std::filesystem::path demoFile = "demo.txt";
+    bool playDemo = false;
 };

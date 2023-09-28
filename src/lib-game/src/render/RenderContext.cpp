@@ -22,10 +22,13 @@ RenderContext RenderContext::buildRenderContext(
     auto&& level = resmgr.get<LevelD>(mapname).value().get();
     auto&& tileset = resmgr.get<sf::Texture>("tileset.png").value().get();
     auto&& spritesheet = resmgr.get<sf::Texture>("items.png").value().get();
+    auto&& hud = resmgr.get<sf::Texture>("weapons.png").value().get();
     auto&& tilesetClip =
         resmgr.get<dgm::Clip>("tileset.png.clip").value().get();
     auto&& spritesheetClip =
         resmgr.get<dgm::Clip>("items.png.clip").value().get();
+    auto&& hudClipping =
+        resmgr.get<dgm::Clip>("weapons.png.clip").value().get();
     auto&& shader = resmgr.get<sf::Shader>("shader").value().get();
 
     return RenderContext {
@@ -36,8 +39,10 @@ RenderContext RenderContext::buildRenderContext(
                        Builder::buildTextureMeshFromLvd(level, 1) },
         .tilesetTexture = tileset,
         .spritesheetTexture = spritesheet,
+        .weaponHudTexture = hud,
         .tilesetClipping = tilesetClip,
         .spritesheetClipping = spritesheetClip,
+        .weaponHudClipping = hudClipping,
         .shader = shader,
         .depthBuffer = std::vector<float>(screenWidth),
     };

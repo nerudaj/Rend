@@ -15,7 +15,9 @@ CmdSettings processCmdParameters(int argc, char* argv[])
     options.add_options()
         ("s,skip-menu", "Start game directly")
         ("r,resource-dir", "Path to resources", cxxopts::value<std::string>())
-        ("m,map", "Map name", cxxopts::value<std::string>());
+        ("m,map", "Map name", cxxopts::value<std::string>())
+    ("d,demofile", "Path to demo file", cxxopts::value<std::string>())
+        ("p,play-demo", "Whether to replay demo file");
     // clang-format on
     auto args = options.parse(argc, argv);
 
@@ -26,6 +28,10 @@ CmdSettings processCmdParameters(int argc, char* argv[])
     if (args.count("resource-dir") > 0)
         result.resourcesDir = args["resource-dir"].as<std::string>();
     if (args.count("map") > 0) result.mapname = args["map"].as<std::string>();
+    if (args.count("demofile") > 0)
+        result.demoFile = args["demofile"].as<std::string>();
+    if (args.count("play-demo") > 0)
+        result.playDemo = args["play-demo"].as<bool>();
 
     return result;
 }

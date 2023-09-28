@@ -49,6 +49,21 @@ void RenderingEngine::renderHudTo(dgm::Window& window)
         render3d(window);
 
     context.text.setString(fpsCounter.getText());
+    context.text.setPosition({ 10.f, 10.f });
+    window.draw(context.text);
+
+    auto&& pov = scene.things[scene.playerId];
+    if (pov.typeId == EntityType::Player)
+    {
+        context.text.setString(
+            std::format("H: {} A: {}", pov.health, pov.armor));
+    }
+    else if (pov.typeId == EntityType::MarkerDeadPlayer)
+    {
+        context.text.setString("Press [Space] to respawn");
+    }
+
+    context.text.setPosition(200.f, 200.f);
     window.draw(context.text);
 }
 

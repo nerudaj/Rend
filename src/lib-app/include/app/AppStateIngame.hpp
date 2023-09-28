@@ -70,5 +70,5 @@ protected:
     PhysicsEngine physicsEngine;
     RenderingEngine renderingEngine;
     std::array<mem::Box<ControllerInterface>, MAX_PLAYER_COUNT> inputs;
-    std::ofstream demoStream;
+    std::fstream demoStream;
 };

@@ -14,11 +14,16 @@ public: // Must visit on all related events
     void operator()(const ProjectileCreatedGameEvent&);
     void operator()(const ProjectileDestroyedGameEvent&);
     void operator()(const EntityDestroyedGameEvent&);
+    void operator()(const PlayerRespawnedGameEvent&);
 
 public:
     void update(const dgm::Time& time);
 
 private:
+    void handlePlayer(Entity& thing, std::size_t id, const dgm::Time& time);
+
+    void handleDeadPlayer(Entity& thing, std::size_t id);
+
     void
     handleGrabbedPickable(Entity grabber, Entity pickup, std::size_t pickupId);
 
@@ -35,6 +40,8 @@ private:
                        return { id, scene.things[id] };
                    });
     }
+
+    void removeEntity(std::size_t index);
 
 private:
     Scene& scene;
