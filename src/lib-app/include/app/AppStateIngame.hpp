@@ -13,6 +13,7 @@
 #include <core/Scene.hpp>
 #include <input/ControllerInterface.hpp>
 #include <input/InputSchema.hpp>
+#include <utils/DemoFileHandler.hpp>
 #include <utils/RoundRobinBuffer.hpp>
 
 import Memory;
@@ -70,5 +71,5 @@ protected:
     PhysicsEngine physicsEngine;
     RenderingEngine renderingEngine;
     std::array<mem::Box<ControllerInterface>, MAX_PLAYER_COUNT> inputs;
-    std::fstream demoStream;
+    DemoFileHandler demoFileHandler;
 };

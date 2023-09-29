@@ -80,13 +80,17 @@ void AppStateIngame::snapshotInputs(FrameState& state)
 
     if (settings->cmdSettings.playDemo)
     {
-        std::string line;
-        std::getline(demoStream, line);
+        auto line = demoFileHandler.getLine();
+        if (line.empty())
+        {
+            app.exit();
+            return;
+        }
         state.inputs[0] = nlohmann::json::parse(line);
     }
     else
     {
-        demoStream << nlohmann::json(state.inputs[0]).dump() << "\n";
+        demoFileHandler.writeLine(nlohmann::json(state.inputs[0]).dump());
     }
 }
 
@@ -173,10 +177,10 @@ AppStateIngame::AppStateIngame(
           mem::Box<NullController>(),
           mem::Box<NullController>(),
       })
-    , demoStream(
+    , demoFileHandler(
           settings->cmdSettings.demoFile,
-          settings->cmdSettings.playDemo ? std::ios_base::in
-                                         : std::ios_base::trunc)
+          settings->cmdSettings.playDemo ? DemoFileMode::Read
+                                         : DemoFileMode::Write)
 {
     scene.worldCamera.setPosition(GAME_RESOLUTION / 2.f);
     scene.hudCamera.setPosition(GAME_RESOLUTION / 2.f);
