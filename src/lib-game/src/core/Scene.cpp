@@ -173,7 +173,7 @@ Entity Scene::createProjectile(
 {
     return Entity { .typeId = type,
                     .spriteClipIndex = SpriteId::RocketA0,
-                    .hitbox = dgm::Circle(position.value, PX2_RADIUS),
+                    .hitbox = dgm::Circle(position.value, 2_px),
                     .direction = direction.value };
 }
 
@@ -181,5 +181,5 @@ Entity Scene::createEffect(SpriteId spriteClipIndex, const Position& position)
 {
     return Entity { .typeId = EntityType::EffectClip,
                     .spriteClipIndex = spriteClipIndex,
-                    .hitbox = dgm::Circle(position.value, EXPLOSION_RADIUS) };
+                    .hitbox = dgm::Circle(position.value, 8_px) };
 }

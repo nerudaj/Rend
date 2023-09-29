@@ -30,7 +30,7 @@ public: // Must visit on all related events
     }
 
 public:
-    void update(const dgm::Time& time);
+    void update(const float deltaTime);
 
     void renderWorldTo(dgm::Window& window);
 

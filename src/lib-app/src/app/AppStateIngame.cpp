@@ -115,11 +115,11 @@ void AppStateIngame::restoreState(const FrameState& state)
 
 void AppStateIngame::updateEngines()
 {
-    animationEngine.update(app.time);
-    audioEngine.update(app.time);
-    physicsEngine.update(app.time.getDeltaTime());
-    gameRulesEngine.update(app.time);
-    renderingEngine.update(app.time);
+    animationEngine.update(FRAME_TIME);
+    audioEngine.update(FRAME_TIME);
+    physicsEngine.update(FRAME_TIME);
+    gameRulesEngine.update(FRAME_TIME);
+    renderingEngine.update(FRAME_TIME);
 }
 
 void AppStateIngame::processEvents()

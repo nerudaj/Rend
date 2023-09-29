@@ -1,6 +1,8 @@
 #include "engine/GameRulesEngine.hpp"
 #include "events/EventQueue.hpp"
 
+#pragma region EventHandling
+
 void GameRulesEngine::operator()(const PickablePickedUpGameEvent& e)
 {
     removeEntity(e.entityIndex);
@@ -14,8 +16,8 @@ void GameRulesEngine::operator()(const ProjectileCreatedGameEvent& e)
 
 void GameRulesEngine::operator()(const ProjectileDestroyedGameEvent& e)
 {
-    const auto&& explosionHitbox = dgm::Circle(
-        scene.things[e.entityIndex].hitbox.getPosition(), EXPLOSION_RADIUS);
+    const auto&& explosionHitbox =
+        dgm::Circle(scene.things[e.entityIndex].hitbox.getPosition(), 8_px);
 
     // Delete projectile
     removeEntity(e.entityIndex);
@@ -62,12 +64,12 @@ void GameRulesEngine::operator()(const EntityDestroyedGameEvent& e)
 void GameRulesEngine::operator()(const PlayerRespawnedGameEvent& e)
 {
     const auto thing = scene.things[e.entityIndex];
+    const auto spawnPosition = getBestSpawnPosition();
+    const auto spawnDirection = getBestSpawnDirection(spawnPosition);
 
-    // TODO: pick ideal spawn
-    // TODO: pick ideal direction
     auto idx = scene.things.emplaceBack(Scene::createPlayer(
-        Position { scene.spawns[0] },
-        Direction { sf::Vector2 { 1.f, 0.f } },
+        Position { spawnPosition },
+        Direction { spawnDirection },
         thing.inputId));
 
     if (e.entityIndex == scene.playerId) scene.playerId = idx;
@@ -75,14 +77,16 @@ void GameRulesEngine::operator()(const PlayerRespawnedGameEvent& e)
     removeEntity(e.entityIndex);
 }
 
-void GameRulesEngine::update(const dgm::Time& time)
+#pragma endregion
+
+void GameRulesEngine::update(const float deltaTime)
 {
     for (auto&& [thing, id] : scene.things)
     {
         switch (thing.typeId)
         {
         case EntityType::Player:
-            handlePlayer(thing, id, time);
+            handlePlayer(thing, id, deltaTime);
             break;
         case EntityType::MarkerDeadPlayer:
             handleDeadPlayer(thing, id);
@@ -94,7 +98,7 @@ void GameRulesEngine::update(const dgm::Time& time)
 }
 
 void GameRulesEngine::handlePlayer(
-    Entity& thing, std::size_t id, const dgm::Time& time)
+    Entity& thing, std::size_t id, const float deltaTime)
 {
     scene.spatialIndex.removeFromLookup(id, thing.hitbox);
 
@@ -110,7 +114,7 @@ void GameRulesEngine::handlePlayer(
     scene.spatialIndex.returnToLookup(id, thing.hitbox);
 
     if (thing.fireCooldown > 0.f)
-        thing.fireCooldown -= time.getDeltaTime();
+        thing.fireCooldown -= deltaTime;
     else if (scene.inputs[thing.inputId].isShooting())
     {
         thing.fireCooldown = WEAPON_LAUNCHER_COOLDOWN;
@@ -130,7 +134,7 @@ void GameRulesEngine::handleDeadPlayer(Entity& thing, std::size_t id)
 }
 
 void GameRulesEngine::handleGrabbedPickable(
-    Entity grabber, Entity pickup, std::size_t pickupId)
+    Entity& grabber, Entity pickup, std::size_t pickupId)
 {
     if (give(grabber, pickup.typeId) && !isWeaponPickable(pickup.typeId))
     {
@@ -203,8 +207,46 @@ void GameRulesEngine::damage(Entity& thing, std::size_t thingIndex, int damage)
     }
 }
 
+#pragma region Helpers
+
 void GameRulesEngine::removeEntity(std::size_t index)
 {
     scene.spatialIndex.removeFromLookup(index, scene.things[index].hitbox);
     scene.things.eraseAtIndex(index);
 }
+
+sf::Vector2f GameRulesEngine::getBestSpawnPosition() const noexcept
+{
+    float bestDistance = 0.f;
+    std::size_t bestSpawnIdx = 0;
+    for (std::size_t i = 0; i < scene.spawns.size(); ++i)
+    {
+        float minDistance = INFINITY;
+        for (auto&& [thing, idx] : scene.things)
+        {
+            if (thing.typeId != EntityType::Player) continue;
+
+            minDistance = std::min(
+                minDistance,
+                dgm::Math::getSize(
+                    scene.spawns[i] - thing.hitbox.getPosition()));
+        }
+
+        if (bestDistance < minDistance)
+        {
+            bestDistance = minDistance;
+            bestSpawnIdx = i;
+        }
+    }
+
+    return scene.spawns[bestSpawnIdx];
+}
+
+sf::Vector2f GameRulesEngine::getBestSpawnDirection(
+    const sf::Vector2f& spawnPosition) const noexcept
+{
+    return dgm::Math::toUnit(
+        scene.spatialIndex.getBoundingBox().getCenter() - spawnPosition);
+}
+
+#pragma endregion

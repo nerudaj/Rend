@@ -17,15 +17,15 @@ public: // Must visit on all related events
     void operator()(const PlayerRespawnedGameEvent&);
 
 public:
-    void update(const dgm::Time& time);
+    void update(const float deltaTime);
 
 private:
-    void handlePlayer(Entity& thing, std::size_t id, const dgm::Time& time);
+    void handlePlayer(Entity& thing, std::size_t id, const float deltaTime);
 
     void handleDeadPlayer(Entity& thing, std::size_t id);
 
     void
-    handleGrabbedPickable(Entity grabber, Entity pickup, std::size_t pickupId);
+    handleGrabbedPickable(Entity& grabber, Entity pickup, std::size_t pickupId);
 
     /// <returns>True if thing was succesfully given</returns>
     bool give(Entity& thing, EntityType pickupId);
@@ -42,6 +42,11 @@ private:
     }
 
     void removeEntity(std::size_t index);
+
+    [[nodiscard]] sf::Vector2f getBestSpawnPosition() const noexcept;
+
+    [[nodiscard]] sf::Vector2f
+    getBestSpawnDirection(const sf::Vector2f& spawnPosition) const noexcept;
 
 private:
     Scene& scene;

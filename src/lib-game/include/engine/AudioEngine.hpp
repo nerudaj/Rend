@@ -20,7 +20,7 @@ public: // Must visit on all related events
     void operator()(const DummyAudioEvent&) {}
 
 public:
-    void update(const dgm::Time& time);
+    void update(const float deltaTime);
 
 private:
     mem::Rc<const dgm::ResourceManager> resmgr;

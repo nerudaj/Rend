@@ -34,9 +34,9 @@ RenderingEngine::RenderingEngine(
 {
 }
 
-void RenderingEngine::update(const dgm::Time& time)
+void RenderingEngine::update(const float deltaTime)
 {
-    fpsCounter.update(time.getDeltaTime());
+    fpsCounter.update(deltaTime);
 }
 
 void RenderingEngine::renderWorldTo(dgm::Window&) {}

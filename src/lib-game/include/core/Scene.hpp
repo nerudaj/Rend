@@ -2,8 +2,11 @@
 
 #include <DGM/dgm.hpp>
 #include <Settings.hpp>
+#include <array>
 #include <core/Constants.hpp>
+#include <core/Enums.hpp>
 #include <input/SimpleController.hpp>
+#include <utils/SemanticTypes.hpp>
 
 import Memory;
 
@@ -24,7 +27,7 @@ struct Entity
     int rocketCount = 0;
     float fireCooldown = 0.f;
 
-    AnimationId animationStateId;
+    AnimationStateId animationStateId;
     std::size_t animationFrameIndex;
     std::size_t
         lastAnimationUpdate; // number of frames since last animation update
@@ -36,16 +39,6 @@ struct Level
     unsigned heightHint;
     dgm::Mesh bottomMesh;
     dgm::Mesh upperMesh;
-};
-
-struct Position
-{
-    sf::Vector2f value;
-};
-
-struct Direction
-{
-    sf::Vector2f value;
 };
 
 // Add all game actors and objects to this struct as it is passed

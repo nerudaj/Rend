@@ -12,7 +12,7 @@ public: // Must visit on all related events
     void operator()(const SetStateAnimationEvent&);
 
 public:
-    void update(const dgm::Time& time);
+    void update(const float deltaTime);
 
 private:
     void handleMarker(Entity& entity, std::size_t index);

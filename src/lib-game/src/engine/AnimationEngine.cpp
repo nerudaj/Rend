@@ -56,7 +56,7 @@ const std::map<std::pair<AnimationStateId, EntityType>, SpriteId>
 
 void AnimationEngine::operator()(const SetStateAnimationEvent&) {}
 
-void AnimationEngine::update(const dgm::Time&)
+void AnimationEngine::update(const float)
 {
     bool shouldUpdate = scene.frameId % ANIMATION_FPS == 0;
     if (!shouldUpdate) return;
