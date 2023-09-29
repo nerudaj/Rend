@@ -21,7 +21,7 @@ enum class LeveldItemId
 
 enum class SpriteId : std::uint8_t
 {
-    NoRender,
+    NoRender = 0,
     FlagA = 1,
     FlagB,
     FlagC,
@@ -69,27 +69,23 @@ enum class SpriteId : std::uint8_t
     SpawnItemA,
     SpawnItemB,
     SpawnItemC,
-
-    MarkerBegin,
-    MarkerIdle,    // If animation reaches this mark, it should return to idle
-                   // state
-    MarkerLoop,    // If animation reaches this mark, it should loop the clip
-    MarkerDestroy, // If animation reaches this mark, it should emit an event
-                   // for destroying an item
-    MarkerEnd
 };
 
 enum class EntityType
 {
     MarkerBegin,
+    MarkerError,
     MarkerDeadPlayer,
+    MarkerItemRespawner,
     MarkerEnd,
 
-    StaticDecoration,
+    StaticDecorationBegin,
+    Pillar,
+    FloorLamp,
+    StaticDecorationEnd,
     Player,
 
     PickableBegin,
-
     PickupHealth,
     PickupArmor,
     PickupMegaHealth,
@@ -100,15 +96,19 @@ enum class EntityType
     PickupRockets,
 
     WeaponPickableBegin,
-
     PickupShotgun,
-
     WeaponPickableEnd,
 
     PickableEnd,
 
     ProjectileRocket,
-    EffectClip,
+
+    EffectBegin,
+    EffectStatic, // Does nothing, has no collisions
+    EffectExplosion,
+    EffectDyingPlayer,
+    EffectSpawn,
+    EffectEnd,
 };
 
 enum class AnimationStateId
@@ -116,5 +116,7 @@ enum class AnimationStateId
     Idle,
     Run,
     Missile,
+    MarkerLoop,
     MarkerDestroy,
+    MarkerFreeze,
 };

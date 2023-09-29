@@ -15,6 +15,8 @@ public: // Must visit on all related events
     void operator()(const ProjectileDestroyedGameEvent&);
     void operator()(const EntityDestroyedGameEvent&);
     void operator()(const PlayerRespawnedGameEvent&);
+    void operator()(const EffectSpawnedGameEvent&);
+    void operator()(const PickupSpawnedGameEvent&);
 
 public:
     void update(const float deltaTime);
@@ -23,6 +25,9 @@ private:
     void handlePlayer(Entity& thing, std::size_t id, const float deltaTime);
 
     void handleDeadPlayer(Entity& thing, std::size_t id);
+
+    void
+    handleItemRespawner(Entity& thing, std::size_t idx, const float deltaTime);
 
     void
     handleGrabbedPickable(Entity& grabber, Entity pickup, std::size_t pickupId);

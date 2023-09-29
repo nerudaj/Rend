@@ -1,5 +1,6 @@
 #pragma once
 
+#include <core/AnimationDefinitions.hpp>
 #include <core/Scene.hpp>
 #include <events/AnimationEvents.hpp>
 
@@ -15,7 +16,10 @@ public:
     void update(const float deltaTime);
 
 private:
-    void handleMarker(Entity& entity, std::size_t index);
+    void handleTransition(
+        Entity& entity, std::size_t entityIdx, const AnimationState& oldState);
+
+    void updateSpriteId(Entity& entity, const AnimationState& state);
 
 private:
     Scene& scene;

@@ -57,9 +57,33 @@ struct PlayerRespawnedGameEvent
     }
 };
 
+struct EffectSpawnedGameEvent
+{
+    EntityType type;
+    sf::Vector2f position;
+
+    EffectSpawnedGameEvent(EntityType type, const sf::Vector2f& position)
+        : type(type), position(position)
+    {
+    }
+};
+
+struct PickupSpawnedGameEvent
+{
+    EntityType type;
+    sf::Vector2f position;
+
+    PickupSpawnedGameEvent(EntityType type, const sf::Vector2f& position)
+        : type(type), position(position)
+    {
+    }
+};
+
 using GameEvent = std::variant<
     PickablePickedUpGameEvent,
     ProjectileCreatedGameEvent,
     ProjectileDestroyedGameEvent,
     EntityDestroyedGameEvent,
-    PlayerRespawnedGameEvent>;
+    PlayerRespawnedGameEvent,
+    EffectSpawnedGameEvent,
+    PickupSpawnedGameEvent>;

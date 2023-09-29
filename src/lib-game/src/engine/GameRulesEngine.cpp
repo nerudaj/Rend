@@ -5,12 +5,23 @@
 
 void GameRulesEngine::operator()(const PickablePickedUpGameEvent& e)
 {
+    scene.things.emplaceBack(Entity {
+        .typeId = EntityType::MarkerItemRespawner,
+        .hitbox = scene.things[e.entityIndex].hitbox,
+
+        // Not the best code I've written - reusing random variables
+        // to encode extra information -_-
+        .inputId = static_cast<int>(scene.things[e.entityIndex].typeId),
+        .health = 0, // marker for spawn effect
+        .fireCooldown = ITEM_RESPAWN_TIMEOUT,
+    });
+
     removeEntity(e.entityIndex);
 }
 
 void GameRulesEngine::operator()(const ProjectileCreatedGameEvent& e)
 {
-    scene.things.emplaceBack(Scene::createProjectile(
+    scene.things.emplaceBack(scene.createProjectile(
         e.type, Position { e.position }, Direction { e.direction }));
 }
 
@@ -34,8 +45,9 @@ void GameRulesEngine::operator()(const ProjectileDestroyedGameEvent& e)
     }
 
     // Spawn explosion effect
-    scene.things.emplaceBack(Scene::createEffect(
-        SpriteId::ExplosionA, Position { explosionHitbox.getPosition() }));
+    scene.things.emplaceBack(scene.createEffect(
+        EntityType::EffectExplosion,
+        Position { explosionHitbox.getPosition() }));
 }
 
 void GameRulesEngine::operator()(const EntityDestroyedGameEvent& e)
@@ -45,8 +57,9 @@ void GameRulesEngine::operator()(const EntityDestroyedGameEvent& e)
 
     if (playerWasDestroyed)
     {
-        scene.things.emplaceBack(Scene::createEffect(
-            SpriteId::DeathA, Position { thing.hitbox.getPosition() }));
+        scene.things.emplaceBack(scene.createEffect(
+            EntityType::EffectDyingPlayer,
+            Position { thing.hitbox.getPosition() }));
 
         auto idx = scene.things.emplaceBack(
             Entity { .typeId = EntityType::MarkerDeadPlayer,
@@ -67,7 +80,7 @@ void GameRulesEngine::operator()(const PlayerRespawnedGameEvent& e)
     const auto spawnPosition = getBestSpawnPosition();
     const auto spawnDirection = getBestSpawnDirection(spawnPosition);
 
-    auto idx = scene.things.emplaceBack(Scene::createPlayer(
+    auto idx = scene.things.emplaceBack(scene.createPlayer(
         Position { spawnPosition },
         Direction { spawnDirection },
         thing.inputId));
@@ -75,6 +88,18 @@ void GameRulesEngine::operator()(const PlayerRespawnedGameEvent& e)
     if (e.entityIndex == scene.playerId) scene.playerId = idx;
 
     removeEntity(e.entityIndex);
+}
+
+void GameRulesEngine::operator()(const EffectSpawnedGameEvent& e)
+{
+    scene.things.emplaceBack(
+        scene.createEffect(e.type, Position { e.position }));
+}
+
+void GameRulesEngine::operator()(const PickupSpawnedGameEvent& e)
+{
+    scene.things.emplaceBack(
+        scene.createPickup(e.type, Position { e.position }));
 }
 
 #pragma endregion
@@ -90,6 +115,9 @@ void GameRulesEngine::update(const float deltaTime)
             break;
         case EntityType::MarkerDeadPlayer:
             handleDeadPlayer(thing, id);
+            break;
+        case EntityType::MarkerItemRespawner:
+            handleItemRespawner(thing, id, deltaTime);
             break;
         default:
             break;
@@ -130,6 +158,25 @@ void GameRulesEngine::handleDeadPlayer(Entity& thing, std::size_t id)
     if (scene.inputs[thing.inputId].isShooting())
     {
         EventQueue::add<PlayerRespawnedGameEvent>(id);
+    }
+}
+
+void GameRulesEngine::handleItemRespawner(
+    Entity& thing, std::size_t idx, const float deltaTime)
+{
+    thing.fireCooldown -= deltaTime;
+    if (thing.fireCooldown <= ITEM_SPAWN_EFFECT_TIMEOUT && thing.health == 0)
+    {
+        EventQueue::add<EffectSpawnedGameEvent>(EffectSpawnedGameEvent(
+            EntityType::EffectSpawn, thing.hitbox.getPosition()));
+        thing.health = 1;
+    }
+    else if (thing.fireCooldown <= 0.f)
+    {
+        EventQueue::add<PickupSpawnedGameEvent>(PickupSpawnedGameEvent(
+            static_cast<EntityType>(thing.inputId),
+            thing.hitbox.getPosition()));
+        EventQueue::add<EntityDestroyedGameEvent>(idx);
     }
 }
 

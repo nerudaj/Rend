@@ -14,13 +14,24 @@ constinit const float PLAYER_STRAFE_SPEED = 96.f;
 // Physics
 const float PLAYER_RADIUS = 4.f;
 
-const static inline std::map<LeveldItemId, float> THING_RADIUSES = {
-    { LeveldItemId::Medikit, 3_px },    { LeveldItemId::ArmorShard, 3_px },
-    { LeveldItemId::MegaHealth, 6_px }, { LeveldItemId::MegaArmor, 3_px },
-    { LeveldItemId::Bullets, 4_px },    { LeveldItemId::Shells, 3_px },
-    { LeveldItemId::EnergyPack, 4_px }, { LeveldItemId::Rockets, 3_px },
-    { LeveldItemId::Shotgun, 6_px },    { LeveldItemId::Pillar, 3_px },
-    { LeveldItemId::FloorLamp, 3_px }
+struct ThingProperty
+{
+    SpriteId initialSpriteIndex;
+    float radius;
+};
+
+const static inline std::map<EntityType, ThingProperty> THING_PROPERTIES = {
+    { EntityType::PickupHealth, { SpriteId::MedikitA, 3_px } },
+    { EntityType::PickupArmor, { SpriteId::ArmorShardA, 3_px } },
+    { EntityType::PickupMegaHealth, { SpriteId::MegaHealthA, 6_px } },
+    { EntityType::PickupMegaArmor, { SpriteId::MegaArmorA, 3_px } },
+    { EntityType::PickupBullets, { SpriteId::BulletsA, 4_px } },
+    { EntityType::PickupShells, { SpriteId::ShellsA, 3_px } },
+    { EntityType::PickupEnergy, { SpriteId::EnergyPackA, 4_px } },
+    { EntityType::PickupRockets, { SpriteId::RocketsA, 3_px } },
+    { EntityType::PickupShotgun, { SpriteId::ShotgunA, 6_px } },
+    { EntityType::Pillar, { SpriteId::PillarA, 3_px } },
+    { EntityType::FloorLamp, { SpriteId::FloorLampA, 3_px } },
 };
 
 // Game logic
@@ -48,6 +59,8 @@ constinit const int MAX_ROCKETS = 25;
 constinit const float WEAPON_LAUNCHER_COOLDOWN = 1.f;
 constinit const float PROJECTILE_FORWARD_SPEED = 108.f;
 constinit const int ROCKET_DAMAGE = 150;
+constinit const float ITEM_RESPAWN_TIMEOUT = 15.f;
+constinit const float ITEM_SPAWN_EFFECT_TIMEOUT = 0.5f;
 
 // Other
 constinit const std::size_t ANIMATION_FPS = 60 / 4; // four updates per second
@@ -67,11 +80,11 @@ const sf::Vector2f NULL_VECTOR = { 0.f, 0.f };
     return !(EntityType::MarkerBegin <= type && type <= EntityType::MarkerEnd);
 }
 
-[[nodiscard]] static constexpr bool isAnimable(EntityType type) noexcept
+/*[[nodiscard]] static constexpr bool isAnimable(EntityType type) noexcept
 {
     using enum EntityType;
     return type == ProjectileRocket || type == EffectClip;
-}
+}*/
 
 [[nodiscard]] static constexpr inline bool
 isDestructible(EntityType type) noexcept
@@ -82,7 +95,8 @@ isDestructible(EntityType type) noexcept
 [[nodiscard]] static constexpr inline bool isSolid(EntityType type) noexcept
 {
     using enum EntityType;
-    return type == StaticDecoration || type == Player;
+    return (StaticDecorationBegin <= type && type <= StaticDecorationEnd)
+           || type == Player;
 }
 
 [[nodiscard]] static constexpr inline bool isPickable(EntityType type) noexcept

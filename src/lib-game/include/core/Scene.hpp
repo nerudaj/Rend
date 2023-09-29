@@ -27,8 +27,8 @@ struct Entity
     int rocketCount = 0;
     float fireCooldown = 0.f;
 
-    AnimationStateId animationStateId;
-    std::size_t animationFrameIndex;
+    AnimationStateId animationStateId = AnimationStateId::Idle;
+    std::size_t animationFrameIndex = 0;
     std::size_t
         lastAnimationUpdate; // number of frames since last animation update
 };
@@ -65,16 +65,21 @@ struct Scene
         const sf::Vector2f& baseResolution,
         const Settings& settings);
 
-    [[nodiscard]] static Entity createPlayer(
+    [[nodiscard]] Entity createPlayer(
         const Position& position,
         const Direction& lookDirection,
-        short inputId);
+        short inputId) noexcept;
 
-    [[nodiscard]] static Entity createProjectile(
-        EntityType type, const Position& position, const Direction& direction);
+    [[nodiscard]] Entity createProjectile(
+        EntityType type,
+        const Position& position,
+        const Direction& direction) noexcept;
 
-    [[nodiscard]] static Entity
-    createEffect(SpriteId spriteClipIndex, const Position& position);
+    [[nodiscard]] Entity
+    createEffect(EntityType type, const Position& position);
+
+    [[nodiscard]] Entity
+    createPickup(EntityType type, const Position& position);
 };
 
 // TODO: move somewhere else

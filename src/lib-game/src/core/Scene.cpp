@@ -25,84 +25,48 @@ static std::vector<sf::Vector2f> createSpawns(const LevelD& level)
            | std::ranges::to<std::vector<sf::Vector2f>>();
 }
 
-static auto createGameEntity(const LevelD::Thing& thing)
+[[nodiscard]] static EntityType
+convertLeveldItemIdToEntityType(LeveldItemId id) noexcept
 {
     using enum LeveldItemId;
-
-    const auto id = static_cast<LeveldItemId>(thing.id);
-    auto&& hitbox = dgm::Circle(getThingPosition(thing), THING_RADIUSES.at(id));
-
     switch (id)
     {
     case Medikit:
-        return Entity {
-            .typeId = EntityType::PickupHealth,
-            .spriteClipIndex = SpriteId::MedikitA,
-            .hitbox = hitbox,
-        };
+        return EntityType::PickupHealth;
     case ArmorShard:
-        return Entity {
-            .typeId = EntityType::PickupArmor,
-            .spriteClipIndex = SpriteId::ArmorShardA,
-            .hitbox = hitbox,
-        };
+        return EntityType::PickupArmor;
     case MegaHealth:
-        return Entity {
-            .typeId = EntityType::PickupMegaHealth,
-            .spriteClipIndex = SpriteId::MegaHealthA,
-            .hitbox = hitbox,
-        };
+        return EntityType::PickupMegaHealth;
     case MegaArmor:
-        return Entity {
-            .typeId = EntityType::PickupMegaArmor,
-            .spriteClipIndex = SpriteId::MegaArmorA,
-            .hitbox = hitbox,
-        };
+        return EntityType::PickupMegaArmor;
     case Bullets:
-        return Entity {
-            .typeId = EntityType::PickupBullets,
-            .spriteClipIndex = SpriteId::BulletsA,
-            .hitbox = hitbox,
-        };
+        return EntityType::PickupBullets;
     case Shells:
-        return Entity {
-            .typeId = EntityType::PickupShells,
-            .spriteClipIndex = SpriteId::ShellsA,
-            .hitbox = hitbox,
-        };
+        return EntityType::PickupShells;
     case EnergyPack:
-        return Entity {
-            .typeId = EntityType::PickupEnergy,
-            .spriteClipIndex = SpriteId::EnergyPackA,
-            .hitbox = hitbox,
-        };
+        return EntityType::PickupEnergy;
     case Rockets:
-        return Entity {
-            .typeId = EntityType::PickupRockets,
-            .spriteClipIndex = SpriteId::RocketsA,
-            .hitbox = hitbox,
-        };
+        return EntityType::PickupRockets;
     case Shotgun:
-        return Entity {
-            .typeId = EntityType::PickupShotgun,
-            .spriteClipIndex = SpriteId::ShotgunA,
-            .hitbox = hitbox,
-        };
+        return EntityType::PickupShotgun;
     case Pillar:
-        return Entity {
-            .typeId = EntityType::StaticDecoration,
-            .spriteClipIndex = SpriteId::PillarA,
-            .hitbox = hitbox,
-        };
+        return EntityType::Pillar;
     case FloorLamp:
-        return Entity {
-            .typeId = EntityType::StaticDecoration,
-            .spriteClipIndex = SpriteId::FloorLampA,
-            .hitbox = hitbox,
-        };
+        return EntityType::FloorLamp;
     default:
-        throw dgm::Exception(std::format("Unknown thing id {}", thing.id));
+        return EntityType::MarkerError;
     }
+}
+
+static auto createEntity(const LevelD::Thing& thing)
+{
+    const auto typeId =
+        convertLeveldItemIdToEntityType(static_cast<LeveldItemId>(thing.id));
+    const auto& props = THING_PROPERTIES.at(typeId);
+    const auto hitbox = dgm::Circle(getThingPosition(thing), props.radius);
+    return Entity { .typeId = typeId,
+                    .spriteClipIndex = props.initialSpriteIndex,
+                    .hitbox = hitbox };
 }
 
 static auto createThingsBuffer(const LevelD& level)
@@ -112,7 +76,7 @@ static auto createThingsBuffer(const LevelD& level)
     for (auto&& thing : level.things)
     {
         if (isSpawn(thing)) continue;
-        result.emplaceBack(createGameEntity(thing));
+        result.emplaceBack(createEntity(thing));
     }
 
     return result;
@@ -153,7 +117,9 @@ Scene Scene::buildScene(
 }
 
 Entity Scene::createPlayer(
-    const Position& position, const Direction& lookDirection, short inputId)
+    const Position& position,
+    const Direction& lookDirection,
+    short inputId) noexcept
 {
     return Entity { .typeId = EntityType::Player,
                     .spriteClipIndex = SpriteId::PlayerA0,
@@ -169,17 +135,47 @@ Entity Scene::createPlayer(
 }
 
 Entity Scene::createProjectile(
-    EntityType type, const Position& position, const Direction& direction)
+    EntityType type,
+    const Position& position,
+    const Direction& direction) noexcept
 {
     return Entity { .typeId = type,
                     .spriteClipIndex = SpriteId::RocketA0,
                     .hitbox = dgm::Circle(position.value, 2_px),
-                    .direction = direction.value };
+                    .direction = direction.value,
+                    .lastAnimationUpdate = frameId };
 }
 
-Entity Scene::createEffect(SpriteId spriteClipIndex, const Position& position)
+Entity Scene::createEffect(EntityType type, const Position& position)
 {
-    return Entity { .typeId = EntityType::EffectClip,
-                    .spriteClipIndex = spriteClipIndex,
-                    .hitbox = dgm::Circle(position.value, 8_px) };
+    switch (type)
+    {
+        using enum EntityType;
+        using enum SpriteId;
+    case EffectExplosion:
+        return Entity { .typeId = type,
+                        .spriteClipIndex = ExplosionA,
+                        .hitbox = dgm::Circle(position.value, 8_px),
+                        .lastAnimationUpdate = frameId };
+    case EffectDyingPlayer:
+        return Entity { .typeId = type,
+                        .spriteClipIndex = DeathA,
+                        .hitbox = dgm::Circle(position.value, 8_px),
+                        .lastAnimationUpdate = frameId };
+    case EffectSpawn:
+        return Entity { .typeId = type,
+                        .spriteClipIndex = SpawnItemA,
+                        .hitbox = dgm::Circle(position.value, 8_px),
+                        .lastAnimationUpdate = frameId };
+    default:
+        throw dgm::Exception(std::format("Unknown effect id {}", int(type)));
+    }
+}
+
+Entity Scene::createPickup(EntityType typeId, const Position& position)
+{
+    const auto& props = THING_PROPERTIES.at(typeId);
+    return Entity { .typeId = typeId,
+                    .spriteClipIndex = props.initialSpriteIndex,
+                    .hitbox = dgm::Circle(position.value, props.radius) };
 }
