@@ -24,6 +24,10 @@ set_target_properties ( ${PROJECT_NAME} PROPERTIES
 	VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_BINARY_DIR}"
 )
 
+add_dependencies ( ${PROJECT_NAME}
+	lib-app lib-game lib-memory lib-settings
+)
+
 autoset_target_compile_options ( ${PROJECT_NAME} FALSE )
 
 # Packaging
