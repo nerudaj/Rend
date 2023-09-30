@@ -50,7 +50,6 @@ void PhysicsEngine::handleProjectile(
     {
         if (dgm::Collision::basic(scene.level.bottomMesh, thing.hitbox))
         {
-            EventQueue::add<ProjectileDestroyedGameEvent>(id);
             return true;
         }
 
