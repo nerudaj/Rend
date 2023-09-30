@@ -54,9 +54,8 @@ void AppStateIngame::update()
         restoreState(state);
         updateEngines();
         processEvents();
-        ++scene.frameId; // advancing frame
-        // Write the resulting simulated state into the next
-        // frame
+        ++scene.tick; // advancing frame
+        // Write the simulated state into the next frame
         backupState(stateBuffer[i + 1u]);
     }
 }
@@ -104,7 +103,7 @@ void AppStateIngame::simulateFrameFromState(const FrameState& state)
 
 void AppStateIngame::restoreState(const FrameState& state)
 {
-    scene.frameId = state.frameId;
+    scene.tick = state.tick;
     scene.things = state.things.clone(); // restore things
     scene.markers = state.markers.clone();
     for (unsigned i = 0; i < MAX_PLAYER_COUNT; i++)
@@ -152,7 +151,7 @@ void AppStateIngame::processEvents()
 
 void AppStateIngame::backupState(FrameState& state)
 {
-    state.frameId = scene.frameId;
+    state.tick = scene.tick;
     state.things = scene.things.clone();
     state.markers = scene.markers.clone();
 

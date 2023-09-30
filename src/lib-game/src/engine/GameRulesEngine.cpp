@@ -20,7 +20,7 @@ void GameRulesEngine::operator()(const ProjectileCreatedGameEvent& e)
         e.type,
         Position { e.position },
         Direction { e.direction },
-        scene.frameId));
+        scene.tick));
 }
 
 void GameRulesEngine::operator()(const ProjectileDestroyedGameEvent& e)
@@ -46,7 +46,7 @@ void GameRulesEngine::operator()(const ProjectileDestroyedGameEvent& e)
     scene.things.emplaceBack(SceneBuilder::createEffect(
         EntityType::EffectExplosion,
         Position { explosionHitbox.getPosition() },
-        scene.frameId));
+        scene.tick));
 }
 
 void GameRulesEngine::operator()(const EntityDestroyedGameEvent& e)
@@ -59,7 +59,7 @@ void GameRulesEngine::operator()(const EntityDestroyedGameEvent& e)
         auto idx = scene.things.emplaceBack(SceneBuilder::createEffect(
             EntityType::EffectDyingPlayer,
             Position { thing.hitbox.getPosition() },
-            scene.frameId));
+            scene.tick));
         scene.things[idx].direction = thing.direction;
 
         bool rebindCamera = scene.playerId == e.entityIndex;
@@ -92,7 +92,7 @@ void GameRulesEngine::operator()(const PlayerRespawnedGameEvent& e)
 void GameRulesEngine::operator()(const EffectSpawnedGameEvent& e)
 {
     scene.things.emplaceBack(SceneBuilder::createEffect(
-        e.type, Position { e.position }, scene.frameId));
+        e.type, Position { e.position }, scene.tick));
 }
 
 void GameRulesEngine::operator()(const PickupSpawnedGameEvent& e)

@@ -42,7 +42,7 @@ void AnimationEngine::handleUpdate(
     auto& state = eprop.states.at(context.animationStateId);
 
     bool shouldUpdate =
-        (scene.frameId - context.lastAnimationUpdate) >= state.updateFrequency;
+        (scene.tick - context.lastAnimationUpdate) >= state.updateFrequency;
     if (!shouldUpdate) return;
 
     if ((context.animationFrameIndex + 1) == state.clip.size())
@@ -89,6 +89,6 @@ void AnimationEngine::updateSpriteId(
     AnimationContext& context, const AnimationState& state)
 {
     assert(state.clip.size() > context.animationFrameIndex);
-    context.lastAnimationUpdate = scene.frameId;
+    context.lastAnimationUpdate = scene.tick;
     context.spriteClipIndex = state.clip[context.animationFrameIndex];
 }

@@ -15,7 +15,7 @@ using AnimationClip = std::vector<SpriteId>;
 struct AnimationState
 {
     AnimationClip clip;
-    std::size_t updateFrequency; // how many frames pass before next update
+    std::size_t updateFrequency; // how many ticks pass before next update
     AnimationStateId transition;
 };
 
@@ -34,7 +34,7 @@ struct AnimationContext
     AnimationStateId animationStateId = AnimationStateId::Idle;
     std::size_t animationFrameIndex = 0;
     std::size_t
-        lastAnimationUpdate; // number of frames since last animation update
+        lastAnimationUpdate; // number of ticks since last animation update
 };
 
 struct Entity
@@ -101,7 +101,7 @@ struct Scene
     dgm::Camera worldCamera;
     dgm::Camera hudCamera;
 
-    std::size_t frameId = 0;
+    std::size_t tick = 0;
     dgm::DynamicBuffer<Entity> things;
     dgm::DynamicBuffer<Marker> markers;
     Level level;
