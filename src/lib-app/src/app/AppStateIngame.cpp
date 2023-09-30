@@ -31,23 +31,14 @@ void AppStateIngame::input()
 
 void AppStateIngame::update()
 {
-    if (stateBuffer.getSize() == 0u)
-    {
-        stateBuffer.pushBack(FrameState {});
-        snapshotInputs(stateBuffer.last());
-        backupState(stateBuffer.last());
-        return;
-    }
-
     stateBuffer.pushBack(FrameState {});
     snapshotInputs(stateBuffer.last());
 
     unsigned howMuchToUnroll = 2u; // Can be more, based on network latency
-    unsigned startIndex =
-        stateBuffer.isEmpty() ? 0u : stateBuffer.getSize() - howMuchToUnroll;
+    unsigned startIndex = stateBuffer.getSize() - howMuchToUnroll;
     // Excluding state pushed back earlier - that is the next
     // frame
-    unsigned endIndex = stateBuffer.isEmpty() ? 0u : stateBuffer.getSize() - 1u;
+    unsigned endIndex = stateBuffer.getSize() - 1u;
     for (unsigned i = startIndex; i < endIndex; ++i)
     {
         auto&& state = stateBuffer[i];
@@ -57,6 +48,11 @@ void AppStateIngame::update()
         ++scene.tick; // advancing frame
         // Write the simulated state into the next frame
         backupState(stateBuffer[i + 1u]);
+    }
+
+    if (stateBuffer.getSize() == 1u)
+    { // nothing was simulated, nothing was backed up yet
+        backupState(stateBuffer.last());
     }
 }
 
