@@ -105,8 +105,8 @@ enum class EntityType
 
     EffectBegin,
     EffectStatic, // Does nothing, has no collisions
-    EffectExplosion,
     EffectDyingPlayer,
+    EffectExplosion,
     EffectSpawn,
     EffectEnd,
 };

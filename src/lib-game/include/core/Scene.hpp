@@ -10,6 +10,24 @@
 
 import Memory;
 
+using AnimationClip = std::vector<SpriteId>;
+
+struct AnimationState
+{
+    AnimationClip clip;
+    std::size_t updateFrequency; // how many frames pass before next update
+    AnimationStateId transition;
+};
+
+using EntityStates = std::map<AnimationStateId, AnimationState>;
+
+struct EntityProperties
+{
+    float radius;
+    SpriteId initialSpriteIndex;
+    EntityStates states;
+};
+
 struct Entity
 {
     EntityType typeId;

@@ -1,6 +1,7 @@
 #include <DGM/dgm.hpp>
 #include <LevelD.hpp>
 #include <core/Constants.hpp>
+#include <core/EntityDefinitions.hpp>
 #include <input/NullController.hpp>
 #include <tuple>
 #include <utils/Builder.hpp>
@@ -63,7 +64,7 @@ static auto createEntity(const LevelD::Thing& thing)
 {
     const auto typeId =
         convertLeveldItemIdToEntityType(static_cast<LeveldItemId>(thing.id));
-    const auto& props = THING_PROPERTIES.at(typeId);
+    const auto& props = ENTITY_PROPERTIES.at(typeId);
     const auto hitbox = dgm::Circle(getThingPosition(thing), props.radius);
     return Entity { .typeId = typeId,
                     .spriteClipIndex = props.initialSpriteIndex,
@@ -124,7 +125,9 @@ Entity SceneBuilder::createPlayer(
 {
     return Entity { .typeId = EntityType::Player,
                     .spriteClipIndex = SpriteId::PlayerA0,
-                    .hitbox = dgm::Circle(position.value, PLAYER_RADIUS),
+                    .hitbox = dgm::Circle(
+                        position.value,
+                        ENTITY_PROPERTIES.at(EntityType::Player).radius),
                     .direction = lookDirection.value,
                     .inputId = inputId,
                     .health = PLAYER_INITIAL_HEALTH,
@@ -177,7 +180,7 @@ Entity SceneBuilder::createEffect(
 
 Entity SceneBuilder::createPickup(EntityType typeId, const Position& position)
 {
-    const auto& props = THING_PROPERTIES.at(typeId);
+    const auto& props = ENTITY_PROPERTIES.at(typeId);
     return Entity { .typeId = typeId,
                     .spriteClipIndex = props.initialSpriteIndex,
                     .hitbox = dgm::Circle(position.value, props.radius) };

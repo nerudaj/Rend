@@ -1,6 +1,5 @@
 #pragma once
 
-#include <core/AnimationDefinitions.hpp>
 #include <core/Scene.hpp>
 #include <events/AnimationEvents.hpp>
 

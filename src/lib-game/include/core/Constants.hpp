@@ -11,29 +11,6 @@ constinit const float PLAYER_RADIAL_SPEED = 88.f;  // degrees per second
 constinit const float PLAYER_FORWARD_SPEED = 96.f; // pixels per second
 constinit const float PLAYER_STRAFE_SPEED = 96.f;
 
-// Physics
-const float PLAYER_RADIUS = 4.f;
-
-struct ThingProperty
-{
-    SpriteId initialSpriteIndex;
-    float radius;
-};
-
-const static inline std::map<EntityType, ThingProperty> THING_PROPERTIES = {
-    { EntityType::PickupHealth, { SpriteId::MedikitA, 3_px } },
-    { EntityType::PickupArmor, { SpriteId::ArmorShardA, 3_px } },
-    { EntityType::PickupMegaHealth, { SpriteId::MegaHealthA, 6_px } },
-    { EntityType::PickupMegaArmor, { SpriteId::MegaArmorA, 3_px } },
-    { EntityType::PickupBullets, { SpriteId::BulletsA, 4_px } },
-    { EntityType::PickupShells, { SpriteId::ShellsA, 3_px } },
-    { EntityType::PickupEnergy, { SpriteId::EnergyPackA, 4_px } },
-    { EntityType::PickupRockets, { SpriteId::RocketsA, 3_px } },
-    { EntityType::PickupShotgun, { SpriteId::ShotgunA, 6_px } },
-    { EntityType::Pillar, { SpriteId::PillarA, 3_px } },
-    { EntityType::FloorLamp, { SpriteId::FloorLampA, 3_px } },
-};
-
 // Game logic
 constinit const unsigned FPS = 60;
 constinit const float FRAME_TIME = 1.f / FPS;
@@ -79,12 +56,6 @@ const sf::Vector2f NULL_VECTOR = { 0.f, 0.f };
 {
     return !(EntityType::MarkerBegin <= type && type <= EntityType::MarkerEnd);
 }
-
-/*[[nodiscard]] static constexpr bool isAnimable(EntityType type) noexcept
-{
-    using enum EntityType;
-    return type == ProjectileRocket || type == EffectClip;
-}*/
 
 [[nodiscard]] static constexpr inline bool
 isDestructible(EntityType type) noexcept
