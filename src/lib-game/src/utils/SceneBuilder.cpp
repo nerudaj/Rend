@@ -67,8 +67,8 @@ static auto createEntity(const LevelD::Thing& thing)
     const auto& props = ENTITY_PROPERTIES.at(typeId);
     const auto hitbox = dgm::Circle(getThingPosition(thing), props.radius);
     return Entity { .typeId = typeId,
-                    .renderState { .spriteClipIndex =
-                                       props.initialSpriteIndex },
+                    .animationContext { .spriteClipIndex =
+                                            props.initialSpriteIndex },
                     .hitbox = hitbox };
 }
 
@@ -128,7 +128,7 @@ Entity SceneBuilder::createPlayer(
 
     return Entity {
         .typeId = EntityType::Player,
-        .renderState = {
+        .animationContext = {
             eprops.initialSpriteIndex,
         },
         .hitbox = dgm::Circle(
@@ -143,12 +143,17 @@ Entity SceneBuilder::createPlayer(
 
 PlayerInventory SceneBuilder::getDefaultInventory() noexcept
 {
-    return PlayerInventory { .activeWeaponType = EntityType::WeaponShotgun,
-                             .bulletCount = PLAYER_INITIAL_BULLETS,
-                             .shellCount = PLAYER_INITIAL_NONBULLET_AMMO,
-                             .energyCount = PLAYER_INITIAL_NONBULLET_AMMO,
-                             .rocketCount = PLAYER_INITIAL_NONBULLET_AMMO,
-                             .fireCooldown = 0.5f };
+    return PlayerInventory {
+        .activeWeaponType = EntityType::WeaponShotgun,
+        .animationContext { .spriteClipIndex =
+                                ENTITY_PROPERTIES.at(EntityType::WeaponShotgun)
+                                    .initialSpriteIndex },
+        .bulletCount = PLAYER_INITIAL_BULLETS,
+        .shellCount = PLAYER_INITIAL_NONBULLET_AMMO,
+        .energyCount = PLAYER_INITIAL_NONBULLET_AMMO,
+        .rocketCount = PLAYER_INITIAL_NONBULLET_AMMO,
+        .fireCooldown = 0.5f
+    };
 }
 
 Entity SceneBuilder::createProjectile(
@@ -160,8 +165,8 @@ Entity SceneBuilder::createProjectile(
     const auto& eprops = ENTITY_PROPERTIES.at(type);
     return Entity {
         .typeId = type,
-        .renderState { .spriteClipIndex = eprops.initialSpriteIndex,
-                       .lastAnimationUpdate = frameIdx },
+        .animationContext { .spriteClipIndex = eprops.initialSpriteIndex,
+                            .lastAnimationUpdate = frameIdx },
         .hitbox = dgm::Circle(position.value, eprops.radius),
         .direction = direction.value,
     };
@@ -174,8 +179,8 @@ Entity SceneBuilder::createEffect(
 
     return Entity {
         .typeId = type,
-        .renderState = { .spriteClipIndex = eprops.initialSpriteIndex,
-                         .lastAnimationUpdate = frameIdx },
+        .animationContext = { .spriteClipIndex = eprops.initialSpriteIndex,
+                              .lastAnimationUpdate = frameIdx },
         .hitbox = dgm::Circle(position.value, eprops.radius),
     };
 }
@@ -184,7 +189,7 @@ Entity SceneBuilder::createPickup(EntityType typeId, const Position& position)
 {
     const auto& props = ENTITY_PROPERTIES.at(typeId);
     return Entity { .typeId = typeId,
-                    .renderState {
+                    .animationContext {
                         .spriteClipIndex = props.initialSpriteIndex,
                     },
                     .hitbox = dgm::Circle(position.value, props.radius) };

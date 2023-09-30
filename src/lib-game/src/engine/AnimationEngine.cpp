@@ -6,67 +6,89 @@
 
 void AnimationEngine::operator()(const SetStateAnimationEvent&) {}
 
+void AnimationEngine::operator()(const PlayerFiredAnimationEvent& e)
+{
+    // TODO: set player state as well
+    auto& inventory =
+        scene.playerStates[scene.things[e.playerIdx].stateId].inventory;
+    inventory.animationContext.animationStateId = AnimationStateId::Missile;
+    inventory.animationContext.animationFrameIndex = 0;
+    updateSpriteId(
+        inventory.animationContext,
+        ENTITY_PROPERTIES.at(inventory.activeWeaponType)
+            .states.at(inventory.animationContext.animationStateId));
+}
+
 void AnimationEngine::update(const float)
 {
     for (auto&& [thing, idx] : scene.things)
     {
-        // Can be removed if there is a definition for EffectStatic with
-        // NoRender sprite
-        if (!ENTITY_PROPERTIES.contains(thing.typeId)) continue;
+        handleUpdate(thing.animationContext, thing.typeId, idx);
+    }
 
-        const auto& eprop = ENTITY_PROPERTIES.at(thing.typeId);
-        if (eprop.states.empty()) continue;
+    for (auto&& [_, inventory] : scene.playerStates)
+    {
+        handleUpdate(
+            inventory.animationContext, inventory.activeWeaponType, -1);
+    }
+}
 
-        auto& state = eprop.states.at(thing.renderState.animationStateId);
+void AnimationEngine::handleUpdate(
+    AnimationContext& context, EntityType entityType, std::size_t idx)
+{
+    const auto& eprop = ENTITY_PROPERTIES.at(entityType);
+    if (eprop.states.empty()) return;
 
-        bool shouldUpdate =
-            (scene.frameId - thing.renderState.lastAnimationUpdate)
-            == state.updateFrequency;
-        if (!shouldUpdate) continue;
+    auto& state = eprop.states.at(context.animationStateId);
 
-        thing.renderState.lastAnimationUpdate = scene.frameId;
-        ++thing.renderState.animationFrameIndex;
+    bool shouldUpdate =
+        (scene.frameId - context.lastAnimationUpdate) >= state.updateFrequency;
+    if (!shouldUpdate) return;
 
-        if (thing.renderState.animationFrameIndex == state.clip.size())
-            handleTransition(thing, idx, state);
-        else
-            updateSpriteId(thing, state);
+    if ((context.animationFrameIndex + 1) == state.clip.size())
+        handleTransition(context, entityType, idx, state);
+    else
+    {
+        ++context.animationFrameIndex;
+        updateSpriteId(context, state);
     }
 }
 
 void AnimationEngine::handleTransition(
-    Entity& entity, std::size_t entityIdx, const AnimationState& oldState)
+    AnimationContext& context,
+    EntityType entityType,
+    std::size_t entityIdx,
+    const AnimationState& oldState)
 {
     switch (oldState.transition)
     {
         using enum AnimationStateId;
 
     case MarkerLoop:
-        entity.renderState.animationFrameIndex = 0;
-        updateSpriteId(entity, oldState);
+        context.animationFrameIndex = 0;
+        updateSpriteId(context, oldState);
         break;
     case MarkerDestroy:
         EventQueue::add<EntityDestroyedGameEvent>(entityIdx);
         break;
     case MarkerFreeze:
-        entity.typeId =
-            EntityType::EffectStatic; // disable further animation handling
+        // do nothing
         break;
     default: {
         // Switch to new state
         auto& newState =
-            ENTITY_PROPERTIES.at(entity.typeId).states.at(oldState.transition);
-        entity.renderState.animationStateId = oldState.transition;
-        entity.renderState.animationFrameIndex = 0;
-        updateSpriteId(entity, newState);
+            ENTITY_PROPERTIES.at(entityType).states.at(oldState.transition);
+        context.animationStateId = oldState.transition;
+        context.animationFrameIndex = 0;
+        updateSpriteId(context, newState);
     }
     }
 }
 
 void AnimationEngine::updateSpriteId(
-    Entity& entity, const AnimationState& state)
+    AnimationContext& context, const AnimationState& state)
 {
-    assert(state.clip.size() > entity.renderState.animationFrameIndex);
-    entity.renderState.spriteClipIndex =
-        state.clip[entity.renderState.animationFrameIndex];
+    assert(state.clip.size() > context.animationFrameIndex);
+    context.lastAnimationUpdate = scene.frameId;
+    context.spriteClipIndex = state.clip[context.animationFrameIndex];
 }

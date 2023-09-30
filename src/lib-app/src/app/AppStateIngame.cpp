@@ -33,9 +33,9 @@ void AppStateIngame::update()
 {
     if (stateBuffer.getSize() == 0u)
     {
-        stateBuffer.pushBack(
-            FrameState { .frameId = 0, .things = scene.things.clone() });
+        stateBuffer.pushBack(FrameState {});
         snapshotInputs(stateBuffer.last());
+        backupState(stateBuffer.last());
         return;
     }
 

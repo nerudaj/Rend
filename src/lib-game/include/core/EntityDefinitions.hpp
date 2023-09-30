@@ -38,7 +38,7 @@ const static inline auto ENTITY_PROPERTIES =
         { EntityType::EffectSpawn,
           EntityProperties {
               .radius = 8_px,
-              .initialSpriteIndex = DeathA,
+              .initialSpriteIndex = SpawnItemA,
               .states = { { AnimationStateId::Idle,
                             AnimationState {
                                 .clip = { SpawnItemA, SpawnItemB, SpawnItemC },
@@ -83,6 +83,25 @@ const static inline auto ENTITY_PROPERTIES =
                                 .clip = { RocketA0, RocketB0 },
                                 .updateFrequency = 10,
                                 .transition =
-                                    AnimationStateId::MarkerLoop } } } } }
+                                    AnimationStateId::MarkerLoop } } } } },
+        {
+            EntityType::WeaponShotgun,
+            EntityProperties {
+                .radius = 0_px,
+                .initialSpriteIndex = HUD_ShotgunA,
+                .states = { { AnimationStateId::Idle,
+                              AnimationState {
+                                  .clip = { HUD_ShotgunA },
+                                  .updateFrequency = 10,
+                                  .transition =
+                                      AnimationStateId::MarkerLoop } },
+                            { AnimationStateId::Missile,
+                              AnimationState {
+                                  .clip = { HUD_ShotgunFA,
+                                            HUD_ShotgunFB,
+                                            HUD_ShotgunFA },
+                                  .updateFrequency = 5,
+                                  .transition = AnimationStateId::Idle } } } },
+        }
     };
 }();

@@ -9,4 +9,12 @@ struct SetStateAnimationEvent
     int stateId;
 };
 
-using AnimationEvent = std::variant<SetStateAnimationEvent>;
+struct PlayerFiredAnimationEvent
+{
+    std::size_t playerIdx;
+
+    PlayerFiredAnimationEvent(std::size_t playerIdx) : playerIdx(playerIdx) {}
+};
+
+using AnimationEvent =
+    std::variant<SetStateAnimationEvent, PlayerFiredAnimationEvent>;

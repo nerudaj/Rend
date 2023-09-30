@@ -163,6 +163,7 @@ void GameRulesEngine::handlePlayer(
                         + thing.direction * thing.hitbox.getRadius() * 2.f;
         EventQueue::add<ProjectileCreatedGameEvent>(ProjectileCreatedGameEvent(
             EntityType::ProjectileRocket, position, thing.direction));
+        EventQueue::add<PlayerFiredAnimationEvent>(id);
     }
 }
 

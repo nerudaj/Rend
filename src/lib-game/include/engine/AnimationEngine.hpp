@@ -10,15 +10,22 @@ public:
 
 public: // Must visit on all related events
     void operator()(const SetStateAnimationEvent&);
+    void operator()(const PlayerFiredAnimationEvent&);
 
 public:
     void update(const float deltaTime);
 
 private:
-    void handleTransition(
-        Entity& entity, std::size_t entityIdx, const AnimationState& oldState);
+    void handleUpdate(
+        AnimationContext& context, EntityType entityType, std::size_t idx);
 
-    void updateSpriteId(Entity& entity, const AnimationState& state);
+    void handleTransition(
+        AnimationContext& context,
+        EntityType entityType,
+        std::size_t entityIdx,
+        const AnimationState& oldState);
+
+    void updateSpriteId(AnimationContext& context, const AnimationState& state);
 
 private:
     Scene& scene;

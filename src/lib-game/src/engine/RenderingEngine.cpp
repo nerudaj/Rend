@@ -57,6 +57,18 @@ void RenderingEngine::renderHudTo(dgm::Window& window)
     {
         context.text.setString(
             std::format("H: {} A: {}", pov.health, pov.armor));
+
+        sf::RectangleShape weapon;
+        float size = settings.WIDTH / 3.f;
+        weapon.setTexture(&context.weaponHudTexture);
+        weapon.setTextureRect(
+            context.weaponHudClipping.getFrame(static_cast<std::size_t>(
+                scene.playerStates[pov.stateId]
+                    .inventory.animationContext.spriteClipIndex)));
+        weapon.setSize({ size, size });
+        weapon.setPosition(
+            { settings.WIDTH / 2.f - size / 2.f, settings.HEIGHT - size });
+        window.draw(weapon);
     }
     else
     {
@@ -341,9 +353,9 @@ RenderingEngine::getFilteredAndOrderedThingsToRender(
                     cameraDirection,
                     -thing.direction,
                     static_cast<std::uint8_t>(
-                        thing.renderState.spriteClipIndex))
+                        thing.animationContext.spriteClipIndex))
                 : std::pair { static_cast<std::uint8_t>(
-                                  thing.renderState.spriteClipIndex),
+                                  thing.animationContext.spriteClipIndex),
                               false };
 
         result.push_back(ThingToRender {

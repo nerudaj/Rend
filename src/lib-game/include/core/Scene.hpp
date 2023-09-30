@@ -28,7 +28,7 @@ struct EntityProperties
     EntityStates states;
 };
 
-struct RenderState
+struct AnimationContext
 {
     SpriteId spriteClipIndex;
     AnimationStateId animationStateId = AnimationStateId::Idle;
@@ -40,7 +40,7 @@ struct RenderState
 struct Entity
 {
     EntityType typeId;
-    RenderState renderState;
+    AnimationContext animationContext;
     dgm::Circle hitbox;
     sf::Vector2f direction = NULL_VECTOR;
 
@@ -67,7 +67,7 @@ struct MarkerItemRespawner
 struct PlayerInventory
 {
     EntityType activeWeaponType;
-    RenderState renderState;
+    AnimationContext animationContext;
     int bulletCount = 0;
     int shellCount = 0;
     int energyCount = 0;
