@@ -67,7 +67,8 @@ static auto createEntity(const LevelD::Thing& thing)
     const auto& props = ENTITY_PROPERTIES.at(typeId);
     const auto hitbox = dgm::Circle(getThingPosition(thing), props.radius);
     return Entity { .typeId = typeId,
-                    .spriteClipIndex = props.initialSpriteIndex,
+                    .renderState { .spriteClipIndex =
+                                       props.initialSpriteIndex },
                     .hitbox = hitbox };
 }
 
@@ -123,11 +124,14 @@ Entity SceneBuilder::createPlayer(
     const Direction& lookDirection,
     short inputId) noexcept
 {
+    auto eprops = ENTITY_PROPERTIES.at(EntityType::Player);
     return Entity { .typeId = EntityType::Player,
-                    .spriteClipIndex = SpriteId::PlayerA0,
+                    .renderState = {
+            eprops.initialSpriteIndex,
+            },
                     .hitbox = dgm::Circle(
                         position.value,
-                        ENTITY_PROPERTIES.at(EntityType::Player).radius),
+                        eprops.radius),
                     .direction = lookDirection.value,
                     .inputId = inputId,
                     .health = PLAYER_INITIAL_HEALTH,
@@ -144,44 +148,35 @@ Entity SceneBuilder::createProjectile(
     const Direction& direction,
     std::size_t frameIdx) noexcept
 {
-    return Entity { .typeId = type,
-                    .spriteClipIndex = SpriteId::RocketA0,
-                    .hitbox = dgm::Circle(position.value, 2_px),
-                    .direction = direction.value,
-                    .lastAnimationUpdate = frameIdx };
+    const auto& eprops = ENTITY_PROPERTIES.at(type);
+    return Entity {
+        .typeId = type,
+        .renderState { .spriteClipIndex = eprops.initialSpriteIndex,
+                       .lastAnimationUpdate = frameIdx },
+        .hitbox = dgm::Circle(position.value, eprops.radius),
+        .direction = direction.value,
+    };
 }
 
 Entity SceneBuilder::createEffect(
     EntityType type, const Position& position, std::size_t frameIdx)
 {
-    switch (type)
-    {
-        using enum EntityType;
-        using enum SpriteId;
-    case EffectExplosion:
-        return Entity { .typeId = type,
-                        .spriteClipIndex = ExplosionA,
-                        .hitbox = dgm::Circle(position.value, 8_px),
-                        .lastAnimationUpdate = frameIdx };
-    case EffectDyingPlayer:
-        return Entity { .typeId = type,
-                        .spriteClipIndex = DeathA,
-                        .hitbox = dgm::Circle(position.value, 8_px),
-                        .lastAnimationUpdate = frameIdx };
-    case EffectSpawn:
-        return Entity { .typeId = type,
-                        .spriteClipIndex = SpawnItemA,
-                        .hitbox = dgm::Circle(position.value, 8_px),
-                        .lastAnimationUpdate = frameIdx };
-    default:
-        throw dgm::Exception(std::format("Unknown effect id {}", int(type)));
-    }
+    const auto& eprops = ENTITY_PROPERTIES.at(type);
+
+    return Entity {
+        .typeId = type,
+        .renderState = { .spriteClipIndex = eprops.initialSpriteIndex,
+                         .lastAnimationUpdate = frameIdx },
+        .hitbox = dgm::Circle(position.value, eprops.radius),
+    };
 }
 
 Entity SceneBuilder::createPickup(EntityType typeId, const Position& position)
 {
     const auto& props = ENTITY_PROPERTIES.at(typeId);
     return Entity { .typeId = typeId,
-                    .spriteClipIndex = props.initialSpriteIndex,
+                    .renderState {
+                        .spriteClipIndex = props.initialSpriteIndex,
+                    },
                     .hitbox = dgm::Circle(position.value, props.radius) };
 }

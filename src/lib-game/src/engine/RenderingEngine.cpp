@@ -340,8 +340,10 @@ RenderingEngine::getFilteredAndOrderedThingsToRender(
                 ? getRotatedSpriteClipId(
                     cameraDirection,
                     -thing.direction,
-                    static_cast<std::uint8_t>(thing.spriteClipIndex))
-                : std::pair { static_cast<std::uint8_t>(thing.spriteClipIndex),
+                    static_cast<std::uint8_t>(
+                        thing.renderState.spriteClipIndex))
+                : std::pair { static_cast<std::uint8_t>(
+                                  thing.renderState.spriteClipIndex),
                               false };
 
         result.push_back(ThingToRender {

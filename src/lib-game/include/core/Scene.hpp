@@ -28,10 +28,19 @@ struct EntityProperties
     EntityStates states;
 };
 
+struct RenderState
+{
+    SpriteId spriteClipIndex;
+    AnimationStateId animationStateId = AnimationStateId::Idle;
+    std::size_t animationFrameIndex = 0;
+    std::size_t
+        lastAnimationUpdate; // number of frames since last animation update
+};
+
 struct Entity
 {
     EntityType typeId;
-    SpriteId spriteClipIndex;
+    RenderState renderState;
     dgm::Circle hitbox;
     sf::Vector2f direction = NULL_VECTOR;
 
@@ -44,11 +53,6 @@ struct Entity
     int energyCount = 0;
     int rocketCount = 0;
     float fireCooldown = 0.f;
-
-    AnimationStateId animationStateId = AnimationStateId::Idle;
-    std::size_t animationFrameIndex = 0;
-    std::size_t
-        lastAnimationUpdate; // number of frames since last animation update
 };
 
 struct MarkerDeadPlayer
