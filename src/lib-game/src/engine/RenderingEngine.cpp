@@ -58,7 +58,7 @@ void RenderingEngine::renderHudTo(dgm::Window& window)
         context.text.setString(
             std::format("H: {} A: {}", pov.health, pov.armor));
     }
-    else if (pov.typeId == EntityType::MarkerDeadPlayer)
+    else
     {
         context.text.setString("Press [Space] to respawn");
     }
@@ -333,8 +333,6 @@ RenderingEngine::getFilteredAndOrderedThingsToRender(
             continue;
 
         auto&& thing = scene.things[id];
-
-        if (!isDrawable(thing.typeId)) continue;
 
         const auto& thingPosition = thing.hitbox.getPosition() / W;
         const auto [textureId, flipTexture] =

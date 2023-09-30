@@ -6,16 +6,10 @@
 
 void GameRulesEngine::operator()(const PickablePickedUpGameEvent& e)
 {
-    scene.things.emplaceBack(Entity {
-        .typeId = EntityType::MarkerItemRespawner,
-        .hitbox = scene.things[e.entityIndex].hitbox,
-
-        // Not the best code I've written - reusing random variables
-        // to encode extra information -_-
-        .inputId = static_cast<int>(scene.things[e.entityIndex].typeId),
-        .health = 0, // marker for spawn effect
-        .fireCooldown = ITEM_RESPAWN_TIMEOUT,
-    });
+    scene.markers.emplaceBack(MarkerItemRespawner {
+        .timeout = ITEM_RESPAWN_TIMEOUT,
+        .pickupType = scene.things[e.entityIndex].typeId,
+        .position = scene.things[e.entityIndex].hitbox.getPosition() });
 
     removeEntity(e.entityIndex);
 }
@@ -62,19 +56,16 @@ void GameRulesEngine::operator()(const EntityDestroyedGameEvent& e)
 
     if (playerWasDestroyed)
     {
-        scene.things.emplaceBack(SceneBuilder::createEffect(
+        auto idx = scene.things.emplaceBack(SceneBuilder::createEffect(
             EntityType::EffectDyingPlayer,
             Position { thing.hitbox.getPosition() },
             scene.frameId));
 
-        auto idx = scene.things.emplaceBack(
-            Entity { .typeId = EntityType::MarkerDeadPlayer,
-                     .spriteClipIndex = SpriteId::NoRender,
-                     .hitbox = thing.hitbox,
-                     .direction = thing.direction,
-                     .inputId = thing.inputId });
+        bool rebindCamera = scene.playerId == e.entityIndex;
+        scene.markers.emplaceBack(MarkerDeadPlayer {
+            .rebindCamera = rebindCamera, .inputId = thing.inputId });
 
-        if (scene.playerId == e.entityIndex) scene.playerId = idx;
+        if (rebindCamera) scene.playerId = idx;
     }
 
     removeEntity(e.entityIndex);
@@ -82,18 +73,19 @@ void GameRulesEngine::operator()(const EntityDestroyedGameEvent& e)
 
 void GameRulesEngine::operator()(const PlayerRespawnedGameEvent& e)
 {
-    const auto thing = scene.things[e.entityIndex];
+    const auto& marker =
+        std::get<MarkerDeadPlayer>(scene.markers[e.markerIndex]);
     const auto spawnPosition = getBestSpawnPosition();
     const auto spawnDirection = getBestSpawnDirection(spawnPosition);
 
     auto idx = scene.things.emplaceBack(SceneBuilder::createPlayer(
         Position { spawnPosition },
         Direction { spawnDirection },
-        thing.inputId));
+        marker.inputId));
 
-    if (e.entityIndex == scene.playerId) scene.playerId = idx;
+    if (marker.rebindCamera) scene.playerId = idx;
 
-    removeEntity(e.entityIndex);
+    scene.markers.eraseAtIndex(e.markerIndex);
 }
 
 void GameRulesEngine::operator()(const EffectSpawnedGameEvent& e)
@@ -106,9 +98,16 @@ void GameRulesEngine::operator()(const PickupSpawnedGameEvent& e)
 {
     scene.things.emplaceBack(
         SceneBuilder::createPickup(e.type, Position { e.position }));
+    scene.markers.eraseAtIndex(e.markerIndex);
 }
 
 #pragma endregion
+
+template<class... Ts>
+struct overloaded : Ts...
+{
+    using Ts::operator()...;
+};
 
 void GameRulesEngine::update(const float deltaTime)
 {
@@ -119,15 +118,19 @@ void GameRulesEngine::update(const float deltaTime)
         case EntityType::Player:
             handlePlayer(thing, id, deltaTime);
             break;
-        case EntityType::MarkerDeadPlayer:
-            handleDeadPlayer(thing, id);
-            break;
-        case EntityType::MarkerItemRespawner:
-            handleItemRespawner(thing, id, deltaTime);
-            break;
         default:
             break;
         }
+    }
+
+    for (auto&& [thing, idx] : scene.markers)
+    {
+        std::visit(
+            overloaded { [&](MarkerItemRespawner& marker)
+                         { handleItemRespawner(marker, idx, deltaTime); },
+                         [&](MarkerDeadPlayer& marker)
+                         { handleDeadPlayer(marker, idx); } },
+            thing);
     }
 }
 
@@ -159,30 +162,30 @@ void GameRulesEngine::handlePlayer(
     }
 }
 
-void GameRulesEngine::handleDeadPlayer(Entity& thing, std::size_t id)
+void GameRulesEngine::handleDeadPlayer(
+    MarkerDeadPlayer& marker, std::size_t idx)
 {
-    if (scene.inputs[thing.inputId].isShooting())
+    if (scene.inputs[marker.inputId].isShooting())
     {
-        EventQueue::add<PlayerRespawnedGameEvent>(id);
+        EventQueue::add<PlayerRespawnedGameEvent>(idx);
     }
 }
 
 void GameRulesEngine::handleItemRespawner(
-    Entity& thing, std::size_t idx, const float deltaTime)
+    MarkerItemRespawner& marker, std::size_t idx, const float deltaTime)
 {
-    thing.fireCooldown -= deltaTime;
-    if (thing.fireCooldown <= ITEM_SPAWN_EFFECT_TIMEOUT && thing.health == 0)
+    marker.timeout -= deltaTime;
+    if (marker.timeout <= ITEM_SPAWN_EFFECT_TIMEOUT
+        && !marker.spawnEffectEmitted)
     {
-        EventQueue::add<EffectSpawnedGameEvent>(EffectSpawnedGameEvent(
-            EntityType::EffectSpawn, thing.hitbox.getPosition()));
-        thing.health = 1;
+        EventQueue::add<EffectSpawnedGameEvent>(
+            EffectSpawnedGameEvent(EntityType::EffectSpawn, marker.position));
+        marker.spawnEffectEmitted = true;
     }
-    else if (thing.fireCooldown <= 0.f)
+    else if (marker.timeout <= 0.f)
     {
-        EventQueue::add<PickupSpawnedGameEvent>(PickupSpawnedGameEvent(
-            static_cast<EntityType>(thing.inputId),
-            thing.hitbox.getPosition()));
-        EventQueue::add<EntityDestroyedGameEvent>(idx);
+        EventQueue::add<PickupSpawnedGameEvent>(
+            PickupSpawnedGameEvent(marker.pickupType, marker.position, idx));
     }
 }
 

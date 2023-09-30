@@ -52,11 +52,6 @@ const sf::Vector2f NULL_VECTOR = { 0.f, 0.f };
     return type == Player || type == ProjectileRocket;
 }
 
-[[nodiscard]] static constexpr bool isDrawable(EntityType type) noexcept
-{
-    return !(EntityType::MarkerBegin <= type && type <= EntityType::MarkerEnd);
-}
-
 [[nodiscard]] static constexpr inline bool
 isDestructible(EntityType type) noexcept
 {

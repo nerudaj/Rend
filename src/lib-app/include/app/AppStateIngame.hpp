@@ -45,6 +45,7 @@ private:
     {
         std::size_t frameId = 0;
         dgm::DynamicBuffer<Entity> things;
+        dgm::DynamicBuffer<Marker> markers;
         InputSchema inputs[MAX_PLAYER_COUNT];
     };
 

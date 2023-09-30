@@ -106,6 +106,7 @@ void AppStateIngame::restoreState(const FrameState& state)
 {
     scene.frameId = state.frameId;
     scene.things = state.things.clone(); // restore things
+    scene.markers = state.markers.clone();
     for (unsigned i = 0; i < MAX_PLAYER_COUNT; i++)
     {
         // restore inputs
@@ -152,6 +153,7 @@ void AppStateIngame::backupState(FrameState& state)
 {
     state.frameId = scene.frameId;
     state.things = scene.things.clone();
+    state.markers = scene.markers.clone();
 }
 
 AppStateIngame::AppStateIngame(

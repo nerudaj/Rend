@@ -24,10 +24,10 @@ public:
 private:
     void handlePlayer(Entity& thing, std::size_t id, const float deltaTime);
 
-    void handleDeadPlayer(Entity& thing, std::size_t id);
+    void handleDeadPlayer(MarkerDeadPlayer& thing, std::size_t id);
 
-    void
-    handleItemRespawner(Entity& thing, std::size_t idx, const float deltaTime);
+    void handleItemRespawner(
+        MarkerItemRespawner& thing, std::size_t idx, const float deltaTime);
 
     void
     handleGrabbedPickable(Entity& grabber, Entity pickup, std::size_t pickupId);

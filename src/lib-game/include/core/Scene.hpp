@@ -51,6 +51,22 @@ struct Entity
         lastAnimationUpdate; // number of frames since last animation update
 };
 
+struct MarkerDeadPlayer
+{
+    bool rebindCamera = false;
+    int inputId = -1;
+};
+
+struct MarkerItemRespawner
+{
+    bool spawnEffectEmitted = false;
+    float timeout = 0.f;
+    EntityType pickupType;
+    sf::Vector2f position;
+};
+
+using Marker = std::variant<MarkerDeadPlayer, MarkerItemRespawner>;
+
 struct Level
 {
     unsigned width;
@@ -71,6 +87,7 @@ struct Scene
 
     std::size_t frameId = 0;
     dgm::DynamicBuffer<Entity> things;
+    dgm::DynamicBuffer<Marker> markers;
     Level level;
     dgm::SpatialBuffer<Entity> spatialIndex;
     std::array<SimpleController, MAX_PLAYER_COUNT> inputs;

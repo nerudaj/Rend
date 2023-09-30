@@ -10,6 +10,8 @@ void AnimationEngine::update(const float)
 {
     for (auto&& [thing, idx] : scene.things)
     {
+        // Can be removed if there is a definition for EffectStatic with
+        // NoRender sprite
         if (!ENTITY_PROPERTIES.contains(thing.typeId)) continue;
 
         const auto& eprop = ENTITY_PROPERTIES.at(thing.typeId);

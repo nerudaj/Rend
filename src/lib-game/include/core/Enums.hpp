@@ -73,12 +73,7 @@ enum class SpriteId : std::uint8_t
 
 enum class EntityType
 {
-    MarkerBegin,
-    MarkerError,
-    MarkerDeadPlayer,
-    MarkerItemRespawner,
-    MarkerEnd,
-
+    Error,
     StaticDecorationBegin,
     Pillar,
     FloorLamp,

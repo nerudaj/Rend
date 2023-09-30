@@ -50,9 +50,9 @@ struct EntityDestroyedGameEvent
 
 struct PlayerRespawnedGameEvent
 {
-    std::size_t entityIndex;
+    std::size_t markerIndex;
 
-    PlayerRespawnedGameEvent(std::size_t entityIndex) : entityIndex(entityIndex)
+    PlayerRespawnedGameEvent(std::size_t markerIndex) : markerIndex(markerIndex)
     {
     }
 };
@@ -72,9 +72,11 @@ struct PickupSpawnedGameEvent
 {
     EntityType type;
     sf::Vector2f position;
+    std::size_t markerIndex;
 
-    PickupSpawnedGameEvent(EntityType type, const sf::Vector2f& position)
-        : type(type), position(position)
+    PickupSpawnedGameEvent(
+        EntityType type, const sf::Vector2f& position, std::size_t markerIndex)
+        : type(type), position(position), markerIndex(markerIndex)
     {
     }
 };

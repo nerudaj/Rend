@@ -56,7 +56,7 @@ convertLeveldItemIdToEntityType(LeveldItemId id) noexcept
     case FloorLamp:
         return EntityType::FloorLamp;
     default:
-        return EntityType::MarkerError;
+        return EntityType::Error;
     }
 }
 
