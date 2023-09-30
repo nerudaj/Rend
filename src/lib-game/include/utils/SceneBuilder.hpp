@@ -15,7 +15,9 @@ public:
     [[nodiscard]] static Entity createPlayer(
         const Position& position,
         const Direction& lookDirection,
-        short inputId) noexcept;
+        int stateId) noexcept;
+
+    [[nodiscard]] static PlayerInventory getDefaultInventory() noexcept;
 
     [[nodiscard]] static Entity createProjectile(
         EntityType type,

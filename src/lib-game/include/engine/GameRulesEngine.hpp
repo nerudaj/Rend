@@ -29,11 +29,14 @@ private:
     void handleItemRespawner(
         MarkerItemRespawner& thing, std::size_t idx, const float deltaTime);
 
-    void
-    handleGrabbedPickable(Entity& grabber, Entity pickup, std::size_t pickupId);
+    void handleGrabbedPickable(
+        Entity& entity,
+        PlayerInventory& inventory,
+        Entity pickup,
+        std::size_t pickupId);
 
     /// <returns>True if thing was succesfully given</returns>
-    bool give(Entity& thing, EntityType pickupId);
+    bool give(Entity& entity, PlayerInventory& inventory, EntityType pickupId);
 
     void damage(Entity& thing, std::size_t thingIndex, int damage);
 

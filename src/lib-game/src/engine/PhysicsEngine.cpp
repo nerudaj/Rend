@@ -17,7 +17,7 @@ void PhysicsEngine::update(const float deltaTime)
 
 void PhysicsEngine::handlePlayer(Entity& thing, const float deltaTime)
 {
-    auto&& input = scene.inputs[thing.inputId];
+    const auto& input = scene.playerStates[thing.stateId].input;
 
     thing.direction = dgm::Math::getRotated(
         thing.direction, input.getSteer() * PLAYER_RADIAL_SPEED * deltaTime);

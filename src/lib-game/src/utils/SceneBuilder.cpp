@@ -122,24 +122,33 @@ Scene SceneBuilder::buildScene(
 Entity SceneBuilder::createPlayer(
     const Position& position,
     const Direction& lookDirection,
-    short inputId) noexcept
+    int stateId) noexcept
 {
-    auto eprops = ENTITY_PROPERTIES.at(EntityType::Player);
-    return Entity { .typeId = EntityType::Player,
-                    .renderState = {
+    const auto& eprops = ENTITY_PROPERTIES.at(EntityType::Player);
+
+    return Entity {
+        .typeId = EntityType::Player,
+        .renderState = {
             eprops.initialSpriteIndex,
-            },
-                    .hitbox = dgm::Circle(
-                        position.value,
-                        eprops.radius),
-                    .direction = lookDirection.value,
-                    .inputId = inputId,
-                    .health = PLAYER_INITIAL_HEALTH,
-                    .armor = PLAYER_INITIAL_ARMOR,
-                    .bulletCount = PLAYER_INITIAL_BULLETS,
-                    .shellCount = PLAYER_INITIAL_NONBULLET_AMMO,
-                    .energyCount = PLAYER_INITIAL_NONBULLET_AMMO,
-                    .rocketCount = PLAYER_INITIAL_NONBULLET_AMMO };
+        },
+        .hitbox = dgm::Circle(
+            position.value,
+            eprops.radius),
+        .direction = lookDirection.value,
+        .stateId = stateId,
+        .health = PLAYER_INITIAL_HEALTH,
+        .armor = PLAYER_INITIAL_ARMOR,
+    };
+}
+
+PlayerInventory SceneBuilder::getDefaultInventory() noexcept
+{
+    return PlayerInventory { .activeWeaponType = EntityType::WeaponShotgun,
+                             .bulletCount = PLAYER_INITIAL_BULLETS,
+                             .shellCount = PLAYER_INITIAL_NONBULLET_AMMO,
+                             .energyCount = PLAYER_INITIAL_NONBULLET_AMMO,
+                             .rocketCount = PLAYER_INITIAL_NONBULLET_AMMO,
+                             .fireCooldown = 0.5f };
 }
 
 Entity SceneBuilder::createProjectile(

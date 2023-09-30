@@ -45,20 +45,15 @@ struct Entity
     sf::Vector2f direction = NULL_VECTOR;
 
     // player stuff
-    int inputId = 0;
+    int stateId = 0;
     int health = 0;
     int armor = 0;
-    int bulletCount = 0;
-    int shellCount = 0;
-    int energyCount = 0;
-    int rocketCount = 0;
-    float fireCooldown = 0.f;
 };
 
 struct MarkerDeadPlayer
 {
     bool rebindCamera = false;
-    int inputId = -1;
+    int stateId = -1;
 };
 
 struct MarkerItemRespawner
@@ -67,6 +62,23 @@ struct MarkerItemRespawner
     float timeout = 0.f;
     EntityType pickupType;
     sf::Vector2f position;
+};
+
+struct PlayerInventory
+{
+    EntityType activeWeaponType;
+    RenderState renderState;
+    int bulletCount = 0;
+    int shellCount = 0;
+    int energyCount = 0;
+    int rocketCount = 0;
+    float fireCooldown = 0.f;
+};
+
+struct PlayerState
+{
+    SimpleController input;
+    PlayerInventory inventory;
 };
 
 using Marker = std::variant<MarkerDeadPlayer, MarkerItemRespawner>;
@@ -94,7 +106,7 @@ struct Scene
     dgm::DynamicBuffer<Marker> markers;
     Level level;
     dgm::SpatialBuffer<Entity> spatialIndex;
-    std::array<SimpleController, MAX_PLAYER_COUNT> inputs;
+    std::array<PlayerState, MAX_PLAYER_COUNT> playerStates;
     std::vector<sf::Vector2f> spawns;
     std::string mapname;
     std::size_t playerId = 0;

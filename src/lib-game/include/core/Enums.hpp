@@ -69,6 +69,10 @@ enum class SpriteId : std::uint8_t
     SpawnItemA,
     SpawnItemB,
     SpawnItemC,
+
+    HUD_ShotgunA = 0,
+    HUD_ShotgunFA,
+    HUD_ShotgunFB
 };
 
 enum class EntityType
@@ -104,6 +108,8 @@ enum class EntityType
     EffectExplosion,
     EffectSpawn,
     EffectEnd,
+
+    WeaponShotgun,
 };
 
 enum class AnimationStateId

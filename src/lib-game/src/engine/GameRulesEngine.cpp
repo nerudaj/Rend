@@ -64,7 +64,7 @@ void GameRulesEngine::operator()(const EntityDestroyedGameEvent& e)
 
         bool rebindCamera = scene.playerId == e.entityIndex;
         scene.markers.emplaceBack(MarkerDeadPlayer {
-            .rebindCamera = rebindCamera, .inputId = thing.inputId });
+            .rebindCamera = rebindCamera, .stateId = thing.stateId });
 
         if (rebindCamera) scene.playerId = idx;
     }
@@ -82,7 +82,7 @@ void GameRulesEngine::operator()(const PlayerRespawnedGameEvent& e)
     auto idx = scene.things.emplaceBack(SceneBuilder::createPlayer(
         Position { spawnPosition },
         Direction { spawnDirection },
-        marker.inputId));
+        marker.stateId));
 
     if (marker.rebindCamera) scene.playerId = idx;
 
@@ -138,6 +138,8 @@ void GameRulesEngine::update(const float deltaTime)
 void GameRulesEngine::handlePlayer(
     Entity& thing, std::size_t id, const float deltaTime)
 {
+    auto& state = scene.playerStates[thing.stateId];
+
     scene.spatialIndex.removeFromLookup(id, thing.hitbox);
 
     for (auto&& [candidateId, candidate] : getOverlapCandidates(thing.hitbox))
@@ -145,17 +147,18 @@ void GameRulesEngine::handlePlayer(
         if (isPickable(candidate.typeId)
             && dgm::Collision::basic(thing.hitbox, candidate.hitbox))
         {
-            handleGrabbedPickable(thing, candidate, candidateId);
+            handleGrabbedPickable(
+                thing, state.inventory, candidate, candidateId);
         }
     }
 
     scene.spatialIndex.returnToLookup(id, thing.hitbox);
 
-    if (thing.fireCooldown > 0.f)
-        thing.fireCooldown -= deltaTime;
-    else if (scene.inputs[thing.inputId].isShooting())
+    if (state.inventory.fireCooldown > 0.f)
+        state.inventory.fireCooldown -= deltaTime;
+    else if (state.input.isShooting())
     {
-        thing.fireCooldown = WEAPON_LAUNCHER_COOLDOWN;
+        state.inventory.fireCooldown = WEAPON_LAUNCHER_COOLDOWN;
         auto position = thing.hitbox.getPosition()
                         + thing.direction * thing.hitbox.getRadius() * 2.f;
         EventQueue::add<ProjectileCreatedGameEvent>(ProjectileCreatedGameEvent(
@@ -166,7 +169,7 @@ void GameRulesEngine::handlePlayer(
 void GameRulesEngine::handleDeadPlayer(
     MarkerDeadPlayer& marker, std::size_t idx)
 {
-    if (scene.inputs[marker.inputId].isShooting())
+    if (scene.playerStates[marker.stateId].input.isShooting())
     {
         EventQueue::add<PlayerRespawnedGameEvent>(idx);
     }
@@ -191,56 +194,61 @@ void GameRulesEngine::handleItemRespawner(
 }
 
 void GameRulesEngine::handleGrabbedPickable(
-    Entity& grabber, Entity pickup, std::size_t pickupId)
+    Entity& entity,
+    PlayerInventory& inventory,
+    Entity pickup,
+    std::size_t pickupId)
 {
-    if (give(grabber, pickup.typeId) && !isWeaponPickable(pickup.typeId))
+    if (give(entity, inventory, pickup.typeId)
+        && !isWeaponPickable(pickup.typeId))
     {
         EventQueue::add<PickablePickedUpGameEvent>(pickupId);
     }
 }
 
-bool GameRulesEngine::give(Entity& thing, EntityType pickupId)
+bool GameRulesEngine::give(
+    Entity& entity, PlayerInventory& inventory, EntityType pickupId)
 {
     using enum EntityType;
     switch (pickupId)
     {
     case PickupHealth:
-        if (thing.health == MAX_BASE_HEALTH) return false;
-        thing.health = std::clamp(
-            thing.health + MEDIKIT_HEALTH_AMOUNT, 0, MAX_BASE_HEALTH);
+        if (entity.health == MAX_BASE_HEALTH) return false;
+        entity.health = std::clamp(
+            entity.health + MEDIKIT_HEALTH_AMOUNT, 0, MAX_BASE_HEALTH);
         break;
     case PickupArmor:
-        if (thing.armor == MAX_ARMOR) return false;
-        thing.armor =
-            std::clamp(thing.armor + ARMORSHARD_ARMOR_AMOUNT, 0, MAX_ARMOR);
+        if (entity.armor == MAX_ARMOR) return false;
+        entity.armor =
+            std::clamp(entity.armor + ARMORSHARD_ARMOR_AMOUNT, 0, MAX_ARMOR);
         break;
     case PickupMegaHealth:
-        thing.health = std::clamp(
-            thing.health + MEGAHEALTH_HEALTH_AMOUNT, 0, MAX_UPPED_HEALTH);
+        entity.health = std::clamp(
+            entity.health + MEGAHEALTH_HEALTH_AMOUNT, 0, MAX_UPPED_HEALTH);
         break;
     case PickupMegaArmor:
-        thing.armor =
-            std::clamp(thing.health + MEGAARMOR_ARMOR_AMOUNT, 0, MAX_ARMOR);
+        entity.armor =
+            std::clamp(entity.health + MEGAARMOR_ARMOR_AMOUNT, 0, MAX_ARMOR);
         break;
     case PickupBullets:
-        if (thing.bulletCount == MAX_BULLETS) return false;
-        thing.bulletCount =
-            std::clamp(thing.bulletCount + BULLET_AMOUNT, 0, MAX_BULLETS);
+        if (inventory.bulletCount == MAX_BULLETS) return false;
+        inventory.bulletCount =
+            std::clamp(inventory.bulletCount + BULLET_AMOUNT, 0, MAX_BULLETS);
         break;
     case PickupShells:
-        if (thing.shellCount == MAX_SHELLS) return false;
-        thing.shellCount =
-            std::clamp(thing.shellCount + SHELL_AMOUNT, 0, MAX_SHELLS);
+        if (inventory.shellCount == MAX_SHELLS) return false;
+        inventory.shellCount =
+            std::clamp(inventory.shellCount + SHELL_AMOUNT, 0, MAX_SHELLS);
         break;
     case PickupEnergy:
-        if (thing.energyCount == MAX_ENERGY) return false;
-        thing.energyCount =
-            std::clamp(thing.energyCount + ENERGY_AMOUNT, 0, MAX_ENERGY);
+        if (inventory.energyCount == MAX_ENERGY) return false;
+        inventory.energyCount =
+            std::clamp(inventory.energyCount + ENERGY_AMOUNT, 0, MAX_ENERGY);
         break;
     case PickupRockets:
-        if (thing.rocketCount == MAX_ROCKETS) return false;
-        thing.rocketCount =
-            std::clamp(thing.rocketCount + ROCKET_AMOUNT, 0, MAX_ROCKETS);
+        if (inventory.rocketCount == MAX_ROCKETS) return false;
+        inventory.rocketCount =
+            std::clamp(inventory.rocketCount + ROCKET_AMOUNT, 0, MAX_ROCKETS);
         break;
     default:
         return false;

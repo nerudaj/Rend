@@ -47,6 +47,7 @@ private:
         dgm::DynamicBuffer<Entity> things;
         dgm::DynamicBuffer<Marker> markers;
         InputSchema inputs[MAX_PLAYER_COUNT];
+        PlayerInventory inventories[MAX_PLAYER_COUNT];
     };
 
     void snapshotInputs(FrameState& state);

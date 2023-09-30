@@ -110,7 +110,8 @@ void AppStateIngame::restoreState(const FrameState& state)
     for (unsigned i = 0; i < MAX_PLAYER_COUNT; i++)
     {
         // restore inputs
-        scene.inputs[i].deserializeFrom(state.inputs[i]);
+        scene.playerStates[i].input.deserializeFrom(state.inputs[i]);
+        scene.playerStates[i].inventory = state.inventories[i];
     }
 
     // rebuild spatial index
@@ -154,6 +155,9 @@ void AppStateIngame::backupState(FrameState& state)
     state.frameId = scene.frameId;
     state.things = scene.things.clone();
     state.markers = scene.markers.clone();
+
+    for (auto i = 0; i < MAX_PLAYER_COUNT; i++)
+        state.inventories[i] = scene.playerStates[i].inventory;
 }
 
 AppStateIngame::AppStateIngame(
@@ -199,5 +203,10 @@ AppStateIngame::AppStateIngame(
             Position { scene.spawns[i] },
             Direction { sf::Vector2f { 1.f, 0.f } },
             i));
+    }
+
+    for (auto&& state : scene.playerStates)
+    {
+        state.inventory = SceneBuilder::getDefaultInventory();
     }
 }
