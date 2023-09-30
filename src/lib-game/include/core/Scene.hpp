@@ -59,27 +59,6 @@ struct Scene
     std::vector<sf::Vector2f> spawns;
     std::string mapname;
     std::size_t playerId = 0;
-
-    [[nodiscard]] static Scene buildScene(
-        const dgm::ResourceManager& resmgr,
-        const sf::Vector2f& baseResolution,
-        const Settings& settings);
-
-    [[nodiscard]] Entity createPlayer(
-        const Position& position,
-        const Direction& lookDirection,
-        short inputId) noexcept;
-
-    [[nodiscard]] Entity createProjectile(
-        EntityType type,
-        const Position& position,
-        const Direction& direction) noexcept;
-
-    [[nodiscard]] Entity
-    createEffect(EntityType type, const Position& position);
-
-    [[nodiscard]] Entity
-    createPickup(EntityType type, const Position& position);
 };
 
 // TODO: move somewhere else

@@ -1,9 +1,10 @@
-#include "core/Scene.hpp"
-#include "utils/Builder.hpp"
 #include <DGM/dgm.hpp>
 #include <LevelD.hpp>
+#include <core/Constants.hpp>
 #include <input/NullController.hpp>
 #include <tuple>
+#include <utils/Builder.hpp>
+#include <utils/SceneBuilder.hpp>
 
 static inline const sf::FloatRect FULLSCREEN_VIEWPORT = { 0.f, 0.f, 1.f, 1.f };
 
@@ -94,7 +95,7 @@ static dgm::SpatialBuffer<Entity> createSpatialBuffer(const LevelD& level)
     return result;
 }
 
-Scene Scene::buildScene(
+Scene SceneBuilder::buildScene(
     const dgm::ResourceManager& resmgr,
     const sf::Vector2f& baseResolution,
     const Settings& settings)
@@ -116,7 +117,7 @@ Scene Scene::buildScene(
     };
 }
 
-Entity Scene::createPlayer(
+Entity SceneBuilder::createPlayer(
     const Position& position,
     const Direction& lookDirection,
     short inputId) noexcept
@@ -134,19 +135,21 @@ Entity Scene::createPlayer(
                     .rocketCount = PLAYER_INITIAL_NONBULLET_AMMO };
 }
 
-Entity Scene::createProjectile(
+Entity SceneBuilder::createProjectile(
     EntityType type,
     const Position& position,
-    const Direction& direction) noexcept
+    const Direction& direction,
+    std::size_t frameIdx) noexcept
 {
     return Entity { .typeId = type,
                     .spriteClipIndex = SpriteId::RocketA0,
                     .hitbox = dgm::Circle(position.value, 2_px),
                     .direction = direction.value,
-                    .lastAnimationUpdate = frameId };
+                    .lastAnimationUpdate = frameIdx };
 }
 
-Entity Scene::createEffect(EntityType type, const Position& position)
+Entity SceneBuilder::createEffect(
+    EntityType type, const Position& position, std::size_t frameIdx)
 {
     switch (type)
     {
@@ -156,23 +159,23 @@ Entity Scene::createEffect(EntityType type, const Position& position)
         return Entity { .typeId = type,
                         .spriteClipIndex = ExplosionA,
                         .hitbox = dgm::Circle(position.value, 8_px),
-                        .lastAnimationUpdate = frameId };
+                        .lastAnimationUpdate = frameIdx };
     case EffectDyingPlayer:
         return Entity { .typeId = type,
                         .spriteClipIndex = DeathA,
                         .hitbox = dgm::Circle(position.value, 8_px),
-                        .lastAnimationUpdate = frameId };
+                        .lastAnimationUpdate = frameIdx };
     case EffectSpawn:
         return Entity { .typeId = type,
                         .spriteClipIndex = SpawnItemA,
                         .hitbox = dgm::Circle(position.value, 8_px),
-                        .lastAnimationUpdate = frameId };
+                        .lastAnimationUpdate = frameIdx };
     default:
         throw dgm::Exception(std::format("Unknown effect id {}", int(type)));
     }
 }
 
-Entity Scene::createPickup(EntityType typeId, const Position& position)
+Entity SceneBuilder::createPickup(EntityType typeId, const Position& position)
 {
     const auto& props = THING_PROPERTIES.at(typeId);
     return Entity { .typeId = typeId,

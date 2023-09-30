@@ -3,6 +3,7 @@
 #include <events/EventQueue.hpp>
 #include <input/NullController.hpp>
 #include <input/PhysicalController.hpp>
+#include <utils/SceneBuilder.hpp>
 
 void AppStateIngame::input()
 {
@@ -165,7 +166,7 @@ AppStateIngame::AppStateIngame(
     , settings(_settings)
     , audioPlayer(_audioPlayer)
     , GAME_RESOLUTION(sf::Vector2f(app.window.getSize()))
-    , scene(Scene::buildScene(*resmgr, GAME_RESOLUTION, *settings))
+    , scene(SceneBuilder::buildScene(*resmgr, GAME_RESOLUTION, *settings))
     , animationEngine(scene)
     , audioEngine(resmgr, audioPlayer)
     , gameRulesEngine(scene)
@@ -185,14 +186,14 @@ AppStateIngame::AppStateIngame(
     scene.worldCamera.setPosition(GAME_RESOLUTION / 2.f);
     scene.hudCamera.setPosition(GAME_RESOLUTION / 2.f);
 
-    scene.playerId = scene.things.emplaceBack(scene.createPlayer(
+    scene.playerId = scene.things.emplaceBack(SceneBuilder::createPlayer(
         Position { scene.spawns[0] },
         Direction { sf::Vector2f { 1.f, 0.f } },
         0));
 
     for (short i = 1; i < MAX_PLAYER_COUNT; i++)
     {
-        scene.things.emplaceBack(scene.createPlayer(
+        scene.things.emplaceBack(SceneBuilder::createPlayer(
             Position { scene.spawns[i] },
             Direction { sf::Vector2f { 1.f, 0.f } },
             i));

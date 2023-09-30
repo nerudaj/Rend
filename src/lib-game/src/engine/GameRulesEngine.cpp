@@ -1,5 +1,6 @@
 #include "engine/GameRulesEngine.hpp"
 #include "events/EventQueue.hpp"
+#include <utils/SceneBuilder.hpp>
 
 #pragma region EventHandling
 
@@ -21,8 +22,11 @@ void GameRulesEngine::operator()(const PickablePickedUpGameEvent& e)
 
 void GameRulesEngine::operator()(const ProjectileCreatedGameEvent& e)
 {
-    scene.things.emplaceBack(scene.createProjectile(
-        e.type, Position { e.position }, Direction { e.direction }));
+    scene.things.emplaceBack(SceneBuilder::createProjectile(
+        e.type,
+        Position { e.position },
+        Direction { e.direction },
+        scene.frameId));
 }
 
 void GameRulesEngine::operator()(const ProjectileDestroyedGameEvent& e)
@@ -45,9 +49,10 @@ void GameRulesEngine::operator()(const ProjectileDestroyedGameEvent& e)
     }
 
     // Spawn explosion effect
-    scene.things.emplaceBack(scene.createEffect(
+    scene.things.emplaceBack(SceneBuilder::createEffect(
         EntityType::EffectExplosion,
-        Position { explosionHitbox.getPosition() }));
+        Position { explosionHitbox.getPosition() },
+        scene.frameId));
 }
 
 void GameRulesEngine::operator()(const EntityDestroyedGameEvent& e)
@@ -57,9 +62,10 @@ void GameRulesEngine::operator()(const EntityDestroyedGameEvent& e)
 
     if (playerWasDestroyed)
     {
-        scene.things.emplaceBack(scene.createEffect(
+        scene.things.emplaceBack(SceneBuilder::createEffect(
             EntityType::EffectDyingPlayer,
-            Position { thing.hitbox.getPosition() }));
+            Position { thing.hitbox.getPosition() },
+            scene.frameId));
 
         auto idx = scene.things.emplaceBack(
             Entity { .typeId = EntityType::MarkerDeadPlayer,
@@ -80,7 +86,7 @@ void GameRulesEngine::operator()(const PlayerRespawnedGameEvent& e)
     const auto spawnPosition = getBestSpawnPosition();
     const auto spawnDirection = getBestSpawnDirection(spawnPosition);
 
-    auto idx = scene.things.emplaceBack(scene.createPlayer(
+    auto idx = scene.things.emplaceBack(SceneBuilder::createPlayer(
         Position { spawnPosition },
         Direction { spawnDirection },
         thing.inputId));
@@ -92,14 +98,14 @@ void GameRulesEngine::operator()(const PlayerRespawnedGameEvent& e)
 
 void GameRulesEngine::operator()(const EffectSpawnedGameEvent& e)
 {
-    scene.things.emplaceBack(
-        scene.createEffect(e.type, Position { e.position }));
+    scene.things.emplaceBack(SceneBuilder::createEffect(
+        e.type, Position { e.position }, scene.frameId));
 }
 
 void GameRulesEngine::operator()(const PickupSpawnedGameEvent& e)
 {
     scene.things.emplaceBack(
-        scene.createPickup(e.type, Position { e.position }));
+        SceneBuilder::createPickup(e.type, Position { e.position }));
 }
 
 #pragma endregion
