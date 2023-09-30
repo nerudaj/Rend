@@ -60,6 +60,7 @@ void GameRulesEngine::operator()(const EntityDestroyedGameEvent& e)
             EntityType::EffectDyingPlayer,
             Position { thing.hitbox.getPosition() },
             scene.frameId));
+        scene.things[idx].direction = thing.direction;
 
         bool rebindCamera = scene.playerId == e.entityIndex;
         scene.markers.emplaceBack(MarkerDeadPlayer {
