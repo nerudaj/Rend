@@ -144,9 +144,9 @@ Entity SceneBuilder::createPlayer(
 PlayerInventory SceneBuilder::getDefaultInventory() noexcept
 {
     return PlayerInventory {
-        .activeWeaponType = EntityType::WeaponShotgun,
+        .activeWeaponType = EntityType::WeaponFlaregun,
         .animationContext { .spriteClipIndex =
-                                ENTITY_PROPERTIES.at(EntityType::WeaponShotgun)
+                                ENTITY_PROPERTIES.at(EntityType::WeaponFlaregun)
                                     .initialSpriteIndex },
         .bulletCount = PLAYER_INITIAL_BULLETS,
         .shellCount = PLAYER_INITIAL_NONBULLET_AMMO,

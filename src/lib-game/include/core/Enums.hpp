@@ -72,7 +72,13 @@ enum class SpriteId : std::uint8_t
 
     HUD_ShotgunA = 0,
     HUD_ShotgunFA,
-    HUD_ShotgunFB
+    HUD_ShotgunFB,
+    HUD_ShotgunRA,
+    HUD_ShotgunRB,
+    HUD_ShotgunRC,
+    HUD_FlaregunA,
+    HUD_FlaregunFA,
+    HUD_FlaregunFB
 };
 
 enum class EntityType
@@ -109,6 +115,7 @@ enum class EntityType
     EffectSpawn,
     EffectEnd,
 
+    WeaponFlaregun,
     WeaponShotgun,
 };
 
@@ -117,6 +124,7 @@ enum class AnimationStateId
     Idle,
     Run,
     Missile,
+    Recovery,
     MarkerLoop,
     MarkerDestroy,
     MarkerFreeze,

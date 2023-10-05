@@ -101,6 +101,30 @@ const static inline auto ENTITY_PROPERTIES =
                                             HUD_ShotgunFB,
                                             HUD_ShotgunFA },
                                   .updateFrequency = 5,
+                                  .transition = AnimationStateId::Recovery } },
+                            { AnimationStateId::Recovery,
+                              AnimationState {
+                                  .clip = { HUD_ShotgunRA,
+                                            HUD_ShotgunRB,
+                                            HUD_ShotgunRC },
+                                  .updateFrequency = 10,
+                                  .transition = AnimationStateId::Idle } } } },
+        },
+        {
+            EntityType::WeaponFlaregun,
+            EntityProperties {
+                .radius = 0_px,
+                .initialSpriteIndex = HUD_FlaregunA,
+                .states = { { AnimationStateId::Idle,
+                              AnimationState {
+                                  .clip = { HUD_FlaregunA },
+                                  .updateFrequency = 10,
+                                  .transition =
+                                      AnimationStateId::MarkerLoop } },
+                            { AnimationStateId::Missile,
+                              AnimationState {
+                                  .clip = { HUD_FlaregunFA, HUD_FlaregunFB },
+                                  .updateFrequency = 20,
                                   .transition = AnimationStateId::Idle } } } },
         }
     };
