@@ -19,8 +19,8 @@ void PhysicsEngine::handlePlayer(Entity& thing, const float deltaTime)
 {
     const auto& input = scene.playerStates[thing.stateId].input;
 
-    thing.direction = dgm::Math::getRotated(
-        thing.direction, input.getSteer() * PLAYER_RADIAL_SPEED * deltaTime);
+    thing.direction = dgm::Math::toUnit(dgm::Math::getRotated(
+        thing.direction, input.getSteer() * PLAYER_RADIAL_SPEED * deltaTime));
 
     auto&& forward =
         dgm::Math::toUnit(
