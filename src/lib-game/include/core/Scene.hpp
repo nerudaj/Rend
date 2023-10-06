@@ -3,8 +3,10 @@
 #include <DGM/dgm.hpp>
 #include <Settings.hpp>
 #include <array>
+#include <bitset>
 #include <core/Constants.hpp>
 #include <core/Enums.hpp>
+#include <core/Types.hpp>
 #include <input/SimpleController.hpp>
 #include <utils/SemanticTypes.hpp>
 
@@ -45,7 +47,7 @@ struct Entity
     sf::Vector2f direction = NULL_VECTOR;
 
     // player stuff
-    int stateId = 0;
+    PlayerStateIndexType stateId = 0;
     int health = 0;
     int armor = 0;
 };
@@ -53,7 +55,7 @@ struct Entity
 struct MarkerDeadPlayer
 {
     bool rebindCamera = false;
-    int stateId = -1;
+    PlayerStateIndexType stateId = -1;
 };
 
 struct MarkerItemRespawner
@@ -72,7 +74,7 @@ struct PlayerInventory
     int shellCount = 0;
     int energyCount = 0;
     int rocketCount = 0;
-    float fireCooldown = 0.f;
+    std::bitset<16> acquiredWeapons;
 };
 
 struct PlayerState
@@ -109,11 +111,37 @@ struct Scene
     std::array<PlayerState, MAX_PLAYER_COUNT> playerStates;
     std::vector<sf::Vector2f> spawns;
     std::string mapname;
-    std::size_t playerId = 0;
+    EntityIndexType playerId = 0;
 };
 
 // TODO: move somewhere else
-static inline sf::Vector2f getPerpendicular(const sf::Vector2f& v) noexcept
+[[nodiscard]] static inline sf::Vector2f
+getPerpendicular(const sf::Vector2f& v) noexcept
 {
     return { -v.y, v.x };
+}
+
+template<std::size_t Bits>
+[[nodiscard]] static constexpr std::size_t
+getPrevToggledBit(std::size_t index, const std::bitset<Bits>& bitset) noexcept
+{
+    assert(bitset[0]);
+    if (index == 0) index = bitset.size();
+    do
+    {
+        --index;
+    } while (!bitset[index]);
+    return index;
+}
+
+template<std::size_t Bits>
+[[nodiscard]] static constexpr std::size_t
+getNextToggledBit(std::size_t index, const std::bitset<Bits>& bitset) noexcept
+{
+    assert(bitset[0]);
+    do
+    {
+        ++index;
+    } while (index < bitset.size() && !bitset[index]);
+    return index == bitset.size() ? 0 : index;
 }

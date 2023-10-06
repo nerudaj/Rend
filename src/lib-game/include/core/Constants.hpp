@@ -3,6 +3,7 @@
 #include <SFML/System/Vector2.hpp>
 #include <array>
 #include <core/Enums.hpp>
+#include <core/Types.hpp>
 #include <map>
 #include <utils/SemanticTypes.hpp>
 
@@ -10,6 +11,7 @@
 constinit const float PLAYER_RADIAL_SPEED = 88.f;  // degrees per second
 constinit const float PLAYER_FORWARD_SPEED = 96.f; // pixels per second
 constinit const float PLAYER_STRAFE_SPEED = 96.f;
+constinit const float PROJECTILE_FORWARD_SPEED = 108.f;
 
 // Game logic
 constinit const unsigned FPS = 60;
@@ -33,11 +35,26 @@ constinit const int MAX_BULLETS = 200;
 constinit const int MAX_SHELLS = 50;
 constinit const int MAX_ENERGY = 100;
 constinit const int MAX_ROCKETS = 25;
-constinit const float WEAPON_LAUNCHER_COOLDOWN = 1.f;
-constinit const float PROJECTILE_FORWARD_SPEED = 108.f;
 constinit const int ROCKET_DAMAGE = 150;
 constinit const float ITEM_RESPAWN_TIMEOUT = 15.f;
 constinit const float ITEM_SPAWN_EFFECT_TIMEOUT = 0.5f;
+
+// Inventory
+constinit const unsigned WEAPON_COUNT = 16;
+
+[[nodiscard]] constexpr static WeaponIndexType
+weaponTypeToIndex(EntityType type) noexcept
+{
+    return static_cast<WeaponIndexType>(type)
+           - static_cast<WeaponIndexType>(EntityType::WeaponFlaregun);
+}
+
+[[nodiscard]] constexpr static EntityType
+weaponIndexToType(WeaponIndexType idx) noexcept
+{
+    return static_cast<EntityType>(
+        static_cast<WeaponIndexType>(EntityType::WeaponFlaregun) + idx);
+}
 
 // Other
 constinit const std::size_t ANIMATION_FPS = 60 / 4; // four updates per second

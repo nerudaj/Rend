@@ -122,7 +122,7 @@ Scene SceneBuilder::buildScene(
 Entity SceneBuilder::createPlayer(
     const Position& position,
     const Direction& lookDirection,
-    int stateId) noexcept
+    PlayerStateIndexType stateId) noexcept
 {
     const auto& eprops = ENTITY_PROPERTIES.at(EntityType::Player);
 
@@ -152,7 +152,7 @@ PlayerInventory SceneBuilder::getDefaultInventory() noexcept
         .shellCount = PLAYER_INITIAL_NONBULLET_AMMO,
         .energyCount = PLAYER_INITIAL_NONBULLET_AMMO,
         .rocketCount = PLAYER_INITIAL_NONBULLET_AMMO,
-        .fireCooldown = 0.5f
+        .acquiredWeapons = 0b0000000000000001
     };
 }
 

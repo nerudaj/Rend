@@ -1,19 +1,32 @@
 #pragma once
 
+#include <core/Types.hpp>
 #include <cstdlib>
 #include <variant>
 
 struct SetStateAnimationEvent
 {
-    std::size_t thingsId;
+    EntityIndexType thingsId;
     int stateId;
 };
 
 struct PlayerFiredAnimationEvent
 {
-    std::size_t playerIdx;
+    EntityIndexType playerIdx;
 
-    PlayerFiredAnimationEvent(std::size_t playerIdx) : playerIdx(playerIdx) {}
+    PlayerFiredAnimationEvent(EntityIndexType playerIdx) : playerIdx(playerIdx)
+    {
+    }
+};
+
+struct WeaponSwappedAnimationEvent
+{
+    EntityIndexType playerIdx;
+
+    WeaponSwappedAnimationEvent(EntityIndexType playerIdx)
+        : playerIdx(playerIdx)
+    {
+    }
 };
 
 using AnimationEvent =

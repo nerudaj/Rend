@@ -136,11 +136,11 @@ void GameRulesEngine::update(const float deltaTime)
 }
 
 void GameRulesEngine::handlePlayer(
-    Entity& thing, std::size_t id, const float deltaTime)
+    Entity& thing, std::size_t idx, const float deltaTime)
 {
     auto& state = scene.playerStates[thing.stateId];
 
-    scene.spatialIndex.removeFromLookup(id, thing.hitbox);
+    scene.spatialIndex.removeFromLookup(idx, thing.hitbox);
 
     for (auto&& [candidateId, candidate] : getOverlapCandidates(thing.hitbox))
     {
@@ -152,18 +152,32 @@ void GameRulesEngine::handlePlayer(
         }
     }
 
-    scene.spatialIndex.returnToLookup(id, thing.hitbox);
+    scene.spatialIndex.returnToLookup(idx, thing.hitbox);
 
-    if (state.inventory.fireCooldown > 0.f)
-        state.inventory.fireCooldown -= deltaTime;
-    else if (state.input.isShooting())
+    // No weapon interaction allowed when weapon is not in idle
+    if (state.inventory.animationContext.animationStateId
+        != AnimationStateId::Idle)
+        return;
+
+    if (state.input.isShooting())
     {
-        state.inventory.fireCooldown = WEAPON_LAUNCHER_COOLDOWN;
         auto position = thing.hitbox.getPosition()
                         + thing.direction * thing.hitbox.getRadius() * 2.f;
         EventQueue::add<ProjectileCreatedGameEvent>(ProjectileCreatedGameEvent(
             EntityType::ProjectileRocket, position, thing.direction));
         EventQueue::add<PlayerFiredAnimationEvent>(id);
+        EventQueue::add<PlayerFiredAnimationEvent>(idx);
+    }
+    else if (state.input.shouldSwapToPreviousWeapon())
+    {
+        swapToPreviousWeapon(state.inventory, idx);
+    }
+    else if (state.input.shouldSwapToNextWeapon())
+    {
+        swapToNextWeapon(state.inventory, idx);
+    }
+    else if (state.input.shouldSwapToLastWeapon())
+    {
     }
 }
 
@@ -205,6 +219,24 @@ void GameRulesEngine::handleGrabbedPickable(
     {
         EventQueue::add<PickablePickedUpGameEvent>(pickupId);
     }
+}
+
+void GameRulesEngine::swapToPreviousWeapon(
+    PlayerInventory& inventory, EntityIndexType idx)
+{
+    inventory.activeWeaponType = weaponIndexToType(getPrevToggledBit(
+        weaponTypeToIndex(inventory.activeWeaponType),
+        inventory.acquiredWeapons));
+    EventQueue::add<WeaponSwappedAnimationEvent>(idx);
+}
+
+void GameRulesEngine::swapToNextWeapon(
+    PlayerInventory& inventory, EntityIndexType idx)
+{
+    inventory.activeWeaponType = weaponIndexToType(getNextToggledBit(
+        weaponTypeToIndex(inventory.activeWeaponType),
+        inventory.acquiredWeapons));
+    EventQueue::add<WeaponSwappedAnimationEvent>(idx);
 }
 
 bool GameRulesEngine::give(
@@ -251,6 +283,13 @@ bool GameRulesEngine::give(
         inventory.rocketCount =
             std::clamp(inventory.rocketCount + ROCKET_AMOUNT, 0, MAX_ROCKETS);
         break;
+    case PickupShotgun: {
+        constexpr auto index = weaponTypeToIndex(EntityType::WeaponShotgun);
+        if (inventory.acquiredWeapons[index]) return false;
+        inventory.shellCount = SHELL_AMOUNT;
+        inventory.acquiredWeapons[index] = true;
+        return false;
+    }
     default:
         return false;
     }

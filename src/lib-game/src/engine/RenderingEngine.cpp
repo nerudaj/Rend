@@ -56,16 +56,19 @@ void RenderingEngine::renderHudTo(dgm::Window& window)
     auto&& pov = scene.things[scene.playerId];
     if (pov.typeId == EntityType::Player)
     {
-        context.text.setString(
-            std::format("H: {} A: {}", pov.health, pov.armor));
+        auto& inventory = scene.playerStates[pov.stateId].inventory;
+        context.text.setString(std::format(
+            "H: {} A: {} W: {}",
+            pov.health,
+            pov.armor,
+            inventory.acquiredWeapons.to_string()));
 
         sf::RectangleShape weapon;
         float size = settings.WIDTH / 3.f;
         weapon.setTexture(&context.weaponHudTexture);
         weapon.setTextureRect(
             context.weaponHudClipping.getFrame(static_cast<std::size_t>(
-                scene.playerStates[pov.stateId]
-                    .inventory.animationContext.spriteClipIndex)));
+                inventory.animationContext.spriteClipIndex)));
         weapon.setSize({ size, size });
         weapon.setPosition(
             { settings.WIDTH / 2.f - size / 2.f, settings.HEIGHT - size });

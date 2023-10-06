@@ -9,14 +9,13 @@ void AnimationEngine::operator()(const SetStateAnimationEvent&) {}
 void AnimationEngine::operator()(const PlayerFiredAnimationEvent& e)
 {
     // TODO: set player state as well
-    auto& inventory =
-        scene.playerStates[scene.things[e.playerIdx].stateId].inventory;
-    inventory.animationContext.animationStateId = AnimationStateId::Missile;
-    inventory.animationContext.animationFrameIndex = 0;
-    updateSpriteId(
-        inventory.animationContext,
-        ENTITY_PROPERTIES.at(inventory.activeWeaponType)
-            .states.at(inventory.animationContext.animationStateId));
+    setWeaponAnimationState(
+        getInventory(e.playerIdx), AnimationStateId::Missile);
+}
+
+void AnimationEngine::operator()(const WeaponSwappedAnimationEvent& e)
+{
+    setWeaponAnimationState(getInventory(e.playerIdx), AnimationStateId::Idle);
 }
 
 void AnimationEngine::update(const float)
@@ -83,6 +82,17 @@ void AnimationEngine::handleTransition(
         updateSpriteId(context, newState);
     }
     }
+}
+
+void AnimationEngine::setWeaponAnimationState(
+    PlayerInventory& inventory, AnimationStateId state)
+{
+    inventory.animationContext.animationStateId = state;
+    inventory.animationContext.animationFrameIndex = 0;
+    updateSpriteId(
+        inventory.animationContext,
+        ENTITY_PROPERTIES.at(inventory.activeWeaponType)
+            .states.at(inventory.animationContext.animationStateId));
 }
 
 void AnimationEngine::updateSpriteId(

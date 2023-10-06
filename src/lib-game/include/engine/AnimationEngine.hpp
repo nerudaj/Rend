@@ -11,6 +11,7 @@ public:
 public: // Must visit on all related events
     void operator()(const SetStateAnimationEvent&);
     void operator()(const PlayerFiredAnimationEvent&);
+    void operator()(const WeaponSwappedAnimationEvent&);
 
 public:
     void update(const float deltaTime);
@@ -24,6 +25,16 @@ private:
         EntityType entityType,
         std::size_t entityIdx,
         const AnimationState& oldState);
+
+    [[nodiscard]] constexpr auto&
+    getInventory(this auto&& self, EntityIndexType playerIdx) noexcept
+    {
+        return self.scene.playerStates[self.scene.things[playerIdx].stateId]
+            .inventory;
+    }
+
+    void
+    setWeaponAnimationState(PlayerInventory& inventory, AnimationStateId state);
 
     void updateSpriteId(AnimationContext& context, const AnimationState& state);
 

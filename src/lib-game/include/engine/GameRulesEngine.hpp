@@ -1,6 +1,7 @@
 #pragma once
 
 #include "core/Scene.hpp"
+#include "core/Types.hpp"
 #include "events/GameRuleEvents.hpp"
 #include <DGM/DGM.hpp>
 #include <utils/Hitscanner.hpp>
@@ -38,6 +39,10 @@ private:
         PlayerInventory& inventory,
         Entity pickup,
         std::size_t pickupId);
+
+    void swapToPreviousWeapon(PlayerInventory& inventory, EntityIndexType idx);
+
+    void swapToNextWeapon(PlayerInventory& inventory, EntityIndexType idx);
 
     /// <returns>True if thing was succesfully given</returns>
     bool give(Entity& entity, PlayerInventory& inventory, EntityType pickupId);

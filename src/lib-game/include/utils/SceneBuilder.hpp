@@ -2,6 +2,7 @@
 
 #include <core/Enums.hpp>
 #include <core/Scene.hpp>
+#include <core/Types.hpp>
 #include <utils/SemanticTypes.hpp>
 
 class SceneBuilder
@@ -15,7 +16,7 @@ public:
     [[nodiscard]] static Entity createPlayer(
         const Position& position,
         const Direction& lookDirection,
-        int stateId) noexcept;
+        PlayerStateIndexType stateId) noexcept;
 
     [[nodiscard]] static PlayerInventory getDefaultInventory() noexcept;
 
@@ -23,7 +24,7 @@ public:
         EntityType type,
         const Position& position,
         const Direction& direction,
-        std::size_t frameIdx) noexcept;
+        std::size_t tick) noexcept;
 
     [[nodiscard]] static Entity createEffect(
         EntityType type, const Position& position, std::size_t frameIdx);

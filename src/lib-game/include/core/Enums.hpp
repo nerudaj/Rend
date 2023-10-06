@@ -115,8 +115,12 @@ enum class EntityType
     EffectSpawn,
     EffectEnd,
 
+    InventoryBegin,
+
     WeaponFlaregun,
     WeaponShotgun,
+
+    InventoryEnd
 };
 
 enum class AnimationStateId
