@@ -142,7 +142,7 @@ void RenderingEngine::render3d(dgm::Window& window)
         const auto size = dgm::Math::getSize(V);
         const float k = size / (dgm::Math::getDotProduct(V, player.direction));
         const auto scaledPlane = V / size * k - player.direction;
-        bool isXnearZero = std::abs(plane.x) < 0.001f;
+        bool isXnearZero = std::abs(plane.x) < EPSILON;
         float col =
             isXnearZero ? scaledPlane.y / plane.y : scaledPlane.x / plane.x;
         return int(((col + 1) / 2) * settings.WIDTH);
