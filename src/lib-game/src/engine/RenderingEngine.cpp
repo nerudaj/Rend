@@ -1,5 +1,6 @@
 #include "engine/RenderingEngine.hpp"
 #include "utils/VertexArrayBuilder.hpp"
+#include <core/EntityTraits.hpp>
 #include <numbers>
 
 [[nodiscard]] static std::pair<std::uint8_t, bool> getRotatedSpriteClipId(

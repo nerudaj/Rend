@@ -63,35 +63,3 @@ constinit const unsigned MAX_LEVEL_HEIGHT = 32;
 constinit const unsigned MAX_PLAYER_COUNT = 4;
 const sf::Vector2f NULL_VECTOR = { 0.f, 0.f };
 constinit const float EPSILON = 0.001f;
-
-[[nodiscard]] static constexpr bool isDirectional(EntityType type) noexcept
-{
-    using enum EntityType;
-    return type == Player || type == ProjectileRocket;
-}
-
-[[nodiscard]] static constexpr inline bool
-isDestructible(EntityType type) noexcept
-{
-    return type == EntityType::Player;
-}
-
-[[nodiscard]] static constexpr inline bool isSolid(EntityType type) noexcept
-{
-    using enum EntityType;
-    return (StaticDecorationBegin <= type && type <= StaticDecorationEnd)
-           || type == Player;
-}
-
-[[nodiscard]] static constexpr inline bool isPickable(EntityType type) noexcept
-{
-    using enum EntityType;
-    return PickableBegin < type && type < PickableEnd;
-}
-
-[[nodiscard]] static constexpr inline bool
-isWeaponPickable(EntityType type) noexcept
-{
-    using enum EntityType;
-    return WeaponPickableBegin < type && type < WeaponPickableEnd;
-}

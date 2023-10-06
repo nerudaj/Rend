@@ -1,4 +1,5 @@
 #include <core/Constants.hpp>
+#include <core/EntityTraits.hpp>
 #include <utils/Hitscanner.hpp>
 
 std::optional<EntityIndexType>

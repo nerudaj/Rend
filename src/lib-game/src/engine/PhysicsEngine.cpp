@@ -1,4 +1,5 @@
 #include "engine/PhysicsEngine.hpp"
+#include <core/EntityTraits.hpp>
 #include <events/EventQueue.hpp>
 #include <utility>
 
