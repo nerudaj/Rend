@@ -31,6 +31,7 @@ RenderingEngine::RenderingEngine(
     , settings(RenderSettings {})
     , context(RenderContext::buildRenderContext(
           *resmgr, scene.mapname, settings.WIDTH))
+    , caster(scene.level.bottomMesh.getVoxelSize())
 {
 }
 

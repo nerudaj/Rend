@@ -6,7 +6,7 @@ inline float mymodff(float f) noexcept
     return std::modff(f, &v);
 }
 
-Raycaster::Raycaster()
+Raycaster::Raycaster(const sf::Vector2u& voxelSize) : RaycastingBase(voxelSize)
 {
     faces.reserve(1024);
     upperFaces.reserve(1024);
@@ -26,34 +26,8 @@ float Raycaster::castRay(
                                const sf::Vector2f& rayStep) -> float
     { return side == 0 ? intercept.x - rayStep.x : intercept.y - rayStep.y; };
 
-    auto tile = sf::Vector2u(pos);
-    auto tileStep = sf::Vector2i(0, 0);
-    auto rayStep = sf::Vector2f(
-        std::sqrt(1 + (dir.y * dir.y) / (dir.x * dir.x)),
-        std::sqrt(1 + (dir.x * dir.x) / (dir.y * dir.y)));
-    auto&& intercept = sf::Vector2f();
-
-    if (dir.x < 0)
-    {
-        tileStep.x = -1;
-        intercept.x = (pos.x - tile.x) * rayStep.x;
-    }
-    else
-    {
-        tileStep.x = 1;
-        intercept.x = (tile.x + 1 - pos.x) * rayStep.x;
-    }
-
-    if (dir.y < 0)
-    {
-        tileStep.y = -1;
-        intercept.y = (pos.y - tile.y) * rayStep.y;
-    }
-    else
-    {
-        tileStep.y = 1;
-        intercept.y = (tile.y + 1 - pos.y) * rayStep.y;
-    }
+    auto&& [tile, tileStep, rayStep, intercept] =
+        computeInitialRaycastringStateFromPositionAndDirection(pos, dir);
 
     bool side = 0;
     unsigned tileId = 0;
@@ -122,12 +96,7 @@ float Raycaster::castRay(
 
         if (!visitedFloors[tileId] && !lowPlaneTracker)
         {
-            addFloorFlatAndThings(
-                tile,
-                pos,
-                tileId,
-                scene.spatialIndex,
-                sf::Vector2f(scene.level.bottomMesh.getVoxelSize()));
+            addFloorFlatAndThings(tile, pos, tileId, scene.spatialIndex);
         }
 
         if (!visitedCeils[tileId])
@@ -255,15 +224,14 @@ void Raycaster::addFloorFlatAndThings(
     const sf::Vector2u& tile,
     const sf::Vector2f& pos,
     unsigned tileId,
-    const dgm::SpatialBuffer<Entity>& spatialIndex,
-    const sf::Vector2f& voxelSize)
+    const dgm::SpatialBuffer<Entity>& spatialIndex)
 {
     visitedFloors[tileId] = true;
     addFlat(tile, pos, tileId, -0.5f);
 
     // Add sprites, ignore those that are fully obscured
-    auto&& candidates = spatialIndex.getOverlapCandidates(
-        dgm::Rect(sf::Vector2f(tile) * voxelSize.x, voxelSize));
+    auto&& candidates =
+        spatialIndex.getOverlapCandidates(getTileBoundingBox(tile));
     thingIds.insert(thingIds.end(), candidates.begin(), candidates.end());
     // TODO: use set to deduplicate right away?
 }

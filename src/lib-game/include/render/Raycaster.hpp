@@ -3,6 +3,7 @@
 #include "core/Scene.hpp"
 #include <DGM/dgm.hpp>
 #include <bitset>
+#include <utils/RaycastingBase.hpp>
 
 struct Face
 {
@@ -31,14 +32,14 @@ struct Sprite
     sf::Vector2f rightVertex;
 };
 
-class Raycaster final
+class Raycaster final : public RaycastingBase
 {
 private:
     using VisitedFacesBitset =
         std::bitset<MAX_LEVEL_WIDTH * MAX_LEVEL_HEIGHT * 4>;
 
 public:
-    [[nodiscard]] Raycaster();
+    [[nodiscard]] Raycaster(const sf::Vector2u& voxelSize);
 
 public:
     void prepare();
@@ -90,8 +91,7 @@ private:
         const sf::Vector2u& tile,
         const sf::Vector2f& pos,
         unsigned tileId,
-        const dgm::SpatialBuffer<Entity>& things,
-        const sf::Vector2f& voxelSize);
+        const dgm::SpatialBuffer<Entity>& things);
 
     void addCeilFlat(
         const sf::Vector2u& tile,

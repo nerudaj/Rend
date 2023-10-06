@@ -3,11 +3,15 @@
 #include "core/Scene.hpp"
 #include "events/GameRuleEvents.hpp"
 #include <DGM/DGM.hpp>
+#include <utils/Hitscanner.hpp>
 
 class GameRulesEngine final
 {
 public:
-    [[nodiscard]] GameRulesEngine(Scene& scene) noexcept : scene(scene) {}
+    [[nodiscard]] GameRulesEngine(Scene& scene) noexcept
+        : scene(scene), hitscanner(scene)
+    {
+    }
 
 public: // Must visit on all related events
     void operator()(const PickablePickedUpGameEvent&);
@@ -58,4 +62,5 @@ private:
 
 private:
     Scene& scene;
+    Hitscanner hitscanner;
 };
