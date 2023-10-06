@@ -18,6 +18,21 @@ public:
         return input.shooting;
     }
 
+    [[nodiscard]] constexpr bool shouldSwapToPreviousWeapon() const override
+    {
+        return input.prevWeapon;
+    }
+
+    [[nodiscard]] constexpr bool shouldSwapToNextWeapon() const override
+    {
+        return input.nextWeapon;
+    }
+
+    [[nodiscard]] constexpr bool shouldSwapToLastWeapon() const override
+    {
+        return input.lastWeapon;
+    }
+
     [[nodiscard]] constexpr float getThrust() const override
     {
         return input.thrust;

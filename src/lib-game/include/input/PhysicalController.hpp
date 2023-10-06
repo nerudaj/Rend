@@ -14,7 +14,10 @@ public:
         StrafeRight,
         TurnLeft,
         TurnRight,
-        Shoot
+        Shoot,
+        PreviousWeapon,
+        NextWeapon,
+        LastWeapon,
     };
 
 public:
@@ -23,6 +26,12 @@ public:
 public:
     bool isShooting() const override;
 
+    bool shouldSwapToPreviousWeapon() const override;
+
+    bool shouldSwapToNextWeapon() const override;
+
+    bool shouldSwapToLastWeapon() const override;
+
     float getThrust() const override;
 
     float getSidewardThrust() const override;
@@ -30,5 +39,5 @@ public:
     float getSteer() const override;
 
 private:
-    dgm::Controller input;
+    mutable dgm::Controller input;
 };

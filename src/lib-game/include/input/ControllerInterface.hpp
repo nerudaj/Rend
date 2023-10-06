@@ -12,6 +12,9 @@ public:
     {
         return InputSchema {
             .shooting = isShooting(),
+            .prevWeapon = shouldSwapToPreviousWeapon(),
+            .nextWeapon = shouldSwapToNextWeapon(),
+            .lastWeapon = shouldSwapToLastWeapon(),
             .thrust = getThrust(),
             .sidewardThrust = getSidewardThrust(),
             .steer = getSteer(),
@@ -19,6 +22,12 @@ public:
     }
 
     virtual bool isShooting() const = 0;
+
+    virtual bool shouldSwapToPreviousWeapon() const = 0;
+
+    virtual bool shouldSwapToNextWeapon() const = 0;
+
+    virtual bool shouldSwapToLastWeapon() const = 0;
 
     /// <returns>Value from interval <-1.f, 1.f></returns>
     virtual float getThrust() const = 0;
