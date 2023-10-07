@@ -22,6 +22,7 @@ public: // Must visit on all related events
     void operator()(const PlayerRespawnedGameEvent&);
     void operator()(const EffectSpawnedGameEvent&);
     void operator()(const PickupSpawnedGameEvent&);
+    void operator()(const HitscanProjectileFiredGameEvent&);
 
 public:
     void update(const float deltaTime);
@@ -39,6 +40,12 @@ private:
         PlayerInventory& inventory,
         Entity pickup,
         std::size_t pickupId);
+
+    bool handleFiredWeapon(
+        const sf::Vector2f& position,
+        const sf::Vector2f& direction,
+        EntityIndexType shooterIdx,
+        PlayerInventory& inventory);
 
     void swapToPreviousWeapon(PlayerInventory& inventory, EntityIndexType idx);
 

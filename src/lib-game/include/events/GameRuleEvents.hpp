@@ -81,6 +81,16 @@ struct PickupSpawnedGameEvent
     }
 };
 
+struct HitscanProjectileFiredGameEvent
+{
+    std::optional<EntityIndexType> hit;
+
+    HitscanProjectileFiredGameEvent(std::optional<EntityIndexType> hit)
+        : hit(hit)
+    {
+    }
+};
+
 using GameEvent = std::variant<
     PickablePickedUpGameEvent,
     ProjectileCreatedGameEvent,
@@ -88,4 +98,5 @@ using GameEvent = std::variant<
     EntityDestroyedGameEvent,
     PlayerRespawnedGameEvent,
     EffectSpawnedGameEvent,
-    PickupSpawnedGameEvent>;
+    PickupSpawnedGameEvent,
+    HitscanProjectileFiredGameEvent>;

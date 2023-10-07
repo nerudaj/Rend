@@ -103,6 +103,14 @@ void GameRulesEngine::operator()(const PickupSpawnedGameEvent& e)
     scene.markers.eraseAtIndex(e.markerIndex);
 }
 
+void GameRulesEngine::operator()(const HitscanProjectileFiredGameEvent& e)
+{
+    if (!e.hit) return;
+
+    // TODO: spawn rendering decal
+    damage(scene.things[e.hit.value()], e.hit.value(), SHELL_DAMAGE);
+}
+
 #pragma endregion
 
 template<class... Ts>
@@ -153,33 +161,32 @@ void GameRulesEngine::handlePlayer(
         }
     }
 
-    scene.spatialIndex.returnToLookup(idx, thing.hitbox);
-
     // No weapon interaction allowed when weapon is not in idle
     if (state.inventory.animationContext.animationStateId
-        != AnimationStateId::Idle)
-        return;
+        == AnimationStateId::Idle)
+    {
+        if (state.input.isShooting())
+        {
+            auto position = thing.hitbox.getPosition()
+                            + thing.direction * thing.hitbox.getRadius() * 2.f;
+            if (handleFiredWeapon(
+                    position, thing.direction, idx, state.inventory))
+                EventQueue::add<PlayerFiredAnimationEvent>(idx);
+        }
+        else if (state.input.shouldSwapToPreviousWeapon())
+        {
+            swapToPreviousWeapon(state.inventory, idx);
+        }
+        else if (state.input.shouldSwapToNextWeapon())
+        {
+            swapToNextWeapon(state.inventory, idx);
+        }
+        else if (state.input.shouldSwapToLastWeapon())
+        {
+        }
+    }
 
-    if (state.input.isShooting())
-    {
-        auto position = thing.hitbox.getPosition()
-                        + thing.direction * thing.hitbox.getRadius() * 2.f;
-        EventQueue::add<ProjectileCreatedGameEvent>(ProjectileCreatedGameEvent(
-            EntityType::ProjectileRocket, position, thing.direction));
-        EventQueue::add<PlayerFiredAnimationEvent>(id);
-        EventQueue::add<PlayerFiredAnimationEvent>(idx);
-    }
-    else if (state.input.shouldSwapToPreviousWeapon())
-    {
-        swapToPreviousWeapon(state.inventory, idx);
-    }
-    else if (state.input.shouldSwapToNextWeapon())
-    {
-        swapToNextWeapon(state.inventory, idx);
-    }
-    else if (state.input.shouldSwapToLastWeapon())
-    {
-    }
+    scene.spatialIndex.returnToLookup(idx, thing.hitbox);
 }
 
 void GameRulesEngine::handleDeadPlayer(
@@ -220,6 +227,39 @@ void GameRulesEngine::handleGrabbedPickable(
     {
         EventQueue::add<PickablePickedUpGameEvent>(pickupId);
     }
+}
+
+bool GameRulesEngine::handleFiredWeapon(
+    const sf::Vector2f& position,
+    const sf::Vector2f& direction,
+    EntityIndexType shooterIdx,
+    PlayerInventory& inventory)
+{
+    switch (inventory.activeWeaponType)
+    {
+        using enum EntityType;
+    case WeaponFlaregun: {
+        if (inventory.rocketCount == 0) return false;
+        --inventory.rocketCount;
+        EventQueue::add<ProjectileCreatedGameEvent>(ProjectileCreatedGameEvent(
+            EntityType::ProjectileRocket, position, direction));
+    }
+    break;
+    case WeaponShotgun: {
+        if (inventory.shellCount == 0) return false;
+        --inventory.shellCount;
+
+        for (unsigned i = 0; i < SHOTGUN_PELLET_AMOUNT; i++)
+        {
+            auto hit = hitscanner.hitscan(
+                Position { position }, Direction { direction });
+            EventQueue::add<HitscanProjectileFiredGameEvent>(hit);
+        }
+    }
+    break;
+    }
+
+    return true;
 }
 
 void GameRulesEngine::swapToPreviousWeapon(

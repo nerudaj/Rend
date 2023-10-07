@@ -19,7 +19,7 @@ constinit const float FRAME_TIME = 1.f / FPS;
 constinit const int PLAYER_INITIAL_HEALTH = 100;
 constinit const int PLAYER_INITIAL_ARMOR = 0;
 constinit const int PLAYER_INITIAL_BULLETS = 50;
-constinit const int PLAYER_INITIAL_NONBULLET_AMMO = 0;
+constinit const int PLAYER_INITIAL_NONBULLET_AMMO = 100;
 constinit const int MEDIKIT_HEALTH_AMOUNT = 25;
 constinit const int ARMORSHARD_ARMOR_AMOUNT = 10;
 constinit const int MEGAHEALTH_HEALTH_AMOUNT = 100;
@@ -36,8 +36,10 @@ constinit const int MAX_SHELLS = 50;
 constinit const int MAX_ENERGY = 100;
 constinit const int MAX_ROCKETS = 25;
 constinit const int ROCKET_DAMAGE = 150;
+constinit const int SHELL_DAMAGE = 10;
 constinit const float ITEM_RESPAWN_TIMEOUT = 15.f;
 constinit const float ITEM_SPAWN_EFFECT_TIMEOUT = 0.5f;
+constinit const unsigned SHOTGUN_PELLET_AMOUNT = 10;
 
 // Inventory
 constinit const unsigned WEAPON_COUNT = 16;

@@ -59,10 +59,14 @@ void RenderingEngine::renderHudTo(dgm::Window& window)
     {
         auto& inventory = scene.playerStates[pov.stateId].inventory;
         context.text.setString(std::format(
-            "H: {} A: {} W: {}",
+            "H: {} A: {} W: {}\nB: {} S: {} R: {} E: {}",
             pov.health,
             pov.armor,
-            inventory.acquiredWeapons.to_string()));
+            inventory.acquiredWeapons.to_string(),
+            inventory.bulletCount,
+            inventory.shellCount,
+            inventory.rocketCount,
+            inventory.energyCount));
 
         sf::RectangleShape weapon;
         float size = settings.WIDTH / 3.f;
