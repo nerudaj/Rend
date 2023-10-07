@@ -108,11 +108,6 @@ private:
     float
     getTexHint(unsigned realSide, const sf::Vector2f& hitloc) const noexcept;
 
-    static sf::Vector2f computeHitloc(
-        const sf::Vector2f& cameraPos,
-        const sf::Vector2f& rayDir,
-        float interceptSize) noexcept;
-
 private:
     std::vector<Face> faces;
     std::vector<Face> upperFaces;

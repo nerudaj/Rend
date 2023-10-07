@@ -21,11 +21,6 @@ float Raycaster::castRay(
     bool leftmostRay,
     bool rightmostRay)
 {
-    auto getInterceptSize = [](bool side,
-                               const sf::Vector2f& intercept,
-                               const sf::Vector2f& rayStep) -> float
-    { return side == 0 ? intercept.x - rayStep.x : intercept.y - rayStep.y; };
-
     auto&& [tile, tileStep, rayStep, intercept] =
         computeInitialRaycastringStateFromPositionAndDirection(pos, dir);
 
@@ -104,18 +99,7 @@ float Raycaster::castRay(
             addCeilFlat(tile, pos, tileId, upperPlaneTracker);
         }
 
-        if (intercept.x < intercept.y)
-        {
-            intercept.x += rayStep.x;
-            tile.x += tileStep.x;
-            side = 0; // vertical north-south
-        }
-        else
-        {
-            intercept.y += rayStep.y;
-            tile.y += tileStep.y;
-            side = 1; // horizontal west-east
-        }
+        side = advanceRay(intercept, tile, rayStep, tileStep);
     }
 
     return bottomHitDistance;
@@ -282,12 +266,4 @@ float Raycaster::getTexHint(
 
     // Never happens
     return NAN;
-}
-
-sf::Vector2f Raycaster::computeHitloc(
-    const sf::Vector2f& cameraPos,
-    const sf::Vector2f& rayDir,
-    float interceptSize) noexcept
-{
-    return cameraPos + dgm::Math::toUnit(rayDir) * interceptSize;
 }

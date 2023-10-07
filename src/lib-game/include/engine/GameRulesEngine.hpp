@@ -27,6 +27,8 @@ public: // Must visit on all related events
 public:
     void update(const float deltaTime);
 
+    void deleteMarkedObjects();
+
 private:
     void handlePlayer(Entity& thing, std::size_t id, const float deltaTime);
 
@@ -75,4 +77,5 @@ private:
 private:
     Scene& scene;
     Hitscanner hitscanner;
+    std::vector<EntityIndexType> indicesToRemove;
 };

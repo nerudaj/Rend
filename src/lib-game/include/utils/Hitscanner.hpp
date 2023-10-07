@@ -16,13 +16,20 @@ public:
 
 public:
     // Returns nearest enemy index that has been hit
-    [[nodiscard]] std::optional<EntityIndexType>
+    [[nodiscard]] HitscanResult
     hitscan(const Position& position, const Direction& direction);
 
+protected:
     [[nodiscard]] std::optional<EntityIndexType> findHitInCandidates(
         const std::vector<EntityIndexType>& candidateIdxs,
         const Position& position,
         const Direction& direction);
+
+    [[nodiscard]] sf::Vector2f getSpriteHitloc(
+        const sf::Vector2f& casterPos, const sf::Vector2f& thingPos) noexcept
+    {
+        return thingPos - dgm::Math::toUnit(thingPos - casterPos) * 0.1f;
+    }
 
 private:
     const Scene& scene;

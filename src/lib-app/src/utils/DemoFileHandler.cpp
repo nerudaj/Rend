@@ -22,6 +22,7 @@ std::string DemoFileHandler::getLine()
 void DemoFileHandler::writeLine(const std::string& line)
 {
     stream << line << "\n";
+    synchronize();
 }
 
 void DemoFileHandler::synchronize()

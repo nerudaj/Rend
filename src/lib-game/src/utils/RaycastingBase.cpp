@@ -39,3 +39,23 @@ RaycastingBase::computeInitialRaycastringStateFromPositionAndDirection(
                              .rayStep = rayStep,
                              .intercept = intercept };
 }
+
+bool RaycastingBase::advanceRay(
+    sf::Vector2f& intercept,
+    sf::Vector2u& tile,
+    const sf::Vector2f& rayStep,
+    const sf::Vector2i& tileStep) noexcept
+{
+    if (intercept.x < intercept.y)
+    {
+        intercept.x += rayStep.x;
+        tile.x += tileStep.x;
+        return false; // vertical north-south
+    }
+    else
+    {
+        intercept.y += rayStep.y;
+        tile.y += tileStep.y;
+        return true; // horizontal west-east
+    }
+}

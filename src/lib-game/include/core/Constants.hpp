@@ -40,6 +40,7 @@ constinit const int SHELL_DAMAGE = 10;
 constinit const float ITEM_RESPAWN_TIMEOUT = 15.f;
 constinit const float ITEM_SPAWN_EFFECT_TIMEOUT = 0.5f;
 constinit const unsigned SHOTGUN_PELLET_AMOUNT = 10;
+constinit const float SHOTGUN_SPREAD = 0.1f;
 
 // Inventory
 constinit const unsigned WEAPON_COUNT = 16;

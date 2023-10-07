@@ -2,33 +2,36 @@
 #include <core/EntityTraits.hpp>
 #include <utils/Hitscanner.hpp>
 
-std::optional<EntityIndexType>
+HitscanResult
 Hitscanner::hitscan(const Position& position, const Direction& direction)
 {
+    auto normalizedPos = position.value / voxelSize.x;
     auto&& [tile, tileStep, rayStep, intercept] =
         computeInitialRaycastringStateFromPositionAndDirection(
-            position.value / voxelSize.x, direction.value);
+            normalizedPos, direction.value);
 
+    bool side = 0;
     while (true)
     {
-        if (scene.level.bottomMesh.at(tile)) return std::nullopt;
+        if (scene.level.bottomMesh.at(tile))
+            return { .impactPosition =
+                         computeHitloc(
+                             normalizedPos,
+                             direction.value,
+                             getInterceptSize(side, intercept, rayStep))
+                         * voxelSize.x };
 
         auto hit = findHitInCandidates(
             scene.spatialIndex.getOverlapCandidates(getTileBoundingBox(tile)),
             position,
             direction);
-        if (hit) return hit;
+        if (hit)
+            return { .impactPosition = getSpriteHitloc(
+                         position.value,
+                         scene.things[hit.value()].hitbox.getPosition()),
+                     .impactedEntityIdx = hit.value() };
 
-        if (intercept.x < intercept.y)
-        {
-            intercept.x += rayStep.x;
-            tile.x += tileStep.x;
-        }
-        else
-        {
-            intercept.y += rayStep.y;
-            tile.y += tileStep.y;
-        }
+        side = advanceRay(intercept, tile, rayStep, tileStep);
     }
 }
 
@@ -48,6 +51,7 @@ std::optional<EntityIndexType> Hitscanner::findHitInCandidates(
     for (auto&& [idx, entity] :
          candidateIdxs | std::views::transform(candidateToIdxAndEntity))
     {
+
         if (isDestructible(entity.typeId)
             && dgm::Math::hasIntersection(aimLine, entity.hitbox))
         {

@@ -8,6 +8,8 @@ void AnimationEngine::operator()(const SetStateAnimationEvent&) {}
 
 void AnimationEngine::operator()(const PlayerFiredAnimationEvent& e)
 {
+    std::cout << std::format(
+        "{}: PlayerFiredAnimationEvent: {}", scene.tick, e.playerIdx);
     // TODO: set player state as well
     setWeaponAnimationState(
         getInventory(e.playerIdx), AnimationStateId::Missile);

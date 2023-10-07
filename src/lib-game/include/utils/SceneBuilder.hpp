@@ -31,4 +31,7 @@ public:
 
     [[nodiscard]] static Entity
     createPickup(EntityType type, const Position& position);
+
+    [[nodiscard]] static Entity createDecal(
+        bool isFlesh, const Position& position, std::size_t tick) noexcept;
 };

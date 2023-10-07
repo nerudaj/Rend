@@ -12,6 +12,12 @@
 
 import Memory;
 
+struct HitscanResult
+{
+    sf::Vector2f impactPosition;
+    std::optional<EntityIndexType> impactedEntityIdx = std::nullopt;
+};
+
 struct AnimationFrame
 {
     SpriteId spriteId;
@@ -128,6 +134,19 @@ struct Scene
 getPerpendicular(const sf::Vector2f& v) noexcept
 {
     return { -v.y, v.x };
+}
+
+static inline void forEachDirection(
+    const sf::Vector2f& direction,
+    const sf::Vector2f& plane,
+    unsigned DIRECTION_COUNT,
+    std::function<void(const sf::Vector2f&)> callback)
+{
+    for (unsigned i = 0; i < DIRECTION_COUNT; i++)
+    {
+        float x = 2.f * i / DIRECTION_COUNT - 1.f;
+        callback(direction + plane * x);
+    }
 }
 
 template<std::size_t Bits>

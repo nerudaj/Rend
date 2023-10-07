@@ -42,9 +42,7 @@ void AppStateIngame::update()
     for (unsigned i = startIndex; i < endIndex; ++i)
     {
         auto&& state = stateBuffer[i];
-        restoreState(state);
-        updateEngines();
-        processEvents();
+        simulateFrameFromState(state);
         ++scene.tick; // advancing frame
         // Write the simulated state into the next frame
         backupState(stateBuffer[i + 1u]);
@@ -95,6 +93,7 @@ void AppStateIngame::simulateFrameFromState(const FrameState& state)
     restoreState(state);
     updateEngines();
     processEvents();
+    gameRulesEngine.deleteMarkedObjects();
 }
 
 void AppStateIngame::restoreState(const FrameState& state)

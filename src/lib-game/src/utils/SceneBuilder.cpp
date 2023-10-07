@@ -194,3 +194,19 @@ Entity SceneBuilder::createPickup(EntityType typeId, const Position& position)
                     },
                     .hitbox = dgm::Circle(position.value, props.radius) };
 }
+
+Entity SceneBuilder::createDecal(
+    bool isFlesh, const Position& position, std::size_t tick) noexcept
+{
+    const auto type = EntityType::Decal;
+    const auto& props = ENTITY_PROPERTIES.at(type);
+    const auto state =
+        isFlesh ? AnimationStateId::Missile : AnimationStateId::Idle;
+    return Entity {
+        .typeId = type,
+        .animationContext = { .spriteClipIndex =
+                                  props.states.at(state).clip.front(),
+                              .lastAnimationUpdate = tick },
+        .hitbox = dgm::Circle(position.value, 1_px)
+    };
+}

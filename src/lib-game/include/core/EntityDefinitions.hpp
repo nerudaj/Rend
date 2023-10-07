@@ -148,6 +148,24 @@ const static inline auto ENTITY_PROPERTIES =
                                             HUD_TrishotFB },
                                   .updateFrequency = 15,
                                   .transition = AnimationStateId::Idle } } } },
+        },
+        {
+            EntityType::Decal,
+            EntityProperties {
+                .radius = 1_px,
+                .initialSpriteIndex = WallDecalA,
+                .states = { { AnimationStateId::Idle,
+                              AnimationState {
+                                  .clip = { WallDecalA, WallDecalB },
+                                  .updateFrequency = 10,
+                                  .transition =
+                                      AnimationStateId::MarkerDestroy } },
+                            { AnimationStateId::Missile,
+                              AnimationState {
+                                  .clip = { FleshDecalA, FleshDecalB },
+                                  .updateFrequency = 10,
+                                  .transition =
+                                      AnimationStateId::MarkerDestroy } } } },
         }
     };
 }();

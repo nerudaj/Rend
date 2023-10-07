@@ -52,24 +52,6 @@ void GameRulesEngine::operator()(const ProjectileDestroyedGameEvent& e)
 
 void GameRulesEngine::operator()(const EntityDestroyedGameEvent& e)
 {
-    const auto thing = scene.things[e.entityIndex];
-    const bool playerWasDestroyed = thing.typeId == EntityType::Player;
-
-    if (playerWasDestroyed)
-    {
-        auto idx = scene.things.emplaceBack(SceneBuilder::createEffect(
-            EntityType::EffectDyingPlayer,
-            Position { thing.hitbox.getPosition() },
-            scene.tick));
-        scene.things[idx].direction = thing.direction;
-
-        bool rebindCamera = scene.playerId == e.entityIndex;
-        scene.markers.emplaceBack(MarkerDeadPlayer {
-            .rebindCamera = rebindCamera, .stateId = thing.stateId });
-
-        if (rebindCamera) scene.playerId = idx;
-    }
-
     removeEntity(e.entityIndex);
 }
 
@@ -84,6 +66,8 @@ void GameRulesEngine::operator()(const PlayerRespawnedGameEvent& e)
         Position { spawnPosition },
         Direction { spawnDirection },
         marker.stateId));
+    scene.playerStates[scene.things[idx].stateId].inventory =
+        SceneBuilder::getDefaultInventory();
 
     if (marker.rebindCamera) scene.playerId = idx;
 
@@ -105,10 +89,17 @@ void GameRulesEngine::operator()(const PickupSpawnedGameEvent& e)
 
 void GameRulesEngine::operator()(const HitscanProjectileFiredGameEvent& e)
 {
-    if (!e.hit) return;
+    scene.things.emplaceBack(SceneBuilder::createDecal(
+        e.hit.impactedEntityIdx.has_value(),
+        Position { e.hit.impactPosition },
+        scene.tick));
 
-    // TODO: spawn rendering decal
-    damage(scene.things[e.hit.value()], e.hit.value(), SHELL_DAMAGE);
+    if (!e.hit.impactedEntityIdx) return;
+
+    damage(
+        scene.things[e.hit.impactedEntityIdx.value()],
+        e.hit.impactedEntityIdx.value(),
+        SHELL_DAMAGE);
 }
 
 #pragma endregion
@@ -121,6 +112,8 @@ struct overloaded : Ts...
 
 void GameRulesEngine::update(const float deltaTime)
 {
+    indicesToRemove.clear();
+
     for (auto&& [thing, id] : scene.things)
     {
         switch (thing.typeId)
@@ -130,6 +123,11 @@ void GameRulesEngine::update(const float deltaTime)
             break;
         default:
             break;
+        }
+
+        if (isDestructible(thing.typeId) && thing.health <= 0)
+        {
+            removeEntity(id);
         }
     }
 
@@ -141,6 +139,16 @@ void GameRulesEngine::update(const float deltaTime)
                          [&](MarkerDeadPlayer& marker)
                          { handleDeadPlayer(marker, idx); } },
             thing);
+    }
+}
+
+void GameRulesEngine::deleteMarkedObjects()
+{
+    std::sort(indicesToRemove.begin(), indicesToRemove.end());
+    for (unsigned i = 0; i < indicesToRemove.size(); i++)
+    {
+        if (i == 0 || indicesToRemove[i - 1] != indicesToRemove[i])
+            scene.things.eraseAtIndex(indicesToRemove[i]);
     }
 }
 
@@ -249,12 +257,16 @@ bool GameRulesEngine::handleFiredWeapon(
         if (inventory.shellCount == 0) return false;
         --inventory.shellCount;
 
-        for (unsigned i = 0; i < SHOTGUN_PELLET_AMOUNT; i++)
-        {
-            auto hit = hitscanner.hitscan(
-                Position { position }, Direction { direction });
-            EventQueue::add<HitscanProjectileFiredGameEvent>(hit);
-        }
+        forEachDirection(
+            direction,
+            getPerpendicular(direction) * SHOTGUN_SPREAD,
+            SHOTGUN_PELLET_AMOUNT,
+            [&](const sf::Vector2f& hitscanDir)
+            {
+                auto hit = hitscanner.hitscan(
+                    Position { position }, Direction { hitscanDir });
+                EventQueue::add<HitscanProjectileFiredGameEvent>(hit);
+            });
     }
     break;
     }
@@ -347,18 +359,33 @@ void GameRulesEngine::damage(Entity& thing, std::size_t thingIndex, int damage)
     damage -= amountAbsorbedByArmor;
 
     thing.health -= damage;
-    if (thing.health <= 0)
-    {
-        EventQueue::add<EntityDestroyedGameEvent>(thingIndex);
-    }
 }
 
 #pragma region Helpers
 
 void GameRulesEngine::removeEntity(std::size_t index)
 {
-    scene.spatialIndex.removeFromLookup(index, scene.things[index].hitbox);
-    scene.things.eraseAtIndex(index);
+    const auto thing = scene.things[index];
+    const bool playerWasDestroyed = thing.typeId == EntityType::Player;
+
+    if (playerWasDestroyed)
+    {
+        auto idx = scene.things.emplaceBack(SceneBuilder::createEffect(
+            EntityType::EffectDyingPlayer,
+            Position { thing.hitbox.getPosition() },
+            scene.tick));
+        scene.things[idx].direction = thing.direction;
+
+        bool rebindCamera = scene.playerId == index;
+        scene.markers.emplaceBack(MarkerDeadPlayer {
+            .rebindCamera = rebindCamera, .stateId = thing.stateId });
+
+        if (rebindCamera) scene.playerId = idx;
+    }
+
+    scene.spatialIndex.removeFromLookup(index, thing.hitbox);
+    // scene.things.eraseAtIndex(index);
+    indicesToRemove.push_back(index);
 }
 
 sf::Vector2f GameRulesEngine::getBestSpawnPosition() const noexcept

@@ -70,7 +70,12 @@ enum class SpriteId : std::uint8_t
     SpawnItemA,
     SpawnItemB,
     SpawnItemC,
+    WallDecalA,
+    WallDecalB,
+    FleshDecalA,
+    FleshDecalB,
 
+    // These are different texture, but I need them to have the same enum type
     HUD_ShotgunA = 0,
     HUD_ShotgunFA,
     HUD_ShotgunFB,
@@ -126,11 +131,14 @@ enum class EntityType
     WeaponShotgun,
     WeaponTrishot,
 
-    InventoryEnd
+    InventoryEnd,
+
+    Decal
 };
 
 enum class ScriptId
 {
+    NoAction,
     FireRocket,
     FireShotgun,
     FireBurstgun
