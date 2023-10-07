@@ -126,6 +126,28 @@ const static inline auto ENTITY_PROPERTIES =
                                   .clip = { HUD_FlaregunFA, HUD_FlaregunFB },
                                   .updateFrequency = 20,
                                   .transition = AnimationStateId::Idle } } } },
+        },
+        {
+            EntityType::WeaponTrishot,
+            EntityProperties {
+                .radius = 0_px,
+                .initialSpriteIndex = HUD_TrishotA,
+                .states = { { AnimationStateId::Idle,
+                              AnimationState {
+                                  .clip = { HUD_TrishotA },
+                                  .updateFrequency = 10,
+                                  .transition =
+                                      AnimationStateId::MarkerLoop } },
+                            { AnimationStateId::Missile,
+                              AnimationState {
+                                  .clip = { HUD_TrishotFA,
+                                            HUD_TrishotFB,
+                                            HUD_TrishotFA,
+                                            HUD_TrishotFB,
+                                            HUD_TrishotFA,
+                                            HUD_TrishotFB },
+                                  .updateFrequency = 15,
+                                  .transition = AnimationStateId::Idle } } } },
         }
     };
 }();

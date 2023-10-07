@@ -12,7 +12,16 @@
 
 import Memory;
 
+struct AnimationFrame
+{
+    SpriteId spriteId;
+    std::size_t duration; // in ticks
+    ScriptId scriptToTrigger;
+};
+
 using AnimationClip = std::vector<SpriteId>;
+
+// TODO: using AnimationClip = std::vector<AnimationFrame>;
 
 struct AnimationState
 {

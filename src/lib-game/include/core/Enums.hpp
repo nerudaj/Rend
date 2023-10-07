@@ -34,6 +34,7 @@ enum class SpriteId : std::uint8_t
     EnergyPackA,
     RocketsA,
     ShotgunA,
+    TrishotA,
     PillarA,
     FloorLampA,
     PlayerA0,
@@ -78,7 +79,10 @@ enum class SpriteId : std::uint8_t
     HUD_ShotgunRC,
     HUD_FlaregunA,
     HUD_FlaregunFA,
-    HUD_FlaregunFB
+    HUD_FlaregunFB,
+    HUD_TrishotA,
+    HUD_TrishotFA,
+    HUD_TrishotFB,
 };
 
 enum class EntityType
@@ -102,6 +106,7 @@ enum class EntityType
 
     WeaponPickableBegin,
     PickupShotgun,
+    PickupTrishot,
     WeaponPickableEnd,
 
     PickableEnd,
@@ -119,8 +124,16 @@ enum class EntityType
 
     WeaponFlaregun,
     WeaponShotgun,
+    WeaponTrishot,
 
     InventoryEnd
+};
+
+enum class ScriptId
+{
+    FireRocket,
+    FireShotgun,
+    FireBurstgun
 };
 
 enum class AnimationStateId
