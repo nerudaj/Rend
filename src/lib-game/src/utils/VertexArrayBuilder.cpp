@@ -34,34 +34,38 @@ void VertexObjectBuilder::makeFace(
     // Removes some visual artifacts
     if (leftHeightBottom < 0.f && rightHeightBottom < 0.f) return;
 
-    auto light = sf::Color(face.brightness, face.brightness, face.brightness);
+    uint16_t left = face.leftHeight;
+    uint16_t right = face.rightHeight;
+
+    auto light1 = sf::Color(left >> 8, left & 255, face.brightness, 0);
+    auto light2 = sf::Color(right >> 8, right & 255, face.brightness, 0);
 
     // Upper triangle
     quads.append(sf::Vertex(
         sf::Vector2f(static_cast<float>(face.leftColumn), leftHeightTop),
-        light,
+        light1,
         { ltx, tty }));
     quads.append(sf::Vertex(
         sf::Vector2f(static_cast<float>(face.rightColumn), rightHeightTop),
-        light,
+        light2,
         { rtx, tty }));
     quads.append(sf::Vertex(
         sf::Vector2f(static_cast<float>(face.leftColumn), leftHeightBottom),
-        light,
+        light1,
         { ltx, bty }));
 
     // Bottom triangle
     quads.append(sf::Vertex(
         sf::Vector2f(static_cast<float>(face.leftColumn), leftHeightBottom),
-        light,
+        light1,
         { ltx, bty }));
     quads.append(sf::Vertex(
         sf::Vector2f(static_cast<float>(face.rightColumn), rightHeightTop),
-        light,
+        light2,
         { rtx, tty }));
     quads.append(sf::Vertex(
         sf::Vector2f(static_cast<float>(face.rightColumn), rightHeightBottom),
-        light,
+        light2,
         { rtx, bty }));
 }
 
