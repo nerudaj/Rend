@@ -343,6 +343,20 @@ bool GameRulesEngine::give(
         inventory.acquiredWeapons[index] = true;
         return false;
     }
+    case PickupTrishot: {
+        constexpr auto index = weaponTypeToIndex(EntityType::WeaponTrishot);
+        if (inventory.acquiredWeapons[index]) return false;
+        inventory.bulletCount = BULLET_AMOUNT;
+        inventory.acquiredWeapons[index] = true;
+        return false;
+    }
+    case PickupCrossbow: {
+        constexpr auto index = weaponTypeToIndex(EntityType::WeaponCrossbow);
+        if (inventory.acquiredWeapons[index]) return false;
+        inventory.energyCount = ENERGY_AMOUNT;
+        inventory.acquiredWeapons[index] = true;
+        return false;
+    }
     default:
         return false;
     }

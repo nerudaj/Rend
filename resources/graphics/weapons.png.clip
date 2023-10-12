@@ -11,9 +11,9 @@
     "bounds": {
         "width": 128, 
         "top": 0, 
-        "height": 128, 
+        "height": 160, 
         "left": 0
     }, 
-    "nframes": 14, 
+    "nframes": 20, 
     "offset": 0
 }

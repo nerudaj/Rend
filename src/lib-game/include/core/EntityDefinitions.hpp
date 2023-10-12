@@ -69,6 +69,11 @@ const static inline auto ENTITY_PROPERTIES =
           EntityProperties { .radius = 3_px, .initialSpriteIndex = RocketsA } },
         { EntityType::PickupShotgun,
           EntityProperties { .radius = 6_px, .initialSpriteIndex = ShotgunA } },
+        { EntityType::PickupTrishot,
+          EntityProperties { .radius = 6_px, .initialSpriteIndex = TrishotA } },
+        { EntityType::PickupCrossbow,
+          EntityProperties { .radius = 6_px,
+                             .initialSpriteIndex = CrossbowA } },
         { EntityType::Pillar,
           EntityProperties { .radius = 3_px, .initialSpriteIndex = PillarA } },
         { EntityType::FloorLamp,
@@ -147,6 +152,29 @@ const static inline auto ENTITY_PROPERTIES =
                                             HUD_TrishotFA,
                                             HUD_TrishotFB },
                                   .updateFrequency = 15,
+                                  .transition = AnimationStateId::Idle } } } },
+        },
+        {
+            EntityType::WeaponCrossbow,
+            EntityProperties {
+                .radius = 0_px,
+                .initialSpriteIndex = HUD_CrossbowA,
+                .states = { { AnimationStateId::Idle,
+                              AnimationState {
+                                  .clip = { HUD_CrossbowA },
+                                  .updateFrequency = 10,
+                                  .transition =
+                                      AnimationStateId::MarkerLoop } },
+                            { AnimationStateId::Missile,
+                              AnimationState {
+                                  .clip = { HUD_CrossbowFA,
+                                            HUD_CrossbowFB,
+                                            HUD_CrossbowFC,
+                                            HUD_CrossbowFD,
+                                            HUD_CrossbowFE,
+                                            HUD_CrossbowA,
+                                            HUD_CrossbowA },
+                                  .updateFrequency = 5,
                                   .transition = AnimationStateId::Idle } } } },
         },
         {

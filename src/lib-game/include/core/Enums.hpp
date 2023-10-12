@@ -15,6 +15,8 @@ enum class LeveldItemId
     EnergyPack,
     Rockets,
     Shotgun,
+    Trishot,
+    Crossbow,
     Pillar,
     FloorLamp
 };
@@ -35,6 +37,7 @@ enum class SpriteId : std::uint8_t
     RocketsA,
     ShotgunA,
     TrishotA,
+    CrossbowA,
     PillarA,
     FloorLampA,
     PlayerA0,
@@ -57,6 +60,11 @@ enum class SpriteId : std::uint8_t
     RocketB2,
     RocketB3,
     RocketB4,
+    LaserArrowA0,
+    LaserArrowA1,
+    LaserArrowA2,
+    LaserArrowA3,
+    LaserArrowA4,
     ExplosionA,
     ExplosionB,
     ExplosionC,
@@ -88,6 +96,12 @@ enum class SpriteId : std::uint8_t
     HUD_TrishotA,
     HUD_TrishotFA,
     HUD_TrishotFB,
+    HUD_CrossbowA,
+    HUD_CrossbowFA,
+    HUD_CrossbowFB,
+    HUD_CrossbowFC,
+    HUD_CrossbowFD,
+    HUD_CrossbowFE,
 };
 
 enum class EntityType
@@ -112,6 +126,7 @@ enum class EntityType
     WeaponPickableBegin,
     PickupShotgun,
     PickupTrishot,
+    PickupCrossbow,
     WeaponPickableEnd,
 
     PickableEnd,
@@ -130,6 +145,7 @@ enum class EntityType
     WeaponFlaregun,
     WeaponShotgun,
     WeaponTrishot,
+    WeaponCrossbow,
 
     InventoryEnd,
 
