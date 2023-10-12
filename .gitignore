@@ -6,3 +6,4 @@ src/lib-app/.clang-format
 src/lib-settings/.clang-format
 src/tests/.clang-format
 _build
+level-editor/bin/stdout.txt
