@@ -8,8 +8,6 @@ void AnimationEngine::operator()(const SetStateAnimationEvent&) {}
 
 void AnimationEngine::operator()(const PlayerFiredAnimationEvent& e)
 {
-    std::cout << std::format(
-        "{}: PlayerFiredAnimationEvent: {}", scene.tick, e.playerIdx);
     // TODO: set player state as well
     setWeaponAnimationState(
         getInventory(e.playerIdx), AnimationStateId::Missile);
@@ -42,8 +40,8 @@ void AnimationEngine::handleUpdate(
 
     auto& state = eprop.states.at(context.animationStateId);
 
-    bool shouldUpdate =
-        (scene.tick - context.lastAnimationUpdate) >= state.updateFrequency;
+    bool shouldUpdate = (scene.tick - context.lastAnimationUpdate)
+                        >= state.clip[context.animationFrameIndex].duration;
     if (!shouldUpdate) return;
 
     if ((context.animationFrameIndex + 1) == state.clip.size())
@@ -102,5 +100,5 @@ void AnimationEngine::updateSpriteId(
 {
     assert(state.clip.size() > context.animationFrameIndex);
     context.lastAnimationUpdate = scene.tick;
-    context.spriteClipIndex = state.clip[context.animationFrameIndex];
+    context.spriteClipIndex = state.clip[context.animationFrameIndex].spriteId;
 }

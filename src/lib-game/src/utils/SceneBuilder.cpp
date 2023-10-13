@@ -209,7 +209,7 @@ Entity SceneBuilder::createDecal(
     return Entity {
         .typeId = type,
         .animationContext = { .spriteClipIndex =
-                                  props.states.at(state).clip.front(),
+                                  props.states.at(state).clip.front().spriteId,
                               .lastAnimationUpdate = tick },
         .hitbox = dgm::Circle(position.value, 1_px)
     };

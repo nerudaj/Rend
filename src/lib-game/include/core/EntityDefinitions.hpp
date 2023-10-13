@@ -16,8 +16,10 @@ const static inline auto ENTITY_PROPERTIES =
               .initialSpriteIndex = DeathA,
               .states = { { AnimationStateId::Idle,
                             AnimationState {
-                                .clip = { DeathA, DeathB, DeathC, DeathD },
-                                .updateFrequency = 7,
+                                .clip = { { DeathA, 7 },
+                                          { DeathB, 7 },
+                                          { DeathC, 7 },
+                                          { DeathD, 7 } },
                                 .transition =
                                     AnimationStateId::MarkerFreeze } } } } },
         { EntityType::EffectExplosion,
@@ -26,13 +28,12 @@ const static inline auto ENTITY_PROPERTIES =
               .initialSpriteIndex = ExplosionA,
               .states = { { AnimationStateId::Idle,
                             AnimationState {
-                                .clip = { ExplosionA,
-                                          ExplosionB,
-                                          ExplosionC,
-                                          ExplosionD,
-                                          ExplosionE,
-                                          ExplosionF },
-                                .updateFrequency = 2,
+                                .clip = { { ExplosionA, 2 },
+                                          { ExplosionB, 2 },
+                                          { ExplosionC, 2 },
+                                          { ExplosionD, 2 },
+                                          { ExplosionE, 2 },
+                                          { ExplosionF, 2 } },
                                 .transition =
                                     AnimationStateId::MarkerDestroy } } } } },
         { EntityType::EffectSpawn,
@@ -41,8 +42,9 @@ const static inline auto ENTITY_PROPERTIES =
               .initialSpriteIndex = SpawnItemA,
               .states = { { AnimationStateId::Idle,
                             AnimationState {
-                                .clip = { SpawnItemA, SpawnItemB, SpawnItemC },
-                                .updateFrequency = 10,
+                                .clip = { { SpawnItemA, 10 },
+                                          { SpawnItemB, 10 },
+                                          { SpawnItemC, 10 } },
                                 .transition =
                                     AnimationStateId::MarkerDestroy } } } } },
         { EntityType::Player,
@@ -85,8 +87,7 @@ const static inline auto ENTITY_PROPERTIES =
               .initialSpriteIndex = RocketA0,
               .states = { { AnimationStateId::Idle,
                             AnimationState {
-                                .clip = { RocketA0, RocketB0 },
-                                .updateFrequency = 10,
+                                .clip = { { RocketA0, 10 }, { RocketB0, 10 } },
                                 .transition =
                                     AnimationStateId::MarkerLoop } } } } },
         {
@@ -96,23 +97,20 @@ const static inline auto ENTITY_PROPERTIES =
                 .initialSpriteIndex = HUD_ShotgunA,
                 .states = { { AnimationStateId::Idle,
                               AnimationState {
-                                  .clip = { HUD_ShotgunA },
-                                  .updateFrequency = 10,
+                                  .clip = { { HUD_ShotgunA, 10 } },
                                   .transition =
                                       AnimationStateId::MarkerLoop } },
                             { AnimationStateId::Missile,
                               AnimationState {
-                                  .clip = { HUD_ShotgunFA,
-                                            HUD_ShotgunFB,
-                                            HUD_ShotgunFA },
-                                  .updateFrequency = 5,
+                                  .clip = { { HUD_ShotgunFA, 10 },
+                                            { HUD_ShotgunFB, 10 },
+                                            { HUD_ShotgunFA, 10 } },
                                   .transition = AnimationStateId::Recovery } },
                             { AnimationStateId::Recovery,
                               AnimationState {
-                                  .clip = { HUD_ShotgunRA,
-                                            HUD_ShotgunRB,
-                                            HUD_ShotgunRC },
-                                  .updateFrequency = 10,
+                                  .clip = { { HUD_ShotgunRA, 10 },
+                                            { HUD_ShotgunRB, 10 },
+                                            { HUD_ShotgunRC, 10 } },
                                   .transition = AnimationStateId::Idle } } } },
         },
         {
@@ -122,14 +120,13 @@ const static inline auto ENTITY_PROPERTIES =
                 .initialSpriteIndex = HUD_FlaregunA,
                 .states = { { AnimationStateId::Idle,
                               AnimationState {
-                                  .clip = { HUD_FlaregunA },
-                                  .updateFrequency = 10,
+                                  .clip = { { HUD_FlaregunA, 10 } },
                                   .transition =
                                       AnimationStateId::MarkerLoop } },
                             { AnimationStateId::Missile,
                               AnimationState {
-                                  .clip = { HUD_FlaregunFA, HUD_FlaregunFB },
-                                  .updateFrequency = 20,
+                                  .clip = { { HUD_FlaregunFA, 20 },
+                                            { HUD_FlaregunFB, 20 } },
                                   .transition = AnimationStateId::Idle } } } },
         },
         {
@@ -139,19 +136,17 @@ const static inline auto ENTITY_PROPERTIES =
                 .initialSpriteIndex = HUD_TrishotA,
                 .states = { { AnimationStateId::Idle,
                               AnimationState {
-                                  .clip = { HUD_TrishotA },
-                                  .updateFrequency = 10,
+                                  .clip = { { HUD_TrishotA, 10 } },
                                   .transition =
                                       AnimationStateId::MarkerLoop } },
                             { AnimationStateId::Missile,
                               AnimationState {
-                                  .clip = { HUD_TrishotFA,
-                                            HUD_TrishotFB,
-                                            HUD_TrishotFA,
-                                            HUD_TrishotFB,
-                                            HUD_TrishotFA,
-                                            HUD_TrishotFB },
-                                  .updateFrequency = 15,
+                                  .clip = { { HUD_TrishotFA, 10 },
+                                            { HUD_TrishotFB, 10 },
+                                            { HUD_TrishotFA, 10 },
+                                            { HUD_TrishotFB, 10 },
+                                            { HUD_TrishotFA, 10 },
+                                            { HUD_TrishotFB, 10 } },
                                   .transition = AnimationStateId::Idle } } } },
         },
         {
@@ -161,20 +156,17 @@ const static inline auto ENTITY_PROPERTIES =
                 .initialSpriteIndex = HUD_CrossbowA,
                 .states = { { AnimationStateId::Idle,
                               AnimationState {
-                                  .clip = { HUD_CrossbowA },
-                                  .updateFrequency = 10,
+                                  .clip = { { HUD_CrossbowA, 10 } },
                                   .transition =
                                       AnimationStateId::MarkerLoop } },
                             { AnimationStateId::Missile,
                               AnimationState {
-                                  .clip = { HUD_CrossbowFA,
-                                            HUD_CrossbowFB,
-                                            HUD_CrossbowFC,
-                                            HUD_CrossbowFD,
-                                            HUD_CrossbowFE,
-                                            HUD_CrossbowA,
-                                            HUD_CrossbowA },
-                                  .updateFrequency = 5,
+                                  .clip = { { HUD_CrossbowFA, 5 },
+                                            { HUD_CrossbowFB, 5 },
+                                            { HUD_CrossbowFC, 5 },
+                                            { HUD_CrossbowFD, 5 },
+                                            { HUD_CrossbowFE, 5 },
+                                            { HUD_CrossbowA, 10 } },
                                   .transition = AnimationStateId::Idle } } } },
         },
         {
@@ -184,14 +176,14 @@ const static inline auto ENTITY_PROPERTIES =
                 .initialSpriteIndex = WallDecalA,
                 .states = { { AnimationStateId::Idle,
                               AnimationState {
-                                  .clip = { WallDecalA, WallDecalB },
-                                  .updateFrequency = 10,
+                                  .clip = { { WallDecalA, 10 },
+                                            { WallDecalB, 10 } },
                                   .transition =
                                       AnimationStateId::MarkerDestroy } },
                             { AnimationStateId::Missile,
                               AnimationState {
-                                  .clip = { FleshDecalA, FleshDecalB },
-                                  .updateFrequency = 10,
+                                  .clip = { { FleshDecalA, 10 },
+                                            { FleshDecalB, 10 } },
                                   .transition =
                                       AnimationStateId::MarkerDestroy } } } },
         }

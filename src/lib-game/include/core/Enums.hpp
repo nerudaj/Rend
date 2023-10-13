@@ -82,6 +82,7 @@ enum class SpriteId : std::uint8_t
     WallDecalB,
     FleshDecalA,
     FleshDecalB,
+    ErrorRender,
 
     // These are different texture, but I need them to have the same enum type
     HUD_ShotgunA = 0,

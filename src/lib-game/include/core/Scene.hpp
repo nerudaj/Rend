@@ -20,19 +20,16 @@ struct HitscanResult
 
 struct AnimationFrame
 {
-    SpriteId spriteId;
-    std::size_t duration; // in ticks
-    ScriptId scriptToTrigger;
+    SpriteId spriteId = SpriteId::ErrorRender;
+    std::size_t duration = 10; // in ticks
+    ScriptId scriptToTrigger = ScriptId::NoAction;
 };
 
-using AnimationClip = std::vector<SpriteId>;
-
-// TODO: using AnimationClip = std::vector<AnimationFrame>;
+using AnimationClip = std::vector<AnimationFrame>;
 
 struct AnimationState
 {
     AnimationClip clip;
-    std::size_t updateFrequency; // how many ticks pass before next update
     AnimationStateId transition;
 };
 
