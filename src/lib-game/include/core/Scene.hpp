@@ -7,6 +7,7 @@
 #include <core/Constants.hpp>
 #include <core/Enums.hpp>
 #include <core/Types.hpp>
+#include <input/AiController.hpp>
 #include <input/SimpleController.hpp>
 #include <utils/SemanticTypes.hpp>
 
@@ -88,12 +89,22 @@ struct PlayerInventory
     int energyCount = 0;
     int rocketCount = 0;
     std::bitset<16> acquiredWeapons;
+    AiState aiState;
+};
+
+struct AiBlackboard
+{
+    mem::Rc<AiController> input;
+    PlayerStateIndexType playerStateIdx;
+    sf::Vector2f targetLocation;
+    sf::Vector2f nextStop;
 };
 
 struct PlayerState
 {
     SimpleController input;
     PlayerInventory inventory;
+    std::optional<AiBlackboard> blackboard;
 };
 
 using Marker = std::variant<MarkerDeadPlayer, MarkerItemRespawner>;

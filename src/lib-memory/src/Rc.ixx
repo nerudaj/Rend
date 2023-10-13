@@ -63,6 +63,13 @@ export namespace mem
 			referenceCounter = other.referenceCounter;
 		}
 
+		template<class Derived>
+			requires std::derived_from<Derived, T>
+		[[nodiscard]] Rc<Derived> castTo() const
+		{
+			return Rc<Derived>(dynamic_cast<Derived*>(ptr), referenceCounter);
+		}
+
 		constexpr ~Rc() noexcept
 		{
 			--(*referenceCounter);
@@ -74,6 +81,13 @@ export namespace mem
 			delete referenceCounter;
 			ptr = nullptr;
 			referenceCounter = nullptr;
+		}
+
+	private:
+		// Helper constructor for downcasting
+		[[nodiscard]] constexpr Rc(T* ptr, unsigned long* rc) noexcept : ptr(ptr), referenceCounter(rc)
+		{
+			++(*referenceCounter);
 		}
 
 	public:

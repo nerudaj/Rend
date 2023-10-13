@@ -117,8 +117,12 @@ enum class EntityType
     PickableBegin,
     PickupHealth,
     PickupArmor,
+
+    PowerItemsBegin,
     PickupMegaHealth,
     PickupMegaArmor,
+    PowerItemsEnd,
+
     PickupBullets,
     PickupShells,
     PickupEnergy,
@@ -176,4 +180,15 @@ enum class AnimationStateId
     MarkerLoop,
     MarkerDestroy,
     MarkerFreeze,
+};
+
+enum class AiState
+{
+    Start,
+    PickDestination,
+    FindPathToDestination,
+    GoToDestination,
+    WaitForRespawn,
+    RequestRespawn,
+    WaitForRespawn2
 };

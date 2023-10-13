@@ -36,6 +36,13 @@ isWeaponPickable(EntityType type) noexcept
 }
 
 [[nodiscard]] static constexpr inline bool
+isPowerItemPickable(EntityType type) noexcept
+{
+    using enum EntityType;
+    return PowerItemsBegin < type && type < PowerItemsEnd;
+}
+
+[[nodiscard]] static constexpr inline bool
 isProjectile(EntityType type) noexcept
 {
     using enum EntityType;

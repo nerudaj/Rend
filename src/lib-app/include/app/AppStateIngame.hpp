@@ -2,6 +2,7 @@
 
 #include "Settings.hpp"
 #include "audio/AudioPlayer.hpp"
+#include "engine/AiEngine.hpp"
 #include "engine/AnimationEngine.hpp"
 #include "engine/AudioEngine.hpp"
 #include "engine/GameRulesEngine.hpp"
@@ -65,13 +66,14 @@ protected:
 
     const sf::Vector2f GAME_RESOLUTION;
 
+    std::array<mem::Rc<ControllerInterface>, MAX_PLAYER_COUNT> inputs;
     Scene scene;
     RoundRobinBuffer<FrameState, 10> stateBuffer;
+    AiEngine aiEngine;
     AnimationEngine animationEngine;
     AudioEngine audioEngine;
     GameRulesEngine gameRulesEngine;
     PhysicsEngine physicsEngine;
     RenderingEngine renderingEngine;
-    std::array<mem::Box<ControllerInterface>, MAX_PLAYER_COUNT> inputs;
     DemoFileHandler demoFileHandler;
 };

@@ -116,6 +116,7 @@ void AppStateIngame::restoreState(const FrameState& state)
 
 void AppStateIngame::updateEngines()
 {
+    aiEngine.update(FRAME_TIME);
     animationEngine.update(FRAME_TIME);
     audioEngine.update(FRAME_TIME);
     physicsEngine.update(FRAME_TIME);
@@ -166,18 +167,19 @@ AppStateIngame::AppStateIngame(
     , settings(_settings)
     , audioPlayer(_audioPlayer)
     , GAME_RESOLUTION(sf::Vector2f(app.window.getSize()))
+    , inputs({
+          mem::Rc<PhysicalController>(),
+          mem::Rc<AiController>(),
+          mem::Rc<AiController>(),
+          mem::Rc<AiController>(),
+      })
     , scene(SceneBuilder::buildScene(*resmgr, GAME_RESOLUTION, *settings))
+    , aiEngine(scene)
     , animationEngine(scene)
     , audioEngine(resmgr, audioPlayer)
     , gameRulesEngine(scene)
     , physicsEngine(scene)
     , renderingEngine(resmgr, scene)
-    , inputs({
-          mem::Box<PhysicalController>(),
-          mem::Box<NullController>(),
-          mem::Box<NullController>(),
-          mem::Box<NullController>(),
-      })
     , demoFileHandler(
           settings->cmdSettings.demoFile,
           settings->cmdSettings.playDemo ? DemoFileMode::Read
@@ -186,7 +188,7 @@ AppStateIngame::AppStateIngame(
     scene.worldCamera.setPosition(GAME_RESOLUTION / 2.f);
     scene.hudCamera.setPosition(GAME_RESOLUTION / 2.f);
 
-    for (short i = 0; i < MAX_PLAYER_COUNT; i++)
+    for (PlayerStateIndexType i = 0; i < MAX_PLAYER_COUNT; i++)
     {
         auto idx = scene.things.emplaceBack(SceneBuilder::createPlayer(
             Position { scene.spawns[i] },
@@ -195,6 +197,13 @@ AppStateIngame::AppStateIngame(
         scene.playerStates[i].inventory =
             SceneBuilder::getDefaultInventory(idx);
 
-        if (i == 0) scene.playerId = idx;
+        if (i == 0)
+            scene.playerId = idx;
+        else
+        {
+            scene.playerStates[i].blackboard =
+                AiBlackboard { .input = inputs[i].castTo<AiController>(),
+                               .playerStateIdx = i };
+        }
     }
 }
