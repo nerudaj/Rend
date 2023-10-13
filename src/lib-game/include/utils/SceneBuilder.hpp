@@ -18,7 +18,7 @@ public:
         const Direction& lookDirection,
         PlayerStateIndexType stateId) noexcept;
 
-    [[nodiscard]] static PlayerInventory getDefaultInventory() noexcept;
+    [[nodiscard]] static PlayerInventory getDefaultInventory(EntityIndexType ownerIdx) noexcept;
 
     [[nodiscard]] static Entity createProjectile(
         EntityType type,

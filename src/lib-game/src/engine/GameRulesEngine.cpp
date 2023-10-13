@@ -67,7 +67,7 @@ void GameRulesEngine::operator()(const PlayerRespawnedGameEvent& e)
         Direction { spawnDirection },
         marker.stateId));
     scene.playerStates[scene.things[idx].stateId].inventory =
-        SceneBuilder::getDefaultInventory();
+        SceneBuilder::getDefaultInventory(idx);
 
     if (marker.rebindCamera) scene.playerId = idx;
 

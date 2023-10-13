@@ -145,9 +145,11 @@ Entity SceneBuilder::createPlayer(
     };
 }
 
-PlayerInventory SceneBuilder::getDefaultInventory() noexcept
+PlayerInventory
+SceneBuilder::getDefaultInventory(EntityIndexType ownerIdx) noexcept
 {
     return PlayerInventory {
+        .ownerIdx = ownerIdx,
         .activeWeaponType = EntityType::WeaponFlaregun,
         .animationContext { .spriteClipIndex =
                                 ENTITY_PROPERTIES.at(EntityType::WeaponFlaregun)

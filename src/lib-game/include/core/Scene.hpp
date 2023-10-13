@@ -80,6 +80,7 @@ struct MarkerItemRespawner
 
 struct PlayerInventory
 {
+    EntityIndexType ownerIdx;
     EntityType activeWeaponType;
     AnimationContext animationContext;
     int bulletCount = 0;

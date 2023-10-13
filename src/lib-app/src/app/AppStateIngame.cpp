@@ -186,21 +186,15 @@ AppStateIngame::AppStateIngame(
     scene.worldCamera.setPosition(GAME_RESOLUTION / 2.f);
     scene.hudCamera.setPosition(GAME_RESOLUTION / 2.f);
 
-    scene.playerId = scene.things.emplaceBack(SceneBuilder::createPlayer(
-        Position { scene.spawns[0] },
-        Direction { sf::Vector2f { 1.f, 0.f } },
-        0));
-
-    for (short i = 1; i < MAX_PLAYER_COUNT; i++)
+    for (short i = 0; i < MAX_PLAYER_COUNT; i++)
     {
-        scene.things.emplaceBack(SceneBuilder::createPlayer(
+        auto idx = scene.things.emplaceBack(SceneBuilder::createPlayer(
             Position { scene.spawns[i] },
             Direction { sf::Vector2f { 1.f, 0.f } },
             i));
-    }
+        scene.playerStates[i].inventory =
+            SceneBuilder::getDefaultInventory(idx);
 
-    for (auto&& state : scene.playerStates)
-    {
-        state.inventory = SceneBuilder::getDefaultInventory();
+        if (i == 0) scene.playerId = idx;
     }
 }
