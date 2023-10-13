@@ -10,7 +10,7 @@ void PhysicsEngine::update(const float deltaTime)
         scene.spatialIndex.removeFromLookup(id, thing.hitbox);
         if (thing.typeId == EntityType::Player)
             handlePlayer(thing, deltaTime);
-        else if (thing.typeId == EntityType::ProjectileRocket)
+        else if (isProjectile(thing.typeId))
             handleProjectile(thing, id, deltaTime);
         scene.spatialIndex.returnToLookup(id, thing.hitbox);
     }
@@ -45,14 +45,24 @@ void PhysicsEngine::handleProjectile(
     Entity& thing, std::size_t id, const float deltaTime)
 {
     auto&& forward = thing.direction * PROJECTILE_FORWARD_SPEED * deltaTime;
-    thing.hitbox.move(forward);
 
     const auto hasCollided = [&]() -> bool
     {
-        if (dgm::Collision::basic(scene.level.bottomMesh, thing.hitbox))
+        if (dgm::Collision::advanced(
+                scene.level.bottomMesh, thing.hitbox, forward))
         {
+            if (isBouncyProjectile(thing.typeId) && thing.health > 0)
+            {
+                thing.health -= 50;
+                // invert components of direction vector that caused collision
+                thing.direction.x *= forward.x == 0.f ? -1.f : 1.f;
+                thing.direction.y *= forward.y == 0.f ? -1.f : 1.f;
+                return false;
+            }
             return true;
         }
+
+        thing.hitbox.move(forward);
 
         auto&& candidateIds =
             scene.spatialIndex.getOverlapCandidates(thing.hitbox);

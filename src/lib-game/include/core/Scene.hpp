@@ -67,7 +67,7 @@ struct Entity
 struct MarkerDeadPlayer
 {
     bool rebindCamera = false;
-    PlayerStateIndexType stateId = -1;
+    PlayerStateIndexType stateId = 0;
 };
 
 struct MarkerItemRespawner

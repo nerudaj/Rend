@@ -99,7 +99,41 @@ void GameRulesEngine::operator()(const HitscanProjectileFiredGameEvent& e)
     damage(
         scene.things[e.hit.impactedEntityIdx.value()],
         e.hit.impactedEntityIdx.value(),
-        SHELL_DAMAGE);
+        e.damage);
+}
+
+void GameRulesEngine::operator()(ScriptTriggeredGameEvent e)
+{
+    auto& thing = scene.things[e.targetEntityIdx];
+    const auto position =
+        Position { thing.hitbox.getPosition()
+                   + thing.direction * thing.hitbox.getRadius() * 2.f };
+    auto& inventory = scene.playerStates[thing.stateId].inventory;
+
+    switch (e.scriptId)
+    {
+        using enum ScriptId;
+    case FireFlare:
+        fireFlare(position, Direction { thing.direction }, inventory);
+        break;
+    case FirePellets:
+        firePellets(
+            position,
+            Direction { thing.direction },
+            inventory,
+            e.targetEntityIdx);
+        break;
+    case FireBullet:
+        fireBullet(
+            position,
+            Direction { thing.direction },
+            inventory,
+            e.targetEntityIdx);
+        break;
+    case FireLaserDart:
+        fireLaserDart(position, Direction { thing.direction }, inventory);
+        break;
+    }
 }
 
 #pragma endregion
@@ -119,7 +153,7 @@ void GameRulesEngine::update(const float deltaTime)
         switch (thing.typeId)
         {
         case EntityType::Player:
-            handlePlayer(thing, id, deltaTime);
+            handlePlayer(thing, id);
             break;
         default:
             break;
@@ -148,12 +182,16 @@ void GameRulesEngine::deleteMarkedObjects()
     for (unsigned i = 0; i < indicesToRemove.size(); i++)
     {
         if (i == 0 || indicesToRemove[i - 1] != indicesToRemove[i])
+        {
             scene.things.eraseAtIndex(indicesToRemove[i]);
+            std::cout << std::format(
+                "{}: truly erased {}", scene.tick, indicesToRemove[i])
+                      << std::endl;
+        }
     }
 }
 
-void GameRulesEngine::handlePlayer(
-    Entity& thing, std::size_t idx, const float deltaTime)
+void GameRulesEngine::handlePlayer(Entity& thing, std::size_t idx)
 {
     auto& state = scene.playerStates[thing.stateId];
 
@@ -173,13 +211,9 @@ void GameRulesEngine::handlePlayer(
     if (state.inventory.animationContext.animationStateId
         == AnimationStateId::Idle)
     {
-        if (state.input.isShooting())
+        if (state.input.isShooting() && canFireActiveWeapon(state.inventory))
         {
-            auto position = thing.hitbox.getPosition()
-                            + thing.direction * thing.hitbox.getRadius() * 2.f;
-            if (handleFiredWeapon(
-                    position, thing.direction, idx, state.inventory))
-                EventQueue::add<PlayerFiredAnimationEvent>(idx);
+            EventQueue::add<PlayerFiredAnimationEvent>(idx);
         }
         else if (state.input.shouldSwapToPreviousWeapon())
         {
@@ -237,41 +271,22 @@ void GameRulesEngine::handleGrabbedPickable(
     }
 }
 
-bool GameRulesEngine::handleFiredWeapon(
-    const sf::Vector2f& position,
-    const sf::Vector2f& direction,
-    EntityIndexType shooterIdx,
-    PlayerInventory& inventory)
+bool GameRulesEngine::canFireActiveWeapon(PlayerInventory& inventory) noexcept
 {
     switch (inventory.activeWeaponType)
     {
         using enum EntityType;
-    case WeaponFlaregun: {
-        if (inventory.rocketCount == 0) return false;
-        --inventory.rocketCount;
-        EventQueue::add<ProjectileCreatedGameEvent>(ProjectileCreatedGameEvent(
-            EntityType::ProjectileRocket, position, direction));
-    }
-    break;
-    case WeaponShotgun: {
-        if (inventory.shellCount == 0) return false;
-        --inventory.shellCount;
-
-        forEachDirection(
-            direction,
-            getPerpendicular(direction) * SHOTGUN_SPREAD,
-            SHOTGUN_PELLET_AMOUNT,
-            [&](const sf::Vector2f& hitscanDir)
-            {
-                auto hit = hitscanner.hitscan(
-                    Position { position }, Direction { hitscanDir });
-                EventQueue::add<HitscanProjectileFiredGameEvent>(hit);
-            });
-    }
-    break;
+    case WeaponFlaregun:
+        return inventory.rocketCount > 0;
+    case WeaponShotgun:
+        return inventory.shellCount > 0;
+    case WeaponTrishot:
+        return inventory.bulletCount > 0;
+    case WeaponCrossbow:
+        return inventory.energyCount > 0;
     }
 
-    return true;
+    return false;
 }
 
 void GameRulesEngine::swapToPreviousWeapon(
@@ -380,6 +395,12 @@ void GameRulesEngine::damage(Entity& thing, std::size_t thingIndex, int damage)
 void GameRulesEngine::removeEntity(std::size_t index)
 {
     const auto thing = scene.things[index];
+    std::cout << std::format(
+        "{}: removeEntity({}) with type {}",
+        scene.tick,
+        index,
+        static_cast<int>(thing.typeId))
+              << std::endl;
     const bool playerWasDestroyed = thing.typeId == EntityType::Player;
 
     if (playerWasDestroyed)
@@ -398,7 +419,12 @@ void GameRulesEngine::removeEntity(std::size_t index)
     }
 
     scene.spatialIndex.removeFromLookup(index, thing.hitbox);
-    // scene.things.eraseAtIndex(index);
+    std::cout << std::format(
+        "{}: removedFromLookup({}) with hitbox {}",
+        scene.tick,
+        index,
+        dgm::Utility::to_string(thing.hitbox.getPosition()))
+              << std::endl;
     indicesToRemove.push_back(index);
 }
 
@@ -434,6 +460,63 @@ sf::Vector2f GameRulesEngine::getBestSpawnDirection(
 {
     return dgm::Math::toUnit(
         scene.spatialIndex.getBoundingBox().getCenter() - spawnPosition);
+}
+
+void GameRulesEngine::fireFlare(
+    const Position& position,
+    const Direction& direction,
+    PlayerInventory& inventory)
+{
+    assert(inventory.rocketCount);
+    --inventory.rocketCount;
+    EventQueue::add<ProjectileCreatedGameEvent>(ProjectileCreatedGameEvent(
+        EntityType::ProjectileRocket, position.value, direction.value));
+}
+
+void GameRulesEngine::firePellets(
+    const Position& position,
+    const Direction& direction,
+    PlayerInventory& inventory,
+    EntityIndexType playerIdx)
+{
+    assert(inventory.shellCount);
+    --inventory.shellCount;
+
+    forEachDirection(
+        direction.value,
+        getPerpendicular(direction.value) * SHOTGUN_SPREAD,
+        SHOTGUN_PELLET_AMOUNT,
+        [&](const sf::Vector2f& hitscanDir)
+        {
+            auto hit = hitscanner.hitscan(
+                position, Direction { hitscanDir }, playerIdx);
+            EventQueue::add<HitscanProjectileFiredGameEvent>(
+                HitscanProjectileFiredGameEvent(hit, SHELL_DAMAGE));
+        });
+}
+
+void GameRulesEngine::fireBullet(
+    const Position& position,
+    const Direction& direction,
+    PlayerInventory& inventory,
+    EntityIndexType playerIdx)
+{
+    assert(inventory.bulletCount);
+    --inventory.bulletCount;
+    auto hit = hitscanner.hitscan(position, direction, playerIdx);
+    EventQueue::add<HitscanProjectileFiredGameEvent>(
+        HitscanProjectileFiredGameEvent(hit, TRISHOT_BULLET_DAMAGE));
+}
+
+void GameRulesEngine::fireLaserDart(
+    const Position& position,
+    const Direction& direction,
+    PlayerInventory& inventory)
+{
+    assert(inventory.energyCount);
+    --inventory.energyCount;
+    EventQueue::add<ProjectileCreatedGameEvent>(ProjectileCreatedGameEvent(
+        EntityType::ProjectileLaserDart, position.value, direction.value));
 }
 
 #pragma endregion

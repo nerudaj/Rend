@@ -18,6 +18,7 @@ public:
     /// <typeparam name="...Args">Arguments for the construction of
     /// event</typeparam> <param name="...args"></param>
     template<class T, class... Args>
+        requires std::constructible_from<T, Args...>
     constexpr inline static void add(Args&&... args)
     {
         if constexpr (isTypeInVariant<T>(animationEvents))
@@ -39,6 +40,10 @@ public:
         else if constexpr (isTypeInVariant<T>(renderingEvents))
         {
             renderingEvents.emplace_back<T>(std::forward<Args>(args)...);
+        }
+        else
+        {
+            assert(false);
         }
     }
 

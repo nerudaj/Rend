@@ -23,6 +23,7 @@ public: // Must visit on all related events
     void operator()(const EffectSpawnedGameEvent&);
     void operator()(const PickupSpawnedGameEvent&);
     void operator()(const HitscanProjectileFiredGameEvent&);
+    void operator()(ScriptTriggeredGameEvent);
 
 public:
     void update(const float deltaTime);
@@ -30,7 +31,7 @@ public:
     void deleteMarkedObjects();
 
 private:
-    void handlePlayer(Entity& thing, std::size_t id, const float deltaTime);
+    void handlePlayer(Entity& thing, std::size_t id);
 
     void handleDeadPlayer(MarkerDeadPlayer& thing, std::size_t id);
 
@@ -43,18 +44,15 @@ private:
         Entity pickup,
         std::size_t pickupId);
 
-    bool handleFiredWeapon(
-        const sf::Vector2f& position,
-        const sf::Vector2f& direction,
-        EntityIndexType shooterIdx,
-        PlayerInventory& inventory);
+    [[nodiscard]] bool canFireActiveWeapon(PlayerInventory& inventory) noexcept;
 
     void swapToPreviousWeapon(PlayerInventory& inventory, EntityIndexType idx);
 
     void swapToNextWeapon(PlayerInventory& inventory, EntityIndexType idx);
 
     /// <returns>True if thing was succesfully given</returns>
-    bool give(Entity& entity, PlayerInventory& inventory, EntityType pickupId);
+    [[nodiscard]] bool
+    give(Entity& entity, PlayerInventory& inventory, EntityType pickupId);
 
     void damage(Entity& thing, std::size_t thingIndex, int damage);
 
@@ -73,6 +71,29 @@ private:
 
     [[nodiscard]] sf::Vector2f
     getBestSpawnDirection(const sf::Vector2f& spawnPosition) const noexcept;
+
+private: // Scripts API
+    void fireFlare(
+        const Position& position,
+        const Direction& direction,
+        PlayerInventory& inventory);
+
+    void firePellets(
+        const Position& position,
+        const Direction& direction,
+        PlayerInventory& inventory,
+        EntityIndexType playerIdx);
+
+    void fireBullet(
+        const Position& position,
+        const Direction& direction,
+        PlayerInventory& inventory,
+        EntityIndexType playerIdx);
+
+    void fireLaserDart(
+        const Position& position,
+        const Direction& direction,
+        PlayerInventory& inventory);
 
 private:
     Scene& scene;

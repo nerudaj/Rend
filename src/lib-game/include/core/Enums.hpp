@@ -60,11 +60,11 @@ enum class SpriteId : std::uint8_t
     RocketB2,
     RocketB3,
     RocketB4,
-    LaserArrowA0,
-    LaserArrowA1,
-    LaserArrowA2,
-    LaserArrowA3,
-    LaserArrowA4,
+    LaserDartA0,
+    LaserDartA1,
+    LaserDartA2,
+    LaserDartA3,
+    LaserDartA4,
     ExplosionA,
     ExplosionB,
     ExplosionC,
@@ -132,7 +132,12 @@ enum class EntityType
 
     PickableEnd,
 
+    ProjectilesBegin,
+
     ProjectileRocket,
+    ProjectileLaserDart,
+
+    ProjectilesEnd,
 
     EffectBegin,
     EffectStatic, // Does nothing, has no collisions
@@ -156,9 +161,10 @@ enum class EntityType
 enum class ScriptId
 {
     NoAction,
-    FireRocket,
-    FireShotgun,
-    FireBurstgun
+    FireFlare,
+    FirePellets,
+    FireBullet,
+    FireLaserDart
 };
 
 enum class AnimationStateId

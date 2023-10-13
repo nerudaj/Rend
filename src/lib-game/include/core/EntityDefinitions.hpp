@@ -90,6 +90,9 @@ const static inline auto ENTITY_PROPERTIES =
                                 .clip = { { RocketA0, 10 }, { RocketB0, 10 } },
                                 .transition =
                                     AnimationStateId::MarkerLoop } } } } },
+        { EntityType::ProjectileLaserDart,
+          EntityProperties { .radius = 2_px,
+                             .initialSpriteIndex = LaserDartA0 } },
         {
             EntityType::WeaponShotgun,
             EntityProperties {
@@ -103,7 +106,9 @@ const static inline auto ENTITY_PROPERTIES =
                             { AnimationStateId::Missile,
                               AnimationState {
                                   .clip = { { HUD_ShotgunFA, 10 },
-                                            { HUD_ShotgunFB, 10 },
+                                            { HUD_ShotgunFB,
+                                              10,
+                                              ScriptId::FirePellets },
                                             { HUD_ShotgunFA, 10 } },
                                   .transition = AnimationStateId::Recovery } },
                             { AnimationStateId::Recovery,
@@ -126,7 +131,9 @@ const static inline auto ENTITY_PROPERTIES =
                             { AnimationStateId::Missile,
                               AnimationState {
                                   .clip = { { HUD_FlaregunFA, 20 },
-                                            { HUD_FlaregunFB, 20 } },
+                                            { HUD_FlaregunFB,
+                                              20,
+                                              ScriptId::FireFlare } },
                                   .transition = AnimationStateId::Idle } } } },
         },
         {
@@ -141,11 +148,17 @@ const static inline auto ENTITY_PROPERTIES =
                                       AnimationStateId::MarkerLoop } },
                             { AnimationStateId::Missile,
                               AnimationState {
-                                  .clip = { { HUD_TrishotFA, 10 },
+                                  .clip = { { HUD_TrishotFA,
+                                              5,
+                                              ScriptId::FireBullet },
                                             { HUD_TrishotFB, 10 },
-                                            { HUD_TrishotFA, 10 },
+                                            { HUD_TrishotFA,
+                                              5,
+                                              ScriptId::FireBullet },
                                             { HUD_TrishotFB, 10 },
-                                            { HUD_TrishotFA, 10 },
+                                            { HUD_TrishotFA,
+                                              5,
+                                              ScriptId::FireBullet },
                                             { HUD_TrishotFB, 10 } },
                                   .transition = AnimationStateId::Idle } } } },
         },
@@ -163,7 +176,9 @@ const static inline auto ENTITY_PROPERTIES =
                               AnimationState {
                                   .clip = { { HUD_CrossbowFA, 5 },
                                             { HUD_CrossbowFB, 5 },
-                                            { HUD_CrossbowFC, 5 },
+                                            { HUD_CrossbowFC,
+                                              5,
+                                              ScriptId::FireLaserDart },
                                             { HUD_CrossbowFD, 5 },
                                             { HUD_CrossbowFE, 5 },
                                             { HUD_CrossbowA, 10 } },

@@ -6,9 +6,10 @@
 
 struct PickablePickedUpGameEvent
 {
-    std::size_t entityIndex;
+    EntityIndexType entityIndex;
 
-    PickablePickedUpGameEvent(std::size_t entityIndex)
+    [[nodiscard]] constexpr PickablePickedUpGameEvent(
+        EntityIndexType entityIndex) noexcept
         : entityIndex(entityIndex)
     {
     }
@@ -20,10 +21,10 @@ struct ProjectileCreatedGameEvent
     sf::Vector2f position;
     sf::Vector2f direction;
 
-    ProjectileCreatedGameEvent(
+    [[nodiscard]] ProjectileCreatedGameEvent(
         EntityType type,
         const sf::Vector2f& position,
-        const sf::Vector2f& direction)
+        const sf::Vector2f& direction) noexcept
         : type(type), position(position), direction(direction)
     {
     }
@@ -31,9 +32,10 @@ struct ProjectileCreatedGameEvent
 
 struct ProjectileDestroyedGameEvent
 {
-    std::size_t entityIndex;
+    EntityIndexType entityIndex;
 
-    ProjectileDestroyedGameEvent(std::size_t entityIndex)
+    [[nodiscard]] constexpr ProjectileDestroyedGameEvent(
+        EntityIndexType entityIndex) noexcept
         : entityIndex(entityIndex)
     {
     }
@@ -41,18 +43,22 @@ struct ProjectileDestroyedGameEvent
 
 struct EntityDestroyedGameEvent
 {
-    std::size_t entityIndex;
+    EntityIndexType entityIndex;
 
-    EntityDestroyedGameEvent(std::size_t entityIndex) : entityIndex(entityIndex)
+    [[nodiscard]] constexpr EntityDestroyedGameEvent(
+        EntityIndexType entityIndex) noexcept
+        : entityIndex(entityIndex)
     {
     }
 };
 
 struct PlayerRespawnedGameEvent
 {
-    std::size_t markerIndex;
+    MarkerIndexType markerIndex;
 
-    PlayerRespawnedGameEvent(std::size_t markerIndex) : markerIndex(markerIndex)
+    [[nodiscard]] constexpr PlayerRespawnedGameEvent(
+        MarkerIndexType markerIndex) noexcept
+        : markerIndex(markerIndex)
     {
     }
 };
@@ -62,7 +68,8 @@ struct EffectSpawnedGameEvent
     EntityType type;
     sf::Vector2f position;
 
-    EffectSpawnedGameEvent(EntityType type, const sf::Vector2f& position)
+    [[nodiscard]] EffectSpawnedGameEvent(
+        EntityType type, const sf::Vector2f& position) noexcept
         : type(type), position(position)
     {
     }
@@ -74,8 +81,10 @@ struct PickupSpawnedGameEvent
     sf::Vector2f position;
     std::size_t markerIndex;
 
-    PickupSpawnedGameEvent(
-        EntityType type, const sf::Vector2f& position, std::size_t markerIndex)
+    [[nodiscard]] PickupSpawnedGameEvent(
+        EntityType type,
+        const sf::Vector2f& position,
+        std::size_t markerIndex) noexcept
         : type(type), position(position), markerIndex(markerIndex)
     {
     }
@@ -84,8 +93,25 @@ struct PickupSpawnedGameEvent
 struct HitscanProjectileFiredGameEvent
 {
     HitscanResult hit;
+    int damage;
 
-    HitscanProjectileFiredGameEvent(HitscanResult hit) : hit(hit) {}
+    [[nodiscard]] HitscanProjectileFiredGameEvent(
+        HitscanResult hit, int damage) noexcept
+        : hit(hit), damage(damage)
+    {
+    }
+};
+
+struct ScriptTriggeredGameEvent
+{
+    ScriptId scriptId;
+    EntityIndexType targetEntityIdx;
+
+    [[nodiscard]] constexpr ScriptTriggeredGameEvent(
+        ScriptId scriptId, EntityIndexType targetEntityIdx) noexcept
+        : scriptId(scriptId), targetEntityIdx(targetEntityIdx)
+    {
+    }
 };
 
 using GameEvent = std::variant<
@@ -96,4 +122,5 @@ using GameEvent = std::variant<
     PlayerRespawnedGameEvent,
     EffectSpawnedGameEvent,
     PickupSpawnedGameEvent,
-    HitscanProjectileFiredGameEvent>;
+    HitscanProjectileFiredGameEvent,
+    ScriptTriggeredGameEvent>;

@@ -37,6 +37,7 @@ constinit const int MAX_ENERGY = 100;
 constinit const int MAX_ROCKETS = 25;
 constinit const int ROCKET_DAMAGE = 150;
 constinit const int SHELL_DAMAGE = 10;
+constinit const int TRISHOT_BULLET_DAMAGE = 30;
 constinit const float ITEM_RESPAWN_TIMEOUT = 15.f;
 constinit const float ITEM_SPAWN_EFFECT_TIMEOUT = 0.5f;
 constinit const unsigned SHOTGUN_PELLET_AMOUNT = 10;

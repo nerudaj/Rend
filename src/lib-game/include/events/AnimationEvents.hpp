@@ -29,5 +29,7 @@ struct WeaponSwappedAnimationEvent
     }
 };
 
-using AnimationEvent =
-    std::variant<SetStateAnimationEvent, PlayerFiredAnimationEvent>;
+using AnimationEvent = std::variant<
+    SetStateAnimationEvent,
+    PlayerFiredAnimationEvent,
+    WeaponSwappedAnimationEvent>;

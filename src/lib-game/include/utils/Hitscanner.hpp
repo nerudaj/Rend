@@ -16,14 +16,17 @@ public:
 
 public:
     // Returns nearest enemy index that has been hit
-    [[nodiscard]] HitscanResult
-    hitscan(const Position& position, const Direction& direction);
+    [[nodiscard]] HitscanResult hitscan(
+        const Position& position,
+        const Direction& direction,
+        EntityIndexType idxToIgnore);
 
 protected:
     [[nodiscard]] std::optional<EntityIndexType> findHitInCandidates(
         const std::vector<EntityIndexType>& candidateIdxs,
         const Position& position,
-        const Direction& direction);
+        const Direction& direction,
+        EntityIndexType idxToIgnore);
 
     [[nodiscard]] sf::Vector2f getSpriteHitloc(
         const sf::Vector2f& casterPos, const sf::Vector2f& thingPos) noexcept

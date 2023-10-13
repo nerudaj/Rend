@@ -9,13 +9,12 @@ void AnimationEngine::operator()(const SetStateAnimationEvent&) {}
 void AnimationEngine::operator()(const PlayerFiredAnimationEvent& e)
 {
     // TODO: set player state as well
-    setWeaponAnimationState(
-        getInventory(e.playerIdx), AnimationStateId::Missile);
+    setWeaponAnimationState(e.playerIdx, AnimationStateId::Missile);
 }
 
 void AnimationEngine::operator()(const WeaponSwappedAnimationEvent& e)
 {
-    setWeaponAnimationState(getInventory(e.playerIdx), AnimationStateId::Idle);
+    setWeaponAnimationState(e.playerIdx, AnimationStateId::Idle);
 }
 
 void AnimationEngine::update(const float)
@@ -28,7 +27,9 @@ void AnimationEngine::update(const float)
     for (auto&& [_, inventory] : scene.playerStates)
     {
         handleUpdate(
-            inventory.animationContext, inventory.activeWeaponType, -1);
+            inventory.animationContext,
+            inventory.activeWeaponType,
+            inventory.ownerIdx);
     }
 }
 
@@ -49,7 +50,7 @@ void AnimationEngine::handleUpdate(
     else
     {
         ++context.animationFrameIndex;
-        updateSpriteId(context, state);
+        updateSpriteId(context, state, idx);
     }
 }
 
@@ -65,7 +66,7 @@ void AnimationEngine::handleTransition(
 
     case MarkerLoop:
         context.animationFrameIndex = 0;
-        updateSpriteId(context, oldState);
+        updateSpriteId(context, oldState, entityIdx);
         break;
     case MarkerDestroy:
         EventQueue::add<EntityDestroyedGameEvent>(entityIdx);
@@ -79,26 +80,33 @@ void AnimationEngine::handleTransition(
             ENTITY_PROPERTIES.at(entityType).states.at(oldState.transition);
         context.animationStateId = oldState.transition;
         context.animationFrameIndex = 0;
-        updateSpriteId(context, newState);
+        updateSpriteId(context, newState, entityIdx);
     }
     }
 }
 
 void AnimationEngine::setWeaponAnimationState(
-    PlayerInventory& inventory, AnimationStateId state)
+    EntityIndexType playerIdx, AnimationStateId state)
 {
+    auto&& inventory = getInventory(playerIdx);
     inventory.animationContext.animationStateId = state;
     inventory.animationContext.animationFrameIndex = 0;
     updateSpriteId(
         inventory.animationContext,
         ENTITY_PROPERTIES.at(inventory.activeWeaponType)
-            .states.at(inventory.animationContext.animationStateId));
+            .states.at(inventory.animationContext.animationStateId),
+        playerIdx);
 }
 
 void AnimationEngine::updateSpriteId(
-    AnimationContext& context, const AnimationState& state)
+    AnimationContext& context, const AnimationState& state, EntityIndexType idx)
 {
     assert(state.clip.size() > context.animationFrameIndex);
     context.lastAnimationUpdate = scene.tick;
     context.spriteClipIndex = state.clip[context.animationFrameIndex].spriteId;
+
+    const auto script = state.clip[context.animationFrameIndex].scriptToTrigger;
+    if (script != ScriptId::NoAction)
+        EventQueue::add<ScriptTriggeredGameEvent>(
+            ScriptTriggeredGameEvent(script, idx));
 }

@@ -175,6 +175,7 @@ Entity SceneBuilder::createProjectile(
                             .lastAnimationUpdate = frameIdx },
         .hitbox = dgm::Circle(position.value, eprops.radius),
         .direction = direction.value,
+        .health = 100,
     };
 }
 

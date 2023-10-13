@@ -34,9 +34,12 @@ private:
     }
 
     void
-    setWeaponAnimationState(PlayerInventory& inventory, AnimationStateId state);
+    setWeaponAnimationState(EntityIndexType playerIdx, AnimationStateId state);
 
-    void updateSpriteId(AnimationContext& context, const AnimationState& state);
+    void updateSpriteId(
+        AnimationContext& context,
+        const AnimationState& state,
+        EntityIndexType idx);
 
 private:
     Scene& scene;
