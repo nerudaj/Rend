@@ -120,7 +120,7 @@ struct Scene
     dgm::DynamicBuffer<Entity> things;
     dgm::DynamicBuffer<Marker> markers;
     Level level;
-    dgm::SpatialBuffer<Entity> spatialIndex;
+    dgm::SpatialIndex<EntityIndexType> spatialIndex;
     std::array<PlayerState, MAX_PLAYER_COUNT> playerStates;
     std::vector<sf::Vector2f> spawns;
     std::string mapname;

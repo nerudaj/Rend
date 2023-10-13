@@ -89,9 +89,10 @@ static auto createThingsBuffer(const LevelD& level)
     return result;
 }
 
-static dgm::SpatialBuffer<Entity> createSpatialBuffer(const LevelD& level)
+static dgm::SpatialIndex<EntityIndexType>
+createSpatialIndex(const LevelD& level)
 {
-    auto&& result = dgm::SpatialBuffer<Entity>(
+    auto&& result = dgm::SpatialIndex<EntityIndexType>(
         { 0.f,
           0.f,
           static_cast<float>(level.mesh.layerWidth * level.mesh.tileWidth),
@@ -117,7 +118,7 @@ Scene SceneBuilder::buildScene(
                    .heightHint = level.mesh.layerHeight,
                    .bottomMesh = Builder::buildMeshFromLvd(level, 0),
                    .upperMesh = Builder::buildMeshFromLvd(level, 1) },
-        .spatialIndex = createSpatialBuffer(level),
+        .spatialIndex = createSpatialIndex(level),
         .spawns = createSpawns(level),
         .mapname = settings.cmdSettings.mapname
     };

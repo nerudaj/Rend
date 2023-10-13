@@ -208,7 +208,7 @@ void Raycaster::addFloorFlatAndThings(
     const sf::Vector2u& tile,
     const sf::Vector2f& pos,
     unsigned tileId,
-    const dgm::SpatialBuffer<Entity>& spatialIndex)
+    const dgm::SpatialIndex<EntityIndexType>& spatialIndex)
 {
     visitedFloors[tileId] = true;
     addFlat(tile, pos, tileId, -0.5f);

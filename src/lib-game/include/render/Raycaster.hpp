@@ -91,7 +91,7 @@ private:
         const sf::Vector2u& tile,
         const sf::Vector2f& pos,
         unsigned tileId,
-        const dgm::SpatialBuffer<Entity>& things);
+        const dgm::SpatialIndex<EntityIndexType>& things);
 
     void addCeilFlat(
         const sf::Vector2u& tile,
