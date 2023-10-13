@@ -8,6 +8,14 @@ void AnimationEngine::operator()(const SetStateAnimationEvent&) {}
 
 void AnimationEngine::operator()(const PlayerFiredAnimationEvent& e)
 {
+#ifdef DEBUG_REMOVALS 1
+
+    std::cout << std::format(
+        "{}: playerFired(idx = {})", scene.tick, e.playerIdx)
+              << std::endl;
+
+#endif
+
     // TODO: set player state as well
     setWeaponAnimationState(e.playerIdx, AnimationStateId::Missile);
 }
@@ -22,14 +30,15 @@ void AnimationEngine::update(const float)
     for (auto&& [thing, idx] : scene.things)
     {
         handleUpdate(thing.animationContext, thing.typeId, idx);
-    }
 
-    for (auto&& [_, inventory] : scene.playerStates)
-    {
-        handleUpdate(
-            inventory.animationContext,
-            inventory.activeWeaponType,
-            inventory.ownerIdx);
+        if (thing.typeId == EntityType::Player)
+        {
+            auto& inventory = scene.playerStates[thing.stateId].inventory;
+            handleUpdate(
+                inventory.animationContext,
+                inventory.activeWeaponType,
+                inventory.ownerIdx);
+        }
     }
 }
 

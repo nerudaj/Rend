@@ -15,7 +15,8 @@ public:
 
     [[nodiscard]] constexpr bool isShooting() const override
     {
-        return input.shooting;
+        if (!input.shooting && shootingStop) shootingStop = false;
+        return shootingStop ? false : input.shooting;
     }
 
     [[nodiscard]] constexpr bool shouldSwapToPreviousWeapon() const override
@@ -48,6 +49,12 @@ public:
         return input.steer;
     }
 
+    [[nodiscard]] constexpr void stopShooting() const
+    {
+        shootingStop = true;
+    }
+
 private:
     InputSchema input;
+    mutable bool shootingStop = false;
 };

@@ -17,7 +17,8 @@
 RenderContext RenderContext::buildRenderContext(
     const dgm::ResourceManager& resmgr,
     const std::string& mapname,
-    unsigned screenWidth)
+    unsigned screenWidth,
+    unsigned screenHeight)
 {
     auto&& level = resmgr.get<LevelD>(mapname).value().get();
     auto&& tileset = resmgr.get<sf::Texture>("tileset.png").value().get();
@@ -30,6 +31,13 @@ RenderContext RenderContext::buildRenderContext(
     auto&& hudClipping =
         resmgr.get<dgm::Clip>("weapons.png.clip").value().get();
     auto&& shader = resmgr.get<sf::Shader>("shader").value().get();
+
+    sf::RectangleShape weaponSprite;
+    weaponSprite.setTexture(&hud);
+    const float size = screenWidth / 3.f;
+    weaponSprite.setSize({ size, size });
+    weaponSprite.setPosition(
+        { screenWidth / 2.f - size / 2.f, screenHeight - size });
 
     return RenderContext {
         .text = createTextObject(
@@ -45,5 +53,6 @@ RenderContext RenderContext::buildRenderContext(
         .weaponHudClipping = hudClipping,
         .shader = shader,
         .depthBuffer = std::vector<float>(screenWidth),
+        .weaponSprite = weaponSprite
     };
 }

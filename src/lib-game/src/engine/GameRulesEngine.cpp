@@ -104,6 +104,17 @@ void GameRulesEngine::operator()(const HitscanProjectileFiredGameEvent& e)
 
 void GameRulesEngine::operator()(ScriptTriggeredGameEvent e)
 {
+#ifdef DEBUG_REMOVALS
+
+    std::cout << std::format(
+        "{}: scriptTriggered(idx = {}, script = {})",
+        scene.tick,
+        e.targetEntityIdx,
+        static_cast<int>(e.scriptId))
+              << std::endl;
+
+#endif
+
     auto& thing = scene.things[e.targetEntityIdx];
     const auto position =
         Position { thing.hitbox.getPosition()
@@ -184,9 +195,6 @@ void GameRulesEngine::deleteMarkedObjects()
         if (i == 0 || indicesToRemove[i - 1] != indicesToRemove[i])
         {
             scene.things.eraseAtIndex(indicesToRemove[i]);
-            std::cout << std::format(
-                "{}: truly erased {}", scene.tick, indicesToRemove[i])
-                      << std::endl;
         }
     }
 }
@@ -232,16 +240,18 @@ void GameRulesEngine::handlePlayer(Entity& thing, std::size_t idx)
 }
 
 void GameRulesEngine::handleDeadPlayer(
-    MarkerDeadPlayer& marker, std::size_t idx)
+    MarkerDeadPlayer& marker, const std::size_t idx)
 {
-    if (scene.playerStates[marker.stateId].input.isShooting())
+    auto& input = scene.playerStates[marker.stateId].input;
+    if (input.isShooting())
     {
+        input.stopShooting();
         EventQueue::add<PlayerRespawnedGameEvent>(idx);
     }
 }
 
 void GameRulesEngine::handleItemRespawner(
-    MarkerItemRespawner& marker, std::size_t idx, const float deltaTime)
+    MarkerItemRespawner& marker, const std::size_t idx, const float deltaTime)
 {
     marker.timeout -= deltaTime;
     if (marker.timeout <= ITEM_SPAWN_EFFECT_TIMEOUT
@@ -395,16 +405,22 @@ void GameRulesEngine::damage(Entity& thing, std::size_t thingIndex, int damage)
 void GameRulesEngine::removeEntity(std::size_t index)
 {
     const auto thing = scene.things[index];
+    const bool playerWasDestroyed = thing.typeId == EntityType::Player;
+
+#ifdef DEBUG_REMOVALS
+
     std::cout << std::format(
         "{}: removeEntity({}) with type {}",
         scene.tick,
         index,
         static_cast<int>(thing.typeId))
               << std::endl;
-    const bool playerWasDestroyed = thing.typeId == EntityType::Player;
+
+#endif
 
     if (playerWasDestroyed)
     {
+        scene.playerStates[thing.stateId].input.stopShooting();
         auto idx = scene.things.emplaceBack(SceneBuilder::createEffect(
             EntityType::EffectDyingPlayer,
             Position { thing.hitbox.getPosition() },
@@ -419,12 +435,6 @@ void GameRulesEngine::removeEntity(std::size_t index)
     }
 
     scene.spatialIndex.removeFromLookup(index, thing.hitbox);
-    std::cout << std::format(
-        "{}: removedFromLookup({}) with hitbox {}",
-        scene.tick,
-        index,
-        dgm::Utility::to_string(thing.hitbox.getPosition()))
-              << std::endl;
     indicesToRemove.push_back(index);
 }
 

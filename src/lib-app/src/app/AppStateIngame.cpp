@@ -104,8 +104,8 @@ void AppStateIngame::restoreState(const FrameState& state)
     for (unsigned i = 0; i < MAX_PLAYER_COUNT; i++)
     {
         // restore inputs
+        scene.playerStates[i] = state.states[i];
         scene.playerStates[i].input.deserializeFrom(state.inputs[i]);
-        scene.playerStates[i].inventory = state.inventories[i];
     }
 
     // rebuild spatial index
@@ -151,7 +151,7 @@ void AppStateIngame::backupState(FrameState& state)
     state.markers = scene.markers.clone();
 
     for (auto i = 0; i < MAX_PLAYER_COUNT; i++)
-        state.inventories[i] = scene.playerStates[i].inventory;
+        state.states[i] = scene.playerStates[i];
 }
 
 AppStateIngame::AppStateIngame(

@@ -37,9 +37,11 @@ struct RenderContext
     dgm::Clip weaponHudClipping;
     const sf::Shader& shader;
     std::vector<float> depthBuffer;
+    sf::RectangleShape weaponSprite;
 
     [[nodiscard]] static RenderContext buildRenderContext(
         const dgm::ResourceManager& resmgr,
         const std::string& mapname,
-        unsigned screenWidth);
+        unsigned screenWidth,
+        unsigned screenHeight);
 };

@@ -31,7 +31,7 @@ RenderingEngine::RenderingEngine(
     , tileset(_resmgr->get<sf::Texture>("tileset.png").value().get())
     , settings(RenderSettings {})
     , context(RenderContext::buildRenderContext(
-          *resmgr, scene.mapname, settings.WIDTH))
+          *resmgr, scene.mapname, settings.WIDTH, settings.HEIGHT))
     , caster(scene.level.bottomMesh.getVoxelSize())
 {
 }
@@ -57,35 +57,18 @@ void RenderingEngine::renderHudTo(dgm::Window& window)
     auto&& pov = scene.things[scene.playerId];
     if (pov.typeId == EntityType::Player)
     {
-        auto& inventory = scene.playerStates[pov.stateId].inventory;
-        context.text.setString(std::format(
-            "H: {} A: {} W: {}\nB: {} S: {} R: {} E: {}",
-            pov.health,
-            pov.armor,
-            inventory.acquiredWeapons.to_string(),
-            inventory.bulletCount,
-            inventory.shellCount,
-            inventory.rocketCount,
-            inventory.energyCount));
-
-        sf::RectangleShape weapon;
-        float size = settings.WIDTH / 3.f;
-        weapon.setTexture(&context.weaponHudTexture);
-        weapon.setTextureRect(
-            context.weaponHudClipping.getFrame(static_cast<std::size_t>(
-                inventory.animationContext.spriteClipIndex)));
-        weapon.setSize({ size, size });
-        weapon.setPosition(
-            { settings.WIDTH / 2.f - size / 2.f, settings.HEIGHT - size });
-        window.draw(weapon);
+        renderAlivePlayerHud(
+            window, pov, scene.playerStates[pov.stateId].inventory);
     }
     else
     {
         context.text.setString("Press [Space] to respawn");
+        const auto bounds = context.text.getGlobalBounds();
+        context.text.setPosition(
+            (settings.WIDTH - bounds.width) / 2.f,
+            (settings.HEIGHT - bounds.height) / 2.f);
+        window.draw(context.text);
     }
-
-    context.text.setPosition(200.f, 200.f);
-    window.draw(context.text);
 }
 
 void RenderingEngine::render2d(dgm::Window& window)
@@ -335,6 +318,27 @@ void RenderingEngine::renderSprites(
     states.texture = &context.spritesheetTexture;
     states.shader = &context.shader;
     window.getWindowContext().draw(quads, states);
+}
+
+void RenderingEngine::renderAlivePlayerHud(
+    dgm::Window& window, const Entity& player, const PlayerInventory& inventory)
+{
+    context.weaponSprite.setTextureRect(context.weaponHudClipping.getFrame(
+        static_cast<std::size_t>(inventory.animationContext.spriteClipIndex)));
+    window.draw(context.weaponSprite);
+
+    context.text.setString(std::format(
+        "H: {} A: {} W: {}\nB: {} S: {} R: {} E: {}",
+        player.health,
+        player.armor,
+        inventory.acquiredWeapons.to_string(),
+        inventory.bulletCount,
+        inventory.shellCount,
+        inventory.rocketCount,
+        inventory.energyCount));
+    const auto textBounds = context.text.getGlobalBounds();
+    context.text.setPosition(10.f, settings.HEIGHT - textBounds.height - 10.f);
+    window.draw(context.text);
 }
 
 std::vector<RenderingEngine::ThingToRender>

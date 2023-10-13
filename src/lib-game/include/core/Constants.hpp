@@ -67,3 +67,5 @@ constinit const unsigned MAX_LEVEL_HEIGHT = 32;
 constinit const unsigned MAX_PLAYER_COUNT = 4;
 const sf::Vector2f NULL_VECTOR = { 0.f, 0.f };
 constinit const float EPSILON = 0.001f;
+
+// #define PRINT_DEBUG_LOGS 1

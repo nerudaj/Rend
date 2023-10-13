@@ -53,6 +53,11 @@ private:
         std::function<float(const sf::Vector2f&)> getHeight,
         std::function<int(const sf::Vector2f&)> getColumn);
 
+    void renderAlivePlayerHud(
+        dgm::Window& window,
+        const Entity& player,
+        const PlayerInventory& inventory);
+
     struct ThingToRender
     {
         float distance;
