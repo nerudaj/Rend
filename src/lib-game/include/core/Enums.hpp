@@ -185,10 +185,7 @@ enum class AnimationStateId
 enum class AiState
 {
     Start,
-    PickDestination,
-    FindPathToDestination,
-    GoToDestination,
-    WaitForRespawn,
+    WaitForRespawnRequest,
     RequestRespawn,
-    WaitForRespawn2
+    WaitForRespawn
 };

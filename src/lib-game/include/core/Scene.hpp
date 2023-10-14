@@ -89,7 +89,7 @@ struct PlayerInventory
     int energyCount = 0;
     int rocketCount = 0;
     std::bitset<16> acquiredWeapons;
-    AiState aiState;
+    AiState aiState = AiState::Start;
 };
 
 struct AiBlackboard

@@ -53,19 +53,19 @@ private:
     }
 
     [[nodiscard]] constexpr bool
-    isPlayerAlive(AiBlackboard& blackboard) const noexcept
+    isPlayerAlive(const AiBlackboard& blackboard) const noexcept
     {
         return scene.things.isIndexValid(getInventory(blackboard).ownerIdx);
     }
 
     [[nodiscard]] constexpr auto&&
-    getInventory(this auto&& self, AiBlackboard& blackboard)
+    getInventory(this auto&& self, const AiBlackboard& blackboard)
     {
         return self.scene.playerStates[blackboard.playerStateIdx].inventory;
     }
 
     [[nodiscard]] constexpr auto&&
-    getPlayer(this auto&& self, AiBlackboard& blackboard)
+    getPlayer(this auto&& self, const AiBlackboard& blackboard)
     {
         return self.scene.things[self.getInventory(blackboard).ownerIdx];
     }

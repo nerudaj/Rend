@@ -46,7 +46,7 @@ public:
 public:
     constexpr void shoot() noexcept
     {
-        shooting = false;
+        shooting = true;
     }
 
     constexpr void switchToPreviousWeapon() noexcept

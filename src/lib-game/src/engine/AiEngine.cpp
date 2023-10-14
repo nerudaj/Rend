@@ -5,21 +5,20 @@ AiEngine::AiEngine(Scene& scene) : scene(scene), navmesh(scene.level.bottomMesh)
 {
 #define BIND(f) std::bind(&AiEngine::f, this, std::placeholders::_1)
 
+    using dgm::fsm::decorator::Not;
+
     // clang-format off
     fsm = dgm::fsm::Builder<AiBlackboard, AiState>()
               .with(AiState::Start)
-                  .exec(BIND(doNothing)).andGoTo(AiState::PickDestination)
-              .with(AiState::PickDestination)
-                  .exec(BIND(pickDestination)).andGoTo(AiState::GoToDestination)
-              .with(AiState::GoToDestination)
-                  .when(BIND(isDestinationReached)).goTo(AiState::PickDestination)
-                  .otherwiseExec(BIND(goToDestination)).andLoop()
-              .with(AiState::WaitForRespawn)
+                  .when(Not<AiBlackboard>(BIND(isPlayerAlive))).goTo(AiState::WaitForRespawnRequest)
+                  .otherwiseExec(BIND(doNothing)).andLoop()
+              .with(AiState::WaitForRespawnRequest)
                   .exec(BIND(doNothing)).andGoTo(AiState::RequestRespawn)
               .with(AiState::RequestRespawn)
-                  .exec(BIND(shoot)).andGoTo(AiState::WaitForRespawn2)
-              .with(AiState::WaitForRespawn2)
-                  .exec(BIND(doNothing)).andGoTo(AiState::Start)
+                  .exec(BIND(shoot)).andGoTo(AiState::WaitForRespawn)
+              .with(AiState::WaitForRespawn)
+                  .when(BIND(isPlayerAlive)).goTo(AiState::Start)
+                  .otherwiseExec(BIND(doNothing)).andLoop()
               .build();
     // clang-format on
 
@@ -37,13 +36,6 @@ void AiEngine::update(const float deltaTime)
         auto& blackboard = state.blackboard.value();
         auto& inventory = getInventory(blackboard);
         blackboard.input->clearInputs();
-
-        if (!isPlayerAlive(blackboard)
-            && inventory.aiState < AiState::WaitForRespawn)
-        {
-            inventory.aiState = AiState::WaitForRespawn;
-        }
-
         fsm.setState(inventory.aiState);
         fsm.update(blackboard);
         inventory.aiState = fsm.getState();
