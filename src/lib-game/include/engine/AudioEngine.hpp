@@ -17,7 +17,10 @@ public:
     }
 
 public: // Must visit on all related events
-    void operator()(const DummyAudioEvent&) {}
+    void operator()(const ShotgunFiredAudioEvent&);
+    void operator()(const BulletFiredAudioEvent&);
+    void operator()(const FlareFiredAudioEvent&);
+    void operator()(const LaserDartAudioEvent&);
 
 public:
     void update(const float deltaTime);

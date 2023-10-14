@@ -78,24 +78,24 @@ private: // Scripts API
     void fireFlare(
         const Position& position,
         const Direction& direction,
-        PlayerInventory& inventory);
+        PlayerStateIndexType inventoryIdx);
 
     void firePellets(
         const Position& position,
         const Direction& direction,
-        PlayerInventory& inventory,
-        EntityIndexType playerIdx);
+        EntityIndexType playerIdx,
+        PlayerStateIndexType inventoryIdx);
 
     void fireBullet(
         const Position& position,
         const Direction& direction,
-        PlayerInventory& inventory,
-        EntityIndexType playerIdx);
+        EntityIndexType playerIdx,
+        PlayerStateIndexType inventoryIdx);
 
     void fireLaserDart(
         const Position& position,
         const Direction& direction,
-        PlayerInventory& inventory);
+        PlayerStateIndexType inventoryIdx);
 
 private:
     Scene& scene;

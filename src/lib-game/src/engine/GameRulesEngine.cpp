@@ -119,30 +119,29 @@ void GameRulesEngine::operator()(ScriptTriggeredGameEvent e)
     const auto position =
         Position { thing.hitbox.getPosition()
                    + thing.direction * thing.hitbox.getRadius() * 2.f };
-    auto& inventory = scene.playerStates[thing.stateId].inventory;
 
     switch (e.scriptId)
     {
         using enum ScriptId;
     case FireFlare:
-        fireFlare(position, Direction { thing.direction }, inventory);
+        fireFlare(position, Direction { thing.direction }, thing.stateId);
         break;
     case FirePellets:
         firePellets(
             position,
             Direction { thing.direction },
-            inventory,
-            e.targetEntityIdx);
+            e.targetEntityIdx,
+            thing.stateId);
         break;
     case FireBullet:
         fireBullet(
             position,
             Direction { thing.direction },
-            inventory,
-            e.targetEntityIdx);
+            e.targetEntityIdx,
+            thing.stateId);
         break;
     case FireLaserDart:
-        fireLaserDart(position, Direction { thing.direction }, inventory);
+        fireLaserDart(position, Direction { thing.direction }, thing.stateId);
         break;
     }
 }
@@ -475,20 +474,23 @@ sf::Vector2f GameRulesEngine::getBestSpawnDirection(
 void GameRulesEngine::fireFlare(
     const Position& position,
     const Direction& direction,
-    PlayerInventory& inventory)
+    PlayerStateIndexType inventoryIdx)
 {
+    auto& inventory = scene.playerStates[inventoryIdx].inventory;
     assert(inventory.rocketCount);
     --inventory.rocketCount;
     EventQueue::add<ProjectileCreatedGameEvent>(ProjectileCreatedGameEvent(
         EntityType::ProjectileRocket, position.value, direction.value));
+    EventQueue::add<FlareFiredAudioEvent>(inventoryIdx);
 }
 
 void GameRulesEngine::firePellets(
     const Position& position,
     const Direction& direction,
-    PlayerInventory& inventory,
-    EntityIndexType playerIdx)
+    EntityIndexType playerIdx,
+    PlayerStateIndexType inventoryIdx)
 {
+    auto& inventory = scene.playerStates[inventoryIdx].inventory;
     assert(inventory.shellCount);
     --inventory.shellCount;
 
@@ -503,26 +505,31 @@ void GameRulesEngine::firePellets(
             EventQueue::add<HitscanProjectileFiredGameEvent>(
                 HitscanProjectileFiredGameEvent(hit, SHELL_DAMAGE));
         });
+
+    EventQueue::add<ShotgunFiredAudioEvent>(inventoryIdx);
 }
 
 void GameRulesEngine::fireBullet(
     const Position& position,
     const Direction& direction,
-    PlayerInventory& inventory,
-    EntityIndexType playerIdx)
+    EntityIndexType playerIdx,
+    PlayerStateIndexType inventoryIdx)
 {
+    auto& inventory = scene.playerStates[inventoryIdx].inventory;
     assert(inventory.bulletCount);
     --inventory.bulletCount;
     auto hit = hitscanner.hitscan(position, direction, playerIdx);
     EventQueue::add<HitscanProjectileFiredGameEvent>(
         HitscanProjectileFiredGameEvent(hit, TRISHOT_BULLET_DAMAGE));
+    EventQueue::add<BulletFiredAudioEvent>(inventoryIdx);
 }
 
 void GameRulesEngine::fireLaserDart(
     const Position& position,
     const Direction& direction,
-    PlayerInventory& inventory)
+    PlayerStateIndexType inventoryIdx)
 {
+    auto& inventory = scene.playerStates[inventoryIdx].inventory;
     assert(inventory.energyCount);
     --inventory.energyCount;
     EventQueue::add<ProjectileCreatedGameEvent>(ProjectileCreatedGameEvent(
