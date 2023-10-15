@@ -7,11 +7,20 @@ AiEngine::AiEngine(Scene& scene) : scene(scene), navmesh(scene.level.bottomMesh)
 
     using dgm::fsm::decorator::Not;
 
+    auto isPlayerDead = Not<AiBlackboard>(BIND(isPlayerAlive));
+
     // clang-format off
     fsm = dgm::fsm::Builder<AiBlackboard, AiState>()
               .with(AiState::Start)
-                  .when(Not<AiBlackboard>(BIND(isPlayerAlive))).goTo(AiState::WaitForRespawnRequest)
-                  .otherwiseExec(BIND(doNothing)).andLoop()
+                  .when(isPlayerDead).goTo(AiState::WaitForRespawnRequest)
+                  .otherwiseExec(BIND(doNothing)).andGoTo(AiState::PickNextJumpPoint)
+              .with(AiState::PickNextJumpPoint)
+                  .when(isPlayerDead).goTo(AiState::WaitForRespawnRequest)
+                  .otherwiseExec(BIND(pickJumpPoint)).andGoTo(AiState::WalkToJumpPoint)
+              .with(AiState::WalkToJumpPoint)
+                  .when(isPlayerDead).goTo(AiState::WaitForRespawnRequest)
+                  .orWhen(BIND(isJumpPointReached)).goTo(AiState::PickNextJumpPoint)
+                  .otherwiseExec(BIND(goToJumpPoint)).andLoop()
               .with(AiState::WaitForRespawnRequest)
                   .exec(BIND(doNothing)).andGoTo(AiState::RequestRespawn)
               .with(AiState::RequestRespawn)
@@ -66,7 +75,7 @@ void AiEngine::discoverInterestingLocation()
     }
 }
 
-void AiEngine::pickDestination(AiBlackboard& blackboard)
+void AiEngine::pickJumpPoint(AiBlackboard& blackboard)
 {
     const auto& inventory = getInventory(blackboard);
 
@@ -74,14 +83,14 @@ void AiEngine::pickDestination(AiBlackboard& blackboard)
     [&]()
     {
         // First look for available weapons
-        for (auto&& location : weaponLocations)
+        /*for (auto&& location : weaponLocations)
         {
             if (!inventory.acquiredWeapons[location.weaponIndex])
             {
                 blackboard.targetLocation = location.position;
                 return;
             }
-        }
+        }*/
 
         // Second, look for power items
         for (auto&& location : powerItemLocations)
@@ -95,18 +104,26 @@ void AiEngine::pickDestination(AiBlackboard& blackboard)
     const auto& player = getPlayer(blackboard);
     const auto& path =
         navmesh.getPath(player.hitbox.getPosition(), blackboard.targetLocation);
+    if (path.isTraversed()) return;
     blackboard.nextStop = path.getCurrentPoint().coord;
 }
 
-void AiEngine::goToDestination(AiBlackboard& blackboard)
+bool AiEngine::isJumpPointReached(const AiBlackboard& blackboard) const
 {
     const auto& player = getPlayer(blackboard);
+    return dgm::Math::getSize(player.hitbox.getPosition() - blackboard.nextStop)
+           < 2.f;
+}
+
+void AiEngine::goToJumpPoint(AiBlackboard& blackboard)
+{
+    const auto& player = getPlayer(blackboard);
+    // todo: only convert to unit if bigger than one
     const auto directionToDestination =
-        blackboard.nextStop - player.hitbox.getPosition();
+        dgm::Math::toUnit(blackboard.nextStop - player.hitbox.getPosition());
+    const float angle = dgm::Math::cartesianToPolar(player.direction).angle;
     const auto lookDirectionRelativeThrust =
-        dgm::Math::toUnit(dgm::Math::getRotated(
-            directionToDestination,
-            -dgm::Math::cartesianToPolar(player.direction).angle));
-    blackboard.input->setThrust(lookDirectionRelativeThrust.y);
-    blackboard.input->setSidewardThrust(lookDirectionRelativeThrust.x);
+        dgm::Math::getRotated(directionToDestination, -angle);
+    blackboard.input->setThrust(lookDirectionRelativeThrust.x);
+    blackboard.input->setSidewardThrust(lookDirectionRelativeThrust.y);
 }

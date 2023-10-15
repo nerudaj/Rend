@@ -185,6 +185,10 @@ enum class AnimationStateId
 enum class AiState
 {
     Start,
+
+    PickNextJumpPoint,
+    WalkToJumpPoint,
+
     WaitForRespawnRequest,
     RequestRespawn,
     WaitForRespawn

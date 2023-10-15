@@ -38,14 +38,11 @@ private:
 
     constexpr void doNothing(AiBlackboard&) noexcept {}
 
-    void pickDestination(AiBlackboard& blackboard);
+    void pickJumpPoint(AiBlackboard& blackboard);
 
-    bool isDestinationReached(const AiBlackboard&)
-    {
-        return false;
-    }
+    bool isJumpPointReached(const AiBlackboard&) const;
 
-    void goToDestination(AiBlackboard& blackboard);
+    void goToJumpPoint(AiBlackboard& blackboard);
 
     void shoot(AiBlackboard& blackboard)
     {
