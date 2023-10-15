@@ -41,7 +41,7 @@ RenderContext RenderContext::buildRenderContext(
 
     return RenderContext {
         .text = createTextObject(
-            resmgr.get<sf::Font>("cruft.ttf").value(), 32u, sf::Color::White),
+            resmgr.get<sf::Font>("pico-8.ttf").value(), 32u, sf::Color::White),
         .level = { .bottomTextures = Builder::buildTextureMeshFromLvd(level, 0),
                    .upperTextures =
                        Builder::buildTextureMeshFromLvd(level, 1) },
