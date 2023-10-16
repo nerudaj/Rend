@@ -53,6 +53,13 @@ weaponTypeToIndex(EntityType type) noexcept
            - static_cast<WeaponIndexType>(EntityType::WeaponFlaregun);
 }
 
+[[nodiscard]] constexpr static WeaponIndexType
+weaponPickupToIndex(EntityType type) noexcept
+{
+    return static_cast<WeaponIndexType>(type)
+           - static_cast<WeaponIndexType>(EntityType::WeaponPickableBegin);
+}
+
 [[nodiscard]] constexpr static EntityType
 weaponIndexToType(WeaponIndexType idx) noexcept
 {

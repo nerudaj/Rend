@@ -89,11 +89,12 @@ struct PlayerInventory
     int energyCount = 0;
     int rocketCount = 0;
     std::bitset<16> acquiredWeapons;
-    AiState aiState = AiState::Start;
 };
 
 struct AiBlackboard
 {
+    AiTopState aiTopState = AiTopState::Alive;
+    AiState aiState = AiState::Start;
     mem::Rc<AiController> input;
     PlayerStateIndexType playerStateIdx;
     sf::Vector2f targetLocation;

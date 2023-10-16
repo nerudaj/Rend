@@ -182,6 +182,12 @@ enum class AnimationStateId
     MarkerFreeze,
 };
 
+enum class AiTopState
+{
+    Alive,
+    Dead
+};
+
 enum class AiState
 {
     Start,

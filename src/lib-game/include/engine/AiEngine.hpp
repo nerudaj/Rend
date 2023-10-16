@@ -70,6 +70,7 @@ private:
 private:
     Scene& scene;
     dgm::WorldNavMesh navmesh;
+    dgm::fsm::Fsm<AiBlackboard, AiTopState> topFsm;
     dgm::fsm::Fsm<AiBlackboard, AiState> fsm;
     std::vector<WeaponLocation> weaponLocations;
     std::vector<PowerItemLocation> powerItemLocations;

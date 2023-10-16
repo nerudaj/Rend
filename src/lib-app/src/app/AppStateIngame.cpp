@@ -168,7 +168,7 @@ AppStateIngame::AppStateIngame(
     , audioPlayer(_audioPlayer)
     , GAME_RESOLUTION(sf::Vector2f(app.window.getSize()))
     , inputs({
-          mem::Rc<PhysicalController>(),
+          mem::Rc<AiController>(),
           mem::Rc<AiController>(),
           mem::Rc<AiController>(),
           mem::Rc<AiController>(),
@@ -197,13 +197,12 @@ AppStateIngame::AppStateIngame(
         scene.playerStates[i].inventory =
             SceneBuilder::getDefaultInventory(idx);
 
-        if (i == 0)
-            scene.playerId = idx;
-        else
-        {
-            scene.playerStates[i].blackboard =
-                AiBlackboard { .input = inputs[i].castTo<AiController>(),
-                               .playerStateIdx = i };
-        }
+        if (i == 0) scene.playerId = idx;
+        // else
+        //{
+        scene.playerStates[i].blackboard =
+            AiBlackboard { .input = inputs[i].castTo<AiController>(),
+                           .playerStateIdx = i };
+        //}
     }
 }
