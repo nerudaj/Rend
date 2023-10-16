@@ -14,15 +14,15 @@ void AppStatePaused::buildLayoutImpl()
 
     createButtonListInLayout(
         layout,
-        { ButtonProps("Resume", [&] { app.popState(); }),
+        { ButtonProps("resume", [&] { app.popState(); }),
           ButtonProps(
-              "Options",
+              "options",
               [&] {
                   app.pushState<AppStateMenuOptions>(
                       gui, audioPlayer, settings);
               }),
-          ButtonProps("Main Menu", [&] { app.popState(2); }),
-          ButtonProps("Exit", [&] { app.exit(); }) },
+          ButtonProps("main Menu", [&] { app.popState(2); }),
+          ButtonProps("exit", [&] { app.exit(); }) },
         0.05f);
 }
 

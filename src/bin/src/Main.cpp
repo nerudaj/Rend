@@ -3,6 +3,7 @@
 #include <Settings.hpp>
 #include <app/AppStateMainMenu.hpp>
 #include <audio/AudioPlayer.hpp>
+#include <core/Scene.hpp>
 #include <cxxopts.hpp>
 #include <settings/GameTitle.hpp>
 
@@ -84,7 +85,7 @@ int main(int argc, char* argv[])
         std::cerr << std::format("error:Loading resources: {}\n", e.what());
         throw;
     }
-    gui->setFont(resmgr->get<tgui::Font>("cruft.ttf").value());
+    gui->setFont(resmgr->get<tgui::Font>("pico-8.ttf").value());
 
     app.pushState<AppStateMainMenu>(resmgr, gui, audioPlayer, settings);
     app.run();

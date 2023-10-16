@@ -5,8 +5,7 @@
 
 void AppStateMainMenu::buildLayoutImpl()
 {
-    auto title =
-        createWindowTitle({ "0%", "5%" }, { "100%", "25%" }, GAME_TITLE);
+    auto title = createWindowTitle({ "0%", "5%" }, { "100%", "25%" }, "rend");
     title->setHorizontalAlignment(tgui::Label::HorizontalAlignment::Center);
     title->setTextSize(72);
     gui->add(title);
@@ -18,18 +17,18 @@ void AppStateMainMenu::buildLayoutImpl()
     createButtonListInLayout(
         layout,
         { ButtonProps(
-              "Play",
+              "play",
               [this] {
                   app.pushState<AppStateIngame>(
                       resmgr, gui, settings, audioPlayer);
               }),
           ButtonProps(
-              "Options",
+              "options",
               [this] {
                   app.pushState<AppStateMenuOptions>(
                       gui, audioPlayer, settings);
               }),
-          ButtonProps("Exit", [this] { app.exit(); }) },
+          ButtonProps("exit", [this] { app.exit(); }) },
         0.05f);
 }
 

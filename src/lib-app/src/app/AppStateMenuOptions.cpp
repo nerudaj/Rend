@@ -21,7 +21,7 @@ std::string getWindowResolutionAsString(const dgm::Window& window)
 void AppStateMenuOptions::buildLayoutImpl()
 {
     auto title =
-        createWindowTitle({ "0%", "5%" }, { "100%", "25%" }, "Options");
+        createWindowTitle({ "0%", "5%" }, { "100%", "25%" }, "options");
     title->setHorizontalAlignment(tgui::Label::HorizontalAlignment::Center);
     title->setTextSize(72);
     gui->add(title);
@@ -29,13 +29,13 @@ void AppStateMenuOptions::buildLayoutImpl()
     GuiOptionsBuilder builder(gui, { "20%", "35%" }, { "60%", "20%" });
     builder
         .addOption(
-            "Toggle fullscreen",
+            "toggle fullscreen",
             "CheckboxFullscreen",
             WidgetCreator::createCheckbox(
                 app.window.isFullscreen(),
                 [this](bool) { app.window.toggleFullscreen(); }))
         .addOption(
-            "Sound volume",
+            "sound volume",
             "SliderSoundVolume",
             WidgetCreator::createSlider(
                 settings->appSettings.soundVolume,
@@ -47,7 +47,7 @@ void AppStateMenuOptions::buildLayoutImpl()
                         settings->appSettings.soundVolume);
                 }))
         .addOption(
-            "Music volume",
+            "music volume",
             "SliderMusicVolume",
             WidgetCreator::createSlider(
                 settings->appSettings.musicVolume,
@@ -59,7 +59,7 @@ void AppStateMenuOptions::buildLayoutImpl()
                         settings->appSettings.musicVolume);
                 }))
         .addOption(
-            "Set resolution",
+            "set resolution",
             "DropdownResolution",
             WidgetCreator::createDropdown(
                 STRING_RESOLUTIONS,
@@ -79,7 +79,7 @@ void AppStateMenuOptions::buildLayoutImpl()
         .build();
 
     createButton(
-        "Back",
+        "back",
         { "84%", "94%" },
         { "15%", "5%" },
         [this]() { app.popState(); });
