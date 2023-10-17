@@ -57,6 +57,8 @@ void PhysicsEngine::handleProjectile(
                 // invert components of direction vector that caused collision
                 thing.direction.x *= forward.x == 0.f ? -1.f : 1.f;
                 thing.direction.y *= forward.y == 0.f ? -1.f : 1.f;
+                EventQueue::add<LaserDartBouncedAudioEvent>(
+                    LaserDartBouncedAudioEvent {});
                 return false;
             }
             return true;

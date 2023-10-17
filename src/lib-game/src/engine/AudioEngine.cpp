@@ -15,9 +15,14 @@ void AudioEngine::operator()(const FlareFiredAudioEvent& e)
     audioPlayer->playSoundOnChannel("flaregun.wav", e.channel, true);
 }
 
-void AudioEngine::operator()(const LaserDartAudioEvent&)
+void AudioEngine::operator()(const LaserCrossbowAudioEvent& e)
 {
-    // audioPlayer->playSoundOnChannel("lasercrossbow.wav", 0, true);
+    audioPlayer->playSoundOnChannel("lasercrossbow_fire.wav", e.channel, true);
+}
+
+void AudioEngine::operator()(const LaserDartBouncedAudioEvent& e)
+{
+    audioPlayer->playSoundOnChannel("laserdart_bounce.wav", 5, true);
 }
 
 void AudioEngine::update(const float) {}

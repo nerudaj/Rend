@@ -534,6 +534,7 @@ void GameRulesEngine::fireLaserDart(
     --inventory.energyCount;
     EventQueue::add<ProjectileCreatedGameEvent>(ProjectileCreatedGameEvent(
         EntityType::ProjectileLaserDart, position.value, direction.value));
+    EventQueue::add<LaserCrossbowAudioEvent>(inventoryIdx);
 }
 
 #pragma endregion
