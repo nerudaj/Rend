@@ -25,6 +25,19 @@ void AppStateIngame::input()
                 EventQueue::add<EventRenderToggle>(
                     EventRenderToggle { false, true });
             }
+            else if (event.key.code == sf::Keyboard::P)
+            {
+                for (auto&& thing : scene.things)
+                {
+                    if (thing.first.typeId == EntityType::Player
+                        && scene.playerId != thing.second
+                        && thing.second > scene.playerId)
+                    {
+                        scene.playerId = thing.second;
+                        break;
+                    }
+                }
+            }
         }
     }
 }
@@ -155,6 +168,26 @@ void AppStateIngame::backupState(FrameState& state)
         state.states[i] = scene.playerStates[i];
 }
 
+const bool ALL_ARE_NPCS = true;
+
+std::array<mem::Rc<ControllerInterface>, MAX_PLAYER_COUNT> createInputs()
+{
+    if (ALL_ARE_NPCS)
+        return {
+            mem::Rc<AiController>(),
+            mem::Rc<AiController>(),
+            mem::Rc<AiController>(),
+            mem::Rc<AiController>(),
+        };
+    else
+        return {
+            mem::Rc<PhysicalController>(),
+            mem::Rc<AiController>(),
+            mem::Rc<AiController>(),
+            mem::Rc<AiController>(),
+        };
+}
+
 AppStateIngame::AppStateIngame(
     dgm::App& _app,
     mem::Rc<const dgm::ResourceManager> _resmgr,
@@ -167,12 +200,7 @@ AppStateIngame::AppStateIngame(
     , settings(_settings)
     , audioPlayer(_audioPlayer)
     , GAME_RESOLUTION(sf::Vector2f(app.window.getSize()))
-    , inputs({
-          mem::Rc<PhysicalController>(),
-          mem::Rc<AiController>(),
-          mem::Rc<AiController>(),
-          mem::Rc<AiController>(),
-      })
+    , inputs(createInputs())
     , scene(SceneBuilder::buildScene(*resmgr, GAME_RESOLUTION, *settings))
     , aiEngine(scene)
     , animationEngine(scene)
@@ -197,9 +225,9 @@ AppStateIngame::AppStateIngame(
         scene.playerStates[i].inventory =
             SceneBuilder::getDefaultInventory(idx);
 
-        if (i == 0)
-            scene.playerId = idx;
-        else
+        if (i == 0) scene.playerId = idx;
+
+        if (ALL_ARE_NPCS || i != 0)
         {
             scene.playerStates[i].blackboard =
                 AiBlackboard { .input = inputs[i].castTo<AiController>(),

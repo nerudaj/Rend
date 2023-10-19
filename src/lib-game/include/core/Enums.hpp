@@ -193,7 +193,9 @@ enum class AiState
     Start,
 
     PickNextJumpPoint,
-    WalkToJumpPoint,
+    TryToPickNewTarget,
+
+    Update,
 
     WaitForRespawnRequest,
     RequestRespawn,

@@ -97,8 +97,10 @@ struct AiBlackboard
     AiState aiState = AiState::Start;
     mem::Rc<AiController> input;
     PlayerStateIndexType playerStateIdx;
+    EntityIndexType trackedEnemyIdx = 0;
     sf::Vector2f targetLocation;
     sf::Vector2f nextStop;
+    float seekTimeout = 0.f;
 };
 
 struct PlayerState
@@ -182,4 +184,13 @@ getNextToggledBit(std::size_t index, const std::bitset<Bits>& bitset) noexcept
         ++index;
     } while (index < bitset.size() && !bitset[index]);
     return index == bitset.size() ? 0 : index;
+}
+
+// Returns number (either -1.f, 0.f or 1.f) based on which
+// direction to rotate 'from' vector to get to 'to'
+[[nodiscard]] constexpr float
+getVectorPivotDirection(const sf::Vector2f& from, const sf::Vector2f& to)
+{
+    const float m = -to.y * from.x + to.x * from.y;
+    return m == 0.f ? 0.f : m / std::abs(m);
 }

@@ -3,6 +3,7 @@
 #include <DGM/fsm.hpp>
 #include <core/Enums.hpp>
 #include <core/Scene.hpp>
+#include <utils/Hitscanner.hpp>
 
 import Memory;
 
@@ -33,42 +34,72 @@ private:
         sf::Vector2f position;
     };
 
-private:
-    void discoverInterestingLocation();
+private: // FSM predicates
+    [[nodiscard]] constexpr bool
+    hasSeekTimerElapsed(const AiBlackboard& blackboard) const noexcept
+    {
+        return blackboard.seekTimeout == 0.f;
+    }
 
-    constexpr void doNothing(AiBlackboard&) noexcept {}
+    [[nodiscard]] bool isJumpPointReached(const AiBlackboard&) const noexcept;
+
+    [[nodiscard]] constexpr bool
+    isThisPlayerAlive(const AiBlackboard& blackboard) const noexcept
+    {
+        return isPlayerAlive(getInventory(blackboard).ownerIdx);
+    }
+
+    [[nodiscard]] bool
+    isTrackedEnemyVisible(const AiBlackboard& blackboard) const noexcept;
+
+private: // FSM actions
+    constexpr void doNothing(AiBlackboard&) const noexcept {}
 
     void pickJumpPoint(AiBlackboard& blackboard);
 
-    bool isJumpPointReached(const AiBlackboard&) const;
+    void pickTargetEnemy(AiBlackboard& blackboard) noexcept;
 
-    void goToJumpPoint(AiBlackboard& blackboard);
+    void moveTowardsTarget(AiBlackboard& blackboard);
 
-    void shoot(AiBlackboard& blackboard)
+    void shoot(AiBlackboard& blackboard) const noexcept
     {
         blackboard.input->shoot();
     }
 
-    [[nodiscard]] constexpr bool
-    isPlayerAlive(const AiBlackboard& blackboard) const noexcept
-    {
-        return scene.things.isIndexValid(getInventory(blackboard).ownerIdx);
-    }
+    void rotateTowardsEnemy(AiBlackboard& blackboard) noexcept;
 
+private: // Utility predicates
     [[nodiscard]] constexpr auto&&
-    getInventory(this auto&& self, const AiBlackboard& blackboard)
+    getInventory(this auto&& self, const AiBlackboard& blackboard) noexcept
     {
         return self.scene.playerStates[blackboard.playerStateIdx].inventory;
     }
 
     [[nodiscard]] constexpr auto&&
-    getPlayer(this auto&& self, const AiBlackboard& blackboard)
+    getPlayer(this auto&& self, const AiBlackboard& blackboard) noexcept
     {
         return self.scene.things[self.getInventory(blackboard).ownerIdx];
     }
 
+    [[nodiscard]] constexpr bool
+    isPlayerAlive(EntityIndexType idx) const noexcept
+    {
+        return scene.things.isIndexValid(idx)
+               && scene.things[idx].typeId == EntityType::Player;
+    }
+
+    [[nodiscard]] bool isEnemyVisible(
+        EntityIndexType myIdx,
+        const sf::Vector2f& myPosition,
+        EntityIndexType enemyIdx,
+        const sf::Vector2f& enemyPosition) const noexcept;
+
+private: // Utility functions
+    void discoverInterestingLocation();
+
 private:
     Scene& scene;
+    Hitscanner hitscanner;
     dgm::WorldNavMesh navmesh;
     dgm::fsm::Fsm<AiBlackboard, AiTopState> topFsm;
     dgm::fsm::Fsm<AiBlackboard, AiState> fsm;
