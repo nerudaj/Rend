@@ -25,4 +25,9 @@ void AudioEngine::operator()(const LaserDartBouncedAudioEvent& e)
     audioPlayer->playSoundOnChannel("laserdart_bounce.wav", 5, true);
 }
 
+void AudioEngine::operator()(const ExplosionTriggeredAudioEvent&)
+{
+    audioPlayer->playSoundOnChannel("explosion.wav", 5, true);
+}
+
 void AudioEngine::update(const float) {}

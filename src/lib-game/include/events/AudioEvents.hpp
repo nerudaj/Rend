@@ -51,9 +51,14 @@ struct LaserDartBouncedAudioEvent
 {
 };
 
+struct ExplosionTriggeredAudioEvent
+{
+};
+
 using AudioEvent = std::variant<
     ShotgunFiredAudioEvent,
     BulletFiredAudioEvent,
     FlareFiredAudioEvent,
     LaserCrossbowAudioEvent,
-    LaserDartBouncedAudioEvent>;
+    LaserDartBouncedAudioEvent,
+    ExplosionTriggeredAudioEvent>;
