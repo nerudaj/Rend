@@ -19,17 +19,18 @@ public:
     [[nodiscard]] HitscanResult hitscan(
         const Position& position,
         const Direction& direction,
-        EntityIndexType idxToIgnore);
+        EntityIndexType idxToIgnore) const;
 
 protected:
     [[nodiscard]] std::optional<EntityIndexType> findHitInCandidates(
         const std::vector<EntityIndexType>& candidateIdxs,
         const Position& position,
         const Direction& direction,
-        EntityIndexType idxToIgnore);
+        EntityIndexType idxToIgnore) const;
 
     [[nodiscard]] sf::Vector2f getSpriteHitloc(
-        const sf::Vector2f& casterPos, const sf::Vector2f& thingPos) noexcept
+        const sf::Vector2f& casterPos,
+        const sf::Vector2f& thingPos) const noexcept
     {
         return thingPos - dgm::Math::toUnit(thingPos - casterPos) * 0.1f;
     }

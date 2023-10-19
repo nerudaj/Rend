@@ -52,7 +52,7 @@ protected:
         sf::Vector2f& intercept,
         sf::Vector2u& tile,
         const sf::Vector2f& rayStep,
-        const sf::Vector2i& tileStep) noexcept;
+        const sf::Vector2i& tileStep) const noexcept;
 
 protected:
     sf::Vector2f voxelSize;

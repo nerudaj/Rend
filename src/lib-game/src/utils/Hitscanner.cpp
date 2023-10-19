@@ -5,7 +5,7 @@
 HitscanResult Hitscanner::hitscan(
     const Position& position,
     const Direction& direction,
-    EntityIndexType idxToIgnore)
+    EntityIndexType idxToIgnore) const
 {
     auto normalizedPos = position.value / voxelSize.x;
     auto&& [tile, tileStep, rayStep, intercept] =
@@ -42,7 +42,7 @@ std::optional<EntityIndexType> Hitscanner::findHitInCandidates(
     const std::vector<EntityIndexType>& candidateIdxs,
     const Position& position,
     const Direction& direction,
-    EntityIndexType idxToIgnore)
+    EntityIndexType idxToIgnore) const
 {
     auto aimLine = dgm::Math::Line(direction.value, position.value);
     auto candidateToIdxAndEntity =
