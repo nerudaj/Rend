@@ -82,5 +82,7 @@ void PhysicsEngine::handleProjectile(
     if (hasCollided)
     {
         EventQueue::add<ProjectileDestroyedGameEvent>(id);
+        EventQueue::add<ExplosionTriggeredAudioEvent>(
+            ExplosionTriggeredAudioEvent {});
     }
 }
