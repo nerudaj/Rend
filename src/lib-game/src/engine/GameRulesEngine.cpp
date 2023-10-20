@@ -290,7 +290,7 @@ bool GameRulesEngine::canFireActiveWeapon(PlayerInventory& inventory) noexcept
     case WeaponShotgun:
         return inventory.shellCount > 0;
     case WeaponTrishot:
-        return inventory.bulletCount > 0;
+        return inventory.bulletCount > 2;
     case WeaponCrossbow:
         return inventory.energyCount > 0;
     }
