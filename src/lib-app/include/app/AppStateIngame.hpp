@@ -29,6 +29,11 @@ public:
         mem::Rc<Settings> settings,
         mem::Rc<AudioPlayer> audioPlayer);
 
+    ~AppStateIngame()
+    {
+        unlockMouse();
+    }
+
 public:
     virtual void input() override;
     virtual void update() override;
@@ -39,7 +44,10 @@ public:
         return false;
     }
 
-    virtual void restoreFocus() override {}
+    virtual void restoreFocus() override
+    {
+        lockMouse();
+    }
 
 private:
     struct FrameState
@@ -57,6 +65,9 @@ private:
     void updateEngines();
     void processEvents();
     void backupState(FrameState& state);
+
+    void lockMouse();
+    void unlockMouse();
 
 protected:
     mem::Rc<const dgm::ResourceManager> resmgr;

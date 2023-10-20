@@ -21,7 +21,7 @@ public:
     };
 
 public:
-    PhysicalController();
+    PhysicalController(const sf::Window& window);
 
 public:
     bool isShooting() const override;
@@ -39,5 +39,7 @@ public:
     float getSteer() const override;
 
 private:
+    const sf::Window& window;
     mutable dgm::Controller input;
+    mutable sf::Vector2i lastMousePos;
 };

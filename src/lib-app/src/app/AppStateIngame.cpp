@@ -18,6 +18,7 @@ void AppStateIngame::input()
         {
             if (event.key.code == sf::Keyboard::Escape)
             {
+                unlockMouse();
                 app.pushState<AppStatePaused>(gui, audioPlayer, settings);
             }
             else if (event.key.code == sf::Keyboard::F1)
@@ -46,6 +47,8 @@ void AppStateIngame::update()
 {
     stateBuffer.pushBack(FrameState {});
     snapshotInputs(stateBuffer.last());
+    sf::Mouse::setPosition(
+        sf::Vector2i(app.window.getSize() / 2u), app.window.getWindowContext());
 
     unsigned howMuchToUnroll = 2u; // Can be more, based on network latency
     unsigned startIndex = stateBuffer.getSize() - howMuchToUnroll;
@@ -168,9 +171,10 @@ void AppStateIngame::backupState(FrameState& state)
         state.states[i] = scene.playerStates[i];
 }
 
-const bool ALL_ARE_NPCS = true;
+const bool ALL_ARE_NPCS = false;
 
-std::array<mem::Rc<ControllerInterface>, MAX_PLAYER_COUNT> createInputs()
+std::array<mem::Rc<ControllerInterface>, MAX_PLAYER_COUNT>
+createInputs(const sf::Window& window)
 {
     if (ALL_ARE_NPCS)
         return {
@@ -181,7 +185,7 @@ std::array<mem::Rc<ControllerInterface>, MAX_PLAYER_COUNT> createInputs()
         };
     else
         return {
-            mem::Rc<PhysicalController>(),
+            mem::Rc<PhysicalController>(window),
             mem::Rc<AiController>(),
             mem::Rc<AiController>(),
             mem::Rc<AiController>(),
@@ -200,7 +204,7 @@ AppStateIngame::AppStateIngame(
     , settings(_settings)
     , audioPlayer(_audioPlayer)
     , GAME_RESOLUTION(sf::Vector2f(app.window.getSize()))
-    , inputs(createInputs())
+    , inputs(createInputs(_app.window.getWindowContext()))
     , scene(SceneBuilder::buildScene(*resmgr, GAME_RESOLUTION, *settings))
     , aiEngine(scene)
     , animationEngine(scene)
@@ -234,4 +238,19 @@ AppStateIngame::AppStateIngame(
                                .playerStateIdx = i };
         }
     }
+
+    lockMouse();
+}
+
+void AppStateIngame::lockMouse()
+{
+    auto& window = app.window.getWindowContext();
+    window.setMouseCursorVisible(false);
+    window.setMouseCursorGrabbed(true);
+}
+
+void AppStateIngame::unlockMouse()
+{
+    app.window.getWindowContext().setMouseCursorVisible(true);
+    app.window.getWindowContext().setMouseCursorGrabbed(false);
 }
