@@ -192,5 +192,5 @@ getNextToggledBit(std::size_t index, const std::bitset<Bits>& bitset) noexcept
 getVectorPivotDirection(const sf::Vector2f& from, const sf::Vector2f& to)
 {
     const float m = -to.y * from.x + to.x * from.y;
-    return m == 0.f ? 0.f : m / std::abs(m);
+    return m == 0.f ? 0.f : -m / std::abs(m);
 }

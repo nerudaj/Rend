@@ -66,7 +66,7 @@ void AiEngine::update(const float deltaTime)
 
         auto& blackboard = state.blackboard.value();
         blackboard.seekTimeout =
-            std::clamp(blackboard.seekTimeout, 0.f, SEEK_TIMEOUT);
+            std::clamp(blackboard.seekTimeout - deltaTime, 0.f, SEEK_TIMEOUT);
 
         auto& inventory = getInventory(blackboard);
         blackboard.input->clearInputs();
@@ -78,6 +78,7 @@ void AiEngine::update(const float deltaTime)
 
 void AiEngine::discoverInterestingLocation()
 {
+    // TODO: remove
     for (auto&& [entity, idx] : scene.things)
     {
         if (!isPickable(entity.typeId)) continue;
@@ -102,6 +103,7 @@ void AiEngine::discoverInterestingLocation()
 
 void AiEngine::pickJumpPoint(AiBlackboard& blackboard)
 {
+    // TODO: rework completely
     const auto& inventory = getInventory(blackboard);
 
     auto isntOwnedWeapon = [&inventory](const WeaponLocation& location) -> bool
@@ -144,8 +146,7 @@ void AiEngine::pickTargetEnemy(AiBlackboard& blackboard) noexcept
     for (PlayerStateIndexType i = 0; i < scene.playerStates.size(); i++)
     {
         auto enemyIdx = scene.playerStates[i].inventory.ownerIdx;
-        if (i == blackboard.playerStateIdx
-            || !scene.things.isIndexValid(enemyIdx))
+        if (i == blackboard.playerStateIdx || !isPlayerAlive(enemyIdx))
             continue;
 
         const auto& enemy = scene.things[enemyIdx];
@@ -168,7 +169,6 @@ bool AiEngine::isEnemyVisible(
     const sf::Vector2f& enemyPosition) const noexcept
 {
     const auto directionToEnemy = enemyPosition - myPosition;
-
     const auto result = hitscanner.hitscan(
         Position { myPosition }, Direction { directionToEnemy }, myIdx);
 
@@ -212,11 +212,9 @@ void AiEngine::rotateTowardsEnemy(AiBlackboard& blackboard) noexcept
 bool AiEngine::isTrackedEnemyVisible(
     const AiBlackboard& blackboard) const noexcept
 {
-    if (!scene.things.isIndexValid(blackboard.trackedEnemyIdx)) return false;
+    if (!isPlayerAlive(blackboard.trackedEnemyIdx)) return false;
 
     const auto& enemy = scene.things[blackboard.trackedEnemyIdx];
-    if (enemy.typeId != EntityType::Player) return false;
-
     const auto& inventory = getInventory(blackboard);
     const auto& player = scene.things[inventory.ownerIdx];
 
