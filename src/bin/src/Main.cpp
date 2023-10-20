@@ -75,6 +75,7 @@ int main(int argc, char* argv[])
     gui->setTarget(window.getWindowContext());
     auto&& resmgr = mem::Rc<dgm::ResourceManager>();
     auto&& audioPlayer = mem::Rc<AudioPlayer>(CHANNEL_COUNT, resmgr);
+    audioPlayer->setSoundVolume(settings->appSettings.soundVolume);
 
     try
     {

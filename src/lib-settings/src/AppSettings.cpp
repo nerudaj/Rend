@@ -26,7 +26,7 @@ AppSettings loadFromFile(const std::filesystem::path& filepath)
     if (jsonSettings.count("musicVolume"))
         settings.musicVolume = jsonSettings["musicVolume"];
     if (jsonSettings.count("soundVolume"))
-        settings.musicVolume = jsonSettings["soundVolume"];
+        settings.soundVolume = jsonSettings["soundVolume"];
     if (jsonSettings.count("windowWidth"))
         settings.windowWidth = jsonSettings["windowWidth"];
     if (jsonSettings.count("windowHeight"))
