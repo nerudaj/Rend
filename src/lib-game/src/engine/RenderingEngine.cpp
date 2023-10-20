@@ -179,56 +179,33 @@ void RenderingEngine::renderLevelMesh(
         return static_cast<int>(TilesetMapping::CeilLow);
     };
 
+    auto&& quads = sf::VertexArray(sf::Triangles); // mesh to render
     const float midHeight = settings.HEIGHT / 2.f;
 
-    auto&& quads = sf::VertexArray(sf::Triangles); // mesh to render
-    auto&& flats = caster.getFlats();
-    auto&& faces = caster.getBottomFaces();
-    unsigned flatsItr = 0, facesItr = 0;
-    while (flatsItr < flats.size() && facesItr < faces.size())
+    auto addFace = [&](const Face& face)
     {
-        if (flats[flatsItr].distance > faces[facesItr].distance)
-        {
-            auto&& flat = flats[flatsItr++];
-            VertexObjectBuilder::makeFlat(
-                quads,
-                midHeight,
-                TexturedFlat {
-                    .vertices = { vertexToScreenSpaceFlat(flat.vertices[0]),
-                                  vertexToScreenSpaceFlat(flat.vertices[1]),
-                                  vertexToScreenSpaceFlat(flat.vertices[2]),
-                                  vertexToScreenSpaceFlat(flat.vertices[3]) },
-                    .heightHint = flat.heightHint,
-                    .textureId = static_cast<uint8_t>(
-                        getFlatTexture(flat.tileId, flat.heightHint)),
-                    .brightness = sf::Uint8 { 255 } },
-                context.tilesetClipping);
-        }
-        else
-        {
-            auto&& face = faces[facesItr++];
-            VertexObjectBuilder::makeFace(
-                quads,
-                midHeight,
-                TexturedFace {
-                    getColumn(face.leftVertex),
-                    getColumn(face.rightVertex),
-                    getHeight(face.leftVertex),
-                    getHeight(face.rightVertex),
-                    face.leftTexHint,
-                    face.rightTexHint,
-                    face.heightHint,
-                    static_cast<uint8_t>(
-                        face.heightHint > 0.f
-                            ? context.level.upperTextures[face.tileId]
-                            : context.level.bottomTextures[face.tileId]),
-                    face.side == 0 ? sf::Uint8 { 255 } : sf::Uint8 { 128 } },
-                context.tilesetClipping);
-        }
-    }
-    while (flatsItr < flats.size())
+        VertexObjectBuilder::makeFace(
+            quads,
+            midHeight,
+            TexturedFace {
+                getColumn(face.leftVertex),
+                getColumn(face.rightVertex),
+                getHeight(face.leftVertex),
+                getHeight(face.rightVertex),
+                face.leftTexHint,
+                face.rightTexHint,
+                face.heightHint,
+                static_cast<uint8_t>(
+                    face.heightHint > 0.f
+                        ? context.level.upperTextures[face.tileId]
+                        : context.level.bottomTextures[face.tileId]),
+                static_cast<sf::Uint8>(
+                    context.level.lightmap[face.neighboringTileId]) },
+            context.tilesetClipping);
+    };
+
+    auto addFlat = [&](const Flat& flat)
     {
-        auto&& flat = flats[flatsItr++];
         VertexObjectBuilder::makeFlat(
             quads,
             midHeight,
@@ -240,30 +217,37 @@ void RenderingEngine::renderLevelMesh(
                 .heightHint = flat.heightHint,
                 .textureId = static_cast<uint8_t>(
                     getFlatTexture(flat.tileId, flat.heightHint)),
-                .brightness = sf::Uint8 { 255 } },
+
+                .brightness = static_cast<sf::Uint8>(
+                    context.level.lightmap[flat.tileId]) },
             context.tilesetClipping);
+    };
+
+    auto&& flats = caster.getFlats();
+    auto&& faces = caster.getBottomFaces();
+    unsigned flatsItr = 0, facesItr = 0;
+    while (flatsItr < flats.size() && facesItr < faces.size())
+    {
+        if (flats[flatsItr].distance > faces[facesItr].distance)
+        {
+            auto&& flat = flats[flatsItr++];
+            addFlat(flat);
+        }
+        else
+        {
+            auto&& face = faces[facesItr++];
+            addFace(face);
+        }
+    }
+    while (flatsItr < flats.size())
+    {
+        auto&& flat = flats[flatsItr++];
+        addFlat(flat);
     }
     while (facesItr < faces.size())
     {
         auto&& face = faces[facesItr++];
-        VertexObjectBuilder::makeFace(
-            quads,
-            midHeight,
-            TexturedFace { .leftColumn = getColumn(face.leftVertex),
-                           .rightColumn = getColumn(face.rightVertex),
-                           .leftHeight = getHeight(face.leftVertex),
-                           .rightHeight = getHeight(face.rightVertex),
-                           .leftTexHint = face.leftTexHint,
-                           .rightTexHint = face.rightTexHint,
-                           .heightHint = face.heightHint,
-                           .textureId = static_cast<uint8_t>(
-                               face.heightHint > 0.f
-                                   ? context.level.upperTextures[face.tileId]
-                                   : context.level.bottomTextures[face.tileId]),
-                           .brightness = face.side == 0 ? sf::Uint8 { 255 }
-                                                        : sf::Uint8 { 128 },
-                           .flipTexture = false },
-            context.tilesetClipping);
+        addFace(face);
     }
 
     sf::RenderStates states;

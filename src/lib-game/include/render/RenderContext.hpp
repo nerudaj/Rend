@@ -8,6 +8,7 @@ enum class TilesetMapping
     Floor2,
     CeilSky = 2,
     CeilLow,
+    // TODO: CeilHigh
     Crate1 = 4,
     Crate2,
     Wall1 = 6,
@@ -18,7 +19,7 @@ struct DrawableLevel
 {
     dgm::Mesh bottomTextures;
     dgm::Mesh upperTextures;
-    // TODO: lightmap
+    dgm::Mesh lightmap;
 };
 
 // Struct that should contain all primitives needed to render

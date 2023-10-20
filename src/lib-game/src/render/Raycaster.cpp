@@ -25,13 +25,14 @@ float Raycaster::castRay(
         computeInitialRaycastringStateFromPositionAndDirection(pos, dir);
 
     bool side = 0;
-    unsigned tileId = 0;
+    unsigned tileId = tile.y * scene.level.width + tile.x, prevTileId = 0;
     bool lowPlaneTracker = false; // false if floor
     bool upperPlaneTracker =
         scene.level.upperMesh.at(tile); // true if low ceiling
     float bottomHitDistance = 0.f;
     while (true)
     {
+        prevTileId = tileId;
         tileId = tile.y * scene.level.width + tile.x;
 
         unsigned realSide =
@@ -54,7 +55,7 @@ float Raycaster::castRay(
                     visitedFaces,
                     faces,
                     visitedFacesIndex,
-                    side,
+                    prevTileId,
                     realSide,
                     tileId,
                     sf::Vector2f(tile),
@@ -74,7 +75,7 @@ float Raycaster::castRay(
                 visitedUpperFaces,
                 upperFaces,
                 visitedFacesIndex,
-                side,
+                prevTileId,
                 realSide,
                 tileId,
                 sf::Vector2f(tile),
@@ -138,7 +139,7 @@ void Raycaster::tryAddFace(
     VisitedFacesBitset& _visitedFaces,
     std::vector<Face>& _faces,
     unsigned visitedFacesIndex,
-    unsigned side,
+    unsigned neighboringTileId,
     unsigned realSide,
     unsigned tileId,
     sf::Vector2f tile,
@@ -178,7 +179,7 @@ void Raycaster::tryAddFace(
 
         _faces.push_back(Face { .leftVertex = leftVertex,
                                 .rightVertex = rightVertex,
-                                .side = side,
+                                .neighboringTileId = neighboringTileId,
                                 .tileId = tileId,
                                 .distance = dgm::Math::getSize(
                                     (leftVertex + rightVertex) / 2.f - pos),

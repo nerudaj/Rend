@@ -9,7 +9,7 @@ struct Face
 {
     sf::Vector2f leftVertex;
     sf::Vector2f rightVertex;
-    unsigned side;
+    unsigned neighboringTileId; // passable tile from which the ray came
     unsigned tileId;
     float distance;
     float leftTexHint = 0.f;
@@ -76,7 +76,7 @@ private:
         VisitedFacesBitset& _visitedFaces,
         std::vector<Face>& _faces,
         unsigned visitedFacesIndex,
-        unsigned side,
+        unsigned neighboringTileId,
         unsigned realSide,
         unsigned tileId,
         sf::Vector2f tile,
