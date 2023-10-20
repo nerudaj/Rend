@@ -66,6 +66,8 @@ private: // FSM actions
         blackboard.input->shoot();
     }
 
+    void resetBlackboard(AiBlackboard& blackboard) const noexcept;
+
     void rotateTowardsEnemy(AiBlackboard& blackboard) noexcept;
 
 private: // Utility predicates
@@ -78,6 +80,9 @@ private: // Utility predicates
     [[nodiscard]] constexpr auto&&
     getPlayer(this auto&& self, const AiBlackboard& blackboard) noexcept
     {
+        assert(
+            self.getInventory(blackboard).ownerIdx
+            != blackboard.trackedEnemyIdx);
         return self.scene.things[self.getInventory(blackboard).ownerIdx];
     }
 

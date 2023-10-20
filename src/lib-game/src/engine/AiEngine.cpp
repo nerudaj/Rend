@@ -19,6 +19,9 @@ AiEngine::AiEngine(Scene& scene)
     auto updatePositionAndDirection =
         Merge<AiBlackboard>(BIND(moveTowardsTarget), BIND(rotateTowardsEnemy));
 
+    auto requestRespawn =
+        Merge<AiBlackboard>(BIND(shoot), BIND(resetBlackboard));
+
     // clang-format off
     topFsm = dgm::fsm::Builder<AiBlackboard, AiTopState>()
         .with(AiTopState::Alive)
@@ -46,7 +49,7 @@ AiEngine::AiEngine(Scene& scene)
         .with(AiState::WaitForRespawnRequest)
             .exec(BIND(doNothing)).andGoTo(AiState::RequestRespawn)
         .with(AiState::RequestRespawn)
-            .exec(BIND(shoot)).andGoTo(AiState::WaitForRespawn)
+            .exec(requestRespawn).andGoTo(AiState::WaitForRespawn)
         .with(AiState::WaitForRespawn)
             .when(BIND(isThisPlayerAlive)).goTo(AiState::Start)
             .otherwiseExec(BIND(doNothing)).andLoop()
@@ -65,6 +68,7 @@ void AiEngine::update(const float deltaTime)
         if (!state.blackboard.has_value()) continue;
 
         auto& blackboard = state.blackboard.value();
+
         blackboard.seekTimeout =
             std::clamp(blackboard.seekTimeout - deltaTime, 0.f, SEEK_TIMEOUT);
 
@@ -196,6 +200,13 @@ void AiEngine::moveTowardsTarget(AiBlackboard& blackboard)
     blackboard.input->setSidewardThrust(lookRelativeThrust.y);
 }
 
+void AiEngine::resetBlackboard(AiBlackboard& blackboard) const noexcept
+{
+    blackboard.nextStop = sf::Vector2f(0.f, 0.f);
+    blackboard.targetLocation = sf::Vector2f(0.f, 0.f);
+    blackboard.trackedEnemyIdx = std::numeric_limits<EntityIndexType>::max();
+}
+
 void AiEngine::rotateTowardsEnemy(AiBlackboard& blackboard) noexcept
 {
     if (!isPlayerAlive(blackboard.trackedEnemyIdx)) return;
@@ -217,6 +228,7 @@ bool AiEngine::isTrackedEnemyVisible(
     const auto& enemy = scene.things[blackboard.trackedEnemyIdx];
     const auto& inventory = getInventory(blackboard);
     const auto& player = scene.things[inventory.ownerIdx];
+    assert(inventory.ownerIdx != blackboard.trackedEnemyIdx);
 
     return isEnemyVisible(
         inventory.ownerIdx,
