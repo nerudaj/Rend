@@ -52,6 +52,15 @@ private: // FSM predicates
     [[nodiscard]] bool
     isTrackedEnemyVisible(const AiBlackboard& blackboard) const noexcept;
 
+    [[nodiscard]] bool
+    isTargetInReticle(const AiBlackboard& blackboard) const noexcept;
+
+    [[nodiscard]] bool canShoot(const AiBlackboard& blackboard) const noexcept
+    {
+        return getInventory(blackboard).animationContext.animationStateId
+               == AnimationStateId::Idle;
+    }
+
 private: // FSM actions
     constexpr void doNothing(AiBlackboard&) const noexcept {}
 
@@ -101,6 +110,13 @@ private: // Utility predicates
 
 private: // Utility functions
     void discoverInterestingLocation();
+
+    [[nodiscard]] sf::Vector2f getDirectionToEnemy(
+        const sf::Vector2f& myPosition, EntityIndexType enemyIdx) const noexcept
+    {
+        return dgm::Math::toUnit(
+            scene.things[enemyIdx].hitbox.getPosition() - myPosition);
+    }
 
 private:
     Scene& scene;

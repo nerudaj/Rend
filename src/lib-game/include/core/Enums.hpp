@@ -194,6 +194,7 @@ enum class AiState
 
     PickNextJumpPoint,
     TryToPickNewTarget,
+    ShootTarget,
 
     Update,
 

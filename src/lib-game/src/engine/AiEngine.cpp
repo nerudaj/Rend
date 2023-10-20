@@ -22,6 +22,9 @@ AiEngine::AiEngine(Scene& scene)
     auto requestRespawn =
         Merge<AiBlackboard>(BIND(shoot), BIND(resetBlackboard));
 
+    auto canShootTarget =
+        And<AiBlackboard>(BIND(isTargetInReticle), BIND(canShoot));
+
     // clang-format off
     topFsm = dgm::fsm::Builder<AiBlackboard, AiTopState>()
         .with(AiTopState::Alive)
@@ -33,6 +36,7 @@ AiEngine::AiEngine(Scene& scene)
         .build();
 
     fsm = dgm::fsm::Builder<AiBlackboard, AiState>()
+        // Alive
         .with(AiState::Start)
             .when(isPlayerDead).goTo(AiState::WaitForRespawnRequest)
             .otherwiseExec(BIND(doNothing)).andGoTo(AiState::PickNextJumpPoint)
@@ -42,10 +46,14 @@ AiEngine::AiEngine(Scene& scene)
         .with(AiState::Update)
             .when(isPlayerDead).goTo(AiState::WaitForRespawnRequest)
             .orWhen(shouldPickNewTarget).goTo(AiState::TryToPickNewTarget)
+            .orWhen(canShootTarget).goTo(AiState::ShootTarget)
             .orWhen(BIND(isJumpPointReached)).goTo(AiState::PickNextJumpPoint)
             .otherwiseExec(updatePositionAndDirection).andLoop()
         .with(AiState::TryToPickNewTarget)
             .exec(BIND(pickTargetEnemy)).andGoTo(AiState::Update)
+        .with(AiState::ShootTarget)
+            .exec(BIND(shoot)).andGoTo(AiState::Update)
+        // Dead
         .with(AiState::WaitForRespawnRequest)
             .exec(BIND(doNothing)).andGoTo(AiState::RequestRespawn)
         .with(AiState::RequestRespawn)
@@ -214,7 +222,8 @@ void AiEngine::rotateTowardsEnemy(AiBlackboard& blackboard) noexcept
     const auto& player = getPlayer(blackboard);
     const auto enemyPosition =
         scene.things[blackboard.trackedEnemyIdx].hitbox.getPosition();
-    const auto dirToEnemy = enemyPosition - player.hitbox.getPosition();
+    const auto dirToEnemy = getDirectionToEnemy(
+        player.hitbox.getPosition(), blackboard.trackedEnemyIdx);
 
     const auto pivotDir = getVectorPivotDirection(player.direction, dirToEnemy);
     blackboard.input->setSteer(pivotDir);
@@ -235,4 +244,17 @@ bool AiEngine::isTrackedEnemyVisible(
         player.hitbox.getPosition(),
         blackboard.trackedEnemyIdx,
         enemy.hitbox.getPosition());
+}
+
+bool AiEngine::isTargetInReticle(const AiBlackboard& blackboard) const noexcept
+{
+    if (!isPlayerAlive(blackboard.trackedEnemyIdx)) return false;
+
+    const auto& player = getPlayer(blackboard);
+    const auto dirToEnemy = getDirectionToEnemy(
+        player.hitbox.getPosition(), blackboard.trackedEnemyIdx);
+
+    const float angle =
+        std::acos(dgm::Math::getDotProduct(player.direction, dirToEnemy));
+    return angle <= std::numbers::pi_v<float> / 16;
 }
