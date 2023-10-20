@@ -113,39 +113,62 @@ void AiEngine::discoverInterestingLocation()
     }
 }
 
+int AiEngine::getItemBaseScore(
+    EntityType type,
+    int myHealth,
+    const AcquitedWeaponsArray& acquiredWeapons) const noexcept
+{
+    constexpr const unsigned MEDIKIT_BASE_SCORE = 100;
+    constexpr const unsigned POWERITEM_SCORE = 8000;
+    constexpr const unsigned WEAPON_SCORE = 1000;
+    // TODO: detect active ammo type
+    constexpr const unsigned ACTIVE_AMMO_SCORE = 500;
+    constexpr const unsigned ARMOR_SCORE = 100;
+    constexpr const unsigned INACTIVE_AMMO_SCORE = 50;
+
+    if (isWeaponPickable(type)
+        && !acquiredWeapons[weaponPickupToIndex(type)]) // && unpicked
+        return WEAPON_SCORE;
+    else if (isPowerItemPickable(type))
+        return POWERITEM_SCORE;
+    else if (type == EntityType::PickupHealth)
+        return (100 - myHealth) * MEDIKIT_BASE_SCORE;
+    else if (type == EntityType::PickupArmor)
+        return ARMOR_SCORE;
+    else if (isPickable(type))
+        return INACTIVE_AMMO_SCORE;
+
+    return 0;
+}
+
 void AiEngine::pickJumpPoint(AiBlackboard& blackboard)
 {
-    // TODO: rework completely
     const auto& inventory = getInventory(blackboard);
-
-    auto isntOwnedWeapon = [&inventory](const WeaponLocation& location) -> bool
-    { return !inventory.acquiredWeapons[location.weaponIndex]; };
-
-    // Pick destination
-    [&]
-    {
-        // First look for available weapons
-        for (auto&& location : weaponLocations)
-        {
-            if (isntOwnedWeapon(location))
-            {
-                blackboard.targetLocation = location.position;
-                return;
-            }
-        }
-
-        // Second, look for power items
-        for (auto&& location : powerItemLocations)
-        {
-            blackboard.targetLocation = location.position;
-            // TODO: unless we are already here, pickup no longer exists, etc
-            return;
-        }
-    }();
-
     const auto& player = getPlayer(blackboard);
+
+    sf::Vector2f bestPosition;
+    float bestScore = 0;
+    for (auto&& [thing, idx] : scene.things)
+    {
+        if (isWeaponPickable(thing.typeId)
+            && inventory.acquiredWeapons[weaponPickupToIndex(thing.typeId)])
+            continue;
+
+        int currentScore = getItemBaseScore(
+            thing.typeId, player.health, inventory.acquiredWeapons);
+        float distance = dgm::Math::getSize(
+            thing.hitbox.getPosition() - player.hitbox.getPosition());
+        float score = currentScore / (distance * distance);
+
+        if (score > bestScore)
+        {
+            bestScore = score;
+            bestPosition = thing.hitbox.getPosition();
+        }
+    }
+
     const auto& path =
-        navmesh.getPath(player.hitbox.getPosition(), blackboard.targetLocation);
+        navmesh.getPath(player.hitbox.getPosition(), bestPosition);
     if (path.isTraversed()) return;
     blackboard.nextStop = path.getCurrentPoint().coord;
 }

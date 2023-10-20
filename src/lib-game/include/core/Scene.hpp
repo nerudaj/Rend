@@ -88,7 +88,7 @@ struct PlayerInventory
     int shellCount = 0;
     int energyCount = 0;
     int rocketCount = 0;
-    std::bitset<16> acquiredWeapons;
+    AcquitedWeaponsArray acquiredWeapons;
 };
 
 struct AiBlackboard

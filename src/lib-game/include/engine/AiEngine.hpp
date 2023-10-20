@@ -118,6 +118,11 @@ private: // Utility functions
             scene.things[enemyIdx].hitbox.getPosition() - myPosition);
     }
 
+    [[nodiscard]] int getItemBaseScore(
+        EntityType type,
+        int myHealth,
+        const AcquitedWeaponsArray& acquiredWeapons) const noexcept;
+
 private:
     Scene& scene;
     Hitscanner hitscanner;
