@@ -284,17 +284,18 @@ void RenderingEngine::renderSprites(
         VertexObjectBuilder::makeFace(
             quads,
             midHeight,
-            TexturedFace { .leftColumn = leftColumn,
-                           .rightColumn = rightColumn,
-                           .leftHeight = height,
-                           .rightHeight = height,
-                           .leftTexHint = hints->first,
-                           .rightTexHint = hints->second,
-                           .heightHint = 0.f,
-                           .textureId =
-                               static_cast<std::uint8_t>(thing.textureId),
-                           .brightness = 255,
-                           .flipTexture = thing.flipTexture },
+            TexturedFace {
+                .leftColumn = leftColumn,
+                .rightColumn = rightColumn,
+                .leftHeight = height,
+                .rightHeight = height,
+                .leftTexHint = hints->first,
+                .rightTexHint = hints->second,
+                .heightHint = 0.f,
+                .textureId = static_cast<std::uint8_t>(thing.textureId),
+                .brightness = static_cast<sf::Uint8>(
+                    context.level.lightmap.at(thing.center.x, thing.center.y)),
+                .flipTexture = thing.flipTexture },
             context.spritesheetClipping);
     }
 
