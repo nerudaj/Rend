@@ -1,7 +1,9 @@
 #pragma once
 
 #include <DGM/DGM.hpp>
+#pragma warning(push, 0)
 #include <SFML/Audio.hpp>
+#pragma warning(pop)
 #include <vector>
 
 import Memory;

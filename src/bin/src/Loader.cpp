@@ -1,6 +1,8 @@
 #include "Loader.hpp"
 #include <LevelD.hpp>
+#pragma warning(push, 0)
 #include <SFML/Audio.hpp>
+#pragma warning(pop)
 #include <TGUI/TGUI.hpp>
 
 // Takes std::expected and throws exception if it contains error
@@ -82,7 +84,8 @@ void Loader::loadResources(
     THROW_ON_ERROR(resmgr.loadResourcesFromDirectory<LevelD>(
         rootDir / "levels", loadLevel, { ".lvd" }));
 
-    THROW_ON_ERROR(resmgr.loadResource<sf::Shader>(rootDir / "shaders" / "shader", loadShader));
+    THROW_ON_ERROR(resmgr.loadResource<sf::Shader>(
+        rootDir / "shaders" / "shader", loadShader));
 }
 
 #undef THROW_ON_ERROR
