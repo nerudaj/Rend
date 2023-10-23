@@ -313,7 +313,7 @@ void RenderingEngine::renderAlivePlayerHud(
     window.draw(context.weaponSprite);
 
     context.text.setString(std::format(
-        "H: {} A: {} W: {}\nB: {} S: {} R: {} E: {}",
+        "h: {} a: {} w: {}\nb: {} s: {} r: {} e: {}",
         player.health,
         player.armor,
         inventory.acquiredWeapons.to_string(),

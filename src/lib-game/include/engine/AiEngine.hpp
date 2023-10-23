@@ -109,8 +109,6 @@ private: // Utility predicates
         const sf::Vector2f& enemyPosition) const noexcept;
 
 private: // Utility functions
-    void discoverInterestingLocation();
-
     [[nodiscard]] sf::Vector2f getDirectionToEnemy(
         const sf::Vector2f& myPosition, EntityIndexType enemyIdx) const noexcept
     {
@@ -123,13 +121,16 @@ private: // Utility functions
         int myHealth,
         const AcquitedWeaponsArray& acquiredWeapons) const noexcept;
 
+private: // fsm updates
+    void runFsmAlive(AiBlackboard& blackboard);
+
+    void runFsmDead(AiBlackboard& blackboard);
+
 private:
     Scene& scene;
     Hitscanner hitscanner;
     dgm::WorldNavMesh navmesh;
-    dgm::fsm::Fsm<AiBlackboard, AiTopState> topFsm;
-    dgm::fsm::Fsm<AiBlackboard, AiState> fsm;
-    std::vector<WeaponLocation> weaponLocations;
-    std::vector<PowerItemLocation> powerItemLocations;
-    std::vector<PickupLocation> pickupLocations;
+    dgm::fsm::Fsm<AiBlackboard, AiTopState> fsmTop;
+    dgm::fsm::Fsm<AiBlackboard, AiState> fsmAlive;
+    dgm::fsm::Fsm<AiBlackboard, AiState> fsmDead;
 };

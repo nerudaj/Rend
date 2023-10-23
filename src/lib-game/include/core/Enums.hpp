@@ -1,6 +1,8 @@
 #pragma once
 
 #include <cstdint>
+#include <map>
+#include <string>
 
 enum class LeveldItemId
 {
@@ -184,8 +186,17 @@ enum class AnimationStateId
 
 enum class AiTopState
 {
+    BootstrapAlive,
     Alive,
+    BootstrapDead,
     Dead
+};
+
+const std::map<AiTopState, std::string> TOP_STATES_TO_STRING = {
+    { AiTopState::BootstrapAlive, "BootstrapAlive" },
+    { AiTopState::BootstrapAlive, "Alive" },
+    { AiTopState::BootstrapAlive, "BootstrapAlive" },
+    { AiTopState::BootstrapAlive, "Dead" }
 };
 
 enum class AiState
@@ -201,4 +212,15 @@ enum class AiState
     WaitForRespawnRequest,
     RequestRespawn,
     WaitForRespawn
+};
+
+const std::map<AiState, std::string> AI_STATE_TO_STRING = {
+    { AiState::Start, "Start" },
+    { AiState::PickNextJumpPoint, "PickNextJumpPoint" },
+    { AiState::TryToPickNewTarget, "TryToPickNewTarget" },
+    { AiState::ShootTarget, "ShootTarget" },
+    { AiState::Update, "Update" },
+    { AiState::WaitForRespawnRequest, "WaitForRespawnRequest" },
+    { AiState::RequestRespawn, "RequestRespawn" },
+    { AiState::WaitForRespawn, "WaitForRespawn" },
 };

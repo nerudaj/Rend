@@ -26,26 +26,37 @@ AiEngine::AiEngine(Scene& scene)
         And<AiBlackboard>(BIND(isTargetInReticle), BIND(canShoot));
 
     // clang-format off
-    topFsm = dgm::fsm::Builder<AiBlackboard, AiTopState>()
+    fsmTop = dgm::fsm::Builder<AiBlackboard, AiTopState>()
+        .with(AiTopState::BootstrapAlive)
+            .exec([](auto& b) { b.aiState = AiState::Start; })
+            .andGoTo(AiTopState::Alive)
         .with(AiTopState::Alive)
-            .when(isPlayerDead).goTo(AiTopState::Dead)
-            .otherwiseExec(BIND(doNothing)).andLoop()
+            .when(isPlayerDead).goTo(AiTopState::BootstrapDead)
+            .otherwiseExec(BIND(runFsmAlive)).andLoop()
+        .with(AiTopState::BootstrapDead)
+            .exec([](auto& b) { b.aiState = AiState::WaitForRespawnRequest; })
+            .andGoTo(AiTopState::Dead)
         .with(AiTopState::Dead)
-            .when(Not<AiBlackboard>(isPlayerDead)).goTo(AiTopState::Alive)
-            .otherwiseExec(BIND(doNothing)).andLoop()
+            .when(Not<AiBlackboard>(isPlayerDead)).goTo(AiTopState::BootstrapAlive)
+            .otherwiseExec(BIND(runFsmDead)).andLoop()
         .build();
 
-    fsm = dgm::fsm::Builder<AiBlackboard, AiState>()
-        // Alive
+    fsmDead = dgm::fsm::Builder<AiBlackboard, AiState>()
+        .with(AiState::WaitForRespawnRequest)
+            .exec(BIND(doNothing)).andGoTo(AiState::RequestRespawn)
+        .with(AiState::RequestRespawn)
+            .exec(requestRespawn).andGoTo(AiState::WaitForRespawn)
+        .with(AiState::WaitForRespawn)
+            .exec(BIND(doNothing)).andLoop()
+        .build();
+
+    fsmAlive = dgm::fsm::Builder<AiBlackboard, AiState>()
         .with(AiState::Start)
-            .when(isPlayerDead).goTo(AiState::WaitForRespawnRequest)
-            .otherwiseExec(BIND(doNothing)).andGoTo(AiState::PickNextJumpPoint)
+            .exec(BIND(doNothing)).andGoTo(AiState::PickNextJumpPoint)
         .with(AiState::PickNextJumpPoint)
-            .when(isPlayerDead).goTo(AiState::WaitForRespawnRequest)
-            .otherwiseExec(BIND(pickJumpPoint)).andGoTo(AiState::Update)
+            .exec(BIND(pickJumpPoint)).andGoTo(AiState::Update)
         .with(AiState::Update)
-            .when(isPlayerDead).goTo(AiState::WaitForRespawnRequest)
-            .orWhen(shouldPickNewTarget).goTo(AiState::TryToPickNewTarget)
+            .when(shouldPickNewTarget).goTo(AiState::TryToPickNewTarget)
             .orWhen(canShootTarget).goTo(AiState::ShootTarget)
             .orWhen(BIND(isJumpPointReached)).goTo(AiState::PickNextJumpPoint)
             .otherwiseExec(updatePositionAndDirection).andLoop()
@@ -53,20 +64,15 @@ AiEngine::AiEngine(Scene& scene)
             .exec(BIND(pickTargetEnemy)).andGoTo(AiState::Update)
         .with(AiState::ShootTarget)
             .exec(BIND(shoot)).andGoTo(AiState::Update)
-        // Dead
-        .with(AiState::WaitForRespawnRequest)
-            .exec(BIND(doNothing)).andGoTo(AiState::RequestRespawn)
-        .with(AiState::RequestRespawn)
-            .exec(requestRespawn).andGoTo(AiState::WaitForRespawn)
-        .with(AiState::WaitForRespawn)
-            .when(BIND(isThisPlayerAlive)).goTo(AiState::Start)
-            .otherwiseExec(BIND(doNothing)).andLoop()
         .build();
     // clang-format on
 
 #undef BIND
 
-    discoverInterestingLocation();
+    // fsmTop.setLogging(true);
+    fsmTop.setStateToStringHelper(std::map { TOP_STATES_TO_STRING });
+    // fsmAlive.setLogging(true);
+    fsmAlive.setStateToStringHelper(std::map { AI_STATE_TO_STRING });
 }
 
 void AiEngine::update(const float deltaTime)
@@ -82,34 +88,9 @@ void AiEngine::update(const float deltaTime)
 
         auto& inventory = getInventory(blackboard);
         blackboard.input->clearInputs();
-        fsm.setState(blackboard.aiState);
-        fsm.update(blackboard);
-        blackboard.aiState = fsm.getState();
-    }
-}
-
-void AiEngine::discoverInterestingLocation()
-{
-    // TODO: remove
-    for (auto&& [entity, idx] : scene.things)
-    {
-        if (!isPickable(entity.typeId)) continue;
-        if (isWeaponPickable(entity.typeId))
-        {
-            weaponLocations.emplace_back(
-                weaponPickupToIndex(entity.typeId),
-                entity.hitbox.getPosition());
-        }
-        else if (isPowerItemPickable(entity.typeId))
-        {
-            powerItemLocations.emplace_back(
-                entity.typeId, entity.hitbox.getPosition());
-        }
-        else
-        {
-            pickupLocations.emplace_back(
-                entity.typeId, entity.hitbox.getPosition());
-        }
+        fsmTop.setState(blackboard.aiTopState);
+        fsmTop.update(blackboard);
+        blackboard.aiTopState = fsmTop.getState();
     }
 }
 
@@ -139,6 +120,20 @@ int AiEngine::getItemBaseScore(
         return INACTIVE_AMMO_SCORE;
 
     return 0;
+}
+
+void AiEngine::runFsmAlive(AiBlackboard& blackboard)
+{
+    fsmAlive.setState(blackboard.aiState);
+    fsmAlive.update(blackboard);
+    blackboard.aiState = fsmAlive.getState();
+}
+
+void AiEngine::runFsmDead(AiBlackboard& blackboard)
+{
+    fsmDead.setState(blackboard.aiState);
+    fsmDead.update(blackboard);
+    blackboard.aiState = fsmDead.getState();
 }
 
 void AiEngine::pickJumpPoint(AiBlackboard& blackboard)
@@ -178,6 +173,7 @@ void AiEngine::pickTargetEnemy(AiBlackboard& blackboard) noexcept
     blackboard.seekTimeout = SEEK_TIMEOUT;
     const auto& inventory = getInventory(blackboard);
     const auto& player = scene.things[inventory.ownerIdx];
+    blackboard.trackedEnemyIdx = -1;
     for (PlayerStateIndexType i = 0; i < scene.playerStates.size(); i++)
     {
         auto enemyIdx = scene.playerStates[i].inventory.ownerIdx;
