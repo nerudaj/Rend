@@ -1,0 +1,58 @@
+name: Nightly
+
+on:
+  schedule:
+    - cron: '0 2 * * *' # run at 2 AM UTC
+
+env:
+  BUILD_DIR: ${{github.workspace}}/vsbuild
+
+jobs:
+  nightly:
+    runs-on: windows-2022
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Setup cmake
+      uses: jwlawson/actions-setup-cmake@v1.13
+      with:
+        cmake-version: '3.26.1'
+
+    - name: Use cmake
+      run: cmake --version
+    
+    - name: Configure CMake
+      run: |
+        mkdir "${{env.BUILD_DIR}}"
+        cd "${{env.BUILD_DIR}}"
+        cmake ..
+      shell: cmd
+
+    - name: Build
+      working-directory: ${{env.BUILD_DIR}}
+      run: |
+        cmake --build . --config Release
+      shell: cmd
+
+    - name: Test
+      working-directory: ${{env.BUILD_DIR}}
+      run: |
+        ctest -C Release
+      shell: cmd
+      
+    - name: Pack
+      working-directory: ${{env.BUILD_DIR}}
+      run: cpack
+
+    - name: Deploy release
+      uses: WebFreak001/deploy-nightly@v2.0.0
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # automatically provided by github actions
+      with:
+        upload_url: https://uploads.github.com/repos/nerudaj/Rend/releases/126731865/assets{?name,label}
+        release_id: 126731865
+        asset_path: ${{env.BUILD_DIR}}/nightbuild.zip
+        asset_name: rend-nightly-$$.zip
+        asset_content_type: application/zip
+        max_releases: 1
