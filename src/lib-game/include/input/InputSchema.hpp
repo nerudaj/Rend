@@ -13,12 +13,5 @@ struct InputSchema
     float steer = 0.f;
 };
 
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(
-    InputSchema,
-    shooting,
-    prevWeapon,
-    nextWeapon,
-    lastWeapon,
-    thrust,
-    sidewardThrust,
-    steer);
+void to_json(nlohmann::json& j, const InputSchema&);
+void from_json(const nlohmann::json&, InputSchema&);
