@@ -60,7 +60,7 @@ struct Entity
     sf::Vector2f direction = NULL_VECTOR;
 
     // player stuff
-    PlayerStateIndexType stateId = 0;
+    PlayerStateIndexType stateIdx = 0;
     int health = 0;
     int armor = 0;
 };
@@ -68,7 +68,7 @@ struct Entity
 struct MarkerDeadPlayer
 {
     bool rebindCamera = false;
-    PlayerStateIndexType stateId = 0;
+    PlayerStateIndexType stateIdx = 0;
 };
 
 struct MarkerItemRespawner
@@ -78,6 +78,8 @@ struct MarkerItemRespawner
     EntityType pickupType;
     sf::Vector2f position;
 };
+
+using Marker = std::variant<MarkerDeadPlayer, MarkerItemRespawner>;
 
 struct PlayerInventory
 {
@@ -93,12 +95,11 @@ struct PlayerInventory
 
 struct AiBlackboard
 {
+    mem::Rc<AiController> input;
     AiTopState aiTopState = AiTopState::Alive;
     AiState aiState = AiState::Start;
-    mem::Rc<AiController> input;
     PlayerStateIndexType playerStateIdx;
     EntityIndexType trackedEnemyIdx = 0;
-    sf::Vector2f targetLocation;
     sf::Vector2f nextStop;
     float seekTimeout = 0.f;
 };
@@ -109,8 +110,6 @@ struct PlayerState
     PlayerInventory inventory;
     std::optional<AiBlackboard> blackboard;
 };
-
-using Marker = std::variant<MarkerDeadPlayer, MarkerItemRespawner>;
 
 struct Level
 {
@@ -127,18 +126,18 @@ struct Level
 // with objects required to render your actors
 struct Scene
 {
-    dgm::Camera worldCamera;
-    dgm::Camera hudCamera;
-
+    // This has to be backed up
     std::size_t tick = 0;
     dgm::DynamicBuffer<Entity> things;
     dgm::DynamicBuffer<Marker> markers;
+    std::vector<PlayerState> playerStates;
+    EntityIndexType cameraAnchorIdx = 0; // rename to cameraAnchorIdx
+
+    // This doesn't have to be backed up
     Level level;
     dgm::SpatialIndex<EntityIndexType> spatialIndex;
-    std::vector<PlayerState> playerStates;
     std::vector<sf::Vector2f> spawns;
     std::string mapname;
-    EntityIndexType playerId = 0;
 };
 
 // TODO: move somewhere else

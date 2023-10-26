@@ -54,11 +54,12 @@ public:
 private:
     struct FrameState
     {
-        std::size_t tick = 0;
+        std::size_t tick;
         dgm::DynamicBuffer<Entity> things;
         dgm::DynamicBuffer<Marker> markers;
         std::vector<InputSchema> inputs;
         std::vector<PlayerState> states;
+        EntityIndexType cameraAnchorIdx;
     };
 
     void snapshotInputs(FrameState& state);

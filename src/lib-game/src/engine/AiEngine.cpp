@@ -229,7 +229,6 @@ void AiEngine::moveTowardsTarget(AiBlackboard& blackboard)
 void AiEngine::resetBlackboard(AiBlackboard& blackboard) const noexcept
 {
     blackboard.nextStop = sf::Vector2f(0.f, 0.f);
-    blackboard.targetLocation = sf::Vector2f(0.f, 0.f);
     blackboard.trackedEnemyIdx = std::numeric_limits<EntityIndexType>::max();
 }
 

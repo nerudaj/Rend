@@ -77,11 +77,11 @@ void GameRulesEngine::operator()(const PlayerRespawnedGameEvent& e)
     auto idx = scene.things.emplaceBack(SceneBuilder::createPlayer(
         Position { spawnPosition },
         Direction { spawnDirection },
-        marker.stateId));
-    scene.playerStates[scene.things[idx].stateId].inventory =
+        marker.stateIdx));
+    scene.playerStates[scene.things[idx].stateIdx].inventory =
         SceneBuilder::getDefaultInventory(idx);
 
-    if (marker.rebindCamera) scene.playerId = idx;
+    if (marker.rebindCamera) scene.cameraAnchorIdx = idx;
 
     scene.markers.eraseAtIndex(e.markerIndex);
 }
@@ -136,36 +136,36 @@ void GameRulesEngine::operator()(ScriptTriggeredGameEvent e)
     {
         using enum ScriptId;
     case FireFlare:
-        fireFlare(position, Direction { thing.direction }, thing.stateId);
+        fireFlare(position, Direction { thing.direction }, thing.stateIdx);
         break;
     case FirePellets:
         firePellets(
             position,
             Direction { thing.direction },
             e.targetEntityIdx,
-            thing.stateId);
+            thing.stateIdx);
         break;
     case FireBullet:
         fireBullet(
             position,
             Direction { thing.direction },
             e.targetEntityIdx,
-            thing.stateId);
+            thing.stateIdx);
         break;
     case FireLaserDart:
-        fireLaserDart(position, Direction { thing.direction }, thing.stateId);
+        fireLaserDart(position, Direction { thing.direction }, thing.stateIdx);
         break;
 
     case FireRocket:
-        fireRocket(position, Direction { thing.direction }, thing.stateId);
+        fireRocket(position, Direction { thing.direction }, thing.stateIdx);
         break;
 
     case FireHarpoon:
-        fireHarpoon(position, Direction { thing.direction }, thing.stateId);
+        fireHarpoon(position, Direction { thing.direction }, thing.stateIdx);
         break;
 
     case ReleaseTrigger:
-        scene.playerStates[thing.stateId].input.stopShooting();
+        scene.playerStates[thing.stateIdx].input.stopShooting();
         break;
     }
 }
@@ -224,7 +224,7 @@ void GameRulesEngine::deleteMarkedObjects()
 
 void GameRulesEngine::handlePlayer(Entity& thing, std::size_t idx)
 {
-    auto& state = scene.playerStates[thing.stateId];
+    auto& state = scene.playerStates[thing.stateIdx];
 
     scene.spatialIndex.removeFromLookup(idx, thing.hitbox);
 
@@ -265,7 +265,7 @@ void GameRulesEngine::handlePlayer(Entity& thing, std::size_t idx)
 void GameRulesEngine::handleDeadPlayer(
     MarkerDeadPlayer& marker, const std::size_t idx)
 {
-    auto& input = scene.playerStates[marker.stateId].input;
+    auto& input = scene.playerStates[marker.stateIdx].input;
     if (input.isShooting())
     {
         input.stopShooting();
@@ -461,18 +461,18 @@ void GameRulesEngine::removeEntity(std::size_t index)
 
     if (playerWasDestroyed)
     {
-        scene.playerStates[thing.stateId].input.stopShooting();
+        scene.playerStates[thing.stateIdx].input.stopShooting();
         auto idx = scene.things.emplaceBack(SceneBuilder::createEffect(
             EntityType::EffectDyingPlayer,
             Position { thing.hitbox.getPosition() },
             scene.tick));
         scene.things[idx].direction = thing.direction;
 
-        bool rebindCamera = scene.playerId == index;
+        bool rebindCamera = scene.cameraAnchorIdx == index;
         scene.markers.emplaceBack(MarkerDeadPlayer {
-            .rebindCamera = rebindCamera, .stateId = thing.stateId });
+            .rebindCamera = rebindCamera, .stateIdx = thing.stateIdx });
 
-        if (rebindCamera) scene.playerId = idx;
+        if (rebindCamera) scene.cameraAnchorIdx = idx;
     }
 
     scene.spatialIndex.removeFromLookup(index, thing.hitbox);

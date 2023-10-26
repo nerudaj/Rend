@@ -7,7 +7,7 @@
 struct SetStateAnimationEvent
 {
     EntityIndexType thingsId;
-    int stateId;
+    int stateIdx;
 };
 
 struct PlayerFiredAnimationEvent

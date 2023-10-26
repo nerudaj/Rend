@@ -25,7 +25,7 @@ void AnimationEngine::update(const float)
 
         if (thing.typeId == EntityType::Player)
         {
-            auto& inventory = scene.playerStates[thing.stateId].inventory;
+            auto& inventory = scene.playerStates[thing.stateIdx].inventory;
             handleUpdate(
                 inventory.animationContext,
                 inventory.activeWeaponType,

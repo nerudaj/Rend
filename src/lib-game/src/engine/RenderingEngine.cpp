@@ -54,11 +54,11 @@ void RenderingEngine::renderHudTo(dgm::Window& window)
     context.text.setPosition({ 10.f, 10.f });
     window.draw(context.text);
 
-    auto&& pov = scene.things[scene.playerId];
+    auto&& pov = scene.things[scene.cameraAnchorIdx];
     if (pov.typeId == EntityType::Player)
     {
         renderAlivePlayerHud(
-            window, pov, scene.playerStates[pov.stateId].inventory);
+            window, pov, scene.playerStates[pov.stateIdx].inventory);
     }
     else
     {
@@ -73,7 +73,7 @@ void RenderingEngine::renderHudTo(dgm::Window& window)
 
 void RenderingEngine::render2d(dgm::Window& window)
 {
-    const auto& player = scene.things[scene.playerId];
+    const auto& player = scene.things[scene.cameraAnchorIdx];
 
     // window.draw(context.level);
     player.hitbox.debugRender(window, sf::Color::Red);
@@ -104,7 +104,7 @@ void RenderingEngine::render2d(dgm::Window& window)
 void RenderingEngine::render3d(dgm::Window& window)
 {
     const auto W = float(scene.level.bottomMesh.getVoxelSize().x);
-    const auto& player = scene.things[scene.playerId];
+    const auto& player = scene.things[scene.cameraAnchorIdx];
     const auto pos = player.hitbox.getPosition() / W;
     const auto plane = getPerpendicular(player.direction) * settings.FOV;
 
@@ -340,7 +340,7 @@ RenderingEngine::getFilteredAndOrderedThingsToRender(
     for (auto&& id : candidateIds)
     {
         // Happens only once per array
-        if (id == scene.playerId) [[unlikely]]
+        if (id == scene.cameraAnchorIdx) [[unlikely]]
             continue;
 
         auto&& thing = scene.things[id];

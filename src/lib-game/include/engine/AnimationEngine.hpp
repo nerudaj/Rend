@@ -29,7 +29,7 @@ private:
     [[nodiscard]] constexpr auto&
     getInventory(this auto&& self, EntityIndexType playerIdx) noexcept
     {
-        return self.scene.playerStates[self.scene.things[playerIdx].stateId]
+        return self.scene.playerStates[self.scene.things[playerIdx].stateIdx]
             .inventory;
     }
 

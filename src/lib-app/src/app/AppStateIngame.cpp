@@ -31,10 +31,10 @@ void AppStateIngame::input()
                 for (auto&& thing : scene.things)
                 {
                     if (thing.first.typeId == EntityType::Player
-                        && scene.playerId != thing.second
-                        && thing.second > scene.playerId)
+                        && scene.cameraAnchorIdx != thing.second
+                        && thing.second > scene.cameraAnchorIdx)
                     {
-                        scene.playerId = thing.second;
+                        scene.cameraAnchorIdx = thing.second;
                         break;
                     }
                 }
@@ -73,12 +73,7 @@ void AppStateIngame::update()
 
 void AppStateIngame::draw()
 {
-    // Rendering everything that is subject to world coordinate system
-    app.window.getWindowContext().setView(scene.worldCamera.getCurrentView());
     renderingEngine.renderWorldTo(app.window);
-
-    // Rendering stuff that uses screen coordinates
-    app.window.getWindowContext().setView(scene.hudCamera.getCurrentView());
     renderingEngine.renderHudTo(app.window);
 }
 
@@ -125,6 +120,7 @@ void AppStateIngame::restoreState(const FrameState& state)
     {
         scene.playerStates[i].input.deserializeFrom(state.inputs[i]);
     }
+    scene.cameraAnchorIdx = state.cameraAnchorIdx;
 
     // rebuild spatial index
     scene.spatialIndex.clear();
@@ -176,6 +172,7 @@ void AppStateIngame::backupState(FrameState& state)
     state.things = scene.things.clone();
     state.markers = scene.markers.clone();
     state.states = scene.playerStates;
+    state.cameraAnchorIdx = scene.cameraAnchorIdx;
 }
 
 [[nodiscard]] static std::vector<mem::Rc<ControllerInterface>>
@@ -227,8 +224,6 @@ AppStateIngame::AppStateIngame(
           settings->cmdSettings.playDemo ? DemoFileMode::Read
                                          : DemoFileMode::Write)
 {
-    scene.worldCamera.setPosition(GAME_RESOLUTION / 2.f);
-    scene.hudCamera.setPosition(GAME_RESOLUTION / 2.f);
     lockMouse();
     createPlayers(gameSettings);
 }
@@ -259,7 +254,7 @@ void AppStateIngame::createPlayers(const GameSettings& gameSettings)
         scene.playerStates.back().inventory =
             SceneBuilder::getDefaultInventory(idx);
 
-        if (gameSettings.players[i].bindCamera) scene.playerId = idx;
+        if (gameSettings.players[i].bindCamera) scene.cameraAnchorIdx = idx;
         if (gameSettings.players[i].kind == PlayerKind::LocalNpc)
             scene.playerStates[i].blackboard =
                 AiBlackboard { .input = inputs[i].castTo<AiController>(),

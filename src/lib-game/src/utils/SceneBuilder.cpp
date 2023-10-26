@@ -113,24 +113,21 @@ Scene SceneBuilder::buildScene(
 {
     auto&& level = resmgr.get<LevelD>(settings.map).value().get();
 
-    return Scene {
-        .worldCamera = dgm::Camera(FULLSCREEN_VIEWPORT, baseResolution),
-        .hudCamera = dgm::Camera(FULLSCREEN_VIEWPORT, baseResolution),
-        .things = createThingsBuffer(level),
-        .level = { .width = level.mesh.layerWidth,
-                   .heightHint = level.mesh.layerHeight,
-                   .bottomMesh = Builder::buildMeshFromLvd(level, 0),
-                   .upperMesh = Builder::buildMeshFromLvd(level, 1) },
-        .spatialIndex = createSpatialIndex(level),
-        .spawns = createSpawns(level),
-        .mapname = settings.map
-    };
+    return Scene { .things = createThingsBuffer(level),
+                   .level = { .width = level.mesh.layerWidth,
+                              .heightHint = level.mesh.layerHeight,
+                              .bottomMesh = Builder::buildMeshFromLvd(level, 0),
+                              .upperMesh =
+                                  Builder::buildMeshFromLvd(level, 1) },
+                   .spatialIndex = createSpatialIndex(level),
+                   .spawns = createSpawns(level),
+                   .mapname = settings.map };
 }
 
 Entity SceneBuilder::createPlayer(
     const Position& position,
     const Direction& lookDirection,
-    PlayerStateIndexType stateId) noexcept
+    PlayerStateIndexType stateIdx) noexcept
 {
     const auto& eprops = ENTITY_PROPERTIES.at(EntityType::Player);
 
@@ -143,7 +140,7 @@ Entity SceneBuilder::createPlayer(
             position.value,
             eprops.radius),
         .direction = lookDirection.value,
-        .stateId = stateId,
+        .stateIdx = stateIdx,
         .health = PLAYER_INITIAL_HEALTH,
         .armor = PLAYER_INITIAL_ARMOR,
     };

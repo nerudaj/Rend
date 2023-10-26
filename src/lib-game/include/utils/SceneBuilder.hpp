@@ -17,7 +17,7 @@ public:
     [[nodiscard]] static Entity createPlayer(
         const Position& position,
         const Direction& lookDirection,
-        PlayerStateIndexType stateId) noexcept;
+        PlayerStateIndexType stateIdx) noexcept;
 
     [[nodiscard]] static PlayerInventory
     getDefaultInventory(EntityIndexType ownerIdx) noexcept;
