@@ -3,7 +3,7 @@ name: Nightly
 on:
   schedule:
     - cron: '0 2 * * *' # run at 2 AM UTC
-  push:
+  workflow_dispatch:
     branches: [ main ]
 
 env:
