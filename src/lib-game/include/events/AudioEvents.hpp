@@ -26,11 +26,11 @@ struct BulletFiredAudioEvent
     }
 };
 
-struct FlareFiredAudioEvent
+struct RocketFiredAudioEvent
 {
     PlayerStateIndexType channel;
 
-    [[nodiscard]] constexpr FlareFiredAudioEvent(
+    [[nodiscard]] constexpr RocketFiredAudioEvent(
         PlayerStateIndexType channel) noexcept
         : channel(channel)
     {
@@ -66,7 +66,7 @@ struct ExplosionTriggeredAudioEvent
 using AudioEvent = std::variant<
     ShotgunFiredAudioEvent,
     BulletFiredAudioEvent,
-    FlareFiredAudioEvent,
+    RocketFiredAudioEvent,
     LaserCrossbowAudioEvent,
     LaserDartBouncedAudioEvent,
     ExplosionTriggeredAudioEvent>;

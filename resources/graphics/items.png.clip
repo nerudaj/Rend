@@ -1,5 +1,5 @@
 {
-    "tiles_per_row": 8, 
+    "tiles_per_row": 9, 
     "frame": {
         "width": 16, 
         "height": 16
@@ -9,11 +9,11 @@
         "vertical": 0
     }, 
     "bounds": {
-        "width": 128, 
+        "width": 144, 
         "top": 0, 
         "height": 144, 
         "left": 0
     }, 
-    "nframes": 65, 
+    "nframes": 78, 
     "offset": 0
 }

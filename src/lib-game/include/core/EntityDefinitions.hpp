@@ -98,6 +98,8 @@ const static inline auto ENTITY_PROPERTIES =
         { EntityType::FloorLamp,
           EntityProperties { .radius = 3_px,
                              .initialSpriteIndex = FloorLampA } },
+        { EntityType::ProjectileFlare,
+          EntityProperties { .radius = 2_px, .initialSpriteIndex = FlareA0 } },
         { EntityType::ProjectileRocket,
           EntityProperties {
               .radius = 2_px,

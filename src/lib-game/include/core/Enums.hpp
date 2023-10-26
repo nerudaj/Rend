@@ -56,6 +56,16 @@ enum class SpriteId : std::uint8_t
     PlayerB2,
     PlayerB3,
     PlayerB4,
+    PlayerFA0,
+    PlayerFA1,
+    PlayerFA2,
+    // TODO 3
+    PlayerFA4,
+    PlayerFB0,
+    PlayerFB1,
+    PlayerFB2,
+    // TODO 3
+    PlayerFB4,
     RocketA0,
     RocketA1,
     RocketA2,
@@ -71,6 +81,11 @@ enum class SpriteId : std::uint8_t
     LaserDartA2,
     LaserDartA3,
     LaserDartA4,
+    FlareA0,
+    FlareA1,
+    FlareA2,
+    FlareA3,
+    FlareA4,
     ExplosionA,
     ExplosionB,
     ExplosionC,
@@ -158,6 +173,7 @@ enum class EntityType
 
     ProjectilesBegin,
 
+    ProjectileFlare,
     ProjectileRocket,
     ProjectileLaserDart,
 

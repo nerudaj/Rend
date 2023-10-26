@@ -97,6 +97,16 @@ private: // Scripts API
         const Direction& direction,
         PlayerStateIndexType inventoryIdx);
 
+    void fireRocket(
+        const Position& position,
+        const Direction& direction,
+        PlayerStateIndexType inventoryIdx);
+
+    void fireHarpoon(
+        const Position& position,
+        const Direction& direction,
+        PlayerStateIndexType inventoryIdx);
+
 private:
     Scene& scene;
     Hitscanner hitscanner;

@@ -10,7 +10,7 @@ void AudioEngine::operator()(const BulletFiredAudioEvent& e)
     audioPlayer->playSoundOnChannel("bullet.wav", e.channel, true);
 }
 
-void AudioEngine::operator()(const FlareFiredAudioEvent& e)
+void AudioEngine::operator()(const RocketFiredAudioEvent& e)
 {
     audioPlayer->playSoundOnChannel("flaregun.wav", e.channel, true);
 }

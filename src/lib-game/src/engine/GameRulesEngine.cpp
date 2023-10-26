@@ -26,6 +26,7 @@ void GameRulesEngine::operator()(const ProjectileCreatedGameEvent& e)
 
 void GameRulesEngine::operator()(const ProjectileDestroyedGameEvent& e)
 {
+    // TODO: do this only for some projectiles
     const auto&& explosionHitbox =
         dgm::Circle(scene.things[e.entityIndex].hitbox.getPosition(), 8_px);
 
@@ -156,9 +157,11 @@ void GameRulesEngine::operator()(ScriptTriggeredGameEvent e)
         break;
 
     case FireRocket:
+        fireRocket(position, Direction { thing.direction }, thing.stateId);
         break;
 
     case FireHarpoon:
+        fireHarpoon(position, Direction { thing.direction }, thing.stateId);
         break;
 
     case ReleaseTrigger:
@@ -519,8 +522,8 @@ void GameRulesEngine::fireFlare(
     assert(inventory.rocketCount);
     --inventory.rocketCount;
     EventQueue::add<ProjectileCreatedGameEvent>(ProjectileCreatedGameEvent(
-        EntityType::ProjectileRocket, position.value, direction.value));
-    EventQueue::add<FlareFiredAudioEvent>(inventoryIdx);
+        EntityType::ProjectileFlare, position.value, direction.value));
+    // TODO: EventQueue::add<RocketFiredAudioEvent>(inventoryIdx);
 }
 
 void GameRulesEngine::firePellets(
@@ -574,6 +577,26 @@ void GameRulesEngine::fireLaserDart(
     EventQueue::add<ProjectileCreatedGameEvent>(ProjectileCreatedGameEvent(
         EntityType::ProjectileLaserDart, position.value, direction.value));
     EventQueue::add<LaserCrossbowAudioEvent>(inventoryIdx);
+}
+
+void GameRulesEngine::fireRocket(
+    const Position& position,
+    const Direction& direction,
+    PlayerStateIndexType inventoryIdx)
+{
+    auto& inventory = scene.playerStates[inventoryIdx].inventory;
+    assert(inventory.rocketCount);
+    --inventory.rocketCount;
+    EventQueue::add<ProjectileCreatedGameEvent>(ProjectileCreatedGameEvent(
+        EntityType::ProjectileRocket, position.value, direction.value));
+    EventQueue::add<RocketFiredAudioEvent>(inventoryIdx);
+}
+
+void GameRulesEngine::fireHarpoon(
+    const Position& position,
+    const Direction& direction,
+    PlayerStateIndexType inventoryIdx)
+{
 }
 
 #pragma endregion

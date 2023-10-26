@@ -6,7 +6,7 @@
 {
     using enum EntityType;
     return type == Player || type == ProjectileRocket
-           || type == ProjectileLaserDart;
+           || type == ProjectileLaserDart || type == ProjectileFlare;
 }
 
 [[nodiscard]] static constexpr inline bool

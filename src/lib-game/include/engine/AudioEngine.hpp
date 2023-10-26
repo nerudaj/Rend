@@ -19,7 +19,7 @@ public:
 public: // Must visit on all related events
     void operator()(const ShotgunFiredAudioEvent&);
     void operator()(const BulletFiredAudioEvent&);
-    void operator()(const FlareFiredAudioEvent&);
+    void operator()(const RocketFiredAudioEvent&);
     void operator()(const LaserCrossbowAudioEvent&);
     void operator()(const LaserDartBouncedAudioEvent&);
     void operator()(const ExplosionTriggeredAudioEvent&);
