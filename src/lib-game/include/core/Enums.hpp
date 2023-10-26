@@ -116,6 +116,7 @@ enum class SpriteId : std::uint8_t
     HUD_LauncherFA,
     HUD_LauncherFB,
     HUD_LauncherFC,
+    HUD_LauncherFD,
     HUD_BallistaA,
     HUD_BallistaFA,
     HUD_BallistaFB,
@@ -193,6 +194,7 @@ enum class ScriptId
     FireLaserDart,
     FireRocket,
     FireHarpoon,
+    ReleaseTrigger,
 };
 
 enum class AnimationStateId

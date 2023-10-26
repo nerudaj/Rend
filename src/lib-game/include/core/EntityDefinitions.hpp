@@ -176,7 +176,10 @@ const static inline auto ENTITY_PROPERTIES =
                                             { HUD_TrishotFA,
                                               5,
                                               ScriptId::FireBullet },
-                                            { HUD_TrishotFB, 10 } },
+                                            { HUD_TrishotFB, 10 },
+                                            { HUD_TrishotA,
+                                              10,
+                                              ScriptId::ReleaseTrigger } },
                                   .transition = AnimationStateId::Idle } } } },
         },
         {
@@ -217,7 +220,10 @@ const static inline auto ENTITY_PROPERTIES =
                                               10,
                                               ScriptId::FireRocket },
                                             { HUD_LauncherFB, 10 },
-                                            { HUD_LauncherFC, 10 } },
+                                            { HUD_LauncherFC, 10 },
+                                            { HUD_LauncherFD,
+                                              10,
+                                              ScriptId::ReleaseTrigger } },
                                   .transition = AnimationStateId::Idle } } } },
         },
         {

@@ -154,6 +154,16 @@ void GameRulesEngine::operator()(ScriptTriggeredGameEvent e)
     case FireLaserDart:
         fireLaserDart(position, Direction { thing.direction }, thing.stateId);
         break;
+
+    case FireRocket:
+        break;
+
+    case FireHarpoon:
+        break;
+
+    case ReleaseTrigger:
+        scene.playerStates[thing.stateId].input.stopShooting();
+        break;
     }
 }
 
