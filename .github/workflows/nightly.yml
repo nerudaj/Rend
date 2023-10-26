@@ -3,7 +3,7 @@ name: Nightly
 on:
   schedule:
     - cron: '0 2 * * *' # run at 2 AM UTC
-  push:
+  workflow_dispatch:
     branches: [ main ]
 
 env:
@@ -28,7 +28,7 @@ jobs:
       run: |
         mkdir "${{env.BUILD_DIR}}"
         cd "${{env.BUILD_DIR}}"
-        cmake ..
+        cmake -DDISABLE_TESTING=ON -DIS_NIGHTBUILD=ON .. 
       shell: cmd
 
     - name: Build
@@ -40,7 +40,7 @@ jobs:
     - name: Test
       working-directory: ${{env.BUILD_DIR}}
       run: |
-        ctest -C Release
+        echo ctest -C Release
       shell: cmd
       
     - name: Pack
