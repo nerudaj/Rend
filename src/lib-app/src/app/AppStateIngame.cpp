@@ -50,15 +50,16 @@ void AppStateIngame::update()
     sf::Mouse::setPosition(
         sf::Vector2i(app.window.getSize() / 2u), app.window.getWindowContext());
 
-    unsigned howMuchToUnroll = 2u; // Can be more, based on network latency
-    unsigned startIndex = stateBuffer.getSize() - howMuchToUnroll;
+    const unsigned howMuchToUnroll =
+        9u; // Can be more, based on network latency
+    const unsigned startIndex = stateBuffer.getSize() - howMuchToUnroll;
     // Excluding state pushed back earlier - that is the next
     // frame
-    unsigned endIndex = stateBuffer.getSize() - 1u;
+    const unsigned endIndex = stateBuffer.getSize() - 1u;
     for (unsigned i = startIndex; i < endIndex; ++i)
     {
         auto&& state = stateBuffer[i];
-        simulateFrameFromState(state);
+        simulateFrameFromState(state, i == endIndex - 1);
         ++scene.tick; // advancing frame
         // Write the simulated state into the next frame
         backupState(stateBuffer[i + 1u]);
@@ -105,11 +106,12 @@ void AppStateIngame::snapshotInputs(FrameState& state)
     }
 }
 
-void AppStateIngame::simulateFrameFromState(const FrameState& state)
+void AppStateIngame::simulateFrameFromState(
+    const FrameState& state, bool skipAudio)
 {
     restoreState(state);
     updateEngines();
-    processEvents();
+    processEvents(skipAudio);
     gameRulesEngine.deleteMarkedObjects();
 }
 
@@ -140,7 +142,7 @@ void AppStateIngame::updateEngines()
     renderingEngine.update(FRAME_TIME);
 }
 
-void AppStateIngame::processEvents()
+void AppStateIngame::processEvents(bool skipAudio)
 {
     // Animation, Physics and Game can produce GameEvent
     EventQueue::processEvents<AnimationEvent>(animationEngine);
@@ -148,7 +150,14 @@ void AppStateIngame::processEvents()
     EventQueue::processEvents<GameEvent>(gameRulesEngine);
 
     // Audio can only produce Audio events
-    EventQueue::processEvents<AudioEvent>(audioEngine);
+    if (skipAudio)
+    {
+        EventQueue::processEvents<AudioEvent>(audioEngine);
+    }
+    else
+    {
+        EventQueue::clearAudioEvents();
+    }
 
     // Rendering can only produce Rendering events
     EventQueue::processEvents<RenderingEvent>(renderingEngine);

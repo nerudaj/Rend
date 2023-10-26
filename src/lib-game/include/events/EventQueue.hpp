@@ -72,6 +72,11 @@ public:
         }
     }
 
+    static void clearAudioEvents()
+    {
+        audioEvents.clear();
+    }
+
 private:
     template<class T, class... Ts>
     [[nodiscard]] constexpr static bool

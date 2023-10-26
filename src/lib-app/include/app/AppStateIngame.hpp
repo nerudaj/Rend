@@ -62,10 +62,10 @@ private:
     };
 
     void snapshotInputs(FrameState& state);
-    void simulateFrameFromState(const FrameState& state);
+    void simulateFrameFromState(const FrameState& state, bool skipAudio);
     void restoreState(const FrameState& state);
     void updateEngines();
-    void processEvents();
+    void processEvents(bool skipAudio);
     void backupState(FrameState& state);
 
     void lockMouse();
