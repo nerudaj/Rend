@@ -20,7 +20,7 @@ void AudioEngine::operator()(const LaserCrossbowAudioEvent& e)
     audioPlayer->playSoundOnChannel("lasercrossbow_fire.wav", e.channel, true);
 }
 
-void AudioEngine::operator()(const LaserDartBouncedAudioEvent& e)
+void AudioEngine::operator()(const LaserDartBouncedAudioEvent&)
 {
     audioPlayer->playSoundOnChannel("laserdart_bounce.wav", 5, true);
 }

@@ -83,10 +83,11 @@ void AppStateIngame::draw()
 
 void AppStateIngame::snapshotInputs(FrameState& state)
 {
-    for (unsigned i = 0; i < MAX_PLAYER_COUNT; i++)
-    {
-        state.inputs[i] = inputs[i]->getSnapshot();
-    }
+    state.inputs = inputs
+                   | std::views::transform(
+                       [](const mem::Rc<ControllerInterface>& i) -> InputSchema
+                       { return i->getSnapshot(); })
+                   | std::ranges::to<decltype(state.inputs)>();
 
     if (settings->cmdSettings.playDemo)
     {
@@ -117,10 +118,9 @@ void AppStateIngame::restoreState(const FrameState& state)
     scene.tick = state.tick;
     scene.things = state.things.clone(); // restore things
     scene.markers = state.markers.clone();
-    for (unsigned i = 0; i < MAX_PLAYER_COUNT; i++)
+    scene.playerStates = state.states;
+    for (unsigned i = 0; i < state.inputs.size(); ++i)
     {
-        // restore inputs
-        scene.playerStates[i] = state.states[i];
         scene.playerStates[i].input.deserializeFrom(state.inputs[i]);
     }
 
@@ -166,30 +166,30 @@ void AppStateIngame::backupState(FrameState& state)
     state.tick = scene.tick;
     state.things = scene.things.clone();
     state.markers = scene.markers.clone();
-
-    for (auto i = 0; i < MAX_PLAYER_COUNT; i++)
-        state.states[i] = scene.playerStates[i];
+    state.states = scene.playerStates;
 }
 
-const bool ALL_ARE_NPCS = false;
-
-std::array<mem::Rc<ControllerInterface>, MAX_PLAYER_COUNT>
-createInputs(const sf::Window& window)
+[[nodiscard]] static std::vector<mem::Rc<ControllerInterface>>
+createInputs(const sf::Window& window, const GameSettings& gameSettings)
 {
-    if (ALL_ARE_NPCS)
-        return {
-            mem::Rc<AiController>(),
-            mem::Rc<AiController>(),
-            mem::Rc<AiController>(),
-            mem::Rc<AiController>(),
-        };
-    else
-        return {
-            mem::Rc<PhysicalController>(window),
-            mem::Rc<AiController>(),
-            mem::Rc<AiController>(),
-            mem::Rc<AiController>(),
-        };
+    std::vector<mem::Rc<ControllerInterface>> inputs;
+    for (auto&& ps : gameSettings.players)
+    {
+        switch (ps.kind)
+        {
+            using enum PlayerKind;
+        case LocalHuman:
+            inputs.push_back(mem::Rc<PhysicalController>(window));
+            break;
+        case LocalNpc:
+            inputs.push_back(mem::Rc<AiController>());
+            break;
+        case RemoteHuman:
+            throw std::runtime_error("unsupported controller");
+            break;
+        }
+    }
+    return inputs;
 }
 
 AppStateIngame::AppStateIngame(
@@ -197,15 +197,16 @@ AppStateIngame::AppStateIngame(
     mem::Rc<const dgm::ResourceManager> _resmgr,
     mem::Rc<tgui::Gui> _gui,
     mem::Rc<Settings> _settings,
-    mem::Rc<AudioPlayer> _audioPlayer)
+    mem::Rc<AudioPlayer> _audioPlayer,
+    GameSettings gameSettings)
     : dgm::AppState(_app)
     , resmgr(_resmgr)
     , gui(_gui)
     , settings(_settings)
     , audioPlayer(_audioPlayer)
     , GAME_RESOLUTION(sf::Vector2f(app.window.getSize()))
-    , inputs(createInputs(_app.window.getWindowContext()))
-    , scene(SceneBuilder::buildScene(*resmgr, GAME_RESOLUTION, *settings))
+    , inputs(createInputs(_app.window.getWindowContext(), gameSettings))
+    , scene(SceneBuilder::buildScene(*resmgr, GAME_RESOLUTION, gameSettings))
     , aiEngine(scene)
     , animationEngine(scene)
     , audioEngine(resmgr, audioPlayer)
@@ -219,27 +220,8 @@ AppStateIngame::AppStateIngame(
 {
     scene.worldCamera.setPosition(GAME_RESOLUTION / 2.f);
     scene.hudCamera.setPosition(GAME_RESOLUTION / 2.f);
-
-    for (PlayerStateIndexType i = 0; i < MAX_PLAYER_COUNT; i++)
-    {
-        auto idx = scene.things.emplaceBack(SceneBuilder::createPlayer(
-            Position { scene.spawns[i] },
-            Direction { sf::Vector2f { 1.f, 0.f } },
-            i));
-        scene.playerStates[i].inventory =
-            SceneBuilder::getDefaultInventory(idx);
-
-        if (i == 0) scene.playerId = idx;
-
-        if (ALL_ARE_NPCS || i != 0)
-        {
-            scene.playerStates[i].blackboard =
-                AiBlackboard { .input = inputs[i].castTo<AiController>(),
-                               .playerStateIdx = i };
-        }
-    }
-
     lockMouse();
+    createPlayers(gameSettings);
 }
 
 void AppStateIngame::lockMouse()
@@ -253,4 +235,25 @@ void AppStateIngame::unlockMouse()
 {
     app.window.getWindowContext().setMouseCursorVisible(true);
     app.window.getWindowContext().setMouseCursorGrabbed(false);
+}
+
+void AppStateIngame::createPlayers(const GameSettings& gameSettings)
+{
+    for (PlayerStateIndexType i = 0; i < gameSettings.players.size(); ++i)
+    {
+        auto spawnPosition = gameRulesEngine.getBestSpawnPosition();
+        auto idx = scene.things.emplaceBack(SceneBuilder::createPlayer(
+            Position { spawnPosition },
+            Direction { gameRulesEngine.getBestSpawnDirection(spawnPosition) },
+            i));
+        scene.playerStates.push_back(PlayerState {});
+        scene.playerStates.back().inventory =
+            SceneBuilder::getDefaultInventory(idx);
+
+        if (gameSettings.players[i].bindCamera) scene.playerId = idx;
+        if (gameSettings.players[i].kind == PlayerKind::LocalNpc)
+            scene.playerStates[i].blackboard =
+                AiBlackboard { .input = inputs[i].castTo<AiController>(),
+                               .playerStateIdx = i };
+    }
 }

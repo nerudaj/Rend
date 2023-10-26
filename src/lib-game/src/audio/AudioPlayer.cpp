@@ -1,7 +1,7 @@
 #include "audio/AudioPlayer.hpp"
 
 void AudioPlayer::playSoundOnChannel(
-    const std::string& soundName, const unsigned channel, const bool force)
+    const std::string& soundName, const std::size_t channel, const bool force)
 {
     if (force || !isChannelActive(channel))
     {
@@ -11,7 +11,7 @@ void AudioPlayer::playSoundOnChannel(
     }
 }
 
-void AudioPlayer::stopChannel(const unsigned channel)
+void AudioPlayer::stopChannel(const std::size_t channel)
 {
     channels[channel].stop();
 }

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "GameSettings.hpp"
 #include <core/Enums.hpp>
 #include <core/Scene.hpp>
 #include <core/Types.hpp>
@@ -11,14 +12,15 @@ public:
     [[nodiscard]] static Scene buildScene(
         const dgm::ResourceManager& resmgr,
         const sf::Vector2f& baseResolution,
-        const Settings& settings);
+        const GameSettings& settings);
 
     [[nodiscard]] static Entity createPlayer(
         const Position& position,
         const Direction& lookDirection,
         PlayerStateIndexType stateId) noexcept;
 
-    [[nodiscard]] static PlayerInventory getDefaultInventory(EntityIndexType ownerIdx) noexcept;
+    [[nodiscard]] static PlayerInventory
+    getDefaultInventory(EntityIndexType ownerIdx) noexcept;
 
     [[nodiscard]] static Entity createProjectile(
         EntityType type,

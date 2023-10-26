@@ -74,7 +74,6 @@ weaponIndexToType(WeaponIndexType idx) noexcept
 constinit const std::size_t ANIMATION_FPS = 60 / 4; // four updates per second
 constinit const unsigned MAX_LEVEL_WIDTH = 32;
 constinit const unsigned MAX_LEVEL_HEIGHT = 32;
-constinit const unsigned MAX_PLAYER_COUNT = 4;
 const sf::Vector2f NULL_VECTOR = { 0.f, 0.f };
 constinit const float EPSILON = 0.001f;
 

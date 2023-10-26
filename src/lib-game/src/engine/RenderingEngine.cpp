@@ -294,7 +294,7 @@ void RenderingEngine::renderSprites(
                 .heightHint = 0.f,
                 .textureId = static_cast<std::uint8_t>(thing.textureId),
                 .brightness = static_cast<sf::Uint8>(
-                    context.level.lightmap.at(thing.center.x, thing.center.y)),
+                    context.level.lightmap.at(sf::Vector2u(thing.center))),
                 .flipTexture = thing.flipTexture },
             context.spritesheetClipping);
     }

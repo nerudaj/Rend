@@ -135,7 +135,7 @@ struct Scene
     dgm::DynamicBuffer<Marker> markers;
     Level level;
     dgm::SpatialIndex<EntityIndexType> spatialIndex;
-    std::array<PlayerState, MAX_PLAYER_COUNT> playerStates;
+    std::vector<PlayerState> playerStates;
     std::vector<sf::Vector2f> spawns;
     std::string mapname;
     EntityIndexType playerId = 0;

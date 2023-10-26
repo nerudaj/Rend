@@ -2,8 +2,11 @@
 
 import Memory;
 
+#include "GameSettings.hpp"
 #include "GuiState.hpp"
+#include "PlayerSettings.hpp"
 #include "Settings.hpp"
+#include <vector>
 
 class AppStateMainMenu final
     : public dgm::AppState
@@ -50,6 +53,10 @@ public:
     {
         buildLayout();
     }
+
+private:
+    void startGame();
+    std::vector<PlayerSettings> createPlayerSettings(unsigned playerCount);
 
 private:
     mem::Rc<Settings> settings;

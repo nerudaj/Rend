@@ -86,7 +86,6 @@ void AiEngine::update(const float deltaTime)
         blackboard.seekTimeout =
             std::clamp(blackboard.seekTimeout - deltaTime, 0.f, SEEK_TIMEOUT);
 
-        auto& inventory = getInventory(blackboard);
         blackboard.input->clearInputs();
         fsmTop.setState(blackboard.aiTopState);
         fsmTop.update(blackboard);
@@ -103,7 +102,7 @@ int AiEngine::getItemBaseScore(
     constexpr const unsigned POWERITEM_SCORE = 8000;
     constexpr const unsigned WEAPON_SCORE = 1000;
     // TODO: detect active ammo type
-    constexpr const unsigned ACTIVE_AMMO_SCORE = 500;
+    // constexpr const unsigned ACTIVE_AMMO_SCORE = 500;
     constexpr const unsigned ARMOR_SCORE = 100;
     constexpr const unsigned INACTIVE_AMMO_SCORE = 50;
 

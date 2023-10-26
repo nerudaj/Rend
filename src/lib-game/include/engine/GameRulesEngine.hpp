@@ -30,6 +30,11 @@ public:
 
     void deleteMarkedObjects();
 
+    [[nodiscard]] sf::Vector2f getBestSpawnPosition() const noexcept;
+
+    [[nodiscard]] sf::Vector2f
+    getBestSpawnDirection(const sf::Vector2f& spawnPosition) const noexcept;
+
 private:
     void handlePlayer(Entity& thing, std::size_t id);
 
@@ -68,11 +73,6 @@ private:
     }
 
     void removeEntity(std::size_t index);
-
-    [[nodiscard]] sf::Vector2f getBestSpawnPosition() const noexcept;
-
-    [[nodiscard]] sf::Vector2f
-    getBestSpawnDirection(const sf::Vector2f& spawnPosition) const noexcept;
 
 private: // Scripts API
     void fireFlare(

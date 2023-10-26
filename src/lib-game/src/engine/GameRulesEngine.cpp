@@ -388,7 +388,7 @@ bool GameRulesEngine::give(
     return true;
 }
 
-void GameRulesEngine::damage(Entity& thing, std::size_t thingIndex, int damage)
+void GameRulesEngine::damage(Entity& thing, std::size_t, int damage)
 {
     // TODO: max 2/3 of armor above 100?
     // Max 1/3 of the damage can be absorbed by the armor

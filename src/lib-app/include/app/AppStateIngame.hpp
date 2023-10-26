@@ -9,6 +9,7 @@
 #include "engine/PhysicsEngine.hpp"
 #include "engine/RenderingEngine.hpp"
 #include <DGM/dgm.hpp>
+#include <GameSettings.hpp>
 #include <TGUI/Backend/SFML-Graphics.hpp>
 #include <TGUI/TGUI.hpp>
 #include <core/Scene.hpp>
@@ -27,7 +28,8 @@ public:
         mem::Rc<const dgm::ResourceManager> resmgr,
         mem::Rc<tgui::Gui> gui,
         mem::Rc<Settings> settings,
-        mem::Rc<AudioPlayer> audioPlayer);
+        mem::Rc<AudioPlayer> audioPlayer,
+        GameSettings gameSettings);
 
     ~AppStateIngame()
     {
@@ -55,8 +57,8 @@ private:
         std::size_t tick = 0;
         dgm::DynamicBuffer<Entity> things;
         dgm::DynamicBuffer<Marker> markers;
-        InputSchema inputs[MAX_PLAYER_COUNT];
-        PlayerState states[MAX_PLAYER_COUNT];
+        std::vector<InputSchema> inputs;
+        std::vector<PlayerState> states;
     };
 
     void snapshotInputs(FrameState& state);
@@ -69,6 +71,8 @@ private:
     void lockMouse();
     void unlockMouse();
 
+    void createPlayers(const GameSettings& settings);
+
 protected:
     mem::Rc<const dgm::ResourceManager> resmgr;
     mem::Rc<tgui::Gui> gui;
@@ -77,7 +81,7 @@ protected:
 
     const sf::Vector2f GAME_RESOLUTION;
 
-    std::array<mem::Rc<ControllerInterface>, MAX_PLAYER_COUNT> inputs;
+    std::vector<mem::Rc<ControllerInterface>> inputs;
     Scene scene;
     RoundRobinBuffer<FrameState, 10> stateBuffer;
     AiEngine aiEngine;

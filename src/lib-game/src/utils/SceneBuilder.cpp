@@ -105,10 +105,9 @@ createSpatialIndex(const LevelD& level)
 Scene SceneBuilder::buildScene(
     const dgm::ResourceManager& resmgr,
     const sf::Vector2f& baseResolution,
-    const Settings& settings)
+    const GameSettings& settings)
 {
-    auto&& level =
-        resmgr.get<LevelD>(settings.cmdSettings.mapname).value().get();
+    auto&& level = resmgr.get<LevelD>(settings.map).value().get();
 
     return Scene {
         .worldCamera = dgm::Camera(FULLSCREEN_VIEWPORT, baseResolution),
@@ -120,7 +119,7 @@ Scene SceneBuilder::buildScene(
                    .upperMesh = Builder::buildMeshFromLvd(level, 1) },
         .spatialIndex = createSpatialIndex(level),
         .spawns = createSpawns(level),
-        .mapname = settings.cmdSettings.mapname
+        .mapname = settings.map
     };
 }
 

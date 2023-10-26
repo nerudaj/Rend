@@ -16,12 +16,7 @@ void AppStateMainMenu::buildLayoutImpl()
 
     createButtonListInLayout(
         layout,
-        { ButtonProps(
-              "play",
-              [this] {
-                  app.pushState<AppStateIngame>(
-                      resmgr, gui, settings, audioPlayer);
-              }),
+        { ButtonProps("play", [this] { startGame(); }),
           ButtonProps(
               "options",
               [this] {
@@ -36,7 +31,7 @@ void AppStateMainMenu::input()
 {
     if (settings->cmdSettings.skipMainMenu)
     {
-        app.pushState<AppStateIngame>(resmgr, gui, settings, audioPlayer);
+        startGame();
         settings->cmdSettings.skipMainMenu = false;
     }
 
@@ -45,4 +40,31 @@ void AppStateMainMenu::input()
     {
         gui->handleEvent(event);
     }
+}
+
+void AppStateMainMenu::startGame()
+{
+    app.pushState<AppStateIngame>(
+        resmgr,
+        gui,
+        settings,
+        audioPlayer,
+        GameSettings { .map = settings->cmdSettings.mapname,
+                       .players = createPlayerSettings(
+                           settings->cmdSettings.playerCount) });
+}
+
+std::vector<PlayerSettings>
+AppStateMainMenu::createPlayerSettings(unsigned playerCount)
+{
+    std::vector<PlayerSettings> result;
+
+    for (unsigned i = 0; i < playerCount; i++)
+    {
+        result.push_back(PlayerSettings {
+            .kind = i == 0 ? PlayerKind::LocalHuman : PlayerKind::LocalNpc,
+            .bindCamera = i == 0 });
+    }
+
+    return result;
 }

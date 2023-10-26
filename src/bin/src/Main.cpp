@@ -18,7 +18,8 @@ CmdSettings processCmdParameters(int argc, char* argv[])
         ("r,resource-dir", "Path to resources", cxxopts::value<std::string>())
         ("m,map", "Map name", cxxopts::value<std::string>())
     ("d,demofile", "Path to demo file", cxxopts::value<std::string>())
-        ("p,play-demo", "Whether to replay demo file");
+        ("p,play-demo", "Whether to replay demo file")
+        ("c,count", "Number of players (1-4)", cxxopts::value<unsigned>());
     // clang-format on
     auto args = options.parse(argc, argv);
 
@@ -33,6 +34,8 @@ CmdSettings processCmdParameters(int argc, char* argv[])
         result.demoFile = args["demofile"].as<std::string>();
     if (args.count("play-demo") > 0)
         result.playDemo = args["play-demo"].as<bool>();
+    if (args.count("count") > 0)
+        result.playerCount = args["count"].as<unsigned>();
 
     return result;
 }
@@ -58,6 +61,11 @@ int main(int argc, char* argv[])
     auto&& settings = mem::Rc<Settings>();
     settings->cmdSettings = processCmdParameters(argc, argv);
     settings->appSettings = loadAppSettings(CONFIG_FILE_PATH);
+
+    if (settings->cmdSettings.playerCount > 4)
+    {
+        throw std::runtime_error("Cannot have more than 4 players!");
+    }
 
     dgm::WindowSettings windowSettings = {
         .resolution = sf::Vector2u(

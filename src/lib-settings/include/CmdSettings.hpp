@@ -12,4 +12,5 @@ struct CmdSettings
     std::string mapname = "demo2.lvd";
     std::filesystem::path demoFile = "demo.txt";
     bool playDemo = false;
+    unsigned playerCount = 4;
 };
