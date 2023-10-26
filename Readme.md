@@ -1,17 +1,15 @@
 # Readme
 
-This project serves as a quickstart for development with dgm-lib so you can start prototyping games fast and easy. It comes with simple main menu, options for setting resolution, fullscreen and game audio, simple game loop and also a pause screen.
+This project is my love letter to boomer shooters like Wolfenstein 3D and Doom. The 2.5D enigne is hand-written in C++ from scratch, using SFML for graphics, sounds and networking, TGUI for UI, dgm-lib for abstractions over SFML and dgm-fsm-lib for building AI FSM. The game is supposed to have competitive modes for 2-4 players.
 
-There are also some handy primitives already implemented such as event queue.
-
-The environment also comes with prepared unit testing infrastructure as well as simple benchmarking sandbox.
+You can read about the development process in my [weekly devlogs](https://medium.com/@nerudaj/list/devlogs-rend-97b960bf3cbe).
 
 ## Dependencies
 
- * cmake 3.19 - Newer versions might have some issues with FetchContent
- * newest Visual Studio
+ * cmake 3.26.1 (newest version are not guaranteed to work)
+ * newest Visual Studio (v17)
 
-All required dependencies (dgm-lib, SFML, TGUI, etc) are automatically downloaded and linked via CMake. If you want to bump any of them, update `cmake/dependencies.cmake` file. First couple of lines contains versions of those dependencies. Just bumping the version should be sufficient to update it.
+All required C++ dependencies (dgm-lib, SFML, TGUI, etc) are automatically downloaded and linked via CMake.
 
 ## How to configure and build
 
@@ -21,36 +19,17 @@ Configuring is easy, if you have cmake in `%PATH%`:
 mkdir vsbuild
 cd vsbuild
 cmake ..
+cmake --build . --config Release
 ```
 
-Following commands will produce a `vsbuild` folder with `Example.sln` which you can open in Visual Studio and start developing. There is also a handy script `MakeRelease.bat` which performs full cleanup, configuration and build in release mode and prepares ready to ship zipfile with your game in `RELEASE` folder.
+The commands will produce a `vsbuild` folder with a `Compiled` folder inside, where you can find all compiled binaries. If you're launching from this folder, you will have to use the `-r` command-line parameter otherwise the app will crash on startup. There will also be a `Rend.sln` solution file in the `vsbuild` folder.
 
-You can customize your configuration by adding following flags:
+## Command-line parameters
 
- * `-DCACHE_THIRD_PARTY=ON`: This will download dependencies to the root folder under `deps` instead of your build folder. This is useful if you often reconfigure without access to the internet.
- * `-DDISABLE_TESTING=ON`: If you don't want to have unit testing projects, use this option to disable their configuration. `ctest` command will also be disabled.
- * `-DENABLE_BENCHMARKS=OFF`: Use this to automatically include Google Benchmark into your project
+The game has the following parameters:
 
-## How to customize
-
-Open file `cmake/settings.cmake` where you find bunch of variables that you can customize and will affect name of the output binary, of the solution file and release package name.
-
-## How to bump dependencies
-
-Open file `cmake/dependencies.cmake` and simply change the version numbers at the beginning of the file of libraries that you need to update.
-
-## How to change version numbers
-
-Edit file `cmake/version.cmake`
-
-## Skipping main menu
-
-If you run the binary with parameter `-s`, it will skip the main menu and jump right into the game. If you exit the game, you'll be returned into main menu.
-
-## Starting development
-
-As a first thing just simply build the entire project and launch the binary to see what it does.
-
-Look for project `lib-game`. Start by adding some objects to `Scene` and `RenderContext` structs, update their builder functions and then render the object by updating logic in the `RenderingEngine` and make it do something with `GameRulesEngine` and `PhysicsEngine`.
-
-Define new `events` and consume them in appropriate engines to communicate between them. Pust events into processing with `EventQueue::push`. The queue is automatically processed at the end of the frame.
+ * `-s` / `--skip-menu` - Jumps directly into the game
+ * `-r <path>` / `--resource-dir <path>` - Path is relative from the current working dir to inside of the `resources` folder
+ * `-m <name>` / `--map <name>` - Name, including .lvd extension of a file inside `resources/levels` folder
+ * `-d <file>` / `--demofile <file>` - Path to file that should be used for reading/writing demo inputs
+ * `-p` / `--play-demo` - Specifies that the game inputs should be read from the demo file rather from the controller. Use this to replay games from demo.
