@@ -18,7 +18,7 @@ include ( "${CMAKE_SOURCE_DIR}/cmake/dependencies.cmake" )
 project ( "${SETTINGS_PROJECT_NAME}" )
 
 option ( DISABLE_TESTING    "Disable unit test projects" OFF )
-
+option ( IS_NIGHTBUILD      "Use name nightbuild.zip for the output package" OFF )
 
 if ( NOT ${DISABLE_TESTING})
 	enable_testing()
@@ -40,10 +40,18 @@ install (
 	DESTINATION "."
 )
 
-set ( CPACK_GENERATOR "ZIP" )
-set ( CPACK_PACKAGE_VERSION_MAJOR       "${PROJECT_VERSION_MAJOR}" )
-set ( CPACK_PACKAGE_VERSION_MINOR       "${PROJECT_VERSION_MINOR}" )
-set ( CPACK_PACKAGE_VERSION_PATCH       "${PROJECT_VERSION_PATCH}" )
-set ( CPACK_PACKAGE_FILE_NAME           "${PROJECT_NAME}-${PROJECT_VERSION}-windows-vc16-${CMAKE_GENERATOR_PLATFORM}" )
+if ( ${IS_NIGHTBUILD} )
+	set ( CPACK_GENERATOR "ZIP" )
+	set ( CPACK_PACKAGE_VERSION_MAJOR       "${PROJECT_VERSION_MAJOR}" )
+	set ( CPACK_PACKAGE_VERSION_MINOR       "${PROJECT_VERSION_MINOR}" )
+	set ( CPACK_PACKAGE_VERSION_PATCH       "${PROJECT_VERSION_PATCH}" )
+	set ( CPACK_PACKAGE_FILE_NAME           "nightbuild" )
+else()
+	set ( CPACK_GENERATOR "ZIP" )
+	set ( CPACK_PACKAGE_VERSION_MAJOR       "${PROJECT_VERSION_MAJOR}" )
+	set ( CPACK_PACKAGE_VERSION_MINOR       "${PROJECT_VERSION_MINOR}" )
+	set ( CPACK_PACKAGE_VERSION_PATCH       "${PROJECT_VERSION_PATCH}" )
+	set ( CPACK_PACKAGE_FILE_NAME           "${PROJECT_NAME}-${PROJECT_VERSION}-windows-vc16-${CMAKE_GENERATOR_PLATFORM}" )
+endif()
 
 include ( CPack )
