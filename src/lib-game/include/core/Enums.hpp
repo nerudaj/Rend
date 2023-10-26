@@ -19,6 +19,8 @@ enum class LeveldItemId
     Shotgun,
     Trishot,
     Crossbow,
+    Launcher,
+    Ballista,
     Pillar,
     FloorLamp
 };
@@ -40,6 +42,8 @@ enum class SpriteId : std::uint8_t
     ShotgunA,
     TrishotA,
     CrossbowA,
+    LauncherA,
+    BallistaA,
     PillarA,
     FloorLampA,
     PlayerA0,
@@ -73,6 +77,9 @@ enum class SpriteId : std::uint8_t
     ExplosionD,
     ExplosionE,
     ExplosionF,
+    DartExplosionA,
+    DartExplosionB,
+    DartExplosionC,
     DeathA,
     DeathB,
     DeathC,
@@ -105,6 +112,14 @@ enum class SpriteId : std::uint8_t
     HUD_CrossbowFC,
     HUD_CrossbowFD,
     HUD_CrossbowFE,
+    HUD_LauncherA,
+    HUD_LauncherFA,
+    HUD_LauncherFB,
+    HUD_LauncherFC,
+    HUD_BallistaA,
+    HUD_BallistaFA,
+    HUD_BallistaFB,
+    HUD_BallistaFC,
 };
 
 enum class EntityType
@@ -134,6 +149,8 @@ enum class EntityType
     PickupShotgun,
     PickupTrishot,
     PickupCrossbow,
+    PickupLauncher,
+    PickupBallista,
     WeaponPickableEnd,
 
     PickableEnd,
@@ -148,7 +165,8 @@ enum class EntityType
     EffectBegin,
     EffectStatic, // Does nothing, has no collisions
     EffectDyingPlayer,
-    EffectExplosion,
+    EffectRocketExplosion,
+    EffectDartExplosion,
     EffectSpawn,
     EffectEnd,
 
@@ -158,6 +176,8 @@ enum class EntityType
     WeaponShotgun,
     WeaponTrishot,
     WeaponCrossbow,
+    WeaponLauncher,
+    WeaponBallista,
 
     InventoryEnd,
 
@@ -170,7 +190,9 @@ enum class ScriptId
     FireFlare,
     FirePellets,
     FireBullet,
-    FireLaserDart
+    FireLaserDart,
+    FireRocket,
+    FireHarpoon,
 };
 
 enum class AnimationStateId

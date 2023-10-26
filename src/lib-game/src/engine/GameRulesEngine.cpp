@@ -45,7 +45,7 @@ void GameRulesEngine::operator()(const ProjectileDestroyedGameEvent& e)
 
     // Spawn explosion effect
     scene.things.emplaceBack(SceneBuilder::createEffect(
-        EntityType::EffectExplosion,
+        EntityType::EffectRocketExplosion,
         Position { explosionHitbox.getPosition() },
         scene.tick));
 }
@@ -293,6 +293,10 @@ bool GameRulesEngine::canFireActiveWeapon(PlayerInventory& inventory) noexcept
         return inventory.bulletCount > 2;
     case WeaponCrossbow:
         return inventory.energyCount > 0;
+    case WeaponLauncher:
+        return inventory.rocketCount > 0;
+    case WeaponBallista:
+        return inventory.bulletCount > 0;
     }
 
     return false;
@@ -378,6 +382,20 @@ bool GameRulesEngine::give(
         constexpr auto index = weaponTypeToIndex(EntityType::WeaponCrossbow);
         if (inventory.acquiredWeapons[index]) return false;
         inventory.energyCount = ENERGY_AMOUNT;
+        inventory.acquiredWeapons[index] = true;
+        return false;
+    }
+    case PickupLauncher: {
+        constexpr auto index = weaponTypeToIndex(EntityType::WeaponLauncher);
+        if (inventory.acquiredWeapons[index]) return false;
+        inventory.rocketCount = ROCKET_AMOUNT;
+        inventory.acquiredWeapons[index] = true;
+        return false;
+    }
+    case PickupBallista: {
+        constexpr auto index = weaponTypeToIndex(EntityType::WeaponBallista);
+        if (inventory.acquiredWeapons[index]) return false;
+        inventory.rocketCount = BULLET_AMOUNT;
         inventory.acquiredWeapons[index] = true;
         return false;
     }

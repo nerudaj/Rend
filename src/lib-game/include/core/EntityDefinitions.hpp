@@ -22,7 +22,7 @@ const static inline auto ENTITY_PROPERTIES =
                                           { DeathD, 7 } },
                                 .transition =
                                     AnimationStateId::MarkerFreeze } } } } },
-        { EntityType::EffectExplosion,
+        { EntityType::EffectRocketExplosion,
           EntityProperties {
               .radius = 8_px,
               .initialSpriteIndex = ExplosionA,
@@ -34,6 +34,17 @@ const static inline auto ENTITY_PROPERTIES =
                                           { ExplosionD, 2 },
                                           { ExplosionE, 2 },
                                           { ExplosionF, 2 } },
+                                .transition =
+                                    AnimationStateId::MarkerDestroy } } } } },
+        { EntityType::EffectDartExplosion,
+          EntityProperties {
+              .radius = 8_px,
+              .initialSpriteIndex = DartExplosionA,
+              .states = { { AnimationStateId::Idle,
+                            AnimationState {
+                                .clip = { { DartExplosionA, 3 },
+                                          { DartExplosionB, 3 },
+                                          { DartExplosionC, 3 } },
                                 .transition =
                                     AnimationStateId::MarkerDestroy } } } } },
         { EntityType::EffectSpawn,
@@ -76,6 +87,12 @@ const static inline auto ENTITY_PROPERTIES =
         { EntityType::PickupCrossbow,
           EntityProperties { .radius = 6_px,
                              .initialSpriteIndex = CrossbowA } },
+        { EntityType::PickupLauncher,
+          EntityProperties { .radius = 6_px,
+                             .initialSpriteIndex = LauncherA } },
+        { EntityType::PickupBallista,
+          EntityProperties { .radius = 6_px,
+                             .initialSpriteIndex = BallistaA } },
         { EntityType::Pillar,
           EntityProperties { .radius = 3_px, .initialSpriteIndex = PillarA } },
         { EntityType::FloorLamp,
@@ -182,6 +199,44 @@ const static inline auto ENTITY_PROPERTIES =
                                             { HUD_CrossbowFD, 5 },
                                             { HUD_CrossbowFE, 5 },
                                             { HUD_CrossbowA, 10 } },
+                                  .transition = AnimationStateId::Idle } } } },
+        },
+        {
+            EntityType::WeaponLauncher,
+            EntityProperties {
+                .radius = 0_px,
+                .initialSpriteIndex = HUD_LauncherA,
+                .states = { { AnimationStateId::Idle,
+                              AnimationState {
+                                  .clip = { { HUD_LauncherA, 10 } },
+                                  .transition =
+                                      AnimationStateId::MarkerLoop } },
+                            { AnimationStateId::Missile,
+                              AnimationState {
+                                  .clip = { { HUD_LauncherFA,
+                                              10,
+                                              ScriptId::FireRocket },
+                                            { HUD_LauncherFB, 10 },
+                                            { HUD_LauncherFC, 10 } },
+                                  .transition = AnimationStateId::Idle } } } },
+        },
+        {
+            EntityType::WeaponBallista,
+            EntityProperties {
+                .radius = 0_px,
+                .initialSpriteIndex = HUD_BallistaA,
+                .states = { { AnimationStateId::Idle,
+                              AnimationState {
+                                  .clip = { { HUD_BallistaA, 10 } },
+                                  .transition =
+                                      AnimationStateId::MarkerLoop } },
+                            { AnimationStateId::Missile,
+                              AnimationState {
+                                  .clip = { { HUD_BallistaFA, 10 },
+                                            { HUD_BallistaFB, 10 },
+                                            { HUD_BallistaFC,
+                                              5,
+                                              ScriptId::FireHarpoon } },
                                   .transition = AnimationStateId::Idle } } } },
         },
         {

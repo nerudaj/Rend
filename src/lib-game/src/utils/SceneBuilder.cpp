@@ -55,6 +55,10 @@ convertLeveldItemIdToEntityType(LeveldItemId id) noexcept
         return EntityType::PickupTrishot;
     case Crossbow:
         return EntityType::PickupCrossbow;
+    case Launcher:
+        return EntityType::PickupLauncher;
+    case Ballista:
+        return EntityType::PickupBallista;
     case Pillar:
         return EntityType::Pillar;
     case FloorLamp:

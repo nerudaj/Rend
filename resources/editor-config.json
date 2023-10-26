@@ -102,6 +102,18 @@
 					"path": "./editor/editor-items.png",
 					"clip": [32, 48, 16, 16]
 				}
+			},
+			{
+				"texture": {
+					"path": "./editor/editor-items.png",
+					"clip": [48, 48, 16, 16]
+				}
+			},
+			{
+				"texture": {
+					"path": "./editor/editor-items.png",
+					"clip": [0, 64, 16, 16]
+				}
 			}
 		]
 	},
