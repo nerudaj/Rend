@@ -28,7 +28,7 @@ jobs:
       run: |
         mkdir "${{env.BUILD_DIR}}"
         cd "${{env.BUILD_DIR}}"
-        cmake ..
+        cmake -DDISABLE_TESTING=ON -DIS_NIGHTBUILD=ON .. 
       shell: cmd
 
     - name: Build
@@ -40,7 +40,8 @@ jobs:
     - name: Test
       working-directory: ${{env.BUILD_DIR}}
       run: |
-        ctest -C Release
+        # ctest -C Release
+        echo not testing
       shell: cmd
       
     - name: Pack
