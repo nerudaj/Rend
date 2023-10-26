@@ -83,6 +83,6 @@ void PhysicsEngine::handleProjectile(
     {
         EventQueue::add<ProjectileDestroyedGameEvent>(id);
         EventQueue::add<ExplosionTriggeredAudioEvent>(
-            ExplosionTriggeredAudioEvent {});
+            ExplosionTriggeredAudioEvent(thing.typeId));
     }
 }

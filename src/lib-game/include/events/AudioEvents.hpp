@@ -1,5 +1,6 @@
 #pragma once
 
+#include <core/Enums.hpp>
 #include <core/Types.hpp>
 #include <variant>
 
@@ -53,6 +54,13 @@ struct LaserDartBouncedAudioEvent
 
 struct ExplosionTriggeredAudioEvent
 {
+    EntityType type;
+
+    [[nodiscard]] constexpr ExplosionTriggeredAudioEvent(
+        EntityType type) noexcept
+        : type(type)
+    {
+    }
 };
 
 using AudioEvent = std::variant<

@@ -27,6 +27,7 @@ void AudioEngine::operator()(const LaserDartBouncedAudioEvent&)
 
 void AudioEngine::operator()(const ExplosionTriggeredAudioEvent&)
 {
+    // TODO: play different sound for rocket, flare and dart
     audioPlayer->playSoundOnChannel("explosion.wav", 5, true);
 }
 

@@ -38,7 +38,7 @@ const static inline auto ENTITY_PROPERTIES =
                                     AnimationStateId::MarkerDestroy } } } } },
         { EntityType::EffectDartExplosion,
           EntityProperties {
-              .radius = 8_px,
+              .radius = 4_px,
               .initialSpriteIndex = DartExplosionA,
               .states = { { AnimationStateId::Idle,
                             AnimationState {

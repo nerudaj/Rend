@@ -44,10 +44,21 @@ void GameRulesEngine::operator()(const ProjectileDestroyedGameEvent& e)
     }
 
     // Spawn explosion effect
-    scene.things.emplaceBack(SceneBuilder::createEffect(
-        EntityType::EffectRocketExplosion,
-        Position { explosionHitbox.getPosition() },
-        scene.tick));
+    auto type = scene.things[e.entityIndex].typeId;
+    if (type == EntityType::ProjectileLaserDart)
+    {
+        scene.things.emplaceBack(SceneBuilder::createEffect(
+            EntityType::EffectDartExplosion,
+            Position { explosionHitbox.getPosition() },
+            scene.tick));
+    }
+    else if (type == EntityType::ProjectileRocket)
+    {
+        scene.things.emplaceBack(SceneBuilder::createEffect(
+            EntityType::EffectRocketExplosion,
+            Position { explosionHitbox.getPosition() },
+            scene.tick));
+    }
 }
 
 void GameRulesEngine::operator()(const EntityDestroyedGameEvent& e)
