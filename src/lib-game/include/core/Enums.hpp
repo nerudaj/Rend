@@ -136,6 +136,11 @@ enum class SpriteId : std::uint8_t
     HUD_BallistaFA,
     HUD_BallistaFB,
     HUD_BallistaFC,
+    HUD_BallistaFD,
+    HUD_BallistaRA,
+    HUD_BallistaRB,
+    HUD_BallistaRC,
+    HUD_BallistaRD,
 };
 
 enum class EntityType

@@ -240,11 +240,19 @@ const static inline auto ENTITY_PROPERTIES =
                                       AnimationStateId::MarkerLoop } },
                             { AnimationStateId::Missile,
                               AnimationState {
-                                  .clip = { { HUD_BallistaFA, 10 },
-                                            { HUD_BallistaFB, 10 },
-                                            { HUD_BallistaFC,
-                                              5,
+                                  .clip = { { HUD_BallistaFA, 15 },
+                                            { HUD_BallistaFB, 15 },
+                                            { HUD_BallistaFC, 15 },
+                                            { HUD_BallistaFD,
+                                              15,
                                               ScriptId::FireHarpoon } },
+                                  .transition = AnimationStateId::Recovery } },
+                            { AnimationStateId::Recovery,
+                              AnimationState {
+                                  .clip = { { HUD_BallistaRA, 20 },
+                                            { HUD_BallistaRB, 20 },
+                                            { HUD_BallistaRC, 20 },
+                                            { HUD_BallistaRD, 20 } },
                                   .transition = AnimationStateId::Idle } } } },
         },
         {
