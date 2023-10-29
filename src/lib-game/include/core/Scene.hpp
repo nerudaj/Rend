@@ -131,7 +131,11 @@ struct Scene
     dgm::DynamicBuffer<Entity> things;
     dgm::DynamicBuffer<Marker> markers;
     std::vector<PlayerState> playerStates;
+
+    // TODO: Extract to CameraContext
+    // TODO: Backup
     EntityIndexType cameraAnchorIdx = 0; // rename to cameraAnchorIdx
+    float redOverlayIntensity = 0.f;
 
     // This doesn't have to be backed up
     Level level;

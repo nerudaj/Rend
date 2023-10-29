@@ -39,6 +39,10 @@ RenderingEngine::RenderingEngine(
 void RenderingEngine::update(const float deltaTime)
 {
     fpsCounter.update(deltaTime);
+    scene.redOverlayIntensity = std::clamp(
+        scene.redOverlayIntensity - OVERLAY_INTENSITY_DECAY_RATE * deltaTime,
+        0.f,
+        255.f);
 }
 
 void RenderingEngine::renderWorldTo(dgm::Window&) {}
@@ -323,7 +327,12 @@ void RenderingEngine::renderAlivePlayerHud(
         inventory.energyCount));
     const auto textBounds = context.text.getGlobalBounds();
     context.text.setPosition(10.f, settings.HEIGHT - textBounds.height - 10.f);
-    window.draw(context.text);
+    // window.draw(context.text);
+
+    auto redOverlay = sf::RectangleShape(sf::Vector2f(window.getSize()));
+    redOverlay.setFillColor(
+        sf::Color(255, 0, 0, sf::Int8(scene.redOverlayIntensity)));
+    window.draw(redOverlay);
 }
 
 std::vector<RenderingEngine::ThingToRender>
