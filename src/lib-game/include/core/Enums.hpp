@@ -251,6 +251,8 @@ enum class AiState
     PickNextJumpPoint,
     TryToPickNewTarget,
     ShootTarget,
+    SwapWeapon,
+    Delay,
 
     Update,
 
@@ -264,6 +266,8 @@ const std::map<AiState, std::string> AI_STATE_TO_STRING = {
     { AiState::PickNextJumpPoint, "PickNextJumpPoint" },
     { AiState::TryToPickNewTarget, "TryToPickNewTarget" },
     { AiState::ShootTarget, "ShootTarget" },
+    { AiState::SwapWeapon, "SwapWeapon" },
+    { AiState::Delay, "Delay" },
     { AiState::Update, "Update" },
     { AiState::WaitForRespawnRequest, "WaitForRespawnRequest" },
     { AiState::RequestRespawn, "RequestRespawn" },

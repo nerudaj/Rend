@@ -5,6 +5,7 @@
 #include <core/Enums.hpp>
 #include <core/Types.hpp>
 #include <map>
+#include <numbers>
 #include <utils/SemanticTypes.hpp>
 
 // Movement
@@ -45,6 +46,8 @@ constinit const float SHOTGUN_SPREAD = 0.1f;
 
 // Ai
 constinit const float SEEK_TIMEOUT = 0.2f;
+constinit const float AI_MAX_AIM_ERROR = std::numbers::pi_v<float> / 16;
+constinit const float AI_MAX_POSITION_ERROR = 2.f;
 
 // Inventory
 constinit const unsigned WEAPON_COUNT = 16;

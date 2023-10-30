@@ -58,11 +58,16 @@ AiEngine::AiEngine(Scene& scene)
             .when(shouldPickNewTarget).goTo(AiState::TryToPickNewTarget)
             .orWhen(canShootTarget).goTo(AiState::ShootTarget)
             .orWhen(BIND(isJumpPointReached)).goTo(AiState::PickNextJumpPoint)
+            .orWhen(BIND(shouldSwapWeapon)).goTo(AiState::SwapWeapon)
             .otherwiseExec(updatePositionAndDirection).andLoop()
         .with(AiState::TryToPickNewTarget)
             .exec(BIND(pickTargetEnemy)).andGoTo(AiState::Update)
         .with(AiState::ShootTarget)
             .exec(BIND(shoot)).andGoTo(AiState::Update)
+        .with(AiState::SwapWeapon)
+            .exec(BIND(swapWeapon)).andGoTo(AiState::Delay)
+        .with(AiState::Delay)
+            .exec(BIND(doNothing)).andGoTo(AiState::Update)
         .build();
     // clang-format on
 
@@ -104,18 +109,16 @@ void AiEngine::update(const float deltaTime)
 int AiEngine::getItemBaseScore(
     EntityType type,
     int myHealth,
-    const AcquitedWeaponsArray& acquiredWeapons) const noexcept
+    const PlayerInventory& inventory) const noexcept
 {
     constexpr const unsigned MEDIKIT_BASE_SCORE = 100;
     constexpr const unsigned POWERITEM_SCORE = 8000;
     constexpr const unsigned WEAPON_SCORE = 1000;
-    // TODO: detect active ammo type
-    // constexpr const unsigned ACTIVE_AMMO_SCORE = 500;
     constexpr const unsigned ARMOR_SCORE = 100;
-    constexpr const unsigned INACTIVE_AMMO_SCORE = 50;
+    constexpr const unsigned AMMO_SCORE = 50;
 
     if (isWeaponPickable(type)
-        && !acquiredWeapons[weaponPickupToIndex(type)]) // && unpicked
+        && !inventory.acquiredWeapons[weaponPickupToIndex(type)]) // && unpicked
         return WEAPON_SCORE;
     else if (isPowerItemPickable(type))
         return POWERITEM_SCORE;
@@ -124,7 +127,18 @@ int AiEngine::getItemBaseScore(
     else if (type == EntityType::PickupArmor)
         return ARMOR_SCORE;
     else if (isPickable(type))
-        return INACTIVE_AMMO_SCORE;
+    {
+        if ((type == EntityType::PickupBullets
+             && inventory.bulletCount < MAX_BULLETS)
+            || (type == EntityType::PickupShells
+                && inventory.shellCount < MAX_SHELLS)
+            || (type == EntityType::PickupEnergy
+                && inventory.energyCount < MAX_ENERGY)
+            || (type == EntityType::PickupRockets
+                && inventory.rocketCount < MAX_ROCKETS))
+            return AMMO_SCORE;
+        return -1;
+    }
 
     return 0;
 }
@@ -143,12 +157,20 @@ void AiEngine::runFsmDead(AiBlackboard& blackboard)
     blackboard.aiState = fsmDead.getState();
 }
 
+bool AiEngine::shouldSwapWeapon(const AiBlackboard& blackboard) const noexcept
+{
+    auto& inventory = getInventory(blackboard);
+    auto index = blackboard.playerStateIdx % 2 + 1;
+    return inventory.acquiredWeapons[index]
+           && weaponTypeToIndex(inventory.activeWeaponType) != index;
+}
+
 void AiEngine::pickJumpPoint(AiBlackboard& blackboard)
 {
     const auto& inventory = getInventory(blackboard);
     const auto& player = getPlayer(blackboard);
 
-    sf::Vector2f bestPosition;
+    auto&& bestPosition = sf::Vector2f(0.f, 0.f);
     float bestScore = 0;
     for (auto&& [thing, idx] : scene.things)
     {
@@ -156,8 +178,8 @@ void AiEngine::pickJumpPoint(AiBlackboard& blackboard)
             && inventory.acquiredWeapons[weaponPickupToIndex(thing.typeId)])
             continue;
 
-        int currentScore = getItemBaseScore(
-            thing.typeId, player.health, inventory.acquiredWeapons);
+        int currentScore =
+            getItemBaseScore(thing.typeId, player.health, inventory);
         float distance = dgm::Math::getSize(
             thing.hitbox.getPosition() - player.hitbox.getPosition());
         float score = currentScore / (distance * distance);
@@ -169,6 +191,10 @@ void AiEngine::pickJumpPoint(AiBlackboard& blackboard)
         }
     }
 
+    // TODO: this
+    // assert(bestPosition.x != 0.f && bestPosition.y != 0.f);
+    if (bestPosition.x == 0.f && bestPosition.y == 0.f) return;
+
     const auto& path =
         navmesh.getPath(player.hitbox.getPosition(), bestPosition);
     if (path.isTraversed()) return;
@@ -178,7 +204,7 @@ void AiEngine::pickJumpPoint(AiBlackboard& blackboard)
 void AiEngine::pickTargetEnemy(AiBlackboard& blackboard) noexcept
 {
 #ifdef DEBUG_REMOVALS
-    std::cout << "AiEngine::resetBlackboard()" << std::endl;
+    std::cout << "AiEngine::pickTargetEnemy()" << std::endl;
 #endif
 
     blackboard.seekTimeout = SEEK_TIMEOUT;
@@ -227,7 +253,7 @@ bool AiEngine::isJumpPointReached(const AiBlackboard& blackboard) const noexcept
 {
     const auto& player = getPlayer(blackboard);
     return dgm::Math::getSize(player.hitbox.getPosition() - blackboard.nextStop)
-           < 2.f;
+           < AI_MAX_POSITION_ERROR;
 }
 
 void AiEngine::moveTowardsTarget(AiBlackboard& blackboard)
@@ -267,6 +293,11 @@ void AiEngine::rotateTowardsEnemy(AiBlackboard& blackboard) noexcept
     blackboard.input->setSteer(pivotDir);
 }
 
+void AiEngine::swapWeapon(AiBlackboard& blackboard) noexcept
+{
+    blackboard.input->switchToNextWeapon();
+}
+
 bool AiEngine::isTrackedEnemyVisible(
     const AiBlackboard& blackboard) const noexcept
 {
@@ -302,5 +333,5 @@ bool AiEngine::isTargetInReticle(const AiBlackboard& blackboard) const noexcept
 
     const float angle =
         std::acos(dgm::Math::getDotProduct(player.direction, dirToEnemy));
-    return angle <= std::numbers::pi_v<float> / 16;
+    return angle <= AI_MAX_AIM_ERROR;
 }

@@ -61,6 +61,9 @@ private: // FSM predicates
                == AnimationStateId::Idle;
     }
 
+    [[nodiscard]] bool
+    shouldSwapWeapon(const AiBlackboard& blackboard) const noexcept;
+
 private: // FSM actions
     constexpr void doNothing(AiBlackboard&) const noexcept {}
 
@@ -78,6 +81,8 @@ private: // FSM actions
     void resetBlackboard(AiBlackboard& blackboard) const noexcept;
 
     void rotateTowardsEnemy(AiBlackboard& blackboard) noexcept;
+
+    void swapWeapon(AiBlackboard& blackboard) noexcept;
 
 private: // Utility predicates
     [[nodiscard]] constexpr auto&&
@@ -119,7 +124,7 @@ private: // Utility functions
     [[nodiscard]] int getItemBaseScore(
         EntityType type,
         int myHealth,
-        const AcquitedWeaponsArray& acquiredWeapons) const noexcept;
+        const PlayerInventory& inventory) const noexcept;
 
 private: // fsm updates
     void runFsmAlive(AiBlackboard& blackboard);

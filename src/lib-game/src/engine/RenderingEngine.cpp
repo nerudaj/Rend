@@ -327,7 +327,12 @@ void RenderingEngine::renderAlivePlayerHud(
         inventory.energyCount));
     const auto textBounds = context.text.getGlobalBounds();
     context.text.setPosition(10.f, settings.HEIGHT - textBounds.height - 10.f);
-    // window.draw(context.text);
+
+    context.text.setString(
+        TOP_STATES_TO_STRING.at(scene.playerStates[0].blackboard->aiTopState)
+        + " "
+        + AI_STATE_TO_STRING.at(scene.playerStates[0].blackboard->aiState));
+    window.draw(context.text);
 
     auto redOverlay = sf::RectangleShape(sf::Vector2f(window.getSize()));
     redOverlay.setFillColor(
