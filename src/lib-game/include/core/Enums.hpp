@@ -226,7 +226,7 @@ enum class AnimationStateId
     Recovery,
     MarkerLoop,
     MarkerDestroy,
-    MarkerFreeze,
+    MarkerFreeze, // Candidate for deletion
 };
 
 enum class AiTopState

@@ -19,9 +19,9 @@ const static inline auto ENTITY_PROPERTIES =
                                 .clip = { { DeathA, 7 },
                                           { DeathB, 7 },
                                           { DeathC, 7 },
-                                          { DeathD, 7 } },
+                                          { DeathD, 600 } },
                                 .transition =
-                                    AnimationStateId::MarkerFreeze } } } } },
+                                    AnimationStateId::MarkerDestroy } } } } },
         { EntityType::EffectRocketExplosion,
           EntityProperties {
               .radius = 8_px,
