@@ -19,8 +19,7 @@ AiEngine::AiEngine(Scene& scene)
     auto updatePositionAndDirection =
         Merge<AiBlackboard>(BIND(moveTowardsTarget), BIND(rotateTowardsEnemy));
 
-    auto requestRespawn =
-        Merge<AiBlackboard>(BIND(shoot), BIND(resetBlackboard));
+    auto requestRespawn = BIND(shoot);
 
     auto canShootTarget =
         And<AiBlackboard>(BIND(isTargetInReticle), BIND(canShoot));
@@ -28,7 +27,7 @@ AiEngine::AiEngine(Scene& scene)
     // clang-format off
     fsmTop = dgm::fsm::Builder<AiBlackboard, AiTopState>()
         .with(AiTopState::BootstrapAlive)
-            .exec([](auto& b) { b.aiState = AiState::Start; })
+            .exec(BIND(resetBlackboard))
             .andGoTo(AiTopState::Alive)
         .with(AiTopState::Alive)
             .when(isPlayerDead).goTo(AiTopState::BootstrapDead)
@@ -69,10 +68,14 @@ AiEngine::AiEngine(Scene& scene)
 
 #undef BIND
 
-    // fsmTop.setLogging(true);
+#ifdef DEBUG_REMOVALS
+    fsmTop.setLogging(true);
+    fsmAlive.setLogging(true);
+    fsmDead.setLogging(true);
     fsmTop.setStateToStringHelper(std::map { TOP_STATES_TO_STRING });
-    // fsmAlive.setLogging(true);
     fsmAlive.setStateToStringHelper(std::map { AI_STATE_TO_STRING });
+    fsmDead.setStateToStringHelper(std::map { AI_STATE_TO_STRING });
+#endif
 }
 
 void AiEngine::update(const float deltaTime)
@@ -82,6 +85,11 @@ void AiEngine::update(const float deltaTime)
         if (!state.blackboard.has_value()) continue;
 
         auto& blackboard = state.blackboard.value();
+
+#ifdef DEBUG_REMOVALS
+        std::cout << "AiEngine::update(blackboard.contextIdx = "
+                  << blackboard.playerStateIdx << ")" << std::endl;
+#endif
 
         blackboard.seekTimeout =
             std::clamp(blackboard.seekTimeout - deltaTime, 0.f, SEEK_TIMEOUT);
@@ -169,15 +177,20 @@ void AiEngine::pickJumpPoint(AiBlackboard& blackboard)
 
 void AiEngine::pickTargetEnemy(AiBlackboard& blackboard) noexcept
 {
+#ifdef DEBUG_REMOVALS
+    std::cout << "AiEngine::resetBlackboard()" << std::endl;
+#endif
+
     blackboard.seekTimeout = SEEK_TIMEOUT;
     const auto& inventory = getInventory(blackboard);
     const auto& player = scene.things[inventory.ownerIdx];
-    blackboard.trackedEnemyIdx = -1;
+    blackboard.trackedEnemyIdx = std::numeric_limits<EntityIndexType>::max();
     for (PlayerStateIndexType i = 0; i < scene.playerStates.size(); i++)
     {
         auto enemyIdx = scene.playerStates[i].inventory.ownerIdx;
         if (i == blackboard.playerStateIdx || !isPlayerAlive(enemyIdx))
             continue;
+        assert(inventory.ownerIdx != enemyIdx);
 
         const auto& enemy = scene.things[enemyIdx];
         if (isEnemyVisible(
@@ -186,6 +199,10 @@ void AiEngine::pickTargetEnemy(AiBlackboard& blackboard) noexcept
                 enemyIdx,
                 enemy.hitbox.getPosition()))
         {
+#ifdef DEBUG_REMOVALS
+            std::cout << "AiEngine::targetSetTo(idx=" << enemyIdx << ")"
+                      << std::endl;
+#endif
             blackboard.trackedEnemyIdx = enemyIdx;
             return;
         }
@@ -228,6 +245,10 @@ void AiEngine::moveTowardsTarget(AiBlackboard& blackboard)
 
 void AiEngine::resetBlackboard(AiBlackboard& blackboard) const noexcept
 {
+#ifdef DEBUG_REMOVALS
+    std::cout << "AiEngine::resetBlackboard()" << std::endl;
+#endif
+    blackboard.aiState = AiState::Start;
     blackboard.nextStop = sf::Vector2f(0.f, 0.f);
     blackboard.trackedEnemyIdx = std::numeric_limits<EntityIndexType>::max();
 }
@@ -254,6 +275,14 @@ bool AiEngine::isTrackedEnemyVisible(
     const auto& enemy = scene.things[blackboard.trackedEnemyIdx];
     const auto& inventory = getInventory(blackboard);
     const auto& player = scene.things[inventory.ownerIdx];
+
+#ifdef DEBUG_REMOVALS
+    std::cout << std::format(
+        "AiEngine::isTrackedEnemyVisible(me={}, him={})",
+        inventory.ownerIdx,
+        blackboard.trackedEnemyIdx)
+              << std::endl;
+#endif
     assert(inventory.ownerIdx != blackboard.trackedEnemyIdx);
 
     return isEnemyVisible(

@@ -81,6 +81,12 @@ void GameRulesEngine::operator()(const PlayerRespawnedGameEvent& e)
     scene.playerStates[scene.things[idx].stateIdx].inventory =
         SceneBuilder::getDefaultInventory(idx);
 
+#ifdef DEBUG_REMOVALS
+    std::cout << std::format(
+        "Respawning player with context {} at index {}", marker.stateIdx, idx)
+              << std::endl;
+#endif
+
     if (marker.rebindCamera) scene.cameraAnchorIdx = idx;
 
     scene.markers.eraseAtIndex(e.markerIndex);
@@ -462,7 +468,9 @@ void GameRulesEngine::removeEntity(std::size_t index)
 
     if (playerWasDestroyed)
     {
-        scene.playerStates[thing.stateIdx].input.stopShooting();
+        auto& state = scene.playerStates[thing.stateIdx];
+        state.inventory.ownerIdx = std::numeric_limits<EntityIndexType>::max();
+        state.input.stopShooting();
         auto idx = scene.things.emplaceBack(SceneBuilder::createEffect(
             EntityType::EffectDyingPlayer,
             Position { thing.hitbox.getPosition() },

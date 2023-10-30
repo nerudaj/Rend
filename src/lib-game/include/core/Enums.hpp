@@ -239,9 +239,9 @@ enum class AiTopState
 
 const std::map<AiTopState, std::string> TOP_STATES_TO_STRING = {
     { AiTopState::BootstrapAlive, "BootstrapAlive" },
-    { AiTopState::BootstrapAlive, "Alive" },
-    { AiTopState::BootstrapAlive, "BootstrapAlive" },
-    { AiTopState::BootstrapAlive, "Dead" }
+    { AiTopState::Alive, "Alive" },
+    { AiTopState::BootstrapDead, "BootstrapDead" },
+    { AiTopState::Dead, "Dead" }
 };
 
 enum class AiState
