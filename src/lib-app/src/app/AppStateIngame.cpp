@@ -238,7 +238,7 @@ AppStateIngame::AppStateIngame(
     , scene(SceneBuilder::buildScene(*resmgr, GAME_RESOLUTION, gameSettings))
     , aiEngine(scene)
     , animationEngine(scene)
-    , audioEngine(resmgr, audioPlayer)
+    , audioEngine(resmgr, audioPlayer, scene)
     , gameRulesEngine(scene)
     , physicsEngine(scene)
     , renderingEngine(resmgr, scene)

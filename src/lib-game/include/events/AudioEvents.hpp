@@ -4,13 +4,15 @@
 #include <core/Types.hpp>
 #include <variant>
 
-struct ShotgunFiredAudioEvent
+struct [[nodiscard]] ShotgunFiredAudioEvent
 {
     PlayerStateIndexType channel;
+    sf::Vector2f position;
 
-    [[nodiscard]] constexpr ShotgunFiredAudioEvent(
-        PlayerStateIndexType channel) noexcept
-        : channel(channel)
+    constexpr ShotgunFiredAudioEvent(
+        PlayerStateIndexType channel,
+        dgm::UniversalReference<sf::Vector2f> auto&& position) noexcept
+        : channel(channel), position(std::forward<decltype(position)>(position))
     {
     }
 };
@@ -18,10 +20,12 @@ struct ShotgunFiredAudioEvent
 struct BulletFiredAudioEvent
 {
     PlayerStateIndexType channel;
+    sf::Vector2f position;
 
     [[nodiscard]] constexpr BulletFiredAudioEvent(
-        PlayerStateIndexType channel) noexcept
-        : channel(channel)
+        PlayerStateIndexType channel,
+        dgm::UniversalReference<sf::Vector2f> auto&& position) noexcept
+        : channel(channel), position(std::forward<decltype(position)>(position))
     {
     }
 };
@@ -29,36 +33,49 @@ struct BulletFiredAudioEvent
 struct RocketFiredAudioEvent
 {
     PlayerStateIndexType channel;
+    sf::Vector2f position;
 
     [[nodiscard]] constexpr RocketFiredAudioEvent(
-        PlayerStateIndexType channel) noexcept
-        : channel(channel)
+        PlayerStateIndexType channel,
+        dgm::UniversalReference<sf::Vector2f> auto&& position) noexcept
+        : channel(channel), position(std::forward<decltype(position)>(position))
     {
     }
 };
 
-struct LaserCrossbowAudioEvent
+struct [[nodiscard]] LaserCrossbowAudioEvent
 {
     PlayerStateIndexType channel;
+    sf::Vector2f position;
 
-    [[nodiscard]] constexpr LaserCrossbowAudioEvent(
-        PlayerStateIndexType channel) noexcept
-        : channel(channel)
+    constexpr LaserCrossbowAudioEvent(
+        PlayerStateIndexType channel,
+        dgm::UniversalReference<sf::Vector2f> auto&& position) noexcept
+        : channel(channel), position(std::forward<decltype(position)>(position))
     {
     }
 };
 
-struct LaserDartBouncedAudioEvent
+struct [[nodiscard]] LaserDartBouncedAudioEvent
 {
+    sf::Vector2f position;
+
+    constexpr LaserDartBouncedAudioEvent(
+        dgm::UniversalReference<sf::Vector2f> auto&& position) noexcept
+        : position(std::forward<decltype(position)>(position))
+    {
+    }
 };
 
-struct ExplosionTriggeredAudioEvent
+struct [[nodiscard]] ExplosionTriggeredAudioEvent
 {
     EntityType type;
+    sf::Vector2f position;
 
     [[nodiscard]] constexpr ExplosionTriggeredAudioEvent(
-        EntityType type) noexcept
-        : type(type)
+        EntityType type,
+        dgm::UniversalReference<sf::Vector2f> auto&& position) noexcept
+        : type(type), position(std::forward<decltype(position)>(position))
     {
     }
 };

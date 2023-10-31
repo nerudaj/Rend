@@ -25,7 +25,8 @@ public:
     void playSoundOnChannel(
         const std::string& soundName,
         const std::size_t channel,
-        const bool force = false);
+        const bool force = false,
+        const sf::Vector2f& position = sf::Vector2f(0.f, 0.f));
 
     void stopChannel(const std::size_t channel);
 

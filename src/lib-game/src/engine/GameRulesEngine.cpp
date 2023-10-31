@@ -562,7 +562,8 @@ void GameRulesEngine::firePellets(
                     hit, SHELL_DAMAGE, inventoryIdx));
         });
 
-    EventQueue::add<ShotgunFiredAudioEvent>(inventoryIdx);
+    EventQueue::add<ShotgunFiredAudioEvent>(
+        ShotgunFiredAudioEvent(inventoryIdx, position.value));
 }
 
 void GameRulesEngine::fireBullet(
@@ -578,7 +579,8 @@ void GameRulesEngine::fireBullet(
     EventQueue::add<HitscanProjectileFiredGameEvent>(
         HitscanProjectileFiredGameEvent(
             hit, TRISHOT_BULLET_DAMAGE, inventoryIdx));
-    EventQueue::add<BulletFiredAudioEvent>(inventoryIdx);
+    EventQueue::add<BulletFiredAudioEvent>(
+        BulletFiredAudioEvent(inventoryIdx, position.value));
 }
 
 void GameRulesEngine::fireLaserDart(
@@ -594,7 +596,8 @@ void GameRulesEngine::fireLaserDart(
         position.value,
         direction.value,
         inventoryIdx));
-    EventQueue::add<LaserCrossbowAudioEvent>(inventoryIdx);
+    EventQueue::add<LaserCrossbowAudioEvent>(
+        LaserCrossbowAudioEvent(inventoryIdx, position.value));
 }
 
 void GameRulesEngine::fireRocket(
@@ -610,7 +613,8 @@ void GameRulesEngine::fireRocket(
         position.value,
         direction.value,
         inventoryIdx));
-    EventQueue::add<RocketFiredAudioEvent>(inventoryIdx);
+    EventQueue::add<RocketFiredAudioEvent>(
+        RocketFiredAudioEvent(inventoryIdx, position.value));
 }
 
 void GameRulesEngine::fireHarpoon(

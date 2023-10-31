@@ -58,7 +58,7 @@ void PhysicsEngine::handleProjectile(
                 thing.direction.x *= forward.x == 0.f ? -1.f : 1.f;
                 thing.direction.y *= forward.y == 0.f ? -1.f : 1.f;
                 EventQueue::add<LaserDartBouncedAudioEvent>(
-                    LaserDartBouncedAudioEvent {});
+                    LaserDartBouncedAudioEvent(thing.hitbox.getPosition()));
                 return false;
             }
             return true;
@@ -83,6 +83,7 @@ void PhysicsEngine::handleProjectile(
     {
         EventQueue::add<ProjectileDestroyedGameEvent>(id);
         EventQueue::add<ExplosionTriggeredAudioEvent>(
-            ExplosionTriggeredAudioEvent(thing.typeId));
+            ExplosionTriggeredAudioEvent(
+                thing.typeId, thing.hitbox.getPosition()));
     }
 }
