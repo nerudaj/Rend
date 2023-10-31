@@ -76,6 +76,7 @@ const static inline auto ENTITY_PROPERTIES =
           EntityProperties {
               .radius = 4_px,
               .initialSpriteIndex = PlayerA0,
+              .debrisEffectType = EntityType::EffectDyingPlayer,
               .states = { { AnimationStateId::Idle,
                             AnimationState {
                                 .clip = { { PlayerA0, 10 } },
@@ -128,11 +129,19 @@ const static inline auto ENTITY_PROPERTIES =
           EntityProperties { .radius = 3_px,
                              .initialSpriteIndex = FloorLampA } },
         { EntityType::ProjectileFlare,
-          EntityProperties { .radius = 2_px, .initialSpriteIndex = FlareA0 } },
+          EntityProperties { .radius = 2_px,
+                             .initialSpriteIndex = FlareA0,
+                             .damage = 64,
+                             .debrisEffectType =
+                                 EntityType::EffectFlareExplosion } },
         { EntityType::ProjectileRocket,
           EntityProperties {
               .radius = 2_px,
               .initialSpriteIndex = RocketA0,
+              .isExplosive = true,
+              .explosionRadius = 16_px,
+              .damage = 150,
+              .debrisEffectType = EntityType::EffectRocketExplosion,
               .states = { { AnimationStateId::Idle,
                             AnimationState {
                                 .clip = { { RocketA0, 10 }, { RocketB0, 10 } },
@@ -140,7 +149,10 @@ const static inline auto ENTITY_PROPERTIES =
                                     AnimationStateId::MarkerLoop } } } } },
         { EntityType::ProjectileLaserDart,
           EntityProperties { .radius = 2_px,
-                             .initialSpriteIndex = LaserDartA0 } },
+                             .initialSpriteIndex = LaserDartA0,
+                             .damage = 96,
+                             .debrisEffectType =
+                                 EntityType::EffectDartExplosion } },
         {
             EntityType::WeaponShotgun,
             EntityProperties {

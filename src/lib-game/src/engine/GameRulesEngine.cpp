@@ -1,5 +1,6 @@
 #include "engine/GameRulesEngine.hpp"
 #include "events/EventQueue.hpp"
+#include <core/EntityDefinitions.hpp>
 #include <core/EntityTraits.hpp>
 #include <utils/GameLogicHelpers.hpp>
 #include <utils/SceneBuilder.hpp>
@@ -28,44 +29,38 @@ void GameRulesEngine::operator()(const ProjectileCreatedGameEvent& e)
 
 void GameRulesEngine::operator()(const ProjectileDestroyedGameEvent& e)
 {
-    // TODO: do this only for some projectiles
-    const auto&& explosionHitbox =
-        dgm::Circle(scene.things[e.entityIndex].hitbox.getPosition(), 8_px);
+    const auto& projectile = scene.things[e.entityIndex];
+    const auto& DEF = ENTITY_PROPERTIES.at(projectile.typeId);
+    const auto hitbox =
+        DEF.isExplosive
+            ? dgm::Circle(projectile.hitbox.getPosition(), DEF.explosionRadius)
+            : projectile.hitbox;
 
     // Damage all destructibles in vicinity
-    for (auto&& [candidateId, candidate] :
-         getOverlapCandidates(explosionHitbox))
+    for (auto&& [candidateId, candidate] : getOverlapCandidates(hitbox))
     {
         if (isDestructible(candidate.typeId)
-            && dgm::Collision::basic(explosionHitbox, candidate.hitbox))
+            && dgm::Collision::basic(hitbox, candidate.hitbox))
         {
+            const int damageAmount = DEF.isExplosive ? static_cast<int>(
+                                         DEF.damage
+                                         / std::pow(
+                                             getNormalizedDistanceToEpicenter(
+                                                 candidate.hitbox, hitbox),
+                                             2.f))
+                                                     : DEF.damage;
+            assert(damageAmount > 0);
+
             damage(
                 candidate,
                 candidateId,
-                ROCKET_DAMAGE,
+                damageAmount,
                 scene.things[e.entityIndex].stateIdx);
         }
     }
 
     // Delete projectile
     removeEntity(e.entityIndex);
-
-    // Spawn explosion effect
-    auto type = scene.things[e.entityIndex].typeId;
-    if (type == EntityType::ProjectileLaserDart)
-    {
-        scene.things.emplaceBack(SceneBuilder::createEffect(
-            EntityType::EffectDartExplosion,
-            Position { explosionHitbox.getPosition() },
-            scene.tick));
-    }
-    else if (type == EntityType::ProjectileRocket)
-    {
-        scene.things.emplaceBack(SceneBuilder::createEffect(
-            EntityType::EffectRocketExplosion,
-            Position { explosionHitbox.getPosition() },
-            scene.tick));
-    }
 }
 
 void GameRulesEngine::operator()(const EntityDestroyedGameEvent& e)
@@ -454,6 +449,7 @@ void GameRulesEngine::damage(
 void GameRulesEngine::removeEntity(std::size_t index)
 {
     const auto thing = scene.things[index];
+    const auto& DEF = ENTITY_PROPERTIES.at(thing.typeId);
     const bool playerWasDestroyed = thing.typeId == EntityType::Player;
 
 #ifdef DEBUG_REMOVALS
@@ -467,22 +463,28 @@ void GameRulesEngine::removeEntity(std::size_t index)
 
 #endif
 
+    EntityIndexType effectIdx;
+    if (DEF.debrisEffectType != EntityType::None)
+    {
+        effectIdx = scene.things.emplaceBack(SceneBuilder::createEffect(
+            DEF.debrisEffectType,
+            Position { thing.hitbox.getPosition() },
+            scene.tick));
+    }
+
     if (playerWasDestroyed)
     {
         auto& state = scene.playerStates[thing.stateIdx];
         state.inventory.ownerIdx = std::numeric_limits<EntityIndexType>::max();
         state.input.stopShooting();
-        auto idx = scene.things.emplaceBack(SceneBuilder::createEffect(
-            EntityType::EffectDyingPlayer,
-            Position { thing.hitbox.getPosition() },
-            scene.tick));
-        scene.things[idx].direction = thing.direction;
+
+        scene.things[effectIdx].direction = thing.direction;
 
         bool rebindCamera = scene.cameraAnchorIdx == index;
         scene.markers.emplaceBack(MarkerDeadPlayer {
             .rebindCamera = rebindCamera, .stateIdx = thing.stateIdx });
 
-        if (rebindCamera) scene.cameraAnchorIdx = idx;
+        if (rebindCamera) scene.cameraAnchorIdx = effectIdx;
     }
 
     scene.spatialIndex.removeFromLookup(index, thing.hitbox);

@@ -152,6 +152,7 @@ enum class SpriteId : std::uint8_t
 enum class EntityType
 {
     Error,
+    None,
     StaticDecorationBegin,
     Pillar,
     FloorLamp,
@@ -193,6 +194,7 @@ enum class EntityType
     EffectBegin,
     EffectStatic, // Does nothing, has no collisions
     EffectDyingPlayer,
+    EffectFlareExplosion,
     EffectRocketExplosion,
     EffectDartExplosion,
     EffectSpawn,

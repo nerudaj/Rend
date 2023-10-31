@@ -40,6 +40,10 @@ struct EntityProperties
 {
     float radius;
     SpriteId initialSpriteIndex;
+    bool isExplosive = false;
+    float explosionRadius = 0_px;
+    int damage = 0;
+    EntityType debrisEffectType = EntityType::None;
     EntityStates states;
 };
 
