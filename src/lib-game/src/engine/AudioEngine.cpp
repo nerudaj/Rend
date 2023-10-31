@@ -30,14 +30,26 @@ void AudioEngine::operator()(const LaserCrossbowAudioEvent& e)
 void AudioEngine::operator()(const LaserDartBouncedAudioEvent& e)
 {
     audioPlayer->playSoundOnChannel(
-        "laserdart_bounce.wav", 5, true, getRelativePosition(e.position));
+        "dart_bounce.wav", 5, true, getRelativePosition(e.position));
 }
 
 void AudioEngine::operator()(const ExplosionTriggeredAudioEvent& e)
 {
-    // TODO: play different sound for rocket, flare and dart
+    const auto soundName =
+        e.type == EntityType::ProjectileFlare       ? "flare_explosion.wav"
+        : e.type == EntityType::ProjectileLaserDart ? "dart_explosion.wav"
+                                                    : "rocket_explosion.wav";
+
     audioPlayer->playSoundOnChannel(
-        "explosion.wav", 5, true, getRelativePosition(e.position));
+        soundName, 5, true, getRelativePosition(e.position));
+}
+
+void AudioEngine::operator()(const PickablePickedUpAudioEvent& e)
+{
+    bool megaPickup = e.type == EntityType::PickupMegaHealth
+                      || e.type == EntityType::PickupMegaArmor;
+    audioPlayer->playSoundOnChannel(
+        megaPickup ? "megapickup.wav" : "pickup.wav", e.channel, true);
 }
 
 void AudioEngine::update(const float) {}

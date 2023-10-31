@@ -92,6 +92,9 @@ void AiEngine::update(const float deltaTime)
         auto& blackboard = state.blackboard.value();
 
 #ifdef DEBUG_REMOVALS
+        fsmTop.setLogging(blackboard.playerStateIdx == 0);
+        fsmAlive.setLogging(blackboard.playerStateIdx == 0);
+        fsmDead.setLogging(blackboard.playerStateIdx == 0);
         std::cout << "AiEngine::update(blackboard.contextIdx = "
                   << blackboard.playerStateIdx << ")" << std::endl;
 #endif
@@ -160,7 +163,7 @@ void AiEngine::runFsmDead(AiBlackboard& blackboard)
 bool AiEngine::shouldSwapWeapon(const AiBlackboard& blackboard) const noexcept
 {
     auto& inventory = getInventory(blackboard);
-    auto index = blackboard.playerStateIdx % 2 + 1;
+    auto index = blackboard.playerStateIdx;
     return inventory.acquiredWeapons[index]
            && weaponTypeToIndex(inventory.activeWeaponType) != index;
 }

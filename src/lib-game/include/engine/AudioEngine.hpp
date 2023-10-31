@@ -25,6 +25,7 @@ public: // Must visit on all related events
     void operator()(const LaserCrossbowAudioEvent&);
     void operator()(const LaserDartBouncedAudioEvent&);
     void operator()(const ExplosionTriggeredAudioEvent&);
+    void operator()(const PickablePickedUpAudioEvent&);
 
 public:
     void update(const float deltaTime);

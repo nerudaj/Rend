@@ -72,10 +72,22 @@ struct [[nodiscard]] ExplosionTriggeredAudioEvent
     EntityType type;
     sf::Vector2f position;
 
-    [[nodiscard]] constexpr ExplosionTriggeredAudioEvent(
+    constexpr ExplosionTriggeredAudioEvent(
         EntityType type,
         dgm::UniversalReference<sf::Vector2f> auto&& position) noexcept
         : type(type), position(std::forward<decltype(position)>(position))
+    {
+    }
+};
+
+struct [[nodiscard]] PickablePickedUpAudioEvent
+{
+    EntityType type;
+    PlayerStateIndexType channel;
+
+    constexpr PickablePickedUpAudioEvent(
+        EntityType type, PlayerStateIndexType channel) noexcept
+        : type(type), channel(channel)
     {
     }
 };
@@ -86,4 +98,5 @@ using AudioEvent = std::variant<
     RocketFiredAudioEvent,
     LaserCrossbowAudioEvent,
     LaserDartBouncedAudioEvent,
-    ExplosionTriggeredAudioEvent>;
+    ExplosionTriggeredAudioEvent,
+    PickablePickedUpAudioEvent>;

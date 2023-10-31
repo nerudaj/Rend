@@ -305,6 +305,10 @@ void GameRulesEngine::handleGrabbedPickable(
         && !isWeaponPickable(pickup.typeId))
     {
         EventQueue::add<PickablePickedUpGameEvent>(pickupId);
+
+        if (inventory.ownerIdx == scene.cameraAnchorIdx)
+            EventQueue::add<PickablePickedUpAudioEvent>(
+                PickablePickedUpAudioEvent(pickup.typeId, entity.stateIdx));
     }
 }
 
@@ -339,12 +343,12 @@ bool GameRulesEngine::give(
     switch (pickupId)
     {
     case PickupHealth:
-        if (entity.health == MAX_BASE_HEALTH) return false;
+        if (entity.health >= MAX_BASE_HEALTH) return false;
         entity.health = std::clamp(
             entity.health + MEDIKIT_HEALTH_AMOUNT, 0, MAX_BASE_HEALTH);
         break;
     case PickupArmor:
-        if (entity.armor == MAX_ARMOR) return false;
+        if (entity.armor >= MAX_ARMOR) return false;
         entity.armor =
             std::clamp(entity.armor + ARMORSHARD_ARMOR_AMOUNT, 0, MAX_ARMOR);
         break;
