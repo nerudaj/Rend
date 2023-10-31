@@ -80,7 +80,7 @@ void AppStateGameSetup::buildLayoutImpl()
                 [this](const tgui::String& newValue)
                 {
                     if (newValue.empty()) return;
-                    fraglimit = std::stoul(std::string(newValue));
+                    fraglimit = std::stoi(std::string(newValue));
                 },
                 std::to_string(fraglimit),
                 WidgetCreator::getNumericValidator()))

@@ -22,6 +22,20 @@ const static inline auto ENTITY_PROPERTIES =
                                           { DeathD, 600 } },
                                 .transition =
                                     AnimationStateId::MarkerDestroy } } } } },
+        { EntityType::EffectFlareExplosion,
+          EntityProperties {
+              .radius = 8_px,
+              .initialSpriteIndex = FlareExplosionA,
+              .states = { { AnimationStateId::Idle,
+                            AnimationState {
+                                .clip = { { FlareExplosionA, 7 },
+                                          { FlareExplosionB, 7 },
+                                          { FlareExplosionC, 7 },
+                                          { FlareExplosionD, 7 },
+                                          { FlareExplosionE, 7 },
+                                          { FlareExplosionF, 300 } },
+                                .transition =
+                                    AnimationStateId::MarkerDestroy } } } } },
         { EntityType::EffectRocketExplosion,
           EntityProperties {
               .radius = 8_px,
