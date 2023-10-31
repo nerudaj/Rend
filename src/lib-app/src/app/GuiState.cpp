@@ -4,7 +4,7 @@
 tgui::Label::Ptr GuiState::createWindowTitle(
     tgui::Layout2d position, tgui::Layout2d size, const std::string& text)
 {
-    tgui::Label::Ptr label = tgui::Label::create(text);
+    auto label = tgui::Label::create(text);
     label->setAutoSize(true);
     label->setSize(size);
     label->setPosition(position);

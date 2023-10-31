@@ -91,6 +91,7 @@ struct PlayerInventory
     AmmoCounterType energyCount = 0;
     AmmoCounterType rocketCount = 0;
     AcquitedWeaponsArray acquiredWeapons;
+    int score = 0;
 };
 
 struct AiBlackboard

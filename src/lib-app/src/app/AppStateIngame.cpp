@@ -1,5 +1,6 @@
 #include "app/AppStateIngame.hpp"
 #include "app/AppStatePaused.hpp"
+#include "app/AppStateWinnerAnnounced.hpp"
 #include <events/EventQueue.hpp>
 #include <input/NullController.hpp>
 #include <input/PhysicalController.hpp>
@@ -136,7 +137,14 @@ void AppStateIngame::evaluateWinCondition()
     {
         if (inventory.score >= gameSettings.fraglimit)
         {
-            app.popState();
+            app.pushState<AppStateWinnerAnnounced>(
+                gui,
+                audioPlayer,
+                gameSettings,
+                scene.playerStates
+                    | std::views::transform([](const PlayerState& state)
+                                            { return state.inventory.score; })
+                    | std::ranges::to<std::vector<int>>());
         }
     }
 }
