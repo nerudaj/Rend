@@ -15,6 +15,7 @@ AppStateGameSetup::AppStateGameSetup(
     , gui(gui)
     , settings(settings)
     , audioPlayer(audioPlayer)
+    , fraglimit(settings->cmdSettings.fraglimit)
     , playerCount(settings->cmdSettings.playerCount)
     , mapname(settings->cmdSettings.mapname)
 {
@@ -25,8 +26,8 @@ void AppStateGameSetup::input()
 {
     if (settings->cmdSettings.skipMainMenu)
     {
-        startGame();
         settings->cmdSettings.skipMainMenu = true;
+        startGame();
     }
 
     sf::Event event;

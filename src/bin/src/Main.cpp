@@ -19,7 +19,8 @@ CmdSettings processCmdParameters(int argc, char* argv[])
         ("m,map", "Map name", cxxopts::value<std::string>())
     ("d,demofile", "Path to demo file", cxxopts::value<std::string>())
         ("p,play-demo", "Whether to replay demo file")
-        ("c,count", "Number of players (1-4)", cxxopts::value<unsigned>());
+        ("c,count", "Number of players (1-4)", cxxopts::value<unsigned>())
+        ("l,limit", "Fraglimit", cxxopts::value<unsigned>());
     // clang-format on
     auto args = options.parse(argc, argv);
 
@@ -36,6 +37,8 @@ CmdSettings processCmdParameters(int argc, char* argv[])
         result.playDemo = args["play-demo"].as<bool>();
     if (args.count("count") > 0)
         result.playerCount = args["count"].as<unsigned>();
+    if (args.count("limit") > 0)
+        result.fraglimit = args["limit"].as<unsigned>();
 
     return result;
 }

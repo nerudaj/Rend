@@ -13,4 +13,5 @@ struct CmdSettings
     std::filesystem::path demoFile = "demo.txt";
     bool playDemo = false;
     unsigned playerCount = 4;
+    unsigned fraglimit = 15;
 };

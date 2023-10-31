@@ -59,7 +59,7 @@ private:
     mem::Rc<tgui::Gui> gui;
     mem::Rc<Settings> settings;
     mem::Rc<AudioPlayer> audioPlayer;
-    unsigned fraglimit = 15;
-    unsigned playerCount = 2;
-    std::string mapname = "";
+    unsigned fraglimit;
+    unsigned playerCount;
+    std::string mapname;
 };
