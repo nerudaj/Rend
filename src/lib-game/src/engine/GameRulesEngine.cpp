@@ -22,7 +22,8 @@ void GameRulesEngine::operator()(const ProjectileCreatedGameEvent& e)
         e.type,
         Position { e.position },
         Direction { e.direction },
-        scene.tick));
+        scene.tick,
+        e.originatorStateIdx));
 }
 
 void GameRulesEngine::operator()(const ProjectileDestroyedGameEvent& e)
@@ -31,9 +32,6 @@ void GameRulesEngine::operator()(const ProjectileDestroyedGameEvent& e)
     const auto&& explosionHitbox =
         dgm::Circle(scene.things[e.entityIndex].hitbox.getPosition(), 8_px);
 
-    // Delete projectile
-    removeEntity(e.entityIndex);
-
     // Damage all destructibles in vicinity
     for (auto&& [candidateId, candidate] :
          getOverlapCandidates(explosionHitbox))
@@ -41,9 +39,16 @@ void GameRulesEngine::operator()(const ProjectileDestroyedGameEvent& e)
         if (isDestructible(candidate.typeId)
             && dgm::Collision::basic(explosionHitbox, candidate.hitbox))
         {
-            damage(candidate, candidateId, ROCKET_DAMAGE);
+            damage(
+                candidate,
+                candidateId,
+                ROCKET_DAMAGE,
+                scene.things[e.entityIndex].stateIdx);
         }
     }
+
+    // Delete projectile
+    removeEntity(e.entityIndex);
 
     // Spawn explosion effect
     auto type = scene.things[e.entityIndex].typeId;
@@ -79,8 +84,9 @@ void GameRulesEngine::operator()(const PlayerRespawnedGameEvent& e)
         Position { spawnPosition },
         Direction { spawnDirection },
         marker.stateIdx));
-    scene.playerStates[scene.things[idx].stateIdx].inventory =
-        SceneBuilder::getDefaultInventory(idx);
+
+    auto& inventory = scene.playerStates[scene.things[idx].stateIdx].inventory;
+    inventory = SceneBuilder::getDefaultInventory(idx, inventory.score);
 
 #ifdef DEBUG_REMOVALS
     std::cout << std::format(
@@ -118,7 +124,8 @@ void GameRulesEngine::operator()(const HitscanProjectileFiredGameEvent& e)
     damage(
         scene.things[e.hit.impactedEntityIdx.value()],
         e.hit.impactedEntityIdx.value(),
-        e.damage);
+        e.damage,
+        e.originatorStateIdx);
 }
 
 void GameRulesEngine::operator()(ScriptTriggeredGameEvent e)
@@ -198,11 +205,6 @@ void GameRulesEngine::update(const float deltaTime)
             break;
         default:
             break;
-        }
-
-        if (isDestructible(thing.typeId) && thing.health <= 0)
-        {
-            removeEntity(id);
         }
     }
 
@@ -421,8 +423,14 @@ bool GameRulesEngine::give(
     return true;
 }
 
-void GameRulesEngine::damage(Entity& thing, std::size_t idx, int damage)
+void GameRulesEngine::damage(
+    Entity& thing,
+    std::size_t idx,
+    int damage,
+    PlayerStateIndexType originatorStateIdx)
 {
+    if (thing.health <= 0) return;
+
     // TODO: max 2/3 of armor above 100?
     // Max 1/3 of the damage can be absorbed by the armor
     int amountAbsorbedByArmor = std::min(thing.armor, damage / 3);
@@ -431,6 +439,14 @@ void GameRulesEngine::damage(Entity& thing, std::size_t idx, int damage)
 
     thing.health -= damage;
     if (idx == scene.cameraAnchorIdx) scene.redOverlayIntensity = 128.f;
+
+    if (thing.health <= 0)
+    {
+        auto& inventory = scene.playerStates[originatorStateIdx].inventory;
+        // decrement score if killing myself
+        inventory.score += idx == inventory.ownerIdx ? -1 : 1;
+        removeEntity(idx);
+    }
 }
 
 #pragma region Helpers
@@ -516,7 +532,10 @@ void GameRulesEngine::fireFlare(
     assert(inventory.rocketCount);
     --inventory.rocketCount;
     EventQueue::add<ProjectileCreatedGameEvent>(ProjectileCreatedGameEvent(
-        EntityType::ProjectileFlare, position.value, direction.value));
+        EntityType::ProjectileFlare,
+        position.value,
+        direction.value,
+        inventoryIdx));
     // TODO: EventQueue::add<RocketFiredAudioEvent>(inventoryIdx);
 }
 
@@ -539,7 +558,8 @@ void GameRulesEngine::firePellets(
             auto hit = hitscanner.hitscan(
                 position, Direction { hitscanDir }, playerIdx);
             EventQueue::add<HitscanProjectileFiredGameEvent>(
-                HitscanProjectileFiredGameEvent(hit, SHELL_DAMAGE));
+                HitscanProjectileFiredGameEvent(
+                    hit, SHELL_DAMAGE, inventoryIdx));
         });
 
     EventQueue::add<ShotgunFiredAudioEvent>(inventoryIdx);
@@ -556,7 +576,8 @@ void GameRulesEngine::fireBullet(
     --inventory.bulletCount;
     auto hit = hitscanner.hitscan(position, direction, playerIdx);
     EventQueue::add<HitscanProjectileFiredGameEvent>(
-        HitscanProjectileFiredGameEvent(hit, TRISHOT_BULLET_DAMAGE));
+        HitscanProjectileFiredGameEvent(
+            hit, TRISHOT_BULLET_DAMAGE, inventoryIdx));
     EventQueue::add<BulletFiredAudioEvent>(inventoryIdx);
 }
 
@@ -569,7 +590,10 @@ void GameRulesEngine::fireLaserDart(
     assert(inventory.energyCount);
     --inventory.energyCount;
     EventQueue::add<ProjectileCreatedGameEvent>(ProjectileCreatedGameEvent(
-        EntityType::ProjectileLaserDart, position.value, direction.value));
+        EntityType::ProjectileLaserDart,
+        position.value,
+        direction.value,
+        inventoryIdx));
     EventQueue::add<LaserCrossbowAudioEvent>(inventoryIdx);
 }
 
@@ -582,7 +606,10 @@ void GameRulesEngine::fireRocket(
     assert(inventory.rocketCount);
     --inventory.rocketCount;
     EventQueue::add<ProjectileCreatedGameEvent>(ProjectileCreatedGameEvent(
-        EntityType::ProjectileRocket, position.value, direction.value));
+        EntityType::ProjectileRocket,
+        position.value,
+        direction.value,
+        inventoryIdx));
     EventQueue::add<RocketFiredAudioEvent>(inventoryIdx);
 }
 

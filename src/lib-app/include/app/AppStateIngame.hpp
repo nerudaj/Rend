@@ -64,6 +64,7 @@ private:
 
     void snapshotInputs(FrameState& state);
     void simulateFrameFromState(const FrameState& state, bool skipAudio);
+    void evaluateWinCondition();
     void restoreState(const FrameState& state);
     void updateEngines();
     void processEvents(bool skipAudio);
@@ -72,12 +73,13 @@ private:
     void lockMouse();
     void unlockMouse();
 
-    void createPlayers(const GameSettings& settings);
+    void createPlayers();
 
 protected:
     mem::Rc<const dgm::ResourceManager> resmgr;
     mem::Rc<tgui::Gui> gui;
     mem::Rc<Settings> settings;
+    GameSettings gameSettings;
     mem::Rc<AudioPlayer> audioPlayer;
 
     const sf::Vector2f GAME_RESOLUTION;

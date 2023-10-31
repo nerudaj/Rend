@@ -20,13 +20,14 @@ public:
         PlayerStateIndexType stateIdx) noexcept;
 
     [[nodiscard]] static PlayerInventory
-    getDefaultInventory(EntityIndexType ownerIdx) noexcept;
+    getDefaultInventory(EntityIndexType ownerIdx, int score) noexcept;
 
     [[nodiscard]] static Entity createProjectile(
         EntityType type,
         const Position& position,
         const Direction& direction,
-        std::size_t tick) noexcept;
+        std::size_t tick,
+        PlayerStateIndexType originatorStateIdx) noexcept;
 
     [[nodiscard]] static Entity createEffect(
         EntityType type, const Position& position, std::size_t frameIdx);

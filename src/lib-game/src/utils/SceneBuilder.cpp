@@ -147,7 +147,7 @@ Entity SceneBuilder::createPlayer(
 }
 
 PlayerInventory
-SceneBuilder::getDefaultInventory(EntityIndexType ownerIdx) noexcept
+SceneBuilder::getDefaultInventory(EntityIndexType ownerIdx, int score) noexcept
 {
     return PlayerInventory {
         .ownerIdx = ownerIdx,
@@ -159,7 +159,8 @@ SceneBuilder::getDefaultInventory(EntityIndexType ownerIdx) noexcept
         .shellCount = PLAYER_INITIAL_NONBULLET_AMMO,
         .energyCount = PLAYER_INITIAL_NONBULLET_AMMO,
         .rocketCount = PLAYER_INITIAL_NONBULLET_AMMO,
-        .acquiredWeapons = 0b0000000000000001
+        .acquiredWeapons = 0b0000000000000001,
+        .score = score
     };
 }
 
@@ -167,17 +168,18 @@ Entity SceneBuilder::createProjectile(
     EntityType type,
     const Position& position,
     const Direction& direction,
-    std::size_t frameIdx) noexcept
+    std::size_t frameIdx,
+    PlayerStateIndexType originatorStateIdx) noexcept
 {
     const auto& eprops = ENTITY_PROPERTIES.at(type);
-    return Entity {
-        .typeId = type,
-        .animationContext { .spriteClipIndex = eprops.initialSpriteIndex,
-                            .lastAnimationUpdate = frameIdx },
-        .hitbox = dgm::Circle(position.value, eprops.radius),
-        .direction = direction.value,
-        .health = 100,
-    };
+    return Entity { .typeId = type,
+                    .animationContext { .spriteClipIndex =
+                                            eprops.initialSpriteIndex,
+                                        .lastAnimationUpdate = frameIdx },
+                    .hitbox = dgm::Circle(position.value, eprops.radius),
+                    .direction = direction.value,
+                    .stateIdx = originatorStateIdx,
+                    .health = 100 };
 }
 
 Entity SceneBuilder::createEffect(

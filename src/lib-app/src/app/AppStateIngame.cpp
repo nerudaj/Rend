@@ -69,6 +69,8 @@ void AppStateIngame::update()
     { // nothing was simulated, nothing was backed up yet
         backupState(stateBuffer.last());
     }
+
+    evaluateWinCondition();
 }
 
 void AppStateIngame::draw()
@@ -126,6 +128,17 @@ void AppStateIngame::restoreState(const FrameState& state)
     scene.spatialIndex.clear();
     for (auto&& [thing, id] : scene.things)
         scene.spatialIndex.returnToLookup(id, thing.hitbox);
+}
+
+void AppStateIngame::evaluateWinCondition()
+{
+    for (auto&& [_, inventory, __] : scene.playerStates)
+    {
+        if (inventory.score >= gameSettings.fraglimit)
+        {
+            app.popState();
+        }
+    }
 }
 
 void AppStateIngame::updateEngines()
@@ -209,6 +222,7 @@ AppStateIngame::AppStateIngame(
     , resmgr(_resmgr)
     , gui(_gui)
     , settings(_settings)
+    , gameSettings(gameSettings)
     , audioPlayer(_audioPlayer)
     , GAME_RESOLUTION(sf::Vector2f(app.window.getSize()))
     , inputs(createInputs(_app.window.getWindowContext(), gameSettings))
@@ -225,7 +239,7 @@ AppStateIngame::AppStateIngame(
                                          : DemoFileMode::Write)
 {
     lockMouse();
-    createPlayers(gameSettings);
+    createPlayers();
 }
 
 void AppStateIngame::lockMouse()
@@ -241,7 +255,7 @@ void AppStateIngame::unlockMouse()
     app.window.getWindowContext().setMouseCursorGrabbed(false);
 }
 
-void AppStateIngame::createPlayers(const GameSettings& gameSettings)
+void AppStateIngame::createPlayers()
 {
     for (PlayerStateIndexType i = 0; i < gameSettings.players.size(); ++i)
     {
@@ -252,7 +266,7 @@ void AppStateIngame::createPlayers(const GameSettings& gameSettings)
             i));
         scene.playerStates.push_back(PlayerState {});
         scene.playerStates.back().inventory =
-            SceneBuilder::getDefaultInventory(idx);
+            SceneBuilder::getDefaultInventory(idx, 0);
 
         if (gameSettings.players[i].bindCamera) scene.cameraAnchorIdx = idx;
         if (gameSettings.players[i].kind == PlayerKind::LocalNpc)

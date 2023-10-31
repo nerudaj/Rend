@@ -317,14 +317,15 @@ void RenderingEngine::renderAlivePlayerHud(
     window.draw(context.weaponSprite);
 
     context.text.setString(std::format(
-        "h: {} a: {} w: {}\nb: {} s: {} r: {} e: {}",
+        "h: {} a: {}\nw: {}\nb: {} s: {} r: {} e: {}\ns: {}",
         player.health,
         player.armor,
         inventory.acquiredWeapons.to_string(),
         inventory.bulletCount,
         inventory.shellCount,
         inventory.rocketCount,
-        inventory.energyCount));
+        inventory.energyCount,
+        inventory.score));
     const auto textBounds = context.text.getGlobalBounds();
     context.text.setPosition(10.f, settings.HEIGHT - textBounds.height - 10.f);
 

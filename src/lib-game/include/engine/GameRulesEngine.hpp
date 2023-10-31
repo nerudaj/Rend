@@ -61,7 +61,11 @@ private:
     [[nodiscard]] bool
     give(Entity& entity, PlayerInventory& inventory, EntityType pickupId);
 
-    void damage(Entity& thing, std::size_t thingIndex, int damage);
+    void damage(
+        Entity& thing,
+        std::size_t thingIndex,
+        int damage,
+        PlayerStateIndexType originatorStateIdx);
 
     auto getOverlapCandidates(const dgm::Circle& hitbox)
     {

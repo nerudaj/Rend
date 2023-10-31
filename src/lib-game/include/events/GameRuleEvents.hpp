@@ -20,12 +20,17 @@ struct ProjectileCreatedGameEvent
     EntityType type;
     sf::Vector2f position;
     sf::Vector2f direction;
+    PlayerStateIndexType originatorStateIdx;
 
     [[nodiscard]] ProjectileCreatedGameEvent(
         EntityType type,
         const sf::Vector2f& position,
-        const sf::Vector2f& direction) noexcept
-        : type(type), position(position), direction(direction)
+        const sf::Vector2f& direction,
+        PlayerStateIndexType originatorStateIdx) noexcept
+        : type(type)
+        , position(position)
+        , direction(direction)
+        , originatorStateIdx(originatorStateIdx)
     {
     }
 };
@@ -94,10 +99,13 @@ struct HitscanProjectileFiredGameEvent
 {
     HitscanResult hit;
     int damage;
+    PlayerStateIndexType originatorStateIdx;
 
     [[nodiscard]] HitscanProjectileFiredGameEvent(
-        HitscanResult hit, int damage) noexcept
-        : hit(hit), damage(damage)
+        HitscanResult hit,
+        int damage,
+        PlayerStateIndexType originatorStateIdx) noexcept
+        : hit(hit), damage(damage), originatorStateIdx(originatorStateIdx)
     {
     }
 };
