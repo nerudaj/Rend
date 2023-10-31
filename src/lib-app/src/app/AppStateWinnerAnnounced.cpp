@@ -1,9 +1,26 @@
+#include <app/AppStateScoreTable.hpp>
 #include <app/AppStateWinnerAnnounced.hpp>
+
+void AppStateWinnerAnnounced::input()
+{
+    sf::Event event;
+    while (app.window.pollEvent(event))
+    {
+        if (event.type == sf::Event::Closed)
+        {
+            app.exit();
+        }
+    }
+}
 
 void AppStateWinnerAnnounced::update()
 {
     transitionTimeout -= app.time.getDeltaTime();
-    if (transitionTimeout <= 0.f) app.popState(3);
+    if (transitionTimeout <= 0.f)
+    {
+        app.pushState<AppStateScoreTable>(
+            gui, audioPlayer, gameSettings, scores);
+    }
 }
 
 void AppStateWinnerAnnounced::buildLayoutImpl()

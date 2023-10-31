@@ -32,12 +32,22 @@ protected:
 
     [[nodiscard]] tgui::Label::Ptr createH2Title(const std::string& text);
 
+    [[nodiscard]] static tgui::Layout2d getCommonLayoutSize(unsigned rowCount)
+    {
+        return tgui::Layout2d(
+            "60%", tgui::String { std::to_string(5 * rowCount) + "%" });
+    }
+
+    [[nodiscard]] static tgui::Layout2d getCommonLayoutPosition()
+    {
+        return { "20%", "35%" };
+    }
+
     [[nodiscard]] GuiOptionsBuilder
     getCommonLayoutBuilder(unsigned rowCount) const
     {
-        const auto size = tgui::Layout2d(
-            "60%", tgui::String { std::to_string(5 * rowCount) + "%" });
-        return GuiOptionsBuilder(gui, { "20%", "35%" }, { size });
+        return GuiOptionsBuilder(
+            gui, getCommonLayoutPosition(), getCommonLayoutSize(rowCount));
     }
 
     // Creates a button that can be later retrieved from gui using id
@@ -48,10 +58,10 @@ protected:
         tgui::Layout2d size,
         std::function<void(void)> onClick);
 
-    [[nodiscard]] tgui::Button::Ptr
-    createBackButton(std::function<void(void)> callback)
+    [[nodiscard]] tgui::Button::Ptr createBackButton(
+        std::function<void(void)> callback, const std::string& label = "back")
     {
-        return createButton("back", { "1%", "94%" }, { "15%", "5%" }, callback);
+        return createButton(label, { "1%", "94%" }, { "15%", "5%" }, callback);
     }
 
     /**

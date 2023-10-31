@@ -137,6 +137,7 @@ void AppStateIngame::evaluateWinCondition()
     {
         if (inventory.score >= gameSettings.fraglimit)
         {
+            unlockMouse();
             app.pushState<AppStateWinnerAnnounced>(
                 gui,
                 audioPlayer,

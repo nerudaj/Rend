@@ -10,12 +10,12 @@ import Memory;
 #include <TGUI/Backend/SFML-Graphics.hpp>
 #include <TGUI/TGUI.hpp>
 
-class [[nodiscard]] AppStateWinnerAnnounced final
+class [[nodiscard]] AppStateScoreTable final
     : public dgm::AppState
     , public GuiState
 {
 public:
-    AppStateWinnerAnnounced(
+    AppStateScoreTable(
         dgm::App& app,
         mem::Rc<tgui::Gui> gui,
         mem::Rc<AudioPlayer> audioPlayer,
@@ -33,7 +33,7 @@ public:
 public:
     void input() override;
 
-    void update() override;
+    void update() override {}
 
     void draw() override
     {
@@ -42,7 +42,12 @@ public:
 
     [[nodiscard]] bool isTransparent() const noexcept override
     {
-        return true;
+        return false;
+    }
+
+    [[nodiscard]] sf::Color getClearColor() const override
+    {
+        return sf::Color::White;
     }
 
 private:
@@ -52,5 +57,5 @@ private:
     mem::Rc<tgui::Gui> gui;
     GameSettings gameSettings;
     std::vector<int> scores;
-    float transitionTimeout = 3.f; // seconds
+    float transitionTimeout = 4.f; // seconds
 };
