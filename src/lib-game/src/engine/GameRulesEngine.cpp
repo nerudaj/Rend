@@ -1,6 +1,7 @@
 #include "engine/GameRulesEngine.hpp"
 #include "events/EventQueue.hpp"
 #include <core/EntityTraits.hpp>
+#include <utils/GameLogicHelpers.hpp>
 #include <utils/SceneBuilder.hpp>
 
 #pragma region EventHandling
@@ -312,24 +313,8 @@ void GameRulesEngine::handleGrabbedPickable(
 
 bool GameRulesEngine::canFireActiveWeapon(PlayerInventory& inventory) noexcept
 {
-    switch (inventory.activeWeaponType)
-    {
-        using enum EntityType;
-    case WeaponFlaregun:
-        return inventory.rocketCount > 0;
-    case WeaponShotgun:
-        return inventory.shellCount > 0;
-    case WeaponTrishot:
-        return inventory.bulletCount > 2;
-    case WeaponCrossbow:
-        return inventory.energyCount > 0;
-    case WeaponLauncher:
-        return inventory.rocketCount > 0;
-    case WeaponBallista:
-        return inventory.bulletCount > 0;
-    }
-
-    return false;
+    return getAmmoCountForActiveWeapon(inventory)
+           >= getMinimumAmmoNeededToFireWeapon(inventory.activeWeaponType);
 }
 
 void GameRulesEngine::swapToPreviousWeapon(

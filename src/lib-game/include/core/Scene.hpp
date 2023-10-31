@@ -86,10 +86,10 @@ struct PlayerInventory
     EntityIndexType ownerIdx;
     EntityType activeWeaponType;
     AnimationContext animationContext;
-    int bulletCount = 0;
-    int shellCount = 0;
-    int energyCount = 0;
-    int rocketCount = 0;
+    AmmoCounterType bulletCount = 0;
+    AmmoCounterType shellCount = 0;
+    AmmoCounterType energyCount = 0;
+    AmmoCounterType rocketCount = 0;
     AcquitedWeaponsArray acquiredWeapons;
 };
 
