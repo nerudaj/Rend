@@ -20,16 +20,11 @@ std::string getWindowResolutionAsString(const dgm::Window& window)
 
 void AppStateMenuOptions::buildLayoutImpl()
 {
-    auto title =
-        createWindowTitle({ "0%", "5%" }, { "100%", "25%" }, "options");
-    title->setHorizontalAlignment(tgui::Label::HorizontalAlignment::Center);
-    title->setTextSize(72);
-    gui->add(title);
+    gui->add(createH2Title("options"));
 
-    GuiOptionsBuilder builder(gui, { "20%", "35%" }, { "60%", "20%" });
-    builder
+    getCommonLayoutBuilder(4)
         .addOption(
-            "toggle fullscreen",
+            "fullscreen",
             "CheckboxFullscreen",
             WidgetCreator::createCheckbox(
                 app.window.isFullscreen(),
@@ -78,11 +73,7 @@ void AppStateMenuOptions::buildLayoutImpl()
                 }))
         .build();
 
-    createButton(
-        "back",
-        { "84%", "94%" },
-        { "15%", "5%" },
-        [this]() { app.popState(); });
+    gui->add(createBackButton([this] { app.popState(); }));
 }
 
 void AppStateMenuOptions::input()

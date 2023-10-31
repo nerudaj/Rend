@@ -55,8 +55,7 @@ public:
     }
 
 private:
-    void startGame();
-    std::vector<PlayerSettings> createPlayerSettings(unsigned playerCount);
+    void goToGameSetup();
 
 private:
     mem::Rc<Settings> settings;

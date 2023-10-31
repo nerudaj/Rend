@@ -38,6 +38,8 @@ endif()
 install (
 	DIRECTORY   "resources"
 	DESTINATION "."
+	# TODO: This doesn't work
+	# FILES_MATCHING PATTERN "xcf" EXCLUDE
 )
 
 if ( ${IS_NIGHTBUILD} )

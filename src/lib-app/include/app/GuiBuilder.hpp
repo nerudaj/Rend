@@ -10,18 +10,31 @@ class WidgetCreator
 public:
     static [[nodiscard]] tgui::Label::Ptr
     createLabel(const std::string& text, unsigned fontSize);
+
     static [[nodiscard]] tgui::CheckBox::Ptr
     createCheckbox(bool checked, std::function<void(bool)> onChange);
+
     static [[nodiscard]] tgui::Slider::Ptr createSlider(
         float value,
         std::function<void(void)> onChange,
         float lo = 0.f,
         float hi = 100.f,
         float step = 1.f);
+
     static [[nodiscard]] tgui::ComboBox::Ptr createDropdown(
         const std::vector<std::string>& items,
         const std::string& selected,
         std::function<void(void)> onSelect);
+
+    static [[nodiscard]] tgui::EditBox::Ptr createTextInput(
+        std::function<void(tgui::String)> onChange,
+        const std::string& initialValue = "",
+        const std::string& regexValidator = "");
+
+    static [[nodiscard]] constexpr std::string getNumericValidator() noexcept
+    {
+        return "[1-9][0-9]*";
+    }
 };
 
 class GuiOptionsBuilder final

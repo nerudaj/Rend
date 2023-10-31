@@ -13,7 +13,23 @@ tgui::Label::Ptr GuiState::createWindowTitle(
     return label;
 }
 
-void GuiState::createButton(
+tgui::Label::Ptr GuiState::createH1Title(const std::string& text)
+{
+    auto title = createWindowTitle({ "0%", "5%" }, { "100%", "25%" }, text);
+    title->setHorizontalAlignment(tgui::Label::HorizontalAlignment::Center);
+    title->setTextSize(72);
+    return title;
+}
+
+tgui::Label::Ptr GuiState::createH2Title(const std::string& text)
+{
+    auto title = createWindowTitle({ "0%", "5%" }, { "100%", "25%" }, text);
+    title->setHorizontalAlignment(tgui::Label::HorizontalAlignment::Center);
+    title->setTextSize(64);
+    return title;
+}
+
+tgui::Button::Ptr GuiState::createButton(
     const std::string& label,
     tgui::Layout2d position,
     tgui::Layout2d size,
@@ -28,7 +44,7 @@ void GuiState::createButton(
             audioPlayer->playSoundOnChannel("click.wav", 0);
             onClick();
         });
-    gui->add(button, "Button" + label);
+    return button;
 }
 
 void GuiState::createButtonListInLayout(

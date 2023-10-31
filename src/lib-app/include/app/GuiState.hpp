@@ -1,5 +1,6 @@
 #pragma once
 
+#include "GuiBuilder.hpp"
 #include "audio/AudioPlayer.hpp"
 #include <DGM/dgm.hpp>
 #include <TGUI/Backend/SFML-Graphics.hpp>
@@ -24,16 +25,34 @@ protected:
     }
 
 protected:
-    tgui::Label::Ptr createWindowTitle(
+    [[nodiscard]] tgui::Label::Ptr createWindowTitle(
         tgui::Layout2d position, tgui::Layout2d size, const std::string& text);
+
+    [[nodiscard]] tgui::Label::Ptr createH1Title(const std::string& text);
+
+    [[nodiscard]] tgui::Label::Ptr createH2Title(const std::string& text);
+
+    [[nodiscard]] GuiOptionsBuilder
+    getCommonLayoutBuilder(unsigned rowCount) const
+    {
+        const auto size = tgui::Layout2d(
+            "60%", tgui::String { std::to_string(5 * rowCount) + "%" });
+        return GuiOptionsBuilder(gui, { "20%", "35%" }, { size });
+    }
 
     // Creates a button that can be later retrieved from gui using id
     // std::string("Button" + label)
-    void createButton(
+    [[nodiscard]] tgui::Button::Ptr createButton(
         const std::string& label,
         tgui::Layout2d position,
         tgui::Layout2d size,
         std::function<void(void)> onClick);
+
+    [[nodiscard]] tgui::Button::Ptr
+    createBackButton(std::function<void(void)> callback)
+    {
+        return createButton("back", { "1%", "94%" }, { "15%", "5%" }, callback);
+    }
 
     /**
      *  \brief Adds a list of buttons to layout

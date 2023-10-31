@@ -1,14 +1,12 @@
 #include "app/AppStateMainMenu.hpp"
+#include "app/AppStateGameSetup.hpp"
 #include "app/AppStateIngame.hpp"
 #include "app/AppStateMenuOptions.hpp"
 #include "settings/GameTitle.hpp"
 
 void AppStateMainMenu::buildLayoutImpl()
 {
-    auto title = createWindowTitle({ "0%", "5%" }, { "100%", "25%" }, "rend");
-    title->setHorizontalAlignment(tgui::Label::HorizontalAlignment::Center);
-    title->setTextSize(72);
-    gui->add(title);
+    gui->add(createH1Title("rend"));
 
     auto layout = tgui::VerticalLayout::create({ "15%", "30%" });
     layout->setPosition("42.5%", "35%");
@@ -16,7 +14,7 @@ void AppStateMainMenu::buildLayoutImpl()
 
     createButtonListInLayout(
         layout,
-        { ButtonProps("play", [this] { startGame(); }),
+        { ButtonProps("play", [this] { goToGameSetup(); }),
           ButtonProps(
               "options",
               [this] {
@@ -31,8 +29,7 @@ void AppStateMainMenu::input()
 {
     if (settings->cmdSettings.skipMainMenu)
     {
-        startGame();
-        settings->cmdSettings.skipMainMenu = false;
+        goToGameSetup();
     }
 
     sf::Event event;
@@ -42,29 +39,7 @@ void AppStateMainMenu::input()
     }
 }
 
-void AppStateMainMenu::startGame()
+void AppStateMainMenu::goToGameSetup()
 {
-    app.pushState<AppStateIngame>(
-        resmgr,
-        gui,
-        settings,
-        audioPlayer,
-        GameSettings { .map = settings->cmdSettings.mapname,
-                       .players = createPlayerSettings(
-                           settings->cmdSettings.playerCount) });
-}
-
-std::vector<PlayerSettings>
-AppStateMainMenu::createPlayerSettings(unsigned playerCount)
-{
-    std::vector<PlayerSettings> result;
-
-    for (unsigned i = 0; i < playerCount; i++)
-    {
-        result.push_back(PlayerSettings {
-            .kind = i == 0 ? PlayerKind::LocalHuman : PlayerKind::LocalNpc,
-            .bindCamera = i == 0 });
-    }
-
-    return result;
+    app.pushState<AppStateGameSetup>(resmgr, gui, settings, audioPlayer);
 }

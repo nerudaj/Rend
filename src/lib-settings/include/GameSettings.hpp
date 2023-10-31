@@ -8,4 +8,5 @@ struct GameSettings
 {
     std::string map;
     std::vector<PlayerSettings> players;
+    unsigned fraglimit;
 };

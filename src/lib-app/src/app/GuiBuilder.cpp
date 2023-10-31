@@ -52,6 +52,18 @@ tgui::ComboBox::Ptr WidgetCreator::createDropdown(
     return dropdown;
 }
 
+tgui::EditBox::Ptr WidgetCreator::createTextInput(
+    std::function<void(tgui::String)> onChange,
+    const std::string& initialValue,
+    const std::string& regexValidator)
+{
+    auto box = tgui::EditBox::create();
+    if (!regexValidator.empty()) box->setInputValidator(regexValidator);
+    box->setText(initialValue);
+    box->onTextChange(onChange);
+    return box;
+}
+
 void GuiOptionsBuilder::build()
 {
     auto size = rowContainer->getSize();
