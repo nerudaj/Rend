@@ -59,7 +59,22 @@ const static inline auto ENTITY_PROPERTIES =
                                 .transition =
                                     AnimationStateId::MarkerDestroy } } } } },
         { EntityType::Player,
-          EntityProperties { .radius = 4_px, .initialSpriteIndex = PlayerA0 } },
+          EntityProperties {
+              .radius = 4_px,
+              .initialSpriteIndex = PlayerA0,
+              .states = { { AnimationStateId::Idle,
+                            AnimationState {
+                                .clip = { { PlayerA0, 10 } },
+                                .transition = AnimationStateId::MarkerLoop } },
+                          { AnimationStateId::Run,
+                            AnimationState {
+                                .clip = { { PlayerA0, 10 }, { PlayerB0, 10 } },
+                                .transition = AnimationStateId::Idle } },
+                          { AnimationStateId::Missile,
+                            AnimationState {
+                                .clip = { { PlayerFA0, 10 },
+                                          { PlayerFB0, 10 } },
+                                .transition = AnimationStateId::Idle } } } } },
         { EntityType::PickupHealth,
           EntityProperties { .radius = 3_px, .initialSpriteIndex = MedikitA } },
         { EntityType::PickupArmor,

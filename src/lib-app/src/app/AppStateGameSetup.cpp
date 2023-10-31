@@ -26,7 +26,7 @@ void AppStateGameSetup::input()
 {
     if (settings->cmdSettings.skipMainMenu)
     {
-        settings->cmdSettings.skipMainMenu = true;
+        settings->cmdSettings.skipMainMenu = false;
         startGame();
     }
 

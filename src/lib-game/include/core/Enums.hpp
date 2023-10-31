@@ -59,12 +59,12 @@ enum class SpriteId : std::uint8_t
     PlayerFA0,
     PlayerFA1,
     PlayerFA2,
-    // TODO 3
+    PlayerFA3,
     PlayerFA4,
     PlayerFB0,
     PlayerFB1,
     PlayerFB2,
-    // TODO 3
+    PlayerFB3,
     PlayerFB4,
     RocketA0,
     RocketA1,

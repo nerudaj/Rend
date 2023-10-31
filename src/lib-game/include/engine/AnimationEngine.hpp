@@ -36,10 +36,12 @@ private:
     void
     setWeaponAnimationState(EntityIndexType playerIdx, AnimationStateId state);
 
+    void setEntityAnimationState(EntityIndexType idx, AnimationStateId state);
+
     void updateSpriteId(
         AnimationContext& context,
         const AnimationState& state,
-        EntityIndexType idx);
+        EntityIndexType idx) const;
 
 private:
     Scene& scene;

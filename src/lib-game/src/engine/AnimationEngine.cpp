@@ -8,7 +8,7 @@ void AnimationEngine::operator()(const SetStateAnimationEvent&) {}
 
 void AnimationEngine::operator()(const PlayerFiredAnimationEvent& e)
 {
-    // TODO: set player state as well
+    setEntityAnimationState(e.playerIdx, AnimationStateId::Missile);
     setWeaponAnimationState(e.playerIdx, AnimationStateId::Missile);
 }
 
@@ -99,8 +99,23 @@ void AnimationEngine::setWeaponAnimationState(
         playerIdx);
 }
 
+void AnimationEngine::setEntityAnimationState(
+    EntityIndexType idx, AnimationStateId state)
+{
+    auto& context = scene.things[idx].animationContext;
+    if (context.animationStateId == state) return;
+    context.animationStateId = state;
+    context.animationFrameIndex = 0;
+    updateSpriteId(
+        context,
+        ENTITY_PROPERTIES.at(scene.things[idx].typeId).states.at(state),
+        idx);
+}
+
 void AnimationEngine::updateSpriteId(
-    AnimationContext& context, const AnimationState& state, EntityIndexType idx)
+    AnimationContext& context,
+    const AnimationState& state,
+    EntityIndexType idx) const
 {
     assert(state.clip.size() > context.animationFrameIndex);
     context.lastAnimationUpdate = scene.tick;
