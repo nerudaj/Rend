@@ -14,107 +14,15 @@ Raycaster::Raycaster(const sf::Vector2u& voxelSize) : RaycastingBase(voxelSize)
     thingIds.reserve(100);
 }
 
-float Raycaster::castRay(
-    const sf::Vector2f& pos,
-    const sf::Vector2f& dir,
-    const Scene& scene,
-    bool leftmostRay,
-    bool rightmostRay)
-{
-    auto&& [tile, tileStep, rayStep, intercept] =
-        computeInitialRaycastringStateFromPositionAndDirection(pos, dir);
-
-    bool side = 0;
-    unsigned tileId = tile.y * scene.level.width + tile.x, prevTileId = 0;
-    bool lowPlaneTracker = false; // false if floor
-    bool upperPlaneTracker =
-        scene.level.upperMesh.at(tile); // true if low ceiling
-    float bottomHitDistance = 0.f;
-    while (true)
-    {
-        prevTileId = tileId;
-        tileId = tile.y * scene.level.width + tile.x;
-
-        unsigned realSide =
-            side == 1 ? (dir.y > 0 ? 0 : 2) : (dir.x > 0 ? 3 : 1);
-        unsigned visitedFacesIndex =
-            realSide * scene.level.width * scene.level.heightHint + tileId;
-
-        if (!lowPlaneTracker)
-        {
-            lowPlaneTracker = scene.level.bottomMesh[tileId];
-            if (lowPlaneTracker)
-            {
-                const auto interceptSize =
-                    getInterceptSize(side, intercept, rayStep);
-                bottomHitDistance = dgm::Math::getSize(
-                    computeHitloc(
-                        pos, dir, getInterceptSize(side, intercept, rayStep))
-                    - pos);
-                tryAddFace(
-                    visitedFaces,
-                    faces,
-                    visitedFacesIndex,
-                    prevTileId,
-                    realSide,
-                    tileId,
-                    sf::Vector2f(tile),
-                    pos,
-                    dir,
-                    0.f,
-                    interceptSize,
-                    leftmostRay,
-                    rightmostRay);
-            }
-        }
-
-        bool upperTrackerNew = scene.level.upperMesh.at(tile);
-        if (upperTrackerNew && !upperPlaneTracker)
-        {
-            tryAddFace(
-                visitedUpperFaces,
-                upperFaces,
-                visitedFacesIndex,
-                prevTileId,
-                realSide,
-                tileId,
-                sf::Vector2f(tile),
-                pos,
-                dir,
-                1.f,
-                getInterceptSize(side, intercept, rayStep),
-                leftmostRay,
-                rightmostRay);
-        }
-        upperPlaneTracker = upperTrackerNew;
-
-        if (lowPlaneTracker && upperPlaneTracker) break;
-
-        if (!visitedFloors[tileId] && !lowPlaneTracker)
-        {
-            addFloorFlatAndThings(tile, pos, tileId, scene.spatialIndex);
-        }
-
-        if (!visitedCeils[tileId])
-        {
-            addCeilFlat(tile, pos, tileId, upperPlaneTracker);
-        }
-
-        side = advanceRay(intercept, tile, rayStep, tileStep);
-    }
-
-    return bottomHitDistance;
-}
-
 void Raycaster::prepare()
 {
     faces.clear();
     upperFaces.clear();
+    upperFacesRight.clear();
     flats.clear();
     thingIds.clear();
     visitedFaces.reset();
     visitedUpperFaces.reset();
-    visitedFlats.reset();
     visitedFloors.reset();
     visitedCeils.reset();
 }
@@ -135,73 +43,25 @@ void Raycaster::finalize()
         std::unique(thingIds.begin(), thingIds.end()), thingIds.end());
 }
 
-void Raycaster::tryAddFace(
-    VisitedFacesBitset& _visitedFaces,
-    std::vector<Face>& _faces,
-    unsigned visitedFacesIndex,
-    unsigned neighboringTileId,
-    unsigned realSide,
-    unsigned tileId,
-    sf::Vector2f tile,
-    const sf::Vector2f& pos,
-    const sf::Vector2f& dir,
-    float heightHint,
-    float interceptSize,
-    bool leftmostRay,
-    bool rightmostRay)
+std::pair<sf::Vector2f, sf::Vector2f>
+Raycaster::computeVertexCoordsFromTileCoord(
+    unsigned realSide, const sf::Vector2f& tile) const noexcept
 {
-    if (!_visitedFaces[visitedFacesIndex])
+    if (realSide == 0) // looking from north to south
     {
-        _visitedFaces[visitedFacesIndex] = true;
-
-        sf::Vector2f leftVertex, rightVertex;
-
-        if (realSide == 0) // looking from north to south
-        {
-            leftVertex = { tile.x + 1.f, tile.y };
-            rightVertex = tile;
-        }
-        else if (realSide == 1) // looking from east to west
-        {
-            leftVertex = { tile.x + 1.f, tile.y + 1.f };
-            rightVertex = { tile.x + 1.f, tile.y };
-        }
-        else if (realSide == 2) // looking from south to north
-        {
-            leftVertex = { tile.x, tile.y + 1.f };
-            rightVertex = { tile.x + 1.f, tile.y + 1.f };
-        }
-        else if (realSide == 3) // looking from east to west
-        {
-            leftVertex = tile;
-            rightVertex = { tile.x, tile.y + 1.f };
-        }
-
-        _faces.push_back(Face { .leftVertex = leftVertex,
-                                .rightVertex = rightVertex,
-                                .neighboringTileId = neighboringTileId,
-                                .tileId = tileId,
-                                .distance = dgm::Math::getSize(
-                                    (leftVertex + rightVertex) / 2.f - pos),
-                                .heightHint = heightHint });
+        return { { tile.x + 1.f, tile.y }, tile };
     }
-
-    auto hitloc = computeHitloc(pos, dir, interceptSize);
-
-    if (leftmostRay)
+    else if (realSide == 1) // looking from east to west
     {
-        // Calling back because the face was just added, this is the first ray
-        // fired
-        _faces.back().leftVertex = hitloc;
-        _faces.back().leftTexHint = getTexHint(realSide, hitloc);
+        return { { tile.x + 1.f, tile.y + 1.f }, { tile.x + 1.f, tile.y } };
     }
-
-    if (rightmostRay)
+    else if (realSide == 2) // looking from south to north
     {
-        // Since the rightmostRay is the second one fired, the faces were just
-        // added
-        _faces.back().rightVertex = hitloc;
-        _faces.back().rightTexHint = getTexHint(realSide, hitloc);
+        return { { tile.x, tile.y + 1.f }, { tile.x + 1.f, tile.y + 1.f } };
+    }
+    else if (realSide == 3) // looking from east to west
+    {
+        return { tile, { tile.x, tile.y + 1.f } };
     }
 }
 

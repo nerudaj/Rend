@@ -77,7 +77,7 @@ void RenderingEngine::renderHudTo(dgm::Window& window)
 
 void RenderingEngine::render2d(dgm::Window& window)
 {
-    const auto& player = scene.things[scene.cameraAnchorIdx];
+    /*const auto& player = scene.things[scene.cameraAnchorIdx];
 
     // window.draw(context.level);
     player.hitbox.debugRender(window, sf::Color::Red);
@@ -88,9 +88,9 @@ void RenderingEngine::render2d(dgm::Window& window)
     caster.prepare();
     for (unsigned col = 0; col < settings.WIDTH; col++)
     {
-        float cameraX = 2 * float(col) / settings.WIDTH - 1;
-        auto&& rayDir = player.direction + plane * cameraX;
-        caster.castRay(pos, rayDir, scene, col == 0, col == settings.WIDTH - 1);
+        const float cameraX = 2 * float(col) / settings.WIDTH - 1;
+        const auto rayDir = player.direction + plane * cameraX;
+        caster.castRay<col == 0, col == settings.WIDTH - 1>(pos, rayDir, scene);
     }
 
     auto&& lines = sf::VertexArray(sf::Lines);
@@ -102,7 +102,7 @@ void RenderingEngine::render2d(dgm::Window& window)
         VertexObjectBuilder::makeLine(lines, pos * W, avg * W, sf::Color::Blue);
     }
 
-    window.draw(lines);
+    window.draw(lines);*/
 }
 
 void RenderingEngine::render3d(dgm::Window& window)
@@ -112,13 +112,13 @@ void RenderingEngine::render3d(dgm::Window& window)
     const auto pos = player.hitbox.getPosition() / W;
     const auto plane = getPerpendicular(player.direction) * settings.FOV;
 
-    auto fireRay = [&](unsigned col)
-    {
-        float cameraX = 2 * float(col) / settings.WIDTH - 1;
-        auto&& rayDir = player.direction + plane * cameraX;
-        context.depthBuffer[col] = caster.castRay(
-            pos, rayDir, scene, col == 0, col == settings.WIDTH - 1);
-    };
+#define fireRay(col, isLeftmost, isRightmost)                                  \
+    {                                                                          \
+        float cameraX = 2 * float(col) / settings.WIDTH - 1;                   \
+        auto&& rayDir = player.direction + plane * cameraX;                    \
+        context.depthBuffer[col] =                                             \
+            caster.castRay<isLeftmost, isRightmost>(pos, rayDir, scene);       \
+    }
 
     const float c = dgm::Math::getDotProduct(-player.direction, pos);
     auto getHeight =
@@ -153,11 +153,11 @@ void RenderingEngine::render3d(dgm::Window& window)
      * two upper faces per rightmost column at once.
      */
     caster.prepare();
-    fireRay(0);
-    fireRay(settings.WIDTH - 1);
+    fireRay(0, true, false);
+    fireRay(settings.WIDTH - 1, false, true);
     for (unsigned col = 1; col < settings.WIDTH - 1; col++)
     {
-        fireRay(col);
+        fireRay(col, false, false);
     }
     caster.finalize();
 
