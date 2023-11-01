@@ -1,5 +1,11 @@
 #include "engine/AudioEngine.hpp"
 
+void AudioEngine::operator()(const FlaregunFiredAudioEvent& e)
+{
+    audioPlayer->playSoundOnChannel(
+        "flaregun_fire.wav", e.channel, true, getRelativePosition(e.position));
+}
+
 void AudioEngine::operator()(const ShotgunFiredAudioEvent& e)
 {
     audioPlayer->playSoundOnChannel(
@@ -15,7 +21,7 @@ void AudioEngine::operator()(const BulletFiredAudioEvent& e)
 void AudioEngine::operator()(const RocketFiredAudioEvent& e)
 {
     audioPlayer->playSoundOnChannel(
-        "flaregun.wav", e.channel, true, getRelativePosition(e.position));
+        "launcher_fire.wav", e.channel, true, getRelativePosition(e.position));
 }
 
 void AudioEngine::operator()(const LaserCrossbowAudioEvent& e)
@@ -50,6 +56,15 @@ void AudioEngine::operator()(const PickablePickedUpAudioEvent& e)
                       || e.type == EntityType::PickupMegaArmor;
     audioPlayer->playSoundOnChannel(
         megaPickup ? "megapickup.wav" : "pickup.wav", e.channel, true);
+}
+
+void AudioEngine::operator()(const WeaponRecoveringAudioEvent& e)
+{
+    if (scene.playerStates[e.channel].inventory.ownerIdx
+        != scene.cameraAnchorIdx)
+        return;
+
+    audioPlayer->playSoundOnChannel("ssg_reload2.wav", e.channel, true);
 }
 
 void AudioEngine::update(const float) {}

@@ -4,6 +4,19 @@
 #include <core/Types.hpp>
 #include <variant>
 
+struct [[nodiscard]] FlaregunFiredAudioEvent
+{
+    PlayerStateIndexType channel;
+    sf::Vector2f position;
+
+    constexpr FlaregunFiredAudioEvent(
+        PlayerStateIndexType channel,
+        dgm::UniversalReference<sf::Vector2f> auto&& position) noexcept
+        : channel(channel), position(std::forward<decltype(position)>(position))
+    {
+    }
+};
+
 struct [[nodiscard]] ShotgunFiredAudioEvent
 {
     PlayerStateIndexType channel;
@@ -92,11 +105,25 @@ struct [[nodiscard]] PickablePickedUpAudioEvent
     }
 };
 
+struct [[nodiscard]] WeaponRecoveringAudioEvent
+{
+    EntityType type;
+    PlayerStateIndexType channel;
+
+    constexpr WeaponRecoveringAudioEvent(
+        EntityType type, PlayerStateIndexType channel) noexcept
+        : type(type), channel(channel)
+    {
+    }
+};
+
 using AudioEvent = std::variant<
+    FlaregunFiredAudioEvent,
     ShotgunFiredAudioEvent,
     BulletFiredAudioEvent,
     RocketFiredAudioEvent,
     LaserCrossbowAudioEvent,
     LaserDartBouncedAudioEvent,
     ExplosionTriggeredAudioEvent,
-    PickablePickedUpAudioEvent>;
+    PickablePickedUpAudioEvent,
+    WeaponRecoveringAudioEvent>;

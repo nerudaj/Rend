@@ -176,6 +176,12 @@ void GameRulesEngine::operator()(ScriptTriggeredGameEvent e)
     case ReleaseTrigger:
         scene.playerStates[thing.stateIdx].input.stopShooting();
         break;
+
+    case PlayRecoverySound:
+        EventQueue::add<WeaponRecoveringAudioEvent>(WeaponRecoveringAudioEvent(
+            scene.playerStates[thing.stateIdx].inventory.activeWeaponType,
+            thing.stateIdx));
+        break;
     }
 }
 
@@ -542,7 +548,8 @@ void GameRulesEngine::fireFlare(
         position.value,
         direction.value,
         inventoryIdx));
-    // TODO: EventQueue::add<RocketFiredAudioEvent>(inventoryIdx);
+    EventQueue::add<FlaregunFiredAudioEvent>(
+        FlaregunFiredAudioEvent(inventoryIdx, position.value));
 }
 
 void GameRulesEngine::firePellets(

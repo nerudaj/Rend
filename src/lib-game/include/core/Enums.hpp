@@ -224,6 +224,7 @@ enum class ScriptId
     FireRocket,
     FireHarpoon,
     ReleaseTrigger,
+    PlayRecoverySound,
 };
 
 enum class AnimationStateId

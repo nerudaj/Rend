@@ -19,6 +19,7 @@ public:
     }
 
 public: // Must visit on all related events
+    void operator()(const FlaregunFiredAudioEvent&);
     void operator()(const ShotgunFiredAudioEvent&);
     void operator()(const BulletFiredAudioEvent&);
     void operator()(const RocketFiredAudioEvent&);
@@ -26,6 +27,7 @@ public: // Must visit on all related events
     void operator()(const LaserDartBouncedAudioEvent&);
     void operator()(const ExplosionTriggeredAudioEvent&);
     void operator()(const PickablePickedUpAudioEvent&);
+    void operator()(const WeaponRecoveringAudioEvent&);
 
 public:
     void update(const float deltaTime);

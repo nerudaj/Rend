@@ -173,7 +173,9 @@ const static inline auto ENTITY_PROPERTIES =
                                   .transition = AnimationStateId::Recovery } },
                             { AnimationStateId::Recovery,
                               AnimationState {
-                                  .clip = { { HUD_ShotgunRA, 10 },
+                                  .clip = { { HUD_ShotgunRA,
+                                              10,
+                                              ScriptId::PlayRecoverySound },
                                             { HUD_ShotgunRB, 10 },
                                             { HUD_ShotgunRC, 10 } },
                                   .transition = AnimationStateId::Idle } } } },
