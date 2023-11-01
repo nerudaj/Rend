@@ -33,6 +33,11 @@ void AppStateGameSetup::input()
     sf::Event event;
     while (app.window.pollEvent(event))
     {
+        if (event.type == sf::Event::Closed)
+        {
+            app.exit();
+        }
+
         gui->handleEvent(event);
     }
 }
