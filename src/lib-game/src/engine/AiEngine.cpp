@@ -27,7 +27,7 @@ AiEngine::AiEngine(Scene& scene)
         &self,                                                                 \
         std::placeholders::_1,                                                 \
         std::placeholders::_2,                                                 \
-        std::placeholders::_3);
+        std::placeholders::_3)
 
 dgm::fsm::Fsm<AiTopState, AiBlackboard> AiEngine::createTopFsm(AiEngine& self)
 {
@@ -51,49 +51,54 @@ dgm::fsm::Fsm<AiTopState, AiBlackboard> AiEngine::createTopFsm(AiEngine& self)
     // clang-format on
 }
 
-dgm::fsm::Fsm<AiState, AiBlackboard> AiEngine::createAliveFsm(AiEngine& self)
+dgm::fsm::Fsm<AiState, AiBlackboard, Entity, PlayerInventory>
+AiEngine::createAliveFsm(AiEngine& self)
 {
     using dgm::fsm::decorator::And;
     using dgm::fsm::decorator::Merge;
     using dgm::fsm::decorator::Not;
 
-    auto shouldPickNewTarget = And<AiBlackboard>(
-        Not<AiBlackboard>(BIND(isTrackedEnemyVisible)),
-        BIND(hasSeekTimerElapsed));
+    auto shouldPickNewTarget = And<AiBlackboard, Entity, PlayerInventory>(
+        Not<AiBlackboard, Entity, PlayerInventory>(
+            BIND3(isTrackedEnemyVisible)),
+        BIND3(hasSeekTimerElapsed));
 
     auto updatePositionAndDirection =
-        Merge<AiBlackboard>(BIND(moveTowardsTarget), BIND(rotateTowardsEnemy));
+        Merge<AiBlackboard, Entity, PlayerInventory>(
+            BIND3(moveTowardsTarget), BIND3(rotateTowardsEnemy));
 
-    auto canShootTarget =
-        And<AiBlackboard>(BIND(isTargetInReticle), BIND(canShoot));
+    auto canShootTarget = And<AiBlackboard, Entity, PlayerInventory>(
+        BIND3(isTargetInReticle), BIND3(canShoot));
+
+    auto doNothing = [](AiBlackboard&, Entity&, PlayerInventory&) {};
 
     // clang-format off
-    return dgm::fsm::Builder<AiState, AiBlackboard>()
+    return dgm::fsm::Builder<AiState, AiBlackboard, Entity, PlayerInventory>()
         .with(AiState::Start)
-            .exec(BIND(doNothing)).andGoTo(AiState::PickNextJumpPoint)
+            .exec(doNothing).andGoTo(AiState::PickNextJumpPoint)
         .with(AiState::PickNextJumpPoint)
-            .exec(BIND(pickJumpPoint)).andGoTo(AiState::Update)
+            .exec(BIND3(pickJumpPoint)).andGoTo(AiState::Update)
         .with(AiState::Update)
             .when(shouldPickNewTarget).goTo(AiState::TryToPickNewTarget)
             .orWhen(canShootTarget).goTo(AiState::ShootTarget)
-            .orWhen(BIND(isJumpPointReached)).goTo(AiState::PickNextJumpPoint)
-            .orWhen(BIND(shouldSwapWeapon)).goTo(AiState::SwapWeapon)
+            .orWhen(BIND3(isJumpPointReached)).goTo(AiState::PickNextJumpPoint)
+            .orWhen(BIND3(shouldSwapWeapon)).goTo(AiState::SwapWeapon)
             .otherwiseExec(updatePositionAndDirection).andLoop()
         .with(AiState::TryToPickNewTarget)
-            .exec(BIND(pickTargetEnemy)).andGoTo(AiState::Update)
+            .exec(BIND3(pickTargetEnemy)).andGoTo(AiState::Update)
         .with(AiState::ShootTarget)
-            .exec(BIND(shoot)).andGoTo(AiState::Update)
+            .exec(BIND3(shoot)).andGoTo(AiState::Update)
         .with(AiState::SwapWeapon)
-            .exec(BIND(swapWeapon)).andGoTo(AiState::Delay)
+            .exec(BIND3(swapWeapon)).andGoTo(AiState::Delay)
         .with(AiState::Delay)
-            .exec(BIND(doNothing)).andGoTo(AiState::Update)
+            .exec(doNothing).andGoTo(AiState::Update)
         .build();
     // clang-format on
 }
 
 dgm::fsm::Fsm<AiState, AiBlackboard> AiEngine::createDeadFsm(AiEngine& self)
 {
-    auto requestRespawn = BIND(shoot);
+    auto requestRespawn = [](AiBlackboard& bb) { bb.input->shoot(); };
 
     // clang-format off
     return dgm::fsm::Builder<AiState, AiBlackboard>()
@@ -177,8 +182,10 @@ int AiEngine::getItemBaseScore(
 
 void AiEngine::runFsmAlive(AiBlackboard& blackboard)
 {
+    auto& inventory = getInventory(blackboard);
+    auto& player = getPlayer(blackboard);
     fsmAlive.setState(blackboard.aiState);
-    fsmAlive.update(blackboard);
+    fsmAlive.update(blackboard, player, inventory);
     blackboard.aiState = fsmAlive.getState();
 }
 
@@ -189,19 +196,19 @@ void AiEngine::runFsmDead(AiBlackboard& blackboard)
     blackboard.aiState = fsmDead.getState();
 }
 
-bool AiEngine::shouldSwapWeapon(const AiBlackboard& blackboard) const noexcept
+bool AiEngine::shouldSwapWeapon(
+    const AiBlackboard& blackboard,
+    const Entity&,
+    const PlayerInventory& inventory) const noexcept
 {
-    auto& inventory = getInventory(blackboard);
     auto index = blackboard.playerStateIdx;
     return inventory.acquiredWeapons[index]
            && weaponTypeToIndex(inventory.activeWeaponType) != index;
 }
 
-void AiEngine::pickJumpPoint(AiBlackboard& blackboard)
+void AiEngine::pickJumpPoint(
+    AiBlackboard& blackboard, Entity& player, PlayerInventory& inventory)
 {
-    const auto& inventory = getInventory(blackboard);
-    const auto& player = getPlayer(blackboard);
-
     auto&& bestPosition = sf::Vector2f(0.f, 0.f);
     float bestScore = 0;
     for (auto&& [thing, idx] : scene.things)
@@ -233,15 +240,16 @@ void AiEngine::pickJumpPoint(AiBlackboard& blackboard)
     blackboard.nextStop = path.getCurrentPoint().coord;
 }
 
-void AiEngine::pickTargetEnemy(AiBlackboard& blackboard) noexcept
+void AiEngine::pickTargetEnemy(
+    AiBlackboard& blackboard,
+    Entity& player,
+    PlayerInventory& inventory) noexcept
 {
 #ifdef DEBUG_REMOVALS
     std::cout << "AiEngine::pickTargetEnemy()" << std::endl;
 #endif
 
     blackboard.seekTimeout = SEEK_TIMEOUT;
-    const auto& inventory = getInventory(blackboard);
-    const auto& player = scene.things[inventory.ownerIdx];
     blackboard.trackedEnemyIdx = std::numeric_limits<EntityIndexType>::max();
     for (PlayerStateIndexType i = 0; i < scene.playerStates.size(); i++)
     {
@@ -281,16 +289,18 @@ bool AiEngine::isEnemyVisible(
            && result.impactedEntityIdx.value() == enemyIdx;
 }
 
-bool AiEngine::isJumpPointReached(const AiBlackboard& blackboard) const noexcept
+bool AiEngine::isJumpPointReached(
+    const AiBlackboard& blackboard,
+    const Entity& player,
+    const PlayerInventory& inventory) const noexcept
 {
-    const auto& player = getPlayer(blackboard);
     return dgm::Math::getSize(player.hitbox.getPosition() - blackboard.nextStop)
            < AI_MAX_POSITION_ERROR;
 }
 
-void AiEngine::moveTowardsTarget(AiBlackboard& blackboard)
+void AiEngine::moveTowardsTarget(
+    AiBlackboard& blackboard, Entity& player, PlayerInventory&)
 {
-    const auto& player = getPlayer(blackboard);
     const auto directionToDestination =
         blackboard.nextStop - player.hitbox.getPosition();
     const float angle = dgm::Math::cartesianToPolar(player.direction).angle;
@@ -311,11 +321,11 @@ void AiEngine::resetBlackboard(AiBlackboard& blackboard) const noexcept
     blackboard.trackedEnemyIdx = std::numeric_limits<EntityIndexType>::max();
 }
 
-void AiEngine::rotateTowardsEnemy(AiBlackboard& blackboard) noexcept
+void AiEngine::rotateTowardsEnemy(
+    AiBlackboard& blackboard, Entity& player, PlayerInventory&) noexcept
 {
     if (!isPlayerAlive(blackboard.trackedEnemyIdx)) return;
 
-    const auto& player = getPlayer(blackboard);
     const auto enemyPosition =
         scene.things[blackboard.trackedEnemyIdx].hitbox.getPosition();
     const auto dirToEnemy = getDirectionToEnemy(
@@ -325,19 +335,20 @@ void AiEngine::rotateTowardsEnemy(AiBlackboard& blackboard) noexcept
     blackboard.input->setSteer(pivotDir);
 }
 
-void AiEngine::swapWeapon(AiBlackboard& blackboard) noexcept
+void AiEngine::swapWeapon(
+    AiBlackboard& blackboard, Entity&, PlayerInventory&) noexcept
 {
     blackboard.input->switchToNextWeapon();
 }
 
 bool AiEngine::isTrackedEnemyVisible(
-    const AiBlackboard& blackboard) const noexcept
+    const AiBlackboard& blackboard,
+    const Entity& player,
+    const PlayerInventory& inventory) const noexcept
 {
     if (!isPlayerAlive(blackboard.trackedEnemyIdx)) return false;
 
     const auto& enemy = scene.things[blackboard.trackedEnemyIdx];
-    const auto& inventory = getInventory(blackboard);
-    const auto& player = scene.things[inventory.ownerIdx];
 
 #ifdef DEBUG_REMOVALS
     std::cout << std::format(
@@ -355,11 +366,13 @@ bool AiEngine::isTrackedEnemyVisible(
         enemy.hitbox.getPosition());
 }
 
-bool AiEngine::isTargetInReticle(const AiBlackboard& blackboard) const noexcept
+bool AiEngine::isTargetInReticle(
+    const AiBlackboard& blackboard,
+    const Entity& player,
+    const PlayerInventory&) const noexcept
 {
     if (!isPlayerAlive(blackboard.trackedEnemyIdx)) return false;
 
-    const auto& player = getPlayer(blackboard);
     const auto dirToEnemy = getDirectionToEnemy(
         player.hitbox.getPosition(), blackboard.trackedEnemyIdx);
 

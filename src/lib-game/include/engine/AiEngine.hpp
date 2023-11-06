@@ -15,7 +15,8 @@ public:
 private:
     static dgm::fsm::Fsm<AiTopState, AiBlackboard> createTopFsm(AiEngine& self);
 
-    static dgm::fsm::Fsm<AiState, AiBlackboard> createAliveFsm(AiEngine& self);
+    static dgm::fsm::Fsm<AiState, AiBlackboard, Entity, PlayerInventory>
+    createAliveFsm(AiEngine& self);
 
     static dgm::fsm::Fsm<AiState, AiBlackboard> createDeadFsm(AiEngine& self);
 
@@ -42,13 +43,18 @@ private:
     };
 
 private: // FSM predicates
-    [[nodiscard]] constexpr bool
-    hasSeekTimerElapsed(const AiBlackboard& blackboard) const noexcept
+    [[nodiscard]] constexpr bool hasSeekTimerElapsed(
+        const AiBlackboard& blackboard,
+        const Entity&,
+        const PlayerInventory&) const noexcept
     {
         return blackboard.seekTimeout == 0.f;
     }
 
-    [[nodiscard]] bool isJumpPointReached(const AiBlackboard&) const noexcept;
+    [[nodiscard]] bool isJumpPointReached(
+        const AiBlackboard&,
+        const Entity&,
+        const PlayerInventory&) const noexcept;
 
     [[nodiscard]] constexpr bool
     isThisPlayerAlive(const AiBlackboard& blackboard) const noexcept
@@ -56,40 +62,61 @@ private: // FSM predicates
         return isPlayerAlive(getInventory(blackboard).ownerIdx);
     }
 
-    [[nodiscard]] bool
-    isTrackedEnemyVisible(const AiBlackboard& blackboard) const noexcept;
+    [[nodiscard]] bool isTrackedEnemyVisible(
+        const AiBlackboard& blackboard,
+        const Entity& player,
+        const PlayerInventory& inventory) const noexcept;
 
-    [[nodiscard]] bool
-    isTargetInReticle(const AiBlackboard& blackboard) const noexcept;
+    [[nodiscard]] bool isTargetInReticle(
+        const AiBlackboard& blackboard,
+        const Entity& player,
+        const PlayerInventory& inventory) const noexcept;
 
-    [[nodiscard]] bool canShoot(const AiBlackboard& blackboard) const noexcept
+    [[nodiscard]] bool canShoot(
+        const AiBlackboard&,
+        const Entity&,
+        const PlayerInventory& inventory) const noexcept
     {
-        return getInventory(blackboard).animationContext.animationStateId
+        return inventory.animationContext.animationStateId
                == AnimationStateId::Idle;
     }
 
-    [[nodiscard]] bool
-    shouldSwapWeapon(const AiBlackboard& blackboard) const noexcept;
+    [[nodiscard]] bool shouldSwapWeapon(
+        const AiBlackboard& blackboard,
+        const Entity& player,
+        const PlayerInventory& inventory) const noexcept;
 
 private: // FSM actions
     constexpr void doNothing(AiBlackboard&) const noexcept {}
 
-    void pickJumpPoint(AiBlackboard& blackboard);
+    void pickJumpPoint(
+        AiBlackboard& blackboard, Entity& player, PlayerInventory& inventory);
 
-    void pickTargetEnemy(AiBlackboard& blackboard) noexcept;
+    void pickTargetEnemy(
+        AiBlackboard& blackboard,
+        Entity& player,
+        PlayerInventory& inventory) noexcept;
 
-    void moveTowardsTarget(AiBlackboard& blackboard);
+    void moveTowardsTarget(
+        AiBlackboard& blackboard, Entity& player, PlayerInventory& inventory);
 
-    void shoot(AiBlackboard& blackboard) const noexcept
+    void
+    shoot(AiBlackboard& blackboard, Entity&, PlayerInventory&) const noexcept
     {
         blackboard.input->shoot();
     }
 
     void resetBlackboard(AiBlackboard& blackboard) const noexcept;
 
-    void rotateTowardsEnemy(AiBlackboard& blackboard) noexcept;
+    void rotateTowardsEnemy(
+        AiBlackboard& blackboard,
+        Entity& player,
+        PlayerInventory& inventory) noexcept;
 
-    void swapWeapon(AiBlackboard& blackboard) noexcept;
+    void swapWeapon(
+        AiBlackboard& blackboard,
+        Entity& player,
+        PlayerInventory& inventory) noexcept;
 
 private: // Utility predicates
     [[nodiscard]] constexpr auto&&
@@ -143,6 +170,6 @@ private:
     Hitscanner hitscanner;
     dgm::WorldNavMesh navmesh;
     dgm::fsm::Fsm<AiTopState, AiBlackboard> fsmTop;
-    dgm::fsm::Fsm<AiState, AiBlackboard> fsmAlive;
+    dgm::fsm::Fsm<AiState, AiBlackboard, Entity, PlayerInventory> fsmAlive;
     dgm::fsm::Fsm<AiState, AiBlackboard> fsmDead;
 };
