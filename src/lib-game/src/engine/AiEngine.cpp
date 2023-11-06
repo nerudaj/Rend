@@ -2,15 +2,60 @@
 #include <engine/AiEngine.hpp>
 
 AiEngine::AiEngine(Scene& scene)
-    : scene(scene), hitscanner(scene), navmesh(scene.level.bottomMesh)
+    : scene(scene)
+    , hitscanner(scene)
+    , navmesh(scene.level.bottomMesh)
+    , fsmTop(createTopFsm(*this))
+    , fsmAlive(createAliveFsm(*this))
+    , fsmDead(createDeadFsm(*this))
 {
-#define BIND(f) std::bind(&AiEngine::f, this, std::placeholders::_1)
 
-    using dgm::fsm::decorator::And;
-    using dgm::fsm::decorator::Merge;
+#ifdef DEBUG_REMOVALS
+    fsmTop.setLogging(true);
+    fsmAlive.setLogging(true);
+    fsmDead.setLogging(true);
+    fsmTop.setStateToStringHelper(std::map { TOP_STATES_TO_STRING });
+    fsmAlive.setStateToStringHelper(std::map { AI_STATE_TO_STRING });
+    fsmDead.setStateToStringHelper(std::map { AI_STATE_TO_STRING });
+#endif
+}
+
+#define BIND(f) std::bind(&AiEngine::f, &self, std::placeholders::_1)
+#define BIND3(f)                                                               \
+    std::bind(                                                                 \
+        &AiEngine::f,                                                          \
+        &self,                                                                 \
+        std::placeholders::_1,                                                 \
+        std::placeholders::_2,                                                 \
+        std::placeholders::_3);
+
+dgm::fsm::Fsm<AiTopState, AiBlackboard> AiEngine::createTopFsm(AiEngine& self)
+{
     using dgm::fsm::decorator::Not;
 
     auto isPlayerDead = Not<AiBlackboard>(BIND(isThisPlayerAlive));
+
+    // clang-format off
+    return dgm::fsm::Builder<AiTopState, AiBlackboard>()
+        .with(AiTopState::BootstrapAlive)
+            .exec(BIND(resetBlackboard)).andGoTo(AiTopState::Alive)
+        .with(AiTopState::Alive)
+            .when(isPlayerDead).goTo(AiTopState::BootstrapDead)
+            .otherwiseExec(BIND(runFsmAlive)).andLoop()
+        .with(AiTopState::BootstrapDead)
+            .exec([](auto& b) { b.aiState = AiState::WaitForRespawnRequest; }).andGoTo(AiTopState::Dead)
+        .with(AiTopState::Dead)
+            .when(Not<AiBlackboard>(isPlayerDead)).goTo(AiTopState::BootstrapAlive)
+            .otherwiseExec(BIND(runFsmDead)).andLoop()
+        .build();
+    // clang-format on
+}
+
+dgm::fsm::Fsm<AiState, AiBlackboard> AiEngine::createAliveFsm(AiEngine& self)
+{
+    using dgm::fsm::decorator::And;
+    using dgm::fsm::decorator::Merge;
+    using dgm::fsm::decorator::Not;
 
     auto shouldPickNewTarget = And<AiBlackboard>(
         Not<AiBlackboard>(BIND(isTrackedEnemyVisible)),
@@ -19,37 +64,11 @@ AiEngine::AiEngine(Scene& scene)
     auto updatePositionAndDirection =
         Merge<AiBlackboard>(BIND(moveTowardsTarget), BIND(rotateTowardsEnemy));
 
-    auto requestRespawn = BIND(shoot);
-
     auto canShootTarget =
         And<AiBlackboard>(BIND(isTargetInReticle), BIND(canShoot));
 
     // clang-format off
-    fsmTop = dgm::fsm::Builder<AiBlackboard, AiTopState>()
-        .with(AiTopState::BootstrapAlive)
-            .exec(BIND(resetBlackboard))
-            .andGoTo(AiTopState::Alive)
-        .with(AiTopState::Alive)
-            .when(isPlayerDead).goTo(AiTopState::BootstrapDead)
-            .otherwiseExec(BIND(runFsmAlive)).andLoop()
-        .with(AiTopState::BootstrapDead)
-            .exec([](auto& b) { b.aiState = AiState::WaitForRespawnRequest; })
-            .andGoTo(AiTopState::Dead)
-        .with(AiTopState::Dead)
-            .when(Not<AiBlackboard>(isPlayerDead)).goTo(AiTopState::BootstrapAlive)
-            .otherwiseExec(BIND(runFsmDead)).andLoop()
-        .build();
-
-    fsmDead = dgm::fsm::Builder<AiBlackboard, AiState>()
-        .with(AiState::WaitForRespawnRequest)
-            .exec(BIND(doNothing)).andGoTo(AiState::RequestRespawn)
-        .with(AiState::RequestRespawn)
-            .exec(requestRespawn).andGoTo(AiState::WaitForRespawn)
-        .with(AiState::WaitForRespawn)
-            .exec(BIND(doNothing)).andLoop()
-        .build();
-
-    fsmAlive = dgm::fsm::Builder<AiBlackboard, AiState>()
+    return dgm::fsm::Builder<AiState, AiBlackboard>()
         .with(AiState::Start)
             .exec(BIND(doNothing)).andGoTo(AiState::PickNextJumpPoint)
         .with(AiState::PickNextJumpPoint)
@@ -70,18 +89,28 @@ AiEngine::AiEngine(Scene& scene)
             .exec(BIND(doNothing)).andGoTo(AiState::Update)
         .build();
     // clang-format on
+}
+
+dgm::fsm::Fsm<AiState, AiBlackboard> AiEngine::createDeadFsm(AiEngine& self)
+{
+    auto requestRespawn = BIND(shoot);
+
+    // clang-format off
+    return dgm::fsm::Builder<AiState, AiBlackboard>()
+        .with(AiState::WaitForRespawnRequest)
+        .exec(BIND(doNothing))
+        .andGoTo(AiState::RequestRespawn)
+        .with(AiState::RequestRespawn)
+        .exec(requestRespawn)
+        .andGoTo(AiState::WaitForRespawn)
+        .with(AiState::WaitForRespawn)
+        .exec(BIND(doNothing))
+        .andLoop()
+        .build();
+    // clang-format on
+}
 
 #undef BIND
-
-#ifdef DEBUG_REMOVALS
-    fsmTop.setLogging(true);
-    fsmAlive.setLogging(true);
-    fsmDead.setLogging(true);
-    fsmTop.setStateToStringHelper(std::map { TOP_STATES_TO_STRING });
-    fsmAlive.setStateToStringHelper(std::map { AI_STATE_TO_STRING });
-    fsmDead.setStateToStringHelper(std::map { AI_STATE_TO_STRING });
-#endif
-}
 
 void AiEngine::update(const float deltaTime)
 {

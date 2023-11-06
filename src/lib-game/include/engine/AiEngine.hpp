@@ -12,6 +12,13 @@ class AiEngine final
 public:
     [[nodiscard]] AiEngine(Scene& scene);
 
+private:
+    static dgm::fsm::Fsm<AiTopState, AiBlackboard> createTopFsm(AiEngine& self);
+
+    static dgm::fsm::Fsm<AiState, AiBlackboard> createAliveFsm(AiEngine& self);
+
+    static dgm::fsm::Fsm<AiState, AiBlackboard> createDeadFsm(AiEngine& self);
+
 public:
     void update(const float deltaTime);
 
@@ -135,7 +142,7 @@ private:
     Scene& scene;
     Hitscanner hitscanner;
     dgm::WorldNavMesh navmesh;
-    dgm::fsm::Fsm<AiBlackboard, AiTopState> fsmTop;
-    dgm::fsm::Fsm<AiBlackboard, AiState> fsmAlive;
-    dgm::fsm::Fsm<AiBlackboard, AiState> fsmDead;
+    dgm::fsm::Fsm<AiTopState, AiBlackboard> fsmTop;
+    dgm::fsm::Fsm<AiState, AiBlackboard> fsmAlive;
+    dgm::fsm::Fsm<AiState, AiBlackboard> fsmDead;
 };
