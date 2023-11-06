@@ -6,6 +6,11 @@
 
 void AppStateMainMenu::buildLayoutImpl()
 {
+    auto panel = tgui::Panel::create();
+    panel->getRenderer()->setTextureBackground(
+        resmgr->get<sf::Texture>("titlebgr.png").value().get());
+    gui->add(panel);
+
     gui->add(createH1Title("rend"));
 
     auto layout = tgui::VerticalLayout::create({ "15%", "30%" });
