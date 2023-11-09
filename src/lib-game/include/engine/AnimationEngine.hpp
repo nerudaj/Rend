@@ -2,11 +2,18 @@
 
 #include <core/Scene.hpp>
 #include <events/AnimationEvents.hpp>
+#include <events/EventQueue.hpp>
+
+import Memory;
 
 class AnimationEngine
 {
 public:
-    [[nodiscard]] AnimationEngine(Scene& scene) noexcept : scene(scene) {}
+    [[nodiscard]] AnimationEngine(
+        Scene& scene, mem::Rc<EventQueue> eventQueue) noexcept
+        : scene(scene), eventQueue(eventQueue)
+    {
+    }
 
 public: // Must visit on all related events
     void operator()(const SetStateAnimationEvent&);
@@ -41,8 +48,9 @@ private:
     void updateSpriteId(
         AnimationContext& context,
         const AnimationState& state,
-        EntityIndexType idx) const;
+        EntityIndexType idx);
 
 private:
     Scene& scene;
+    mem::Rc<EventQueue> eventQueue;
 };

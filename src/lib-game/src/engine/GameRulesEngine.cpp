@@ -178,9 +178,9 @@ void GameRulesEngine::operator()(ScriptTriggeredGameEvent e)
         break;
 
     case PlayRecoverySound:
-        EventQueue::add<WeaponRecoveringAudioEvent>(WeaponRecoveringAudioEvent(
+        eventQueue->emplace<WeaponRecoveringAudioEvent>(
             scene.playerStates[thing.stateIdx].inventory.activeWeaponType,
-            thing.stateIdx));
+            thing.stateIdx);
         break;
     }
 }
@@ -254,7 +254,7 @@ void GameRulesEngine::handlePlayer(Entity& thing, std::size_t idx)
     {
         if (state.input.isShooting() && canFireActiveWeapon(state.inventory))
         {
-            EventQueue::add<PlayerFiredAnimationEvent>(idx);
+            eventQueue->emplace<PlayerFiredAnimationEvent>(idx);
         }
         else if (state.input.shouldSwapToPreviousWeapon())
         {
@@ -279,7 +279,7 @@ void GameRulesEngine::handleDeadPlayer(
     if (input.isShooting())
     {
         input.stopShooting();
-        EventQueue::add<PlayerRespawnedGameEvent>(idx);
+        eventQueue->emplace<PlayerRespawnedGameEvent>(idx);
     }
 }
 
@@ -290,14 +290,14 @@ void GameRulesEngine::handleItemRespawner(
     if (marker.timeout <= ITEM_SPAWN_EFFECT_TIMEOUT
         && !marker.spawnEffectEmitted)
     {
-        EventQueue::add<EffectSpawnedGameEvent>(
-            EffectSpawnedGameEvent(EntityType::EffectSpawn, marker.position));
+        eventQueue->emplace<EffectSpawnedGameEvent>(
+            EntityType::EffectSpawn, marker.position);
         marker.spawnEffectEmitted = true;
     }
     else if (marker.timeout <= 0.f)
     {
-        EventQueue::add<PickupSpawnedGameEvent>(
-            PickupSpawnedGameEvent(marker.pickupType, marker.position, idx));
+        eventQueue->emplace<PickupSpawnedGameEvent>(
+            marker.pickupType, marker.position, idx);
     }
 }
 
@@ -310,11 +310,11 @@ void GameRulesEngine::handleGrabbedPickable(
     if (give(entity, inventory, pickup.typeId)
         && !isWeaponPickable(pickup.typeId))
     {
-        EventQueue::add<PickablePickedUpGameEvent>(pickupId);
+        eventQueue->emplace<PickablePickedUpGameEvent>(pickupId);
 
         if (inventory.ownerIdx == scene.cameraAnchorIdx)
-            EventQueue::add<PickablePickedUpAudioEvent>(
-                PickablePickedUpAudioEvent(pickup.typeId, entity.stateIdx));
+            eventQueue->emplace<PickablePickedUpAudioEvent>(
+                pickup.typeId, entity.stateIdx);
     }
 }
 
@@ -330,7 +330,7 @@ void GameRulesEngine::swapToPreviousWeapon(
     inventory.activeWeaponType = weaponIndexToType(getPrevToggledBit(
         weaponTypeToIndex(inventory.activeWeaponType),
         inventory.acquiredWeapons));
-    EventQueue::add<WeaponSwappedAnimationEvent>(idx);
+    eventQueue->emplace<WeaponSwappedAnimationEvent>(idx);
 }
 
 void GameRulesEngine::swapToNextWeapon(
@@ -339,7 +339,7 @@ void GameRulesEngine::swapToNextWeapon(
     inventory.activeWeaponType = weaponIndexToType(getNextToggledBit(
         weaponTypeToIndex(inventory.activeWeaponType),
         inventory.acquiredWeapons));
-    EventQueue::add<WeaponSwappedAnimationEvent>(idx);
+    eventQueue->emplace<WeaponSwappedAnimationEvent>(idx);
 }
 
 bool GameRulesEngine::give(
@@ -543,13 +543,12 @@ void GameRulesEngine::fireFlare(
     auto& inventory = scene.playerStates[inventoryIdx].inventory;
     assert(inventory.rocketCount);
     --inventory.rocketCount;
-    EventQueue::add<ProjectileCreatedGameEvent>(ProjectileCreatedGameEvent(
+    eventQueue->emplace<ProjectileCreatedGameEvent>(
         EntityType::ProjectileFlare,
         position.value,
         direction.value,
-        inventoryIdx));
-    EventQueue::add<FlaregunFiredAudioEvent>(
-        FlaregunFiredAudioEvent(inventoryIdx, position.value));
+        inventoryIdx);
+    eventQueue->emplace<FlaregunFiredAudioEvent>(inventoryIdx, position.value);
 }
 
 void GameRulesEngine::firePellets(
@@ -570,13 +569,11 @@ void GameRulesEngine::firePellets(
         {
             auto hit = hitscanner.hitscan(
                 position, Direction { hitscanDir }, playerIdx);
-            EventQueue::add<HitscanProjectileFiredGameEvent>(
-                HitscanProjectileFiredGameEvent(
-                    hit, SHELL_DAMAGE, inventoryIdx));
+            eventQueue->emplace<HitscanProjectileFiredGameEvent>(
+                hit, SHELL_DAMAGE, inventoryIdx);
         });
 
-    EventQueue::add<ShotgunFiredAudioEvent>(
-        ShotgunFiredAudioEvent(inventoryIdx, position.value));
+    eventQueue->emplace<ShotgunFiredAudioEvent>(inventoryIdx, position.value);
 }
 
 void GameRulesEngine::fireBullet(
@@ -589,11 +586,10 @@ void GameRulesEngine::fireBullet(
     assert(inventory.bulletCount);
     --inventory.bulletCount;
     auto hit = hitscanner.hitscan(position, direction, playerIdx);
-    EventQueue::add<HitscanProjectileFiredGameEvent>(
-        HitscanProjectileFiredGameEvent(
-            hit, TRISHOT_BULLET_DAMAGE, inventoryIdx));
-    EventQueue::add<BulletFiredAudioEvent>(
-        BulletFiredAudioEvent(inventoryIdx, position.value));
+
+    eventQueue->emplace<HitscanProjectileFiredGameEvent>(
+        hit, TRISHOT_BULLET_DAMAGE, inventoryIdx);
+    eventQueue->emplace<BulletFiredAudioEvent>(inventoryIdx, position.value);
 }
 
 void GameRulesEngine::fireLaserDart(
@@ -604,13 +600,13 @@ void GameRulesEngine::fireLaserDart(
     auto& inventory = scene.playerStates[inventoryIdx].inventory;
     assert(inventory.energyCount);
     --inventory.energyCount;
-    EventQueue::add<ProjectileCreatedGameEvent>(ProjectileCreatedGameEvent(
+
+    eventQueue->emplace<ProjectileCreatedGameEvent>(
         EntityType::ProjectileLaserDart,
         position.value,
         direction.value,
-        inventoryIdx));
-    EventQueue::add<LaserCrossbowAudioEvent>(
-        LaserCrossbowAudioEvent(inventoryIdx, position.value));
+        inventoryIdx);
+    eventQueue->emplace<LaserCrossbowAudioEvent>(inventoryIdx, position.value);
 }
 
 void GameRulesEngine::fireRocket(
@@ -621,19 +617,17 @@ void GameRulesEngine::fireRocket(
     auto& inventory = scene.playerStates[inventoryIdx].inventory;
     assert(inventory.rocketCount);
     --inventory.rocketCount;
-    EventQueue::add<ProjectileCreatedGameEvent>(ProjectileCreatedGameEvent(
+
+    eventQueue->emplace<ProjectileCreatedGameEvent>(
         EntityType::ProjectileRocket,
         position.value,
         direction.value,
-        inventoryIdx));
-    EventQueue::add<RocketFiredAudioEvent>(
-        RocketFiredAudioEvent(inventoryIdx, position.value));
+        inventoryIdx);
+    eventQueue->emplace<RocketFiredAudioEvent>(inventoryIdx, position.value);
 }
 
 void GameRulesEngine::fireHarpoon(
-    const Position& position,
-    const Direction& direction,
-    PlayerStateIndexType inventoryIdx)
+    const Position&, const Direction&, PlayerStateIndexType)
 {
 }
 

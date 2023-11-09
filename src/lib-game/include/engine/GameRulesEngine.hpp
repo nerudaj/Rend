@@ -4,13 +4,17 @@
 #include "core/Types.hpp"
 #include "events/GameRuleEvents.hpp"
 #include <DGM/DGM.hpp>
+#include <events/EventQueue.hpp>
 #include <utils/Hitscanner.hpp>
+
+import Memory;
 
 class GameRulesEngine final
 {
 public:
-    [[nodiscard]] GameRulesEngine(Scene& scene) noexcept
-        : scene(scene), hitscanner(scene)
+    [[nodiscard]] GameRulesEngine(
+        Scene& scene, mem::Rc<EventQueue> eventQueue) noexcept
+        : scene(scene), eventQueue(eventQueue), hitscanner(scene)
     {
     }
 
@@ -113,6 +117,7 @@ private: // Scripts API
 
 private:
     Scene& scene;
+    mem::Rc<EventQueue> eventQueue;
     Hitscanner hitscanner;
     std::vector<EntityIndexType> indicesToRemove;
 };

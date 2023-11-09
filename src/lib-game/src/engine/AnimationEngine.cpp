@@ -70,7 +70,7 @@ void AnimationEngine::handleTransition(
         updateSpriteId(context, oldState, entityIdx);
         break;
     case MarkerDestroy:
-        EventQueue::add<EntityDestroyedGameEvent>(entityIdx);
+        eventQueue->emplace<EntityDestroyedGameEvent>(entityIdx);
         break;
     case MarkerFreeze:
         // do nothing
@@ -113,16 +113,13 @@ void AnimationEngine::setEntityAnimationState(
 }
 
 void AnimationEngine::updateSpriteId(
-    AnimationContext& context,
-    const AnimationState& state,
-    EntityIndexType idx) const
+    AnimationContext& context, const AnimationState& state, EntityIndexType idx)
 {
     assert(state.clip.size() > context.animationFrameIndex);
     context.lastAnimationUpdate = scene.tick;
     context.spriteClipIndex = state.clip[context.animationFrameIndex].spriteId;
 
-    const auto script = state.clip[context.animationFrameIndex].scriptToTrigger;
+    auto script = state.clip[context.animationFrameIndex].scriptToTrigger;
     if (script != ScriptId::NoAction)
-        EventQueue::add<ScriptTriggeredGameEvent>(
-            ScriptTriggeredGameEvent(script, idx));
+        eventQueue->emplace<ScriptTriggeredGameEvent>(script, idx);
 }

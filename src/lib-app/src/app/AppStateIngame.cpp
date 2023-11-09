@@ -24,8 +24,7 @@ void AppStateIngame::input()
             }
             else if (event.key.code == sf::Keyboard::F1)
             {
-                EventQueue::add<EventRenderToggle>(
-                    EventRenderToggle { false, true });
+                eventQueue->emplace<EventRenderToggle>(false, true);
             }
             else if (event.key.code == sf::Keyboard::P)
             {
@@ -163,29 +162,21 @@ void AppStateIngame::updateEngines()
 void AppStateIngame::processEvents(bool skipAudio)
 {
     // Animation, Physics and Game can produce GameEvent
-    EventQueue::processEvents<AnimationEvent>(animationEngine);
-    EventQueue::processEvents<PhysicsEvent>(physicsEngine);
-    EventQueue::processEvents<GameEvent>(gameRulesEngine);
+    eventQueue->processAndClear(animationEngine);
+    eventQueue->processAndClear(gameRulesEngine);
 
     // Audio can only produce Audio events
     if (skipAudio)
     {
-        EventQueue::processEvents<AudioEvent>(audioEngine);
+        eventQueue->processAndClear(audioEngine);
     }
     else
     {
-        EventQueue::clearAudioEvents();
+        eventQueue->clear<AudioEvent>();
     }
 
     // Rendering can only produce Rendering events
-    EventQueue::processEvents<RenderingEvent>(renderingEngine);
-
-    // No events should be unprocessed
-    assert(EventQueue::animationEvents.empty());
-    assert(EventQueue::audioEvents.empty());
-    assert(EventQueue::gameEvents.empty());
-    assert(EventQueue::physicsEvents.empty());
-    assert(EventQueue::renderingEvents.empty());
+    eventQueue->processAndClear(renderingEngine);
 }
 
 void AppStateIngame::backupState(FrameState& state)
@@ -233,14 +224,14 @@ AppStateIngame::AppStateIngame(
     , settings(_settings)
     , gameSettings(gameSettings)
     , audioPlayer(_audioPlayer)
-    , GAME_RESOLUTION(sf::Vector2f(app.window.getSize()))
     , inputs(createInputs(_app.window.getWindowContext(), gameSettings))
-    , scene(SceneBuilder::buildScene(*resmgr, GAME_RESOLUTION, gameSettings))
+    , scene(SceneBuilder::buildScene(
+          *resmgr, sf::Vector2f(app.window.getSize()), gameSettings))
     , aiEngine(scene)
-    , animationEngine(scene)
+    , animationEngine(scene, eventQueue)
     , audioEngine(resmgr, audioPlayer, scene)
-    , gameRulesEngine(scene)
-    , physicsEngine(scene)
+    , gameRulesEngine(scene, eventQueue)
+    , physicsEngine(scene, eventQueue)
     , renderingEngine(resmgr, scene)
     , demoFileHandler(
           settings->cmdSettings.demoFile,

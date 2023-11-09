@@ -1,16 +1,19 @@
 #pragma once
 
 #include "core/Scene.hpp"
-#include "events/PhysicsEvents.hpp"
 #include <DGM/DGM.hpp>
+#include <events/EventQueue.hpp>
+
+import Memory;
 
 class PhysicsEngine final
 {
 public:
-    [[nodiscard]] PhysicsEngine(Scene& scene) noexcept : scene(scene) {}
-
-public: // Must visit on all related events
-    void operator()(const DummyPhysicsEvent&) {}
+    [[nodiscard]] PhysicsEngine(
+        Scene& scene, mem::Rc<EventQueue> eventQueue) noexcept
+        : scene(scene), eventQueue(eventQueue)
+    {
+    }
 
 public: // Visiting on thing types
     void update(const float deltaTime);
@@ -21,4 +24,5 @@ private:
 
 private:
     Scene& scene;
+    mem::Rc<EventQueue> eventQueue;
 };

@@ -13,6 +13,7 @@
 #include <TGUI/Backend/SFML-Graphics.hpp>
 #include <TGUI/TGUI.hpp>
 #include <core/Scene.hpp>
+#include <events/EventQueue.hpp>
 #include <input/ControllerInterface.hpp>
 #include <input/InputSchema.hpp>
 #include <utils/DemoFileHandler.hpp>
@@ -81,8 +82,7 @@ protected:
     mem::Rc<Settings> settings;
     GameSettings gameSettings;
     mem::Rc<AudioPlayer> audioPlayer;
-
-    const sf::Vector2f GAME_RESOLUTION;
+    mem::Rc<EventQueue> eventQueue;
 
     std::vector<mem::Rc<ControllerInterface>> inputs;
     Scene scene;
