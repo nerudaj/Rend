@@ -75,6 +75,7 @@ const static inline auto ENTITY_PROPERTIES =
         { EntityType::Player,
           EntityProperties {
               .radius = 4_px,
+              .speed = 96_unitspersec,
               .initialSpriteIndex = PlayerA0,
               .debrisEffectType = EntityType::EffectDyingPlayer,
               .states = { { AnimationStateId::Idle,
@@ -130,6 +131,7 @@ const static inline auto ENTITY_PROPERTIES =
                              .initialSpriteIndex = FloorLampA } },
         { EntityType::ProjectileFlare,
           EntityProperties { .radius = 2_px,
+                             .speed = 200_unitspersec,
                              .initialSpriteIndex = FlareA0,
                              .damage = 64,
                              .debrisEffectType =
@@ -137,6 +139,7 @@ const static inline auto ENTITY_PROPERTIES =
         { EntityType::ProjectileRocket,
           EntityProperties {
               .radius = 2_px,
+              .speed = 100_unitspersec,
               .initialSpriteIndex = RocketA0,
               .isExplosive = true,
               .explosionRadius = 16_px,
@@ -149,6 +152,7 @@ const static inline auto ENTITY_PROPERTIES =
                                     AnimationStateId::MarkerLoop } } } } },
         { EntityType::ProjectileLaserDart,
           EntityProperties { .radius = 2_px,
+                             .speed = 150_unitspersec,
                              .initialSpriteIndex = LaserDartA0,
                              .damage = 96,
                              .debrisEffectType =

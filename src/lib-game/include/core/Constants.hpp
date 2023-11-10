@@ -9,9 +9,7 @@
 #include <utils/SemanticTypes.hpp>
 
 // Movement
-constinit const float PLAYER_RADIAL_SPEED = 88.f;  // degrees per second
-constinit const float PLAYER_FORWARD_SPEED = 96.f; // pixels per second
-constinit const float PLAYER_STRAFE_SPEED = 96.f;
+constinit const float PLAYER_RADIAL_SPEED = 88.f; // degrees per second
 constinit const float PROJECTILE_FORWARD_SPEED = 108.f;
 
 // Game logic

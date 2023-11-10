@@ -39,6 +39,7 @@ using EntityStates = std::map<AnimationStateId, AnimationState>;
 struct EntityProperties
 {
     float radius;
+    float speed = 0.f;
     SpriteId initialSpriteIndex;
     bool isExplosive = false;
     float explosionRadius = 0_px;
