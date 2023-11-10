@@ -351,81 +351,51 @@ void GameRulesEngine::swapToNextWeapon(
 }
 
 bool GameRulesEngine::give(
-    Entity& entity, PlayerInventory& inventory, EntityType pickupId)
+    Entity& entity, PlayerInventory& inventory, EntityType pickupType)
 {
     using enum EntityType;
-    switch (pickupId)
+
+    const auto& def = ENTITY_PROPERTIES.at(pickupType);
+
+    switch (pickupType)
     {
     case PickupHealth:
-        if (entity.health >= MAX_BASE_HEALTH) return false;
-        entity.health = std::clamp(
-            entity.health + MEDIKIT_HEALTH_AMOUNT, 0, MAX_BASE_HEALTH);
+        if (entity.health >= MAX_HEALTH) return false;
+        entity.health =
+            std::clamp(entity.health + def.healthAmount, 0, MAX_HEALTH);
         break;
     case PickupArmor:
         if (entity.armor >= MAX_ARMOR) return false;
-        entity.armor =
-            std::clamp(entity.armor + ARMORSHARD_ARMOR_AMOUNT, 0, MAX_ARMOR);
+        entity.armor = std::clamp(entity.armor + def.armorAmount, 0, MAX_ARMOR);
         break;
     case PickupMegaHealth:
-        entity.health = std::clamp(
-            entity.health + MEGAHEALTH_HEALTH_AMOUNT, 0, MAX_UPPED_HEALTH);
-        break;
     case PickupMegaArmor:
+        entity.health =
+            std::clamp(entity.health + def.healthAmount, 0, MAX_UPPED_HEALTH);
         entity.armor =
-            std::clamp(entity.health + MEGAARMOR_ARMOR_AMOUNT, 0, MAX_ARMOR);
+            std::clamp(entity.armor + def.armorAmount, 0, MAX_UPPED_ARMOR);
         break;
     case PickupBullets:
-        if (inventory.bulletCount == MAX_BULLETS) return false;
-        inventory.bulletCount =
-            std::clamp(inventory.bulletCount + BULLET_AMOUNT, 0, MAX_BULLETS);
-        break;
     case PickupShells:
-        if (inventory.shellCount == MAX_SHELLS) return false;
-        inventory.shellCount =
-            std::clamp(inventory.shellCount + SHELL_AMOUNT, 0, MAX_SHELLS);
-        break;
     case PickupEnergy:
-        if (inventory.energyCount == MAX_ENERGY) return false;
-        inventory.energyCount =
-            std::clamp(inventory.energyCount + ENERGY_AMOUNT, 0, MAX_ENERGY);
-        break;
-    case PickupRockets:
-        if (inventory.rocketCount == MAX_ROCKETS) return false;
-        inventory.rocketCount =
-            std::clamp(inventory.rocketCount + ROCKET_AMOUNT, 0, MAX_ROCKETS);
-        break;
-    case PickupShotgun: {
-        constexpr auto index = weaponTypeToIndex(EntityType::WeaponShotgun);
-        if (inventory.acquiredWeapons[index]) return false;
-        inventory.shellCount = SHELL_AMOUNT;
-        inventory.acquiredWeapons[index] = true;
-        return false;
+    case PickupRockets: {
+        const auto ammoIndex = ammoPickupToAmmoIndex(pickupType);
+        if (inventory.ammo[ammoIndex] == AMMO_LIMIT[ammoIndex]) return false;
+        inventory.ammo[ammoIndex] = std::clamp(
+            inventory.ammo[ammoIndex] + def.ammoAmount,
+            0,
+            AMMO_LIMIT[ammoIndex]);
     }
-    case PickupTrishot: {
-        constexpr auto index = weaponTypeToIndex(EntityType::WeaponTrishot);
-        if (inventory.acquiredWeapons[index]) return false;
-        inventory.bulletCount = BULLET_AMOUNT;
-        inventory.acquiredWeapons[index] = true;
-        return false;
-    }
-    case PickupCrossbow: {
-        constexpr auto index = weaponTypeToIndex(EntityType::WeaponCrossbow);
-        if (inventory.acquiredWeapons[index]) return false;
-        inventory.energyCount = ENERGY_AMOUNT;
-        inventory.acquiredWeapons[index] = true;
-        return false;
-    }
-    case PickupLauncher: {
-        constexpr auto index = weaponTypeToIndex(EntityType::WeaponLauncher);
-        if (inventory.acquiredWeapons[index]) return false;
-        inventory.rocketCount = ROCKET_AMOUNT;
-        inventory.acquiredWeapons[index] = true;
-        return false;
-    }
+    break;
+    case PickupShotgun:
+    case PickupTrishot:
+    case PickupCrossbow:
+    case PickupLauncher:
     case PickupBallista: {
-        constexpr auto index = weaponTypeToIndex(EntityType::WeaponBallista);
+        const auto ammoIndex = ammoTypeToAmmoIndex(def.ammoType);
+        const auto index = weaponPickupToIndex(pickupType);
         if (inventory.acquiredWeapons[index]) return false;
-        inventory.rocketCount = BULLET_AMOUNT;
+        give(entity, inventory, ammoTypeToPickupType(def.ammoType));
         inventory.acquiredWeapons[index] = true;
         return false;
     }
@@ -549,8 +519,9 @@ void GameRulesEngine::fireFlare(
     PlayerStateIndexType inventoryIdx)
 {
     auto& inventory = scene.playerStates[inventoryIdx].inventory;
-    assert(inventory.rocketCount);
-    --inventory.rocketCount;
+    --inventory.ammo[ammoTypeToAmmoIndex(
+        ENTITY_PROPERTIES.at(EntityType::WeaponFlaregun).ammoType)];
+
     eventQueue->emplace<ProjectileCreatedGameEvent>(
         EntityType::ProjectileFlare,
         position.value,
@@ -566,8 +537,7 @@ void GameRulesEngine::firePellets(
     PlayerStateIndexType inventoryIdx)
 {
     auto& inventory = scene.playerStates[inventoryIdx].inventory;
-    assert(inventory.shellCount);
-    --inventory.shellCount;
+    --inventory.ammo[ammoTypeToAmmoIndex(AmmoType::Shells)];
 
     forEachDirection(
         direction.value,
@@ -591,10 +561,9 @@ void GameRulesEngine::fireBullet(
     PlayerStateIndexType inventoryIdx)
 {
     auto& inventory = scene.playerStates[inventoryIdx].inventory;
-    assert(inventory.bulletCount);
-    --inventory.bulletCount;
-    auto hit = hitscanner.hitscan(position, direction, playerIdx);
+    --inventory.ammo[ammoTypeToAmmoIndex(AmmoType::Bullets)];
 
+    auto hit = hitscanner.hitscan(position, direction, playerIdx);
     eventQueue->emplace<HitscanProjectileFiredGameEvent>(
         hit, TRISHOT_BULLET_DAMAGE, inventoryIdx);
     eventQueue->emplace<BulletFiredAudioEvent>(inventoryIdx, position.value);
@@ -606,8 +575,8 @@ void GameRulesEngine::fireLaserDart(
     PlayerStateIndexType inventoryIdx)
 {
     auto& inventory = scene.playerStates[inventoryIdx].inventory;
-    assert(inventory.energyCount);
-    --inventory.energyCount;
+    --inventory.ammo[ammoTypeToAmmoIndex(
+        ENTITY_PROPERTIES.at(EntityType::WeaponCrossbow).ammoType)];
 
     eventQueue->emplace<ProjectileCreatedGameEvent>(
         EntityType::ProjectileLaserDart,
@@ -623,8 +592,7 @@ void GameRulesEngine::fireRocket(
     PlayerStateIndexType inventoryIdx)
 {
     auto& inventory = scene.playerStates[inventoryIdx].inventory;
-    assert(inventory.rocketCount);
-    --inventory.rocketCount;
+    --inventory.ammo[ammoTypeToAmmoIndex(AmmoType::Rockets)];
 
     eventQueue->emplace<ProjectileCreatedGameEvent>(
         EntityType::ProjectileRocket,

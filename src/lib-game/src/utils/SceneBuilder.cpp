@@ -152,13 +152,10 @@ SceneBuilder::getDefaultInventory(EntityIndexType ownerIdx, int score) noexcept
     return PlayerInventory {
         .ownerIdx = ownerIdx,
         .activeWeaponType = EntityType::WeaponFlaregun,
+        .lastWeaponType = EntityType::WeaponFlaregun,
         .animationContext { .spriteClipIndex =
                                 ENTITY_PROPERTIES.at(EntityType::WeaponFlaregun)
                                     .initialSpriteIndex },
-        .bulletCount = PLAYER_INITIAL_BULLETS,
-        .shellCount = PLAYER_INITIAL_NONBULLET_AMMO,
-        .energyCount = PLAYER_INITIAL_NONBULLET_AMMO,
-        .rocketCount = PLAYER_INITIAL_NONBULLET_AMMO,
         .acquiredWeapons = 0b0000000000000001,
         .score = score
     };

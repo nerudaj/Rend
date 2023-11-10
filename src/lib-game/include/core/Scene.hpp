@@ -40,11 +40,15 @@ struct EntityProperties
 {
     float radius;
     float speed = 0.f;
-    SpriteId initialSpriteIndex;
     bool isExplosive = false;
     float explosionRadius = 0_px;
     int damage = 0;
+    AmmoType ammoType;
+    int ammoAmount = 0;
+    int healthAmount = 0;
+    int armorAmount = 0;
     EntityType debrisEffectType = EntityType::None;
+    SpriteId initialSpriteIndex;
     EntityStates states;
 };
 
@@ -90,11 +94,9 @@ struct PlayerInventory
 {
     EntityIndexType ownerIdx;
     EntityType activeWeaponType;
+    EntityType lastWeaponType;
     AnimationContext animationContext;
-    AmmoCounterType bulletCount = 0;
-    AmmoCounterType shellCount = 0;
-    AmmoCounterType energyCount = 0;
-    AmmoCounterType rocketCount = 0;
+    std::array<AmmoCounterType, 4> ammo = { 0, 0, 0, PLAYER_INITIAL_ROCKETS };
     AcquitedWeaponsArray acquiredWeapons;
     int score = 0;
 };

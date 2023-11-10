@@ -17,32 +17,24 @@ constinit const unsigned FPS = 60;
 constinit const float FRAME_TIME = 1.f / FPS;
 constinit const int PLAYER_INITIAL_HEALTH = 100;
 constinit const int PLAYER_INITIAL_ARMOR = 0;
-constinit const int PLAYER_INITIAL_BULLETS = 50;
-constinit const int PLAYER_INITIAL_NONBULLET_AMMO = 100;
-constinit const int MEDIKIT_HEALTH_AMOUNT = 25;
-constinit const int ARMORSHARD_ARMOR_AMOUNT = 10;
-constinit const int MEGAHEALTH_HEALTH_AMOUNT = 100;
-constinit const int MEGAARMOR_ARMOR_AMOUNT = 100;
-constinit const int BULLET_AMOUNT = 100;
-constinit const int SHELL_AMOUNT = 20;
-constinit const int ENERGY_AMOUNT = 20;
-constinit const int ROCKET_AMOUNT = 10;
-constinit const int MAX_BASE_HEALTH = 100;
+constinit const int PLAYER_INITIAL_ROCKETS = 20;
+constinit const int MAX_HEALTH = 100;
 constinit const int MAX_UPPED_HEALTH = 200;
-constinit const int MAX_ARMOR = 200;
-constinit const int MAX_BULLETS = 200;
-constinit const int MAX_SHELLS = 50;
-constinit const int MAX_ENERGY = 100;
-constinit const int MAX_ROCKETS = 25;
-constinit const int EXPLOSION_DAMAGE = 150;
-constinit const int FLARE_DAMAGE = 54;
-constinit const int DART_DAMAGE = 80;
+constinit const int MAX_ARMOR = 100;
+constinit const int MAX_UPPED_ARMOR = 200;
 constinit const int SHELL_DAMAGE = 10;
 constinit const int TRISHOT_BULLET_DAMAGE = 40;
 constinit const float ITEM_RESPAWN_TIMEOUT = 15.f;
 constinit const float ITEM_SPAWN_EFFECT_TIMEOUT = 0.5f;
 constinit const unsigned SHOTGUN_PELLET_AMOUNT = 10;
 constinit const float SHOTGUN_SPREAD = 0.1f;
+constinit const int MAX_BULLETS = 200;
+constinit const int MAX_SHELLS = 50;
+constinit const int MAX_ENERGY = 100;
+constinit const int MAX_ROCKETS = 25;
+constinit const std::array<AmmoCounterType, 4> AMMO_LIMIT = {
+    MAX_BULLETS, MAX_SHELLS, MAX_ENERGY, MAX_ROCKETS
+};
 
 // Ai
 constinit const float SEEK_TIMEOUT = 0.2f;
@@ -71,6 +63,27 @@ weaponIndexToType(WeaponIndexType idx) noexcept
 {
     return static_cast<EntityType>(
         static_cast<WeaponIndexType>(EntityType::WeaponFlaregun) + idx);
+}
+
+[[nodiscard]] constexpr static std::size_t
+ammoPickupToAmmoIndex(EntityType type) noexcept
+{
+    return static_cast<std::size_t>(type)
+           - static_cast<std::size_t>(EntityType::PickupBullets);
+}
+
+[[nodiscard]] constexpr static std::size_t
+ammoTypeToAmmoIndex(AmmoType type) noexcept
+{
+    return static_cast<std::size_t>(type);
+}
+
+[[nodiscard]] constexpr static EntityType
+ammoTypeToPickupType(AmmoType type) noexcept
+{
+    return static_cast<EntityType>(
+        static_cast<std::size_t>(type)
+        + static_cast<std::size_t>(EntityType::PickupBullets));
 }
 
 // Other

@@ -1,9 +1,11 @@
 #pragma once
 
+#include <core/EntityDefinitions.hpp>
 #include <core/Enums.hpp>
 #include <core/Scene.hpp>
 #include <core/Types.hpp>
 
+// TODO: remove this
 [[nodiscard]] constexpr static EntityType
 weaponToAmmoPickupType(EntityType type) noexcept
 {
@@ -27,20 +29,10 @@ weaponToAmmoPickupType(EntityType type) noexcept
 }
 
 [[nodiscard]] constexpr static AmmoCounterType
-getAmmoCountForActiveWeapon(PlayerInventory& inventory) noexcept
+getAmmoCountForActiveWeapon(const PlayerInventory& inventory) noexcept
 {
-    switch (weaponToAmmoPickupType(inventory.activeWeaponType))
-    {
-        using enum EntityType;
-    case PickupBullets:
-        return inventory.rocketCount;
-    case PickupShells:
-        return inventory.shellCount;
-    case PickupEnergy:
-        return inventory.bulletCount;
-    case PickupRockets:
-        return inventory.energyCount;
-    }
+    return inventory.ammo[ammoTypeToAmmoIndex(
+        ENTITY_PROPERTIES.at(inventory.activeWeaponType).ammoType)];
 }
 
 [[nodiscard]] constexpr static int

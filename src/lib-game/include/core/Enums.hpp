@@ -182,6 +182,8 @@ enum class EntityType
     Player,
 
     PickableBegin,
+
+    PickableHealthArmorBegin,
     PickupHealth,
     PickupArmor,
 
@@ -189,6 +191,7 @@ enum class EntityType
     PickupMegaHealth,
     PickupMegaArmor,
     PowerItemsEnd,
+    PickableHealthArmorEnd,
 
     PickupBullets,
     PickupShells,
@@ -235,6 +238,14 @@ enum class EntityType
     InventoryEnd,
 
     Decal
+};
+
+enum class AmmoType
+{
+    Bullets = 0,
+    Shells = 1,
+    Energy = 2,
+    Rockets = 3
 };
 
 enum class ScriptId

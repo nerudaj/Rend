@@ -2,6 +2,7 @@
 #include "utils/VertexArrayBuilder.hpp"
 #include <core/EntityTraits.hpp>
 #include <numbers>
+#include <utils/GameLogicHelpers.hpp>
 
 [[nodiscard]] static std::pair<std::uint8_t, bool> getRotatedSpriteClipId(
     const sf::Vector2f& cameraDir,
@@ -322,14 +323,11 @@ void RenderingEngine::renderAlivePlayerHud(
     window.draw(context.weaponSprite);
 
     context.text.setString(std::format(
-        "h: {} a: {}\nw: {}\nb: {} s: {} r: {} e: {}\ns: {}",
+        "h: {} a: {}\nw: {}\nammo: {}\ns: {}",
         player.health,
         player.armor,
         inventory.acquiredWeapons.to_string(),
-        inventory.bulletCount,
-        inventory.shellCount,
-        inventory.rocketCount,
-        inventory.energyCount,
+        getAmmoCountForActiveWeapon(inventory),
         inventory.score));
     const auto textBounds = context.text.getGlobalBounds();
     context.text.setPosition(10.f, settings.HEIGHT - textBounds.height - 10.f);

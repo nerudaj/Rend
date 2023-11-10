@@ -165,16 +165,9 @@ int AiEngine::getItemBaseScore(
         return ARMOR_SCORE;
     else if (isPickable(type))
     {
-        if ((type == EntityType::PickupBullets
-             && inventory.bulletCount < MAX_BULLETS)
-            || (type == EntityType::PickupShells
-                && inventory.shellCount < MAX_SHELLS)
-            || (type == EntityType::PickupEnergy
-                && inventory.energyCount < MAX_ENERGY)
-            || (type == EntityType::PickupRockets
-                && inventory.rocketCount < MAX_ROCKETS))
-            return AMMO_SCORE;
-        return -1;
+        const auto ammoIndex = ammoPickupToAmmoIndex(type);
+        return inventory.ammo[ammoIndex] < AMMO_LIMIT[ammoIndex] ? AMMO_SCORE
+                                                                 : -1;
     }
 
     return 0;
