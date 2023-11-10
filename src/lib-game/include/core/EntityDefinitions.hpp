@@ -196,6 +196,10 @@ const static inline auto ENTITY_PROPERTIES =
                                             { HUD_FlaregunFB,
                                               20,
                                               ScriptId::FireFlare } },
+                                  .transition = AnimationStateId::Recovery } },
+                            { AnimationStateId::Recovery,
+                              AnimationState {
+                                  .clip = { { HUD_FlaregunA, 10 } },
                                   .transition = AnimationStateId::Idle } } } },
         },
         {

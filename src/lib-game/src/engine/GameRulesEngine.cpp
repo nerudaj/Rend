@@ -248,15 +248,23 @@ void GameRulesEngine::handlePlayer(Entity& thing, std::size_t idx)
         }
     }
 
+    const auto isAllowedToFire =
+        state.inventory.animationContext.animationStateId
+        == AnimationStateId::Idle;
+    const auto isAllowedToSwapWeapons =
+        isAllowedToFire
+        || state.inventory.animationContext.animationStateId
+               == AnimationStateId::Recovery;
+
     // No weapon interaction allowed when weapon is not in idle
-    if (state.inventory.animationContext.animationStateId
-        == AnimationStateId::Idle)
+    if (isAllowedToSwapWeapons && state.input.isShooting()
+        && canFireActiveWeapon(state.inventory))
     {
-        if (state.input.isShooting() && canFireActiveWeapon(state.inventory))
-        {
-            eventQueue->emplace<PlayerFiredAnimationEvent>(idx);
-        }
-        else if (state.input.shouldSwapToPreviousWeapon())
+        eventQueue->emplace<PlayerFiredAnimationEvent>(idx);
+    }
+    else if (isAllowedToSwapWeapons)
+    {
+        if (state.input.shouldSwapToPreviousWeapon())
         {
             swapToPreviousWeapon(state.inventory, idx);
         }
