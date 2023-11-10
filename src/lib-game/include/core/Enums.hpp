@@ -4,6 +4,19 @@
 #include <map>
 #include <string>
 
+enum class TilesetMapping
+{
+    Floor1 = 0,
+    Floor2,
+    CeilSky = 2,
+    CeilLow,
+    // TODO: CeilHigh
+    Crate1 = 4,
+    Crate2,
+    Wall1 = 6,
+    End = 16
+};
+
 enum class LeveldItemId
 {
     PlayerSpawn = 0,
@@ -44,6 +57,7 @@ enum class SpriteId : std::uint8_t
     CrossbowA,
     LauncherA,
     BallistaA,
+    HarpoonA,
     PillarA,
     FloorLampA,
     PlayerA0,
@@ -216,6 +230,7 @@ enum class EntityType
     WeaponCrossbow,
     WeaponLauncher,
     WeaponBallista,
+    WeaponHarpoon,
 
     InventoryEnd,
 

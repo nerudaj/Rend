@@ -1,25 +1,13 @@
 #pragma once
 
 #include <DGM/dgm.hpp>
-
-enum class TilesetMapping
-{
-    Floor1 = 0,
-    Floor2,
-    CeilSky = 2,
-    CeilLow,
-    // TODO: CeilHigh
-    Crate1 = 4,
-    Crate2,
-    Wall1 = 6,
-    End = 16
-};
+#include <core/Types.hpp>
 
 struct DrawableLevel
 {
     dgm::Mesh bottomTextures;
     dgm::Mesh upperTextures;
-    dgm::Mesh lightmap;
+    LightmapType lightmap;
 };
 
 // Struct that should contain all primitives needed to render
@@ -32,7 +20,6 @@ struct RenderContext
     DrawableLevel level;
     const sf::Texture& tilesetTexture;
     const sf::Texture& spritesheetTexture;
-    const sf::Texture& weaponHudTexture;
     dgm::Clip tilesetClipping;
     dgm::Clip spritesheetClipping;
     dgm::Clip weaponHudClipping;

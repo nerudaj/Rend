@@ -312,8 +312,13 @@ void RenderingEngine::renderSprites(
 void RenderingEngine::renderAlivePlayerHud(
     dgm::Window& window, const Entity& player, const PlayerInventory& inventory)
 {
+    auto light = context.level.lightmap.at(sf::Vector2u(
+        player.hitbox.getPosition()
+        / static_cast<float>(context.level.lightmap.getVoxelSize().x)));
+
     context.weaponSprite.setTextureRect(context.weaponHudClipping.getFrame(
         static_cast<std::size_t>(inventory.animationContext.spriteClipIndex)));
+    context.weaponSprite.setFillColor(sf::Color { light, light, light });
     window.draw(context.weaponSprite);
 
     context.text.setString(std::format(
