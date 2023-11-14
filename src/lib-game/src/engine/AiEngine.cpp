@@ -209,12 +209,14 @@ void AiEngine::pickJumpPoint(
         if (isWeaponPickable(thing.typeId)
             && inventory.acquiredWeapons[weaponPickupToIndex(thing.typeId)])
             continue;
+        else if (!isPickable(thing.typeId))
+            continue;
 
         int currentScore =
             getItemBaseScore(thing.typeId, player.health, inventory);
-        float distance = dgm::Math::getSize(
-            thing.hitbox.getPosition() - player.hitbox.getPosition());
-        float score = currentScore / (distance * distance);
+        const int distance = scene.distanceIndex.getDistance(
+            player.hitbox.getPosition(), thing.hitbox.getPosition());
+        float score = currentScore / static_cast<float>((distance * distance));
 
         if (score > bestScore)
         {

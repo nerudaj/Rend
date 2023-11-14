@@ -9,6 +9,7 @@
 #include <core/Types.hpp>
 #include <input/AiController.hpp>
 #include <input/SimpleController.hpp>
+#include <utils/DistanceIndex.hpp>
 #include <utils/SemanticTypes.hpp>
 
 import Memory;
@@ -148,6 +149,7 @@ struct Scene
     // This doesn't have to be backed up
     Level level;
     dgm::SpatialIndex<EntityIndexType> spatialIndex;
+    DistanceIndex distanceIndex;
     std::vector<sf::Vector2f> spawns;
     std::string mapname;
 };

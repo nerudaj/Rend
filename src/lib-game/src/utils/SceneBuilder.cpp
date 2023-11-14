@@ -112,14 +112,16 @@ Scene SceneBuilder::buildScene(
     const GameSettings& settings)
 {
     auto&& level = resmgr.get<LevelD>(settings.map).value().get();
+    const auto bottomMesh = Builder::buildMeshFromLvd(level, 0);
 
     return Scene { .things = createThingsBuffer(level),
                    .level = { .width = level.mesh.layerWidth,
                               .heightHint = level.mesh.layerHeight,
-                              .bottomMesh = Builder::buildMeshFromLvd(level, 0),
+                              .bottomMesh = bottomMesh,
                               .upperMesh =
                                   Builder::buildMeshFromLvd(level, 1) },
                    .spatialIndex = createSpatialIndex(level),
+                   .distanceIndex = DistanceIndex(bottomMesh),
                    .spawns = createSpawns(level),
                    .mapname = settings.map };
 }
