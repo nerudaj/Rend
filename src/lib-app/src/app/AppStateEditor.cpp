@@ -208,7 +208,6 @@ void AppStateEditor::buildLayout()
     buildSidebarLayout(runToken, SIDEBAR_WIDTH, SIDEBAR_HEIGHT, TOPBAR_HEIGHT);
     auto loggerChatBox =
         buildLoggerLayout(runToken, TOPBAR_HEIGHT, TOPBAR_FONT_HEIGHT);
-    Log::get().init(loggerChatBox);
 
     auto layerLabel = tgui::Label::create();
     layerLabel->setPosition({ "1%", ("100% - 2 * " + TOPBAR_HEIGHT).c_str() });
@@ -357,7 +356,6 @@ void AppStateEditor::loadLevel(
         editor->loadFrom(lvd, configPathFS);
         unsavedChanges = false;
         updateWindowTitle();
-        Log::write2("Level loaded from '{}'", savePath);
     }
     catch (std::exception& e)
     {
@@ -384,7 +382,6 @@ void AppStateEditor::handleSaveLevel(bool forceNewPath) noexcept
         lvd.metadata.description = configPath.value();
         lvd.saveToFile(savePath);
         updateWindowTitle();
-        Log::write2("Level saved to '{}'", savePath);
     }
     catch (std::exception& e)
     {
@@ -394,12 +391,10 @@ void AppStateEditor::handleSaveLevel(bool forceNewPath) noexcept
 
 void AppStateEditor::handleUndo()
 {
-    Log::write("Undo");
     commandHistory->undo();
 }
 
 void AppStateEditor::handleRedo()
 {
-    Log::write("Redo");
     commandHistory->redo();
 }

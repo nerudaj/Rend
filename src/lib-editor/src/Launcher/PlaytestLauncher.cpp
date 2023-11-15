@@ -1,6 +1,5 @@
 #include "Launcher/PlaytestLauncher.hpp"
 #include "Configs/Strings.hpp"
-#include "LogConsole.hpp"
 #include <functional>
 #include <optional>
 
@@ -66,10 +65,6 @@ void PlaytestLauncher::handlePlaytestExecuted()
         replaceString(
             options->parameters, "$(LevelPath)", getCurrentLevelPathCallback()),
         options->workingDirectory);
-    if (!result.has_value())
-    {
-        Log::write2("Launching playtest failed with error: {}", result.error());
-    }
 }
 
 void PlaytestLauncher::handleConfigureLaunchOptions()

@@ -11,8 +11,6 @@
 #include "Interfaces/FileApiInterface.hpp"
 #include "Interfaces/PlaytestLauncherInterface.hpp"
 #include "Interfaces/ShortcutEngineInterface.hpp"
-#include "LogConsole.hpp"
-#include "ProgramOptions.hpp"
 #include "Utilities/ClickPreventer.hpp"
 #include <DGM/dgm.hpp>
 #include <Settings.hpp>

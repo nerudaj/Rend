@@ -1,6 +1,5 @@
 #include "Dialogs/NewLevelDialog.hpp"
 #include "Globals.hpp"
-#include "LogConsole.hpp"
 
 constexpr const char* INPUT_LEVEL_WIDTH_ID = "InputLevelWidth";
 constexpr const char* INPUT_LEVEL_HEIGHT_ID = "InputLevelHeight";

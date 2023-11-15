@@ -4,7 +4,6 @@
 #include "Commands/SetTileCommand.hpp"
 #include "Commands/SetTilePropertyCommand.hpp"
 #include "JsonHelper.hpp"
-#include "LogConsole.hpp"
 #include "Utilities/Utilities.hpp"
 #include <filesystem>
 
@@ -160,9 +159,6 @@ void ToolMesh::shrinkTo(const TileRect& boundingBox)
 {
     const auto width = boundingBox.right - boundingBox.left + 1;
     const auto height = boundingBox.bottom - boundingBox.top + 1;
-
-    const int offsetX = -boundingBox.left;
-    const int offsetY = -boundingBox.top;
 
     const sf::Vector2i translation(boundingBox.left, boundingBox.top);
 
@@ -389,9 +385,6 @@ void ToolMesh::changeDrawingMode(ToolMesh::DrawMode newMode)
 void ToolMesh::toggleOverlay()
 {
     enableOverlay = !enableOverlay;
-    Log::write2(
-        "ToolMesh::toggleOverlay: Overlay is now {}",
-        enableOverlay ? "enabled" : "disabled");
 }
 
 std::string std::to_string(ToolMesh::DrawMode mode)

@@ -4,7 +4,6 @@
 #include "Commands/MoveObjectCommand.hpp"
 #include "Commands/SetObjectPropertyCommand.hpp"
 #include "JsonHelper.hpp"
-#include "LogConsole.hpp"
 #include <filesystem>
 
 /* Implementing ToolWithDragAndSelect */
@@ -239,7 +238,7 @@ void ToolItem::setProperty(const ToolPropertyInterface& prop)
         items, property.itemId, property.data, sf::Vector2u(levelSize));
 }
 
-void ToolItem::buildCtxMenuInternal(tgui::MenuBar::Ptr& menu) {}
+void ToolItem::buildCtxMenuInternal(tgui::MenuBar::Ptr&) {}
 
 std::optional<GenericObject>
 ToolItem::getHighlightedObject(const sf::Vector2i& penPos) const

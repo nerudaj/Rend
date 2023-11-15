@@ -1,5 +1,4 @@
 #include "Commands/SetTileAreaCommand.hpp"
-#include "LogConsole.hpp"
 #include <algorithm>
 
 void SetTileAreaCommand::exec()

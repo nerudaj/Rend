@@ -4,7 +4,6 @@
 #include "Commands/MoveObjectCommand.hpp"
 #include "Commands/SetObjectPropertyCommand.hpp"
 #include "JsonHelper.hpp"
-#include "LogConsole.hpp"
 
 /* Implementing ToolWithDragAndSelect */
 std::optional<std::size_t>
@@ -318,8 +317,6 @@ sf::Vector2u ToolTrigger::getNormalizedPosition(const LevelD::Trigger& trigger)
 /* Pen stuff */
 void ToolTrigger::penClicked(const sf::Vector2i& position)
 {
-    std::size_t id;
-
     if (!isValidPenPosForDrawing(position)) return;
 
     auto itemId = getObjectIndexFromMousePos(position);
@@ -398,7 +395,7 @@ std::optional<TileRect> ToolTrigger::getBoundingBox() const noexcept
             { return coordConverter.convertCoordToTileRect(b); });
 }
 
-void ToolTrigger::buildCtxMenuInternal(tgui::MenuBar::Ptr& menu) {}
+void ToolTrigger::buildCtxMenuInternal(tgui::MenuBar::Ptr&) {}
 
 void ToolTrigger::setProperty(const ToolPropertyInterface& prop)
 {

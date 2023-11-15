@@ -3,7 +3,6 @@
 #include "Commands/ShrinkToFitCommand.hpp"
 #include "Configs/Strings.hpp"
 #include "JsonHelper.hpp"
-#include "LogConsole.hpp"
 #include "Utilities/Literals.hpp"
 #include "Utilities/Utilities.hpp"
 #include <filesystem>
@@ -304,14 +303,14 @@ Editor::Editor(
         gui,
         commandQueue);
 
-    stateMgr.addState<ToolTrigger>(
+    /*stateMgr.addState<ToolTrigger>(
         EditorState::Trigger,
         onStateChanged,
         shortcutEngine,
         layerController,
         gui,
         commandQueue,
-        [this]() -> sf::Vector2i { return physicalPen.getCurrentPenPos(); });
+        [this]() -> sf::Vector2i { return physicalPen.getCurrentPenPos(); });*/
 
     mouseIndicator.setRadius(8.f);
     mouseIndicator.setFillColor(sf::Color::Green);

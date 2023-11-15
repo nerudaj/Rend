@@ -1,5 +1,4 @@
 #include "Shortcuts/ShortcutEngine.hpp"
-#include "LogConsole.hpp"
 #include <cassert>
 
 void ShortcutEngine::evaluateShortcut(sf::Keyboard::Key key)
@@ -13,10 +12,7 @@ void ShortcutEngine::evaluateShortcut(sf::Keyboard::Key key)
                             .shiftRequired = shiftIsPressed,
                             .key = key };
 
-    if (shortcuts.contains(combo))
-        shortcuts.at(combo)();
-    else
-        Log::write2("Unknown shortcut: {}", std::to_string(combo));
+    if (shortcuts.contains(combo)) shortcuts.at(combo)();
 }
 
 void ShortcutEngine::handleEvent(sf::Event& event)
