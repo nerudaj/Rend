@@ -80,6 +80,8 @@ void SidebarUserWithSprites::buildSpriteIdSelectionModal()
     unsigned x = 0, y = 0;
     for (unsigned i = 0; i < getSpriteCount(); i++)
     {
+        if (shouldSkipSprite(i)) continue;
+
         auto btn = tgui::Button::create();
         btn->getRenderer()->setTexture(getSpriteAsTexture(i));
         btn->setSize(

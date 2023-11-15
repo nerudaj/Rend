@@ -80,18 +80,19 @@ void ToolItem::configure(nlohmann::json& config)
         config["toolMesh"]["texture"]["tileDimensions"]));
 
     std::vector<SidebarUserItem::PathRectPair> pathRectPairs;
-    auto itemsJ = config[TOOL_STR]["items"];
-    pathRectPairs.reserve(itemsJ.size());
 
-    for (auto&& item : itemsJ)
+    auto texturePath = std::filesystem::path(
+        config[TOOL_STR]["texturePath"].get<std::string>());
+    if (texturePath.is_relative()) texturePath = rootPath / texturePath;
+    auto clipPath =
+        std::filesystem::path(config[TOOL_STR]["clipPath"].get<std::string>());
+    if (clipPath.is_relative()) clipPath = rootPath / clipPath;
+    const auto clip = dgm::JsonLoader {}.loadClipFromFile(clipPath);
+
+    for (unsigned i = 0; i < clip.getFrameCount(); i++)
     {
-        auto texturePath =
-            std::filesystem::path(item["texture"]["path"].get<std::string>());
-        if (texturePath.is_relative()) texturePath = rootPath / texturePath;
-
         pathRectPairs.push_back(SidebarUserItem::PathRectPair {
-            .texturePath = texturePath,
-            .clip = JsonHelper::arrayToIntRect(item["texture"]["clip"]) });
+            .texturePath = texturePath, .clip = clip.getFrame(i) });
     }
 
     sidebarUser.configure(pathRectPairs);
@@ -198,11 +199,16 @@ void ToolItem::penClicked(const sf::Vector2i& position)
         return;
     }
 
+    const auto tilePos =
+        (sf::Vector2u(position) / coordConverter.getTileSize().x)
+            * coordConverter.getTileSize().x
+        + coordConverter.getTileSize() / 2u;
+
     const auto itemToCreate =
         LevelD::Thing { .id = sidebarUser.getPenValue(),
                         .tag = 0,
-                        .x = static_cast<uint32_t>(position.x),
-                        .y = static_cast<uint32_t>(position.y),
+                        .x = static_cast<uint32_t>(tilePos.x),
+                        .y = static_cast<uint32_t>(tilePos.y),
                         .layerId = static_cast<uint32_t>(getCurrentLayerId()),
                         .flags = 0,
                         .metadata = "" };

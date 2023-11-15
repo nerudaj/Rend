@@ -8,7 +8,7 @@ std::size_t LayerController::getCurrentLayerId() const noexcept
 
 std::size_t LayerController::getLayerCount() const noexcept
 {
-    return 3;
+    return 2;
 }
 
 void LayerController::moveUp()

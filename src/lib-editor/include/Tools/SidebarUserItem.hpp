@@ -2,6 +2,7 @@
 
 #include "Gui.hpp"
 #include "Tools/SidebarUserWithSprites.hpp"
+#include <LevelItemId.hpp>
 #include <SFML/Graphics/Rect.hpp>
 #include <SFML/Graphics/Sprite.hpp>
 #include <SFML/Graphics/Texture.hpp>
@@ -62,6 +63,35 @@ public: // SidebarUserWithSprites
     [[nodiscard]] std::size_t getSpriteCount() const override
     {
         return renderData.size();
+    }
+
+    bool shouldSkipSprite(unsigned spriteId) const override
+    {
+        switch (static_cast<LevelItemId>(spriteId))
+        {
+            using enum LevelItemId;
+        case Unused1:
+        case Unused2:
+        case Unused3:
+        case Unused4:
+        case Unused5:
+        case Unused6:
+        case Unused7:
+        case Unused8:
+        case Unused9:
+        case Unused10:
+        case Unused11:
+        case Unused12:
+        case Unused13:
+        case Unused14:
+        case Unused15:
+        case Unused16:
+        case Unused17:
+        case Unused18:
+            return true;
+        }
+
+        return false;
     }
 
 private:

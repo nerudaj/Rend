@@ -25,6 +25,7 @@ if ( NOT ${DISABLE_TESTING})
 endif()
 
 add_subdirectory ( "src/lib-memory" )
+add_subdirectory ( "src/lib-defines" )
 add_subdirectory ( "src/lib-settings" )
 add_subdirectory ( "src/lib-editor" )
 add_subdirectory ( "src/lib-game" )

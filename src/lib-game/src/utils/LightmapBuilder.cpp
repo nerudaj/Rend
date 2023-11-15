@@ -79,8 +79,8 @@ std::queue<LightPoint> LightmapBuilder::getInitialLightSourceQueue(
 
     for (auto&& thing : level.things)
     {
-        using enum LeveldItemId;
-        switch (static_cast<LeveldItemId>(thing.id))
+        using enum LevelItemId;
+        switch (static_cast<LevelItemId>(thing.id))
         {
         case FloorLamp:
             queue.push(

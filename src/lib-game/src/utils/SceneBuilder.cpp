@@ -11,7 +11,7 @@ static inline const sf::FloatRect FULLSCREEN_VIEWPORT = { 0.f, 0.f, 1.f, 1.f };
 
 static constexpr bool isSpawn(const LevelD::Thing& thing) noexcept
 {
-    return static_cast<LeveldItemId>(thing.id) == LeveldItemId::PlayerSpawn;
+    return static_cast<LevelItemId>(thing.id) == LevelItemId::PlayerSpawn;
 }
 
 static sf::Vector2f getThingPosition(const LevelD::Thing& thing) noexcept
@@ -28,9 +28,9 @@ static std::vector<sf::Vector2f> createSpawns(const LevelD& level)
 }
 
 [[nodiscard]] static EntityType
-convertLeveldItemIdToEntityType(LeveldItemId id) noexcept
+convertLeveldItemIdToEntityType(LevelItemId id) noexcept
 {
-    using enum LeveldItemId;
+    using enum LevelItemId;
     switch (id)
     {
     case Medikit:
@@ -71,7 +71,7 @@ convertLeveldItemIdToEntityType(LeveldItemId id) noexcept
 static auto createEntity(const LevelD::Thing& thing)
 {
     const auto typeId =
-        convertLeveldItemIdToEntityType(static_cast<LeveldItemId>(thing.id));
+        convertLeveldItemIdToEntityType(static_cast<LevelItemId>(thing.id));
     const auto& props = ENTITY_PROPERTIES.at(typeId);
     const auto hitbox = dgm::Circle(getThingPosition(thing), props.radius);
     return Entity { .typeId = typeId,

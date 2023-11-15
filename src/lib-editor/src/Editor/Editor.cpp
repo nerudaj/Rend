@@ -50,10 +50,6 @@ void Editor::populateMenuBar()
     addEditorMenuItem(
         ITEM_MODE, [this] { switchTool(EditorState::Item); }, sf::Keyboard::I);
     addEditorMenuItem(
-        TRIG_MODE,
-        [this] { switchTool(EditorState::Trigger); },
-        sf::Keyboard::T);
-    addEditorMenuItem(
         RESIZE, [this] { resizeDialog(); }, sf::Keyboard::R);
     addEditorMenuItem(
         SHRINK,
@@ -302,15 +298,6 @@ Editor::Editor(
         layerController,
         gui,
         commandQueue);
-
-    /*stateMgr.addState<ToolTrigger>(
-        EditorState::Trigger,
-        onStateChanged,
-        shortcutEngine,
-        layerController,
-        gui,
-        commandQueue,
-        [this]() -> sf::Vector2i { return physicalPen.getCurrentPenPos(); });*/
 
     mouseIndicator.setRadius(8.f);
     mouseIndicator.setFillColor(sf::Color::Green);
