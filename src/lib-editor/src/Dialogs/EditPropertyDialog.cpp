@@ -54,6 +54,6 @@ tgui::Button::Ptr EditPropertyDialog::createButton(
     auto button = tgui::Button::create(label);
     button->setSize(size);
     button->setPosition(position);
-    button->connect("clicked", callback);
+    button->onClick(callback);
     return button;
 }

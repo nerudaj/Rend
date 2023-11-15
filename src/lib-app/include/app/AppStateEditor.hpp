@@ -14,8 +14,8 @@
 #include "LogConsole.hpp"
 #include "ProgramOptions.hpp"
 #include "Utilities/ClickPreventer.hpp"
-#include <Config.hpp>
 #include <DGM/dgm.hpp>
+#include <Settings.hpp>
 #include <TGUI/Backend/SFML-Graphics.hpp>
 #include <TGUI/TGUI.hpp>
 #include <optional>
@@ -28,9 +28,8 @@ public:
     AppStateEditor(
         dgm::App& app,
         mem::Rc<Gui> gui,
-        mem::Rc<dgm::ResourceManager> resmgr,
-        cfg::Ini& ini, // TODO: remove
-        ProgramOptions options,
+        mem::Rc<const dgm::ResourceManager> resmgr,
+        mem::Rc<Settings> settings,
         mem::Rc<FileApiInterface> fileApi,
         mem::Rc<ShortcutEngineInterface> shortcutEngine,
         mem::Rc<YesNoCancelDialogInterface> dialogConfirmExit,
@@ -38,18 +37,15 @@ public:
     ~AppStateEditor();
 
 protected:
-    // Dependencies
-    cfg::Ini& ini;
     mem::Rc<Gui> gui;
-    mem::Rc<dgm::ResourceManager> resmgr;
+    mem::Rc<const dgm::ResourceManager> resmgr;
+    mem::Rc<Settings> settings;
     mem::Rc<ShortcutEngineInterface> shortcutEngine;
     mem::Rc<FileApiInterface> fileApi;
     mem::Rc<YesNoCancelDialogInterface> dialogConfirmExit;
     mem::Rc<ErrorInfoDialogInterface> dialogErrorInfo;
 
     // Attributes
-    ProgramOptions programOptions;
-    // std::string filePath;
     std::string savePath;
     std::optional<std::string> configPath = {};
     bool unsavedChanges = false;

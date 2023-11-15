@@ -7,7 +7,6 @@
 #include "Editor/NullEditor.hpp"
 #include "Launcher/NullPlaytestLauncher.hpp"
 #include "Launcher/PlaytestLauncher.hpp"
-#include "Utilities/FontLoader.hpp"
 #include "Utilities/ProcessCreator.hpp"
 #include <cmath>
 
@@ -33,7 +32,7 @@ void AppStateEditor::handleExit(YesNoCancelDialogInterface& confirmExitDialog)
     }
     else
     {
-        app.exit();
+        app.popState();
     }
 }
 
@@ -63,15 +62,6 @@ void AppStateEditor::input()
         if (event.type == sf::Event::Closed)
         {
             handleExit(*dialogConfirmExit);
-        }
-        else if (event.type == sf::Event::Resized)
-        {
-            app.window.getWindowContext().setView(sf::View(sf::FloatRect(
-                0.f,
-                0.f,
-                static_cast<float>(event.size.width),
-                static_cast<float>(event.size.height))));
-            // gui->gui.setView(app.window.getWindowContext().getView());
         }
         else if (event.type == sf::Event::KeyPressed)
         {
@@ -130,9 +120,8 @@ void AppStateEditor::draw()
 AppStateEditor::AppStateEditor(
     dgm::App& app,
     mem::Rc<Gui> gui,
-    mem::Rc<dgm::ResourceManager> resmgr,
-    cfg::Ini& ini,
-    ProgramOptions options,
+    mem::Rc<const dgm::ResourceManager> resmgr,
+    mem::Rc<Settings> settings,
     mem::Rc<FileApiInterface> fileApi,
     mem::Rc<ShortcutEngineInterface> shortcutEngine,
     mem::Rc<YesNoCancelDialogInterface> dialogConfirmExit,
@@ -140,50 +129,23 @@ AppStateEditor::AppStateEditor(
     : dgm::AppState(app)
     , gui(gui)
     , resmgr(resmgr)
-    , ini(ini)
-    , programOptions(options)
+    , settings(settings)
     , fileApi(fileApi)
     , shortcutEngine(shortcutEngine)
     , dialogConfirmExit(dialogConfirmExit)
     , dialogErrorInfo(dialogErrorInfo)
-    , editor(Box<NullEditor>())
+    , editor(mem::Box<NullEditor>())
     , dialogNewLevel(gui, fileApi, configPath)
     , dialogUpdateConfigPath(gui, fileApi)
-    , playtestLauncher(Box<NullPlaytestLauncher>())
+    , playtestLauncher(mem::Box<NullPlaytestLauncher>())
 {
-    auto&& getIniStringValue =
-        [&ini, &options](const std::string& key) -> std::optional<std::string>
-    {
-        if (!ini.hasSection(options.binaryDirHash)
-            && ini[options.binaryDirHash].hasKey(key))
-            return {};
-        return ini[options.binaryDirHash][key].asString();
-    };
+    configPath =
+        (settings->cmdSettings.resourcesDir / "editor-config.json").string();
 
-    auto&& makePath = [](const std::optional<std::string>& path) noexcept
-        -> std::filesystem::path
-    {
-        try
-        {
-            return std::filesystem::path(path.value_or(""));
-        }
-        catch (std::exception& e)
-        {
-            std::cerr << "error:AppStateMainMenu: " << e.what() << std::endl;
-            return {};
-        }
-    };
-
-    configPath = getIniStringValue("configPath").value_or("");
-    const auto&& playtestBinaryPath =
-        makePath(getIniStringValue("playtestBinaryPath"));
-    const auto&& playtestLaunchOptions =
-        getIniStringValue("playtestLaunchOptions").value_or("");
-    const auto&& playtestWorkDirPath =
-        makePath(getIniStringValue("playtestWorkingDirPath"));
-
-    auto&& launcherOptions = mem::Rc<PlaytestLauncherOptions>(
-        { playtestBinaryPath, playtestLaunchOptions, playtestWorkDirPath });
+    auto&& launcherOptions =
+        mem::Rc<PlaytestLauncherOptions>({ "playtestBinaryPath",
+                                           "playtestLaunchOptions",
+                                           "playtestWorkDirPath" });
     playtestLauncher = mem::Box<PlaytestLauncher>(
         launcherOptions,
         shortcutEngine,
@@ -193,10 +155,9 @@ AppStateEditor::AppStateEditor(
 
     try
     {
-        // NOTE: if editor crashes under debugger, set binary parameter to
-        // ../../.. because behaviour of root dir had changed
         gui->theme.load(
-            (programOptions.rootDir / "editor/TransparentGrey.txt").string());
+            (settings->cmdSettings.resourcesDir / "editor/TransparentGrey.txt")
+                .string());
         setupFont();
     }
     catch (std::exception& e)
@@ -224,17 +185,8 @@ AppStateEditor::AppStateEditor(
 
 AppStateEditor::~AppStateEditor()
 {
-    if (configPath.has_value())
-    {
-        ini[programOptions.binaryDirHash]["configPath"] = configPath.value();
-    }
-
-    ini[programOptions.binaryDirHash]["playtestBinaryPath"] =
-        playtestLauncher->getBinaryPath().string();
-    ini[programOptions.binaryDirHash]["playtestLaunchOptions"] =
+    settings->editorSettings.launchOptions =
         playtestLauncher->getLaunchParameters();
-    ini[programOptions.binaryDirHash]["playtestWorkingDirPath"] =
-        playtestLauncher->getWorkingDirPath().string();
 }
 
 void AppStateEditor::buildLayout()
@@ -259,7 +211,7 @@ void AppStateEditor::buildLayout()
     Log::get().init(loggerChatBox);
 
     auto layerLabel = tgui::Label::create();
-    layerLabel->setPosition({ "1%", "100% - 2 * " + TOPBAR_HEIGHT });
+    layerLabel->setPosition({ "1%", ("100% - 2 * " + TOPBAR_HEIGHT).c_str() });
     gui->gui.add(layerLabel, "LayerLabel");
 }
 
@@ -269,8 +221,9 @@ AppStateEditor::AllowExecutionToken AppStateEditor::buildCanvasLayout(
     const std::string& TOPBAR_HEIGHT)
 {
     canvas = tgui::CanvasSFML::create();
-    canvas->setSize("100% - " + SIDEBAR_WIDTH, SIDEBAR_HEIGHT);
-    canvas->setPosition(0.f, TOPBAR_HEIGHT);
+    canvas->setSize(
+        ("100% - " + SIDEBAR_WIDTH).c_str(), SIDEBAR_HEIGHT.c_str());
+    canvas->setPosition(0.f, TOPBAR_HEIGHT.c_str());
     gui->gui.add(canvas, "TilesetCanvas");
     return AllowExecutionToken();
 }
@@ -283,7 +236,7 @@ tgui::MenuBar::Ptr AppStateEditor::buildMenuBarLayout(
     auto menu = tgui::MenuBar::create();
     menu->setTextSize(TOPBAR_FONT_HEIGHT);
     menu->setRenderer(gui->theme.getRenderer("MenuBar"));
-    menu->setSize("100%", TOPBAR_HEIGHT);
+    menu->setSize("100%", TOPBAR_HEIGHT.c_str());
     menu->addMenu(Strings::AppState::CTX_MENU_NAME);
 
     auto addFileMenuItem = [this, &menu](
@@ -330,20 +283,19 @@ void AppStateEditor::buildSidebarLayout(
 {
     // only bootstrap the space it will be sitting in
     auto sidebar = tgui::Group::create();
-    sidebar->setSize(SIDEBAR_WIDTH, SIDEBAR_HEIGHT);
-    sidebar->setPosition("100% - " + SIDEBAR_WIDTH, TOPBAR_HEIGHT);
+    sidebar->setSize(SIDEBAR_WIDTH.c_str(), SIDEBAR_HEIGHT.c_str());
+    sidebar->setPosition(
+        ("100% - " + SIDEBAR_WIDTH).c_str(), TOPBAR_HEIGHT.c_str());
     gui->gui.add(sidebar, "Sidebar");
 }
 
 tgui::ChatBox::Ptr AppStateEditor::buildLoggerLayout(
-    AllowExecutionToken,
-    const std::string& TOPBAR_HEIGHT,
-    unsigned TOPBAR_FONT_HEIGHT)
+    AllowExecutionToken, const std::string& TOPBAR_HEIGHT, unsigned)
 {
     auto logger = tgui::ChatBox::create();
     logger->setRenderer(gui->theme.getRenderer("ChatBox"));
-    logger->setSize("100%", TOPBAR_HEIGHT);
-    logger->setPosition("0%", "100% - " + TOPBAR_HEIGHT);
+    logger->setSize("100%", TOPBAR_HEIGHT.c_str());
+    logger->setPosition("0%", ("100% - " + TOPBAR_HEIGHT).c_str());
     logger->setTextSize(Sizers::GetMenuBarTextHeight());
     logger->setLinesStartFromTop();
     logger->setLineLimit(1);

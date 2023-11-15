@@ -25,8 +25,9 @@ void ToolInterface::addCtxMenuItem(
 
 void ToolInterface::destroyCtxMenu(tgui::MenuBar::Ptr& menu)
 {
+    /* FIXME:
     for (auto&& id : ctxMenuSignalHandlers)
-        menu->disconnect(id);
+        menu->disconnect(id);*/
 
     ctxMenuSignalHandlers.clear();
     menu->removeMenu(CTX_MENU_NAME);

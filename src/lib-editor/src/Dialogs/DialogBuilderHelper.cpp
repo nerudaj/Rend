@@ -53,19 +53,19 @@ void _addOptionUint(
     row->add(lbl);
 
     auto edit = tgui::EditBox::create();
-    edit->setSize(VALUE_WIDTH, "100%");
-    edit->setPosition(VALUE_LEFT_MARGIN, "0%");
+    edit->setSize(VALUE_WIDTH.c_str(), "100%");
+    edit->setPosition(VALUE_LEFT_MARGIN.c_str(), "0%");
     edit->setText(std::to_string(val));
     edit->setEnabled(enabled);
     edit->getRenderer()->setBorderColor(sf::Color::Black);
     edit->setInputValidator(tgui::EditBox::Validator::UInt);
 
-    auto updateValue = [&val, &token, edit](const std::string& newVal)
+    auto updateValue = [&val, &token, edit](const tgui::String& newVal)
     {
         try
         {
             std::size_t endpos;
-            unsigned long value = std::stoul(newVal, &endpos);
+            unsigned long value = std::stoul(newVal.toStdString(), &endpos);
             if (value > T(-1)) throw 1;
             val = T(value);
             edit->getRenderer()->setBorderColor(sf::Color::Black);
@@ -86,8 +86,8 @@ void _addOptionUint(
     if (tag)
     {
         auto btn = tgui::Button::create("New tag");
-        btn->setSize(VALUE_WIDTH, "100%");
-        btn->setPosition(TAG_LEFT_MARGIN, "0%");
+        btn->setSize(VALUE_WIDTH.c_str(), "100%");
+        btn->setPosition(TAG_LEFT_MARGIN.c_str(), "0%");
         btn->setEnabled(enabled);
         btn->onPress(
             [edit]
@@ -178,8 +178,8 @@ void DialogBuilderHelper::addOption(
 
     if (enabled)
     {
-        edit->onTextChange([&data](const std::string& newVal)
-                           { data = newVal; });
+        edit->onTextChange([&data](const tgui::String& newVal)
+                           { data = newVal.toStdString(); });
     }
 
     row->add(edit);

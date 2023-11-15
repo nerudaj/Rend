@@ -16,8 +16,8 @@ void DialogInterface::open(std::function<void()> confirmCallback)
     auto modal = gui->createNewChildWindow(DIALOG_TITLE);
     modal->setSize("30%", "50%");
     modal->setPosition("35%", "25%");
-    modal->onEscapeKeyPress([this] { close(); });
-    modal->onClose("Closed", [this] { close(); });
+    modal->onEscapeKeyPress([this](auto) { close(); });
+    modal->onClose([this] { close(); });
     gui->addModal(modal, DIALOG_ID);
 
     constexpr auto ROW_HEIGHT = 6_upercent;
@@ -56,8 +56,7 @@ void DialogInterface::open(std::function<void()> confirmCallback)
         modal->add(box, id);
     };
 
-    auto addCheckbox =
-        [&](const bool value, const std::string& id, unsigned row)
+    auto addCheckbox = [&](const bool, const std::string& id, unsigned row)
     {
         auto check = tgui::CheckBox::create();
         check->setPosition("32%", computeYposFromRow(row).c_str());

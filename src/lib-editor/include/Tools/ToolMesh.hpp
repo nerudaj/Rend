@@ -38,7 +38,7 @@ public: // PenUserInterface
     void
     penDragEnded(const sf::Vector2i& start, const sf::Vector2i& end) override;
 
-    void penDragCancel(const sf::Vector2i& origin) override
+    void penDragCancel(const sf::Vector2i&) override
     {
         dragging = false;
     }
@@ -72,13 +72,13 @@ public: // ToolInterface
 
     // No highlight here
     virtual std::optional<GenericObject>
-    getHighlightedObject(const sf::Vector2i& penPos) const override
+    getHighlightedObject(const sf::Vector2i&) const override
     {
         return {};
     }
 
     virtual std::vector<sf::Vector2u>
-    getPositionsOfObjectsWithTag(unsigned tag) const override
+    getPositionsOfObjectsWithTag(unsigned) const override
     {
         return {};
     }

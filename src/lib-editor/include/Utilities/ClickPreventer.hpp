@@ -5,22 +5,21 @@
 class ClickPreventer
 {
 public:
-	void preventClickForNextNFrames(const unsigned frameCount)
-	{
-		framesLeft = frameCount;
-	}
+    void preventClickForNextNFrames(const unsigned frameCount)
+    {
+        framesLeft = frameCount;
+    }
 
-	void update()
-	{
-		if (framesLeft > 0)
-			--framesLeft;
-	}
+    void update()
+    {
+        if (framesLeft > 0) --framesLeft;
+    }
 
-	bool shouldPreventEvents() const noexcept
-	{
-		return framesLeft > 0.f;
-	}
+    bool shouldPreventEvents() const noexcept
+    {
+        return framesLeft > 0;
+    }
 
 private:
-	unsigned framesLeft = 0.f;
+    unsigned framesLeft = 0;
 };

@@ -60,6 +60,7 @@ replaceString(std::string str, T&& from, const std::string& to)
 
 void PlaytestLauncher::handlePlaytestExecuted()
 {
+    // TODO: just jump to another state
     auto result = processCreator->Exec(
         options->pathToBinary,
         replaceString(

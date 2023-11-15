@@ -5,14 +5,18 @@
 #include <TGUI/Tgui.hpp>
 
 // Gui adapter class
-class Gui final
+class [[nodiscard]] Gui final
 {
+public:
+    Gui(tgui::Gui& gui) noexcept : gui(gui) {}
+
 public:
     tgui::ChildWindow::Ptr createNewChildWindow(const std::string& title)
     {
         auto modal = tgui::ChildWindow::create(title);
         modal->setRenderer(theme.getRenderer("ChildWindow"));
-        modal->getRenderer()->setTitleBarHeight(Sizers::GetMenuBarHeight());
+        modal->getRenderer()->setTitleBarHeight(
+            static_cast<float>(Sizers::GetMenuBarHeight()));
         modal->setTitleTextSize(Sizers::GetMenuBarTextHeight());
         return modal;
     }
@@ -46,7 +50,7 @@ public:
     }
 
 public:
-    tgui::Gui gui;
+    tgui::Gui& gui;
     tgui::Theme theme;
 
 private:

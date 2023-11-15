@@ -8,7 +8,7 @@
 class ToolPropertyInterface
 {
 public:
-    ~ToolPropertyInterface() = default;
+    virtual ~ToolPropertyInterface() = default;
 
 public:
     virtual void fillEditDialog(

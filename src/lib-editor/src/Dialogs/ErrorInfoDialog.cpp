@@ -8,7 +8,7 @@ void ErrorInfoDialog::open(const std::string& text)
     modal->setPosition("35%", "40%");
     modal->setPositionLocked(true);
 
-    modal->connect("Closed", [&] { gui->closeModal(DIALOG_ID); });
+    modal->onClose([&] { gui->closeModal(DIALOG_ID); });
     gui->addModal(modal, DIALOG_ID);
 
     auto label = tgui::Label::create(text);

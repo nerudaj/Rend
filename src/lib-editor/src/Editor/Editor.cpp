@@ -203,9 +203,9 @@ void Editor::init(
     switchTool(EditorState::Mesh);
 
     // Configure canvas callbacks
-    canvas->connect("RightMouseReleased", [this] { handleRmbClicked(); });
-    canvas->connect("MousePressed", [this] { physicalPen.penDown(); });
-    canvas->connect("MouseReleased", [this] { physicalPen.penUp(); });
+    canvas->onRightMouseRelease([this] { handleRmbClicked(); });
+    canvas->onMousePress([this] { physicalPen.penDown(); });
+    canvas->onMouseRelease([this] { physicalPen.penUp(); });
 }
 
 void Editor::switchTool(EditorState state)

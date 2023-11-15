@@ -1,4 +1,9 @@
 #include "app/AppStateMainMenu.hpp"
+#include "Dialogs/ErrorInfoDialog.hpp"
+#include "Dialogs/YesNoCancelDialog.hpp"
+#include "Shortcuts/ShortcutEngine.hpp"
+#include "Utilities/FileApi.hpp"
+#include "app/AppStateEditor.hpp"
 #include "app/AppStateGameSetup.hpp"
 #include "app/AppStateIngame.hpp"
 #include "app/AppStateMenuOptions.hpp"
@@ -20,6 +25,21 @@ void AppStateMainMenu::buildLayoutImpl()
     createButtonListInLayout(
         layout,
         { ButtonProps("play", [this] { goToGameSetup(); }),
+          ButtonProps(
+              "editor",
+              [this]
+              {
+                  auto _gui = mem::Rc<Gui>(*gui);
+                  app.pushState<AppStateEditor>(
+                      _gui,
+                      resmgr,
+                      settings,
+                      mem::Rc<FileApi>(),
+                      mem::Rc<ShortcutEngine>(
+                          [_gui] { return _gui->isAnyModalOpened(); }),
+                      mem::Rc<YesNoCancelDialog>(_gui),
+                      mem::Rc<ErrorInfoDialog>(_gui));
+              }),
           ButtonProps(
               "options",
               [this] {

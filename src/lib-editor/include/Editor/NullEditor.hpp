@@ -16,10 +16,7 @@ public:
         return {};
     }
 
-    void loadFrom(
-        const LevelD&, const std::filesystem::path&, bool skipInit) override
-    {
-    }
+    void loadFrom(const LevelD&, const std::filesystem::path&, bool) override {}
 
     void switchTool(EditorState) override {}
 

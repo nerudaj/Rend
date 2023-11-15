@@ -34,7 +34,7 @@ public:
 
     virtual mem::Box<CommandInterface> getInverse() const override
     {
-        return Box<SetObjectPropertyCommand>(
+        return mem::Box<SetObjectPropertyCommand>(
             target, objectId, *oldData, levelSize);
     }
 

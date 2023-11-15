@@ -43,7 +43,7 @@ public:
 
     virtual mem::Box<CommandInterface> getInverse() const override
     {
-        return Mem::Box<MoveObjectCommand>(
+        return mem::Box<MoveObjectCommand>(
             target,
             selectedItemIds,
             dragContext,
