@@ -29,6 +29,7 @@ enum class LevelItemId
     Crossbow,
     Launcher,
     Ballista,
+    Harpoon,
     Unused13,
     Unused14,
     Unused15,
@@ -36,5 +37,7 @@ enum class LevelItemId
     Unused17,
     Unused18,
     Pillar,
-    FloorLamp
+    FloorLamp,
+    Unused19,
+    Unused20,
 };
