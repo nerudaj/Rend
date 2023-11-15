@@ -12,6 +12,7 @@
 #include "Interfaces/PlaytestLauncherInterface.hpp"
 #include "Interfaces/ShortcutEngineInterface.hpp"
 #include "Utilities/ClickPreventer.hpp"
+#include "audio/AudioPlayer.hpp"
 #include <DGM/dgm.hpp>
 #include <Settings.hpp>
 #include <TGUI/Backend/SFML-Graphics.hpp>
@@ -25,9 +26,11 @@ class AppStateEditor : public dgm::AppState
 public:
     AppStateEditor(
         dgm::App& app,
+        mem::Rc<tgui::Gui> nativeGui,
         mem::Rc<Gui> gui,
         mem::Rc<const dgm::ResourceManager> resmgr,
         mem::Rc<Settings> settings,
+        mem::Rc<AudioPlayer> audioPlayer,
         mem::Rc<FileApiInterface> fileApi,
         mem::Rc<ShortcutEngineInterface> shortcutEngine,
         mem::Rc<YesNoCancelDialogInterface> dialogConfirmExit,
@@ -35,9 +38,11 @@ public:
     ~AppStateEditor();
 
 protected:
+    mem::Rc<tgui::Gui> nativeGui;
     mem::Rc<Gui> gui;
     mem::Rc<const dgm::ResourceManager> resmgr;
     mem::Rc<Settings> settings;
+    mem::Rc<AudioPlayer> audioPlayer;
     mem::Rc<ShortcutEngineInterface> shortcutEngine;
     mem::Rc<FileApiInterface> fileApi;
     mem::Rc<YesNoCancelDialogInterface> dialogConfirmExit;
@@ -54,7 +59,6 @@ protected:
     NewLevelDialog dialogNewLevel;
     UpdateConfigPathDialog dialogUpdateConfigPath;
     ClickPreventer clickPreventer;
-    mem::Box<PlaytestLauncherInterface> playtestLauncher;
 
 protected:
     void updateWindowTitle()
@@ -93,10 +97,6 @@ protected: // Build functions
         const std::string& SIDEBAR_WIDTH,
         const std::string& SIDEBAR_HEIGHT,
         const std::string& TOPBAR_HEIGHT);
-    tgui::ChatBox::Ptr buildLoggerLayout(
-        AllowExecutionToken,
-        const std::string& TOPBAR_HEIGHT,
-        unsigned TOPBAR_FONT_HEIGHT);
 
 protected: // Callback handlers
     void handleNewLevel();
@@ -105,6 +105,7 @@ protected: // Callback handlers
         const std::string& pathToLevel,
         std::optional<std::string> pathToConfigOverride = {});
     void handleSaveLevel(bool forceNewPath = false) noexcept;
+    void handlePlayLevel();
     void handleUndo();
     void handleRedo();
     void handleExit(YesNoCancelDialogInterface& dialoConfirmExit);

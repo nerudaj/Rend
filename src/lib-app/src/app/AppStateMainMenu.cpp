@@ -29,11 +29,13 @@ void AppStateMainMenu::buildLayoutImpl()
               "editor",
               [this]
               {
-                  auto _gui = mem::Rc<Gui>(*gui);
+                  auto _gui = mem::Rc<Gui>();
                   app.pushState<AppStateEditor>(
+                      gui,
                       _gui,
                       resmgr,
                       settings,
+                      audioPlayer,
                       mem::Rc<FileApi>(),
                       mem::Rc<ShortcutEngine>(
                           [_gui] { return _gui->isAnyModalOpened(); }),

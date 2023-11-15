@@ -8,6 +8,7 @@
 #include "Launcher/NullPlaytestLauncher.hpp"
 #include "Launcher/PlaytestLauncher.hpp"
 #include "Utilities/ProcessCreator.hpp"
+#include "app/AppStateIngame.hpp"
 #include <cmath>
 
 void AppStateEditor::handleExit(YesNoCancelDialogInterface& confirmExitDialog)
@@ -119,17 +120,21 @@ void AppStateEditor::draw()
 
 AppStateEditor::AppStateEditor(
     dgm::App& app,
+    mem::Rc<tgui::Gui> nativeGui,
     mem::Rc<Gui> gui,
     mem::Rc<const dgm::ResourceManager> resmgr,
     mem::Rc<Settings> settings,
+    mem::Rc<AudioPlayer> audioPlayer,
     mem::Rc<FileApiInterface> fileApi,
     mem::Rc<ShortcutEngineInterface> shortcutEngine,
     mem::Rc<YesNoCancelDialogInterface> dialogConfirmExit,
     mem::Rc<ErrorInfoDialogInterface> dialogErrorInfo)
     : dgm::AppState(app)
+    , nativeGui(nativeGui)
     , gui(gui)
     , resmgr(resmgr)
     , settings(settings)
+    , audioPlayer(audioPlayer)
     , fileApi(fileApi)
     , shortcutEngine(shortcutEngine)
     , dialogConfirmExit(dialogConfirmExit)
@@ -137,21 +142,9 @@ AppStateEditor::AppStateEditor(
     , editor(mem::Box<NullEditor>())
     , dialogNewLevel(gui, fileApi, configPath)
     , dialogUpdateConfigPath(gui, fileApi)
-    , playtestLauncher(mem::Box<NullPlaytestLauncher>())
 {
     configPath =
         (settings->cmdSettings.resourcesDir / "editor-config.json").string();
-
-    auto&& launcherOptions =
-        mem::Rc<PlaytestLauncherOptions>({ "playtestBinaryPath",
-                                           "playtestLaunchOptions",
-                                           "playtestWorkDirPath" });
-    playtestLauncher = mem::Box<PlaytestLauncher>(
-        launcherOptions,
-        shortcutEngine,
-        mem::Rc<ProcessCreator>(),
-        mem::Rc<PlaytestSettingsDialog>(launcherOptions, gui, fileApi),
-        [&] { return savePath; });
 
     try
     {
@@ -183,11 +176,7 @@ AppStateEditor::AppStateEditor(
     updateWindowTitle();
 }
 
-AppStateEditor::~AppStateEditor()
-{
-    settings->editorSettings.launchOptions =
-        playtestLauncher->getLaunchParameters();
-}
+AppStateEditor::~AppStateEditor() {}
 
 void AppStateEditor::buildLayout()
 {
@@ -204,10 +193,7 @@ void AppStateEditor::buildLayout()
         buildCanvasLayout(SIDEBAR_WIDTH, SIDEBAR_HEIGHT, TOPBAR_HEIGHT);
     auto menuBar =
         buildMenuBarLayout(runToken, TOPBAR_HEIGHT, TOPBAR_FONT_HEIGHT);
-    playtestLauncher->buildContextMenu(menuBar);
     buildSidebarLayout(runToken, SIDEBAR_WIDTH, SIDEBAR_HEIGHT, TOPBAR_HEIGHT);
-    auto loggerChatBox =
-        buildLoggerLayout(runToken, TOPBAR_HEIGHT, TOPBAR_FONT_HEIGHT);
 
     auto layerLabel = tgui::Label::create();
     layerLabel->setPosition({ "1%", ("100% - 2 * " + TOPBAR_HEIGHT).c_str() });
@@ -264,6 +250,8 @@ tgui::MenuBar::Ptr AppStateEditor::buildMenuBarLayout(
         SAVE, [this] { handleSaveLevel(); }, sf::Keyboard::S);
     addFileMenuItem(SAVE_AS, [this] { handleSaveLevel(true); });
     addFileMenuItem(
+        PLAY, [this] { handlePlayLevel(); }, sf::Keyboard::F5);
+    addFileMenuItem(
         UNDO, [this] { handleUndo(); }, sf::Keyboard::Z);
     addFileMenuItem(
         REDO, [this] { handleRedo(); }, sf::Keyboard::Y);
@@ -286,21 +274,6 @@ void AppStateEditor::buildSidebarLayout(
     sidebar->setPosition(
         ("100% - " + SIDEBAR_WIDTH).c_str(), TOPBAR_HEIGHT.c_str());
     gui->gui.add(sidebar, "Sidebar");
-}
-
-tgui::ChatBox::Ptr AppStateEditor::buildLoggerLayout(
-    AllowExecutionToken, const std::string& TOPBAR_HEIGHT, unsigned)
-{
-    auto logger = tgui::ChatBox::create();
-    logger->setRenderer(gui->theme.getRenderer("ChatBox"));
-    logger->setSize("100%", TOPBAR_HEIGHT.c_str());
-    logger->setPosition("0%", ("100% - " + TOPBAR_HEIGHT).c_str());
-    logger->setTextSize(Sizers::GetMenuBarTextHeight());
-    logger->setLinesStartFromTop();
-    logger->setLineLimit(1);
-    logger->addLine("This is a log console");
-    gui->gui.add(logger, "LoggerBox");
-    return logger;
 }
 
 void AppStateEditor::newLevelDialogCallback()
@@ -387,6 +360,25 @@ void AppStateEditor::handleSaveLevel(bool forceNewPath) noexcept
     {
         dialogErrorInfo->open(e.what());
     }
+}
+
+void AppStateEditor::handlePlayLevel()
+{
+    if (savePath.empty())
+    {
+        dialogErrorInfo->open(Strings::Dialog::Message::CANNOT_PLAY_LEVEL);
+        return;
+    }
+
+    const auto gameSettings = GameSettings {
+        .map = std::filesystem::path(savePath).filename().string(),
+        .players = { PlayerSettings { .kind = PlayerKind::LocalHuman,
+                                      .bindCamera = true } },
+        .fraglimit = 1
+    };
+
+    app.pushState<AppStateIngame>(
+        resmgr, nativeGui, settings, audioPlayer, gameSettings);
 }
 
 void AppStateEditor::handleUndo()
