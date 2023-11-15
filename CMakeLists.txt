@@ -26,6 +26,7 @@ endif()
 
 add_subdirectory ( "src/lib-memory" )
 add_subdirectory ( "src/lib-settings" )
+add_subdirectory ( "src/lib-editor" )
 add_subdirectory ( "src/lib-game" )
 add_subdirectory ( "src/lib-app" )
 add_subdirectory ( "src/bin" )

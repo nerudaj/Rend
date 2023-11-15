@@ -20,7 +20,7 @@ target_include_directories ( ${PROJECT_NAME}
 )
 
 target_link_libraries ( ${PROJECT_NAME}
-	lib-game Dep_tgui
+	lib-game lib-editor Dep_tgui
 )
 
 autoset_target_compile_options ( ${PROJECT_NAME} FALSE )
