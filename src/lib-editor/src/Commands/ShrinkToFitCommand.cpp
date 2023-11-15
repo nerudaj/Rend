@@ -1,15 +1,13 @@
-#include "include/Commands/ShrinkToFitCommand.hpp"
-#include "include/Commands/RestoreFromSnapshotCommand.hpp"
+#include "Commands/ShrinkToFitCommand.hpp"
+#include "Commands/RestoreFromSnapshotCommand.hpp"
 
 void ShrinkToFitCommand::exec()
 {
-	levelSnapshot = editor.save();
-	editor.shrinkToFit();
+    levelSnapshot = editor.save();
+    editor.shrinkToFit();
 }
 
-Box<CommandInterface> ShrinkToFitCommand::getInverse() const
+mem::Box<CommandInterface> ShrinkToFitCommand::getInverse() const
 {
-	return Box<RestoreFromSnapshotCommand>(
-		editor,
-		levelSnapshot);
+    return mem::Box<RestoreFromSnapshotCommand>(editor, levelSnapshot);
 }

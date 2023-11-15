@@ -1,20 +1,20 @@
 #pragma once
 
-#include "include/Interfaces/ToolInterface.hpp"
-#include "include/ToolProperties/ItemToolProperty.hpp"
-#include "include/Tools/SidebarUserItem.hpp"
-#include "include/Tools/ToolWithDragAndSelect.hpp"
-#include "include/Utilities/CoordConverter.hpp"
+#include "Interfaces/ToolInterface.hpp"
+#include "ToolProperties/ItemToolProperty.hpp"
+#include "Tools/SidebarUserItem.hpp"
+#include "Tools/ToolWithDragAndSelect.hpp"
+#include "Utilities/CoordConverter.hpp"
 
 class ToolItem final : public ToolWithDragAndSelect
 {
 public:
     [[nodiscard]] ToolItem(
         std::function<void(void)> onStateChanged,
-        GC<ShortcutEngineInterface> shortcutEngine,
-        GC<LayerObserverInterface> layerObserver,
-        GC<Gui> gui,
-        GC<CommandQueue> commandQueue) noexcept
+        mem::Rc<ShortcutEngineInterface> shortcutEngine,
+        mem::Rc<LayerObserverInterface> layerObserver,
+        mem::Rc<Gui> gui,
+        mem::Rc<CommandQueue> commandQueue) noexcept
         : ToolWithDragAndSelect(onStateChanged, shortcutEngine, layerObserver)
         , sidebarUser(gui)
         , commandQueue(commandQueue)
@@ -42,7 +42,7 @@ public: // ToolInterface
 
     void loadFrom(const LevelD& lvd) override;
 
-    void drawTo(tgui::Canvas::Ptr& canvas, uint8_t opacity) override;
+    void drawTo(tgui::CanvasSFML::Ptr& canvas, uint8_t opacity) override;
 
     ExpectedPropertyPtr getProperty(const sf::Vector2i& penPos) const override;
 
@@ -86,5 +86,5 @@ private:
     CoordConverter coordConverter;
     sf::Vector2i levelSize;
     SidebarUserItem sidebarUser;
-    GC<CommandQueue> commandQueue;
+    mem::Rc<CommandQueue> commandQueue;
 };

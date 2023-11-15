@@ -41,9 +41,9 @@ public:
             target, selectedItemIds, dragContext, finalPosition, boundary);
     }
 
-    virtual Box<CommandInterface> getInverse() const override
+    virtual mem::Box<CommandInterface> getInverse() const override
     {
-        return Box<MoveObjectCommand>(
+        return Mem::Box<MoveObjectCommand>(
             target,
             selectedItemIds,
             dragContext,

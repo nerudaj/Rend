@@ -6,6 +6,8 @@
 #include <LevelD.hpp>
 #include <SFML/System/Vector2.hpp>
 
+import Memory;
+
 template<TriggerOrThing ObjectType>
 class SetObjectPropertyCommand : public UndoableCommandInterface
 {
@@ -30,7 +32,7 @@ public:
             std::clamp<unsigned>(target[objectId].y, 0u, levelSize.y);
     }
 
-    virtual Box<CommandInterface> getInverse() const override
+    virtual mem::Box<CommandInterface> getInverse() const override
     {
         return Box<SetObjectPropertyCommand>(
             target, objectId, *oldData, levelSize);

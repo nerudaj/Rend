@@ -1,7 +1,7 @@
 #pragma once
 
-#include "include/Interfaces/ShortcutEngineInterface.hpp"
-#include "include/Shortcuts/ShortcutCombo.hpp"
+#include "Interfaces/ShortcutEngineInterface.hpp"
+#include "Shortcuts/ShortcutCombo.hpp"
 #include <map>
 
 class ShortcutEngine final : public ShortcutEngineInterface

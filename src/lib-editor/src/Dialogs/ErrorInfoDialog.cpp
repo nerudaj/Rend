@@ -1,5 +1,5 @@
-#include "include/Dialogs/ErrorInfoDialog.hpp"
-#include "include/Globals.hpp"
+#include "Dialogs/ErrorInfoDialog.hpp"
+#include "Globals.hpp"
 
 void ErrorInfoDialog::open(const std::string& text)
 {

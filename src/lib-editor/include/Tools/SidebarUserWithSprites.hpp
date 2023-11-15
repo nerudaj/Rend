@@ -1,14 +1,18 @@
 #pragma once
 
-#include "include/Gui.hpp"
-#include "include/Interfaces/SidebarUserInterface.hpp"
-#include "include/Tools/ToolPenHistory.hpp"
-#include "include/Utilities/GC.hpp"
+#include "Gui.hpp"
+#include "Interfaces/SidebarUserInterface.hpp"
+#include "Tools/ToolPenHistory.hpp"
+
+import Memory;
 
 class SidebarUserWithSprites : public SidebarUserInterface
 {
 public:
-    SidebarUserWithSprites(GC<Gui> gui) noexcept : SidebarUserInterface(gui) {}
+    SidebarUserWithSprites(mem::Rc<Gui> gui) noexcept
+        : SidebarUserInterface(gui)
+    {
+    }
 
 public:
     [[nodiscard]] constexpr unsigned getPenValue() const noexcept

@@ -1,12 +1,15 @@
 #pragma once
 
-#include "include/Tools/SidebarUserWithSprites.hpp"
+#include "Gui.hpp"
+#include "Tools/SidebarUserWithSprites.hpp"
 #include <SFML/Graphics/Rect.hpp>
 #include <SFML/Graphics/Sprite.hpp>
 #include <SFML/Graphics/Texture.hpp>
 #include <filesystem>
 #include <utility>
 #include <vector>
+
+import Memory;
 
 class SidebarUserItem : public SidebarUserWithSprites
 {
@@ -26,7 +29,7 @@ public:
     };
 
 public:
-    [[nodiscard]] SidebarUserItem(GC<Gui> gui) noexcept
+    [[nodiscard]] SidebarUserItem(mem::Rc<Gui> gui) noexcept
         : SidebarUserWithSprites(gui)
     {
         outline.setOutlineColor(sf::Color::Red);
@@ -43,7 +46,7 @@ public:
     }
 
     void drawSprite(
-        tgui::Canvas::Ptr& canvas,
+        tgui::CanvasSFML::Ptr& canvas,
         unsigned spriteId,
         const sf::Vector2i& position,
         bool selected,

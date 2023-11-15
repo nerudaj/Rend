@@ -1,7 +1,7 @@
 #pragma once
 
-#include "include/Editor/EditorState.hpp"
-#include "include/Interfaces/ToolInterface.hpp"
+#include "Editor/EditorState.hpp"
+#include "Interfaces/ToolInterface.hpp"
 #include <functional>
 #include <map>
 #include <vector>

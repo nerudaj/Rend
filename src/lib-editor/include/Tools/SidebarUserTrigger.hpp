@@ -1,6 +1,6 @@
 #pragma once
 
-#include "include/Interfaces/SidebarUserInterface.hpp"
+#include "Interfaces/SidebarUserInterface.hpp"
 #include <LevelD.hpp>
 
 class SidebarUserTrigger final : public SidebarUserInterface
@@ -9,7 +9,7 @@ public:
     using PenType = LevelD::Trigger::AreaType;
 
 public:
-    [[nodiscard]] SidebarUserTrigger(GC<Gui> gui) noexcept
+    [[nodiscard]] SidebarUserTrigger(mem::Rc<Gui> gui) noexcept
         : SidebarUserInterface(gui)
     {
     }

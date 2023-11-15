@@ -1,10 +1,10 @@
-#include "include/Tools/ToolTrigger.hpp"
-#include "include/Commands/CommandHelper.hpp"
-#include "include/Commands/CreateDeleteObjectCommand.hpp"
-#include "include/Commands/MoveObjectCommand.hpp"
-#include "include/Commands/SetObjectPropertyCommand.hpp"
-#include "include/JsonHelper.hpp"
-#include "include/LogConsole.hpp"
+#include "Tools/ToolTrigger.hpp"
+#include "Commands/CommandHelper.hpp"
+#include "Commands/CreateDeleteObjectCommand.hpp"
+#include "Commands/MoveObjectCommand.hpp"
+#include "Commands/SetObjectPropertyCommand.hpp"
+#include "JsonHelper.hpp"
+#include "LogConsole.hpp"
 
 /* Implementing ToolWithDragAndSelect */
 std::optional<std::size_t>
@@ -15,7 +15,7 @@ ToolTrigger::getObjectIndexFromMousePos(const sf::Vector2i& pos) const
         const sf::Vector2i tpos(triggers[i].x, triggers[i].y);
         if (triggers[i].areaType == PenType::Circle)
         {
-            if (dgm::Math::vectorSize(sf::Vector2f(pos - tpos))
+            if (dgm::Math::getSize(sf::Vector2f(pos - tpos))
                 < triggers[i].radius)
             {
                 return i;
@@ -236,7 +236,7 @@ void ToolTrigger::loadFrom(const LevelD& lvd)
     }
 }
 
-void ToolTrigger::drawTo(tgui::Canvas::Ptr& canvas, uint8_t opacity)
+void ToolTrigger::drawTo(tgui::CanvasSFML::Ptr& canvas, uint8_t opacity)
 {
     const float opacityFactor = opacity / 255.f;
 
@@ -287,7 +287,7 @@ void ToolTrigger::drawTo(tgui::Canvas::Ptr& canvas, uint8_t opacity)
         if (sidebarUser.getPenType() == PenType::Circle)
         {
             const float radius =
-                dgm::Math::vectorSize(sf::Vector2f(penPos - drawStart));
+                dgm::Math::getSize(sf::Vector2f(penPos - drawStart));
             circShape.setOrigin(radius, radius);
             circShape.setPosition(sf::Vector2f(drawStart));
             circShape.setRadius(radius);
@@ -342,7 +342,7 @@ void ToolTrigger::penClicked(const sf::Vector2i& position)
             trigger.x = drawStart.x;
             trigger.y = drawStart.y;
             trigger.radius = uint16_t(
-                dgm::Math::vectorSize(sf::Vector2f(position - drawStart)));
+                dgm::Math::getSize(sf::Vector2f(position - drawStart)));
         }
         else if (trigger.areaType == PenType::Rectangle)
         {
@@ -379,8 +379,8 @@ ExpectedPropertyPtr ToolTrigger::getProperty(const sf::Vector2i& penPos) const
     if (triggers[*trigId].layerId != getCurrentLayerId())
         return std::unexpected(BaseError());
 
-    auto&& result =
-        Box<TriggerToolProperty>(actionDefinitions, triggers[*trigId], *trigId);
+    auto&& result = mem::Box<TriggerToolProperty>(
+        actionDefinitions, triggers[*trigId], *trigId);
 
     return std::move(result);
 }

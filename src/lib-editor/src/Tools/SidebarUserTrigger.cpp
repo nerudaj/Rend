@@ -1,4 +1,4 @@
-#include "include/Tools/SidebarUserTrigger.hpp"
+#include "Tools/SidebarUserTrigger.hpp"
 
 void SidebarUserTrigger::buildSidebarInternal(tgui::Group::Ptr& sidebar)
 {
@@ -11,7 +11,7 @@ void SidebarUserTrigger::buildSidebarInternal(tgui::Group::Ptr& sidebar)
     cbtn->setRenderer(gui->theme.getRenderer("Button"));
     cbtn->setSize(BUTTON_SIZE, BUTTON_SIZE);
     cbtn->setPosition(OFFSET, OFFSET);
-    cbtn->connect("clicked", [this] { changePen(PenType::Circle); });
+    cbtn->onClick([this] { changePen(PenType::Circle); });
     cbtn->getRenderer()->setOpacity(
         penType != PenType::Circle ? 0.25f : 1.f); // highlight
     sidebar->add(cbtn);
@@ -21,7 +21,7 @@ void SidebarUserTrigger::buildSidebarInternal(tgui::Group::Ptr& sidebar)
     rbtn->setRenderer(gui->theme.getRenderer("Button"));
     rbtn->setSize(BUTTON_SIZE, BUTTON_SIZE);
     rbtn->setPosition(OFFSET, 2 * OFFSET + BUTTON_SIZE);
-    rbtn->connect("clicked", [this] { changePen(PenType::Rectangle); });
+    rbtn->onClick([this] { changePen(PenType::Rectangle); });
     rbtn->getRenderer()->setOpacity(
         penType == PenType::Circle ? 0.25f : 1.f); // highlight
     sidebar->add(rbtn);

@@ -1,10 +1,10 @@
-#include "include/Tools/ToolItem.hpp"
-#include "include/Commands/CommandHelper.hpp"
-#include "include/Commands/CreateDeleteObjectCommand.hpp"
-#include "include/Commands/MoveObjectCommand.hpp"
-#include "include/Commands/SetObjectPropertyCommand.hpp"
-#include "include/JsonHelper.hpp"
-#include "include/LogConsole.hpp"
+#include "Tools/ToolItem.hpp"
+#include "Commands/CommandHelper.hpp"
+#include "Commands/CreateDeleteObjectCommand.hpp"
+#include "Commands/MoveObjectCommand.hpp"
+#include "Commands/SetObjectPropertyCommand.hpp"
+#include "JsonHelper.hpp"
+#include "LogConsole.hpp"
 #include <filesystem>
 
 /* Implementing ToolWithDragAndSelect */
@@ -157,7 +157,7 @@ void ToolItem::loadFrom(const LevelD& lvd)
     }
 }
 
-void ToolItem::drawTo(tgui::Canvas::Ptr& canvas, uint8_t opacity)
+void ToolItem::drawTo(tgui::CanvasSFML::Ptr& canvas, uint8_t opacity)
 {
     unsigned index = 0;
     sf::RectangleShape outline;
@@ -221,7 +221,7 @@ ExpectedPropertyPtr ToolItem::getProperty(const sf::Vector2i& penPos) const
     if (items[*itemId].layerId != getCurrentLayerId())
         return std::unexpected(BaseError());
 
-    auto&& result = Box<ItemToolProperty>(
+    auto&& result = mem::Box<ItemToolProperty>(
         sidebarUser.getSpriteAsTexture(items.at(*itemId).id),
         *itemId,
         items.at(*itemId));

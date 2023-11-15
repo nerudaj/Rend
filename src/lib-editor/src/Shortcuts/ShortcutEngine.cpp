@@ -1,5 +1,5 @@
-#include "include/Shortcuts/ShortcutEngine.hpp"
-#include "include/LogConsole.hpp"
+#include "Shortcuts/ShortcutEngine.hpp"
+#include "LogConsole.hpp"
 #include <cassert>
 
 void ShortcutEngine::evaluateShortcut(sf::Keyboard::Key key)

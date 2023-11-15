@@ -1,12 +1,12 @@
 #pragma once
 
-#include "include/Commands/CommandQueue.hpp"
-#include "include/Interfaces/ToolInterface.hpp"
-#include "include/ToolProperties/TriggerToolProperty.hpp"
-#include "include/Tools/SidebarUserTrigger.hpp"
-#include "include/Tools/ToolWithDragAndSelect.hpp"
-#include "include/Utilities/CoordConverter.hpp"
-#include "include/Utilities/DragContext.hpp"
+#include "Commands/CommandQueue.hpp"
+#include "Interfaces/ToolInterface.hpp"
+#include "ToolProperties/TriggerToolProperty.hpp"
+#include "Tools/SidebarUserTrigger.hpp"
+#include "Tools/ToolWithDragAndSelect.hpp"
+#include "Utilities/CoordConverter.hpp"
+#include "Utilities/DragContext.hpp"
 
 class ToolTrigger final : public ToolWithDragAndSelect
 {
@@ -23,10 +23,10 @@ private:
 public:
     [[nodiscard]] ToolTrigger(
         std::function<void(void)> onStateChanged,
-        GC<ShortcutEngineInterface> shortcutEngine,
-        GC<LayerObserverInterface> layerObserver,
-        GC<Gui> gui,
-        GC<CommandQueue> commandQueue,
+        mem::Rc<ShortcutEngineInterface> shortcutEngine,
+        mem::Rc<LayerObserverInterface> layerObserver,
+        mem::Rc<Gui> gui,
+        mem::Rc<CommandQueue> commandQueue,
         std::function<sf::Vector2i()> getPenPosition) noexcept
         : super(onStateChanged, shortcutEngine, layerObserver)
         , sidebarUser(gui)
@@ -50,7 +50,7 @@ public: // ToolInterface
     void shrinkTo(const TileRect& boundingBox) override;
     void saveTo(LevelD& lvd) const override;
     void loadFrom(const LevelD& lvd) override;
-    void drawTo(tgui::Canvas::Ptr& canvas, uint8_t opacity) override;
+    void drawTo(tgui::CanvasSFML::Ptr& canvas, uint8_t opacity) override;
     ExpectedPropertyPtr getProperty(const sf::Vector2i& penPos) const override;
     void setProperty(const ToolPropertyInterface& prop) override;
 
@@ -108,10 +108,10 @@ private:
     std::vector<LevelD::Trigger> triggers;
     CoordConverter coordConverter;
     sf::Vector2i levelSize;
-    GC<std::map<unsigned, TriggerActionDefinition>> actionDefinitions;
+    mem::Rc<std::map<unsigned, TriggerActionDefinition>> actionDefinitions;
 
     // Dependencies
-    GC<CommandQueue> commandQueue;
+    mem::Rc<CommandQueue> commandQueue;
     SidebarUserTrigger sidebarUser;
     std::function<sf::Vector2i()> getPenPosition;
 };

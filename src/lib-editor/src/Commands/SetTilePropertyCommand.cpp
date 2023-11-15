@@ -1,19 +1,16 @@
-#include "include/Commands/SetTilePropertyCommand.hpp"
+#include "Commands/SetTilePropertyCommand.hpp"
 
 void SetTilePropertyCommand::exec()
 {
-	oldTileValue = map.getTileValue(tileCoord);
-	oldSolid = map.isTileSolid(tileCoord);
+    oldTileValue = map.getTileValue(tileCoord);
+    oldSolid = map.isTileSolid(tileCoord);
 
-	map.setTileValue(tileCoord, tileValue);
-	map.setTileSolid(tileCoord, solid);
+    map.setTileValue(tileCoord, tileValue);
+    map.setTileSolid(tileCoord, solid);
 }
 
-Box<CommandInterface> SetTilePropertyCommand::getInverse() const
+mem::Box<CommandInterface> SetTilePropertyCommand::getInverse() const
 {
-	return Box<SetTilePropertyCommand>(
-		map,
-		tileCoord,
-		*oldTileValue,
-		*oldSolid);
+    return mem::Box<SetTilePropertyCommand>(
+        map, tileCoord, *oldTileValue, *oldSolid);
 }

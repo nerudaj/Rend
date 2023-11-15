@@ -42,5 +42,5 @@ target_precompile_headers ( ${PROJECT_NAME}
 		<cstdint>
 		<DGM/dgm.hpp>
 		<TGUI/tgui.hpp>
-		<json.hpp>
+		<nlohmann/json.hpp>
 )

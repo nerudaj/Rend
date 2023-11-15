@@ -32,9 +32,10 @@ public:
             CommandHelper::deleteObjectsFromTarget(target, idsToDelete);
     }
 
-    [[nodiscard]] Box<CommandInterface> getInverse() const override
+    [[nodiscard]] mem::Box<CommandInterface> getInverse() const override
     {
-        return Box<CreateObjectCommand<ObjectType>>(target, *objectsToCreate);
+        return mem::Box<CreateObjectCommand<ObjectType>>(
+            target, *objectsToCreate);
     }
 };
 
@@ -71,9 +72,10 @@ public:
             CommandHelper::addObjectsToTarget(target, objectsToCreate);
     }
 
-    [[nodiscard]] Box<CommandInterface> getInverse() const override
+    [[nodiscard]] mem::Box<CommandInterface> getInverse() const override
     {
-        return Box<DeleteObjectCommand<ObjectType>>(target, *idsOfAddedObjects);
+        return mem::Box<DeleteObjectCommand<ObjectType>>(
+            target, *idsOfAddedObjects);
     }
 };
 

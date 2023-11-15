@@ -1,5 +1,5 @@
-#include "include/Tools/SidebarUserWithSprites.hpp"
-#include "include/Globals.hpp"
+#include "Tools/SidebarUserWithSprites.hpp"
+#include "Globals.hpp"
 
 void SidebarUserWithSprites::buildSidebarInternal(tgui::Group::Ptr& sidebar)
 {
@@ -12,7 +12,7 @@ void SidebarUserWithSprites::buildSidebarInternal(tgui::Group::Ptr& sidebar)
     addbtn->setRenderer(gui->theme.getRenderer("Button"));
     addbtn->setSize(BUTTON_SIZE, BUTTON_SIZE);
     addbtn->setPosition(OFFSET, OFFSET);
-    addbtn->connect("clicked", [this] { buildSpriteIdSelectionModal(); });
+    addbtn->onClick([this] { buildSpriteIdSelectionModal(); });
     sidebar->add(addbtn);
 
     // History buttons
@@ -29,7 +29,7 @@ void SidebarUserWithSprites::buildSidebarInternal(tgui::Group::Ptr& sidebar)
         btn->setPosition(OFFSET, yPos);
         sidebar->add(btn);
 
-        btn->connect("clicked", [this, tileId] { changePenValue(tileId); });
+        btn->onClick([this, tileId] { changePenValue(tileId); });
 
         if (yPos != 2 * OFFSET + BUTTON_SIZE)
         {
@@ -61,7 +61,7 @@ void SidebarUserWithSprites::buildSpriteIdSelectionModal()
     modal->setPosition("15%", "15%");
     gui->addModal(modal, DIALOG_ID);
 
-    modal->connect("Closed", close);
+    modal->onClose(close);
 
     // Create scrollable group inside of this window
     auto group = tgui::ScrollablePanel::create();
@@ -90,7 +90,7 @@ void SidebarUserWithSprites::buildSpriteIdSelectionModal()
             y * BUTTON_SIZE_OUTER + BUTTON_MARGIN);
 
         // User chosen a particular tile
-        btn->connect("pressed", [this, i, selectId] { selectId(i); });
+        btn->onClick([this, i, selectId] { selectId(i); });
 
         group->add(btn);
 

@@ -1,20 +1,19 @@
 #pragma once
 
-#include "include/Interfaces/DialogInterfaces.hpp"
-#include "include/Interfaces/PlaytestLauncherInterface.hpp"
-#include "include/Interfaces/ProcessCreatorInterface.hpp"
-#include "include/Interfaces/ShortcutEngineInterface.hpp"
-#include "include/Launcher/PlaytestLauncherOptions.hpp"
-#include "include/Utilities/GC.hpp"
+#include "Interfaces/DialogInterfaces.hpp"
+#include "Interfaces/PlaytestLauncherInterface.hpp"
+#include "Interfaces/ProcessCreatorInterface.hpp"
+#include "Interfaces/ShortcutEngineInterface.hpp"
+#include "Launcher/PlaytestLauncherOptions.hpp"
 
 class PlaytestLauncher final : public PlaytestLauncherInterface
 {
 public:
     PlaytestLauncher(
-        GC<PlaytestLauncherOptions> options,
-        GC<ShortcutEngineInterface> shortcutEngine,
-        GC<ProcessCreatorInterface> processCreator,
-        GC<PlaytestSettingsDialogInterface> dialogPlaytestSettings,
+        mem::Rc<PlaytestLauncherOptions> options,
+        mem::Rc<ShortcutEngineInterface> shortcutEngine,
+        mem::Rc<ProcessCreatorInterface> processCreator,
+        mem::Rc<PlaytestSettingsDialogInterface> dialogPlaytestSettings,
         std::function<std::string()> getCurrentLevelPathCallback) noexcept;
 
 public:
@@ -44,9 +43,9 @@ private:
     void handleConfigureLaunchOptions();
 
 private:
-    GC<PlaytestLauncherOptions> options;
-    GC<ShortcutEngineInterface> shortcutEngine;
-    GC<ProcessCreatorInterface> processCreator;
-    GC<PlaytestSettingsDialogInterface> dialogPlaytestSettings;
+    mem::Rc<PlaytestLauncherOptions> options;
+    mem::Rc<ShortcutEngineInterface> shortcutEngine;
+    mem::Rc<ProcessCreatorInterface> processCreator;
+    mem::Rc<PlaytestSettingsDialogInterface> dialogPlaytestSettings;
     std::function<std::string()> getCurrentLevelPathCallback;
 };

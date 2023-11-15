@@ -1,23 +1,22 @@
 #pragma once
 
-#include "include/Commands/CommandQueue.hpp"
-#include "include/Interfaces/CurrentLayerObserverInterface.hpp"
-#include "include/Interfaces/PenUserInterface.hpp"
-#include "include/Interfaces/ShortcutEngineInterface.hpp"
-#include "include/Interfaces/ToolPropertyInterface.hpp"
-#include "include/Utilities/Box.hpp"
-#include "include/Utilities/Error.hpp"
-#include "include/Utilities/GC.hpp"
-#include "include/Utilities/Rect.hpp"
+#include "Commands/CommandQueue.hpp"
+#include "Interfaces/CurrentLayerObserverInterface.hpp"
+#include "Interfaces/PenUserInterface.hpp"
+#include "Interfaces/ShortcutEngineInterface.hpp"
+#include "Interfaces/ToolPropertyInterface.hpp"
+#include "Utilities/Error.hpp"
+#include "Utilities/Rect.hpp"
 #include <DGM/dgm.hpp>
 #include <LevelD.hpp>
+#include <TGUI/Backend/SFML-Graphics.hpp>
 #include <TGUI/TGUI.hpp>
 #include <expected>
-#include <json.hpp>
+#include <nlohmann/json.hpp>
 #include <optional>
 
 using ExpectedPropertyPtr =
-    std::expected<Box<ToolPropertyInterface>, BaseError>;
+    std::expected<mem::Box<ToolPropertyInterface>, BaseError>;
 
 struct GenericObject
 {
@@ -30,8 +29,8 @@ class ToolInterface : public PenUserInterface
 public:
     [[nodiscard]] ToolInterface(
         std::function<void(void)> onStateChanged,
-        GC<ShortcutEngineInterface> shortcutEngine,
-        GC<LayerObserverInterface> layerObserver) noexcept
+        mem::Rc<ShortcutEngineInterface> shortcutEngine,
+        mem::Rc<LayerObserverInterface> layerObserver) noexcept
         : onStateChangedCallback(onStateChanged)
         , shortcutEngine(shortcutEngine)
         , layerObserver(layerObserver)
@@ -57,7 +56,7 @@ public: // Public virtual interface
     virtual void saveTo(LevelD& lvd) const = 0;
     virtual void loadFrom(const LevelD& lvd) = 0;
 
-    virtual void drawTo(tgui::Canvas::Ptr& canvas, uint8_t opacity) = 0;
+    virtual void drawTo(tgui::CanvasSFML::Ptr& canvas, uint8_t opacity) = 0;
 
     [[nodiscard]] virtual ExpectedPropertyPtr
     getProperty(const sf::Vector2i& penPos) const = 0;
@@ -102,8 +101,8 @@ protected: // Protected virtual interface
 
 private:
     std::function<void(void)> onStateChangedCallback;
-    GC<ShortcutEngineInterface> shortcutEngine;
-    GC<LayerObserverInterface> layerObserver;
+    mem::Rc<ShortcutEngineInterface> shortcutEngine;
+    mem::Rc<LayerObserverInterface> layerObserver;
     std::vector<unsigned> ctxMenuSignalHandlers;
 };
 

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "include/Interfaces/CurrentLayerObserverInterface.hpp"
+#include "Interfaces/CurrentLayerObserverInterface.hpp"
 #include <string>
 
 class LayerController final : public LayerObserverInterface

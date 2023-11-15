@@ -1,8 +1,8 @@
-#include "include/Dialogs/EditPropertyDialog.hpp"
-#include "include/Globals.hpp"
+#include "Dialogs/EditPropertyDialog.hpp"
+#include "Globals.hpp"
 
 void EditPropertyDialog::open(
-    Box<ToolPropertyInterface> property, ToolInterface& targetTool)
+    mem::Box<ToolPropertyInterface> property, ToolInterface& targetTool)
 {
     currentProperty = std::move(property);
 

@@ -1,12 +1,13 @@
 #pragma once
 
-#include "include/Gui.hpp"
-#include "include/Utilities/GC.hpp"
+#include "Gui.hpp"
+
+import Memory;
 
 class SidebarUserInterface
 {
 public:
-    SidebarUserInterface(GC<Gui> gui) noexcept : gui(gui) {}
+    SidebarUserInterface(mem::Rc<Gui> gui) noexcept : gui(gui) {}
 
     virtual ~SidebarUserInterface() = default;
 
@@ -17,5 +18,5 @@ protected:
     virtual void buildSidebarInternal(tgui::Group::Ptr& sidebar) = 0;
 
 protected:
-    GC<Gui> gui;
+    mem::Rc<Gui> gui;
 };

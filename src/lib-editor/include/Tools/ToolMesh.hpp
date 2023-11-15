@@ -1,10 +1,10 @@
 #pragma once
 
-#include "include/Interfaces/PenUserInterface.hpp"
-#include "include/Interfaces/ToolInterface.hpp"
-#include "include/LevelMesh/DrawableLeveldMesh.hpp"
-#include "include/ToolProperties/MeshToolProperty.hpp"
-#include "include/Tools/SidebarUserMesh.hpp"
+#include "Interfaces/PenUserInterface.hpp"
+#include "Interfaces/ToolInterface.hpp"
+#include "LevelMesh/DrawableLeveldMesh.hpp"
+#include "ToolProperties/MeshToolProperty.hpp"
+#include "Tools/SidebarUserMesh.hpp"
 
 class ToolMesh final : public ToolInterface
 {
@@ -20,10 +20,10 @@ public:
 public:
     [[nodiscard]] ToolMesh(
         std::function<void(void)> onStateChanged,
-        GC<ShortcutEngineInterface> shortcutEngine,
-        GC<LayerObserverInterface> layerObserver,
-        GC<Gui> gui,
-        GC<CommandQueue> commandQueue) noexcept
+        mem::Rc<ShortcutEngineInterface> shortcutEngine,
+        mem::Rc<LayerObserverInterface> layerObserver,
+        mem::Rc<Gui> gui,
+        mem::Rc<CommandQueue> commandQueue) noexcept
         : ToolInterface(onStateChanged, shortcutEngine, layerObserver)
         , sidebarUser(gui)
         , commandQueue(commandQueue)
@@ -62,7 +62,7 @@ public: // ToolInterface
 
     void loadFrom(const LevelD& lvd) override;
 
-    void drawTo(tgui::Canvas::Ptr& canvas, uint8_t opacity) override;
+    void drawTo(tgui::CanvasSFML::Ptr& canvas, uint8_t opacity) override;
 
     ExpectedPropertyPtr getProperty(const sf::Vector2i& penPos) const override;
 
@@ -151,7 +151,7 @@ private:
     sf::RectangleShape rectShape;
     std::vector<DrawableLeveldMesh> maps;
     SidebarUserMesh sidebarUser;
-    GC<CommandQueue> commandQueue;
+    mem::Rc<CommandQueue> commandQueue;
 
     std::vector<bool> defaultBlocks;
 

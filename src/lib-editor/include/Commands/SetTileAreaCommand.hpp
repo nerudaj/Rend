@@ -62,5 +62,6 @@ public:
 public:
     virtual void exec() override;
 
-    [[nodiscard]] virtual Box<CommandInterface> getInverse() const override;
+    [[nodiscard]] virtual mem::Box<CommandInterface>
+    getInverse() const override;
 };

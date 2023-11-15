@@ -1,6 +1,6 @@
 #pragma once
 
-#include "include/Tools/SidebarUserWithSprites.hpp"
+#include "Tools/SidebarUserWithSprites.hpp"
 #include <DGM/classes/Clip.hpp>
 #include <SFML/Graphics/Texture.hpp>
 #include <filesystem>
@@ -8,7 +8,7 @@
 class SidebarUserMesh : public SidebarUserWithSprites
 {
 public:
-    SidebarUserMesh(GC<Gui> gui) noexcept : SidebarUserWithSprites(gui) {}
+    SidebarUserMesh(mem::Rc<Gui> gui) noexcept : SidebarUserWithSprites(gui) {}
 
 public:
     void configure(const std::filesystem::path& texturePath, dgm::Clip&& clip);
@@ -28,7 +28,10 @@ public:
     [[nodiscard]] tgui::Texture
     getSpriteAsTexture(unsigned spriteId) const override
     {
-        return tgui::Texture(texture, clip.getFrame(spriteId));
+        const auto rect = clip.getFrame(spriteId);
+        return tgui::Texture(
+            texture,
+            tgui::UIntRect(rect.left, rect.top, rect.width, rect.height));
     }
 
     [[nodiscard]] std::size_t getSpriteCount() const override

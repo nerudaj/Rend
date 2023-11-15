@@ -1,5 +1,5 @@
-#include "include/Dialogs/YesNoCancelDialog.hpp"
-#include "include/Globals.hpp"
+#include "Dialogs/YesNoCancelDialog.hpp"
+#include "Globals.hpp"
 #include <array>
 #include <utility>
 
@@ -18,8 +18,8 @@ void YesNoCancelDialog::open(
     modal->setSize("20%", "10%");
     modal->setPosition("40%", "40%");
     modal->setPositionLocked(true);
-    modal->connect("EscapeKeyPressed", cancelDialog);
-    modal->connect("Closed", cancelDialog);
+    modal->onEscapeKeyPress(cancelDialog);
+    modal->onClose(cancelDialog);
     gui->addModal(modal, DIALOG_ID);
 
     auto label = tgui::Label::create(text);
@@ -42,9 +42,9 @@ void YesNoCancelDialog::open(
     {
         auto btn = tgui::Button::create(label);
         btn->setSize(BUTTON_SIZE);
-        btn->setPosition(std::to_string(xOffset) + "%", BUTTON_Y_OFFSET);
-        btn->connect(
-            "clicked",
+        btn->setPosition(
+            (std::to_string(xOffset) + "%").c_str(), BUTTON_Y_OFFSET.c_str());
+        btn->onClick(
             [this, choice, completedCallback]
             {
                 gui->closeModal(DIALOG_ID);

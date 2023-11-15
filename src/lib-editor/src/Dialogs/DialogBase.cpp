@@ -1,7 +1,7 @@
-#include "include/Dialogs/DialogBase.hpp"
-#include "include/Globals.hpp"
-#include "include/Utilities/FileApi.hpp"
-#include "include/Utilities/Literals.hpp"
+#include "Dialogs/DialogBase.hpp"
+#include "Globals.hpp"
+#include "Utilities/FileApi.hpp"
+#include "Utilities/Literals.hpp"
 
 template<class... Ts>
 struct overloaded : Ts...
@@ -16,8 +16,8 @@ void DialogInterface::open(std::function<void()> confirmCallback)
     auto modal = gui->createNewChildWindow(DIALOG_TITLE);
     modal->setSize("30%", "50%");
     modal->setPosition("35%", "25%");
-    modal->connect("EscapeKeyPressed", [this] { close(); });
-    modal->connect("Closed", [this] { close(); });
+    modal->onEscapeKeyPress([this] { close(); });
+    modal->onClose("Closed", [this] { close(); });
     gui->addModal(modal, DIALOG_ID);
 
     constexpr auto ROW_HEIGHT = 6_upercent;
@@ -39,7 +39,7 @@ void DialogInterface::open(std::function<void()> confirmCallback)
     {
         auto label = tgui::Label::create(text);
         label->setSize("26%", ROW_HEIGHT_STR);
-        label->setPosition("2%", computeYposFromRow(row));
+        label->setPosition("2%", computeYposFromRow(row).c_str());
         label->setVerticalAlignment(tgui::Label::VerticalAlignment::Center);
         modal->add(label);
     };
@@ -51,7 +51,7 @@ void DialogInterface::open(std::function<void()> confirmCallback)
     {
         auto box = tgui::EditBox::create();
         box->setSize(narrow ? "58%" : "66%", ROW_HEIGHT_STR);
-        box->setPosition("32%", computeYposFromRow(row));
+        box->setPosition("32%", computeYposFromRow(row).c_str());
         box->setText(value);
         modal->add(box, id);
     };
@@ -60,7 +60,7 @@ void DialogInterface::open(std::function<void()> confirmCallback)
         [&](const bool value, const std::string& id, unsigned row)
     {
         auto check = tgui::CheckBox::create();
-        check->setPosition("32%", computeYposFromRow(row));
+        check->setPosition("32%", computeYposFromRow(row).c_str());
         modal->add(check, id);
     };
 
@@ -68,8 +68,8 @@ void DialogInterface::open(std::function<void()> confirmCallback)
     {
         auto btn = tgui::Button::create("...");
         btn->setSize("8%", "6%");
-        btn->setPosition("90%", computeYposFromRow(row));
-        btn->connect("clicked", callback);
+        btn->setPosition("90%", computeYposFromRow(row).c_str());
+        btn->onClick(callback);
         modal->add(btn);
     };
 
@@ -77,8 +77,8 @@ void DialogInterface::open(std::function<void()> confirmCallback)
         [&](const std::string& text, unsigned occupiedRows, unsigned row)
     {
         auto label = tgui::Label::create(text);
-        label->setSize("96%", computeMultiRowHeight(occupiedRows));
-        label->setPosition("2%", computeYposFromRow(row));
+        label->setSize("96%", computeMultiRowHeight(occupiedRows).c_str());
+        label->setPosition("2%", computeYposFromRow(row).c_str());
         label->setVerticalAlignment(tgui::Label::VerticalAlignment::Center);
         modal->add(label);
     };
@@ -131,8 +131,7 @@ void DialogInterface::open(std::function<void()> confirmCallback)
     auto btn = tgui::Button::create("Ok");
     btn->setSize("20%", "8%");
     btn->setPosition("56%", "90%");
-    btn->connect(
-        "clicked",
+    btn->onClick(
         [this, confirmCallback]
         {
             confirmCallback();
@@ -143,14 +142,14 @@ void DialogInterface::open(std::function<void()> confirmCallback)
     btn = tgui::Button::create("Cancel");
     btn->setSize("20%", "8%");
     btn->setPosition("78%", "90%");
-    btn->connect("clicked", [this] { close(); });
+    btn->onClick([this] { close(); });
     modal->add(btn);
 
     customOpenCode();
 }
 
 DialogInterface::DialogInterface(
-    GC<Gui> gui,
+    mem::Rc<Gui> gui,
     const std::string& dialogId,
     const std::string& dialogTitle,
     const std::vector<OptionLine>& options)

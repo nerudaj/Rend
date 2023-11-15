@@ -1,11 +1,11 @@
-#include "include/Tools/ToolMesh.hpp"
-#include "include/Commands/ResizeCommand.hpp"
-#include "include/Commands/SetTileAreaCommand.hpp"
-#include "include/Commands/SetTileCommand.hpp"
-#include "include/Commands/SetTilePropertyCommand.hpp"
-#include "include/JsonHelper.hpp"
-#include "include/LogConsole.hpp"
-#include "include/Utilities/Utilities.hpp"
+#include "Tools/ToolMesh.hpp"
+#include "Commands/ResizeCommand.hpp"
+#include "Commands/SetTileAreaCommand.hpp"
+#include "Commands/SetTileCommand.hpp"
+#include "Commands/SetTilePropertyCommand.hpp"
+#include "JsonHelper.hpp"
+#include "LogConsole.hpp"
+#include "Utilities/Utilities.hpp"
 #include <filesystem>
 
 void ToolMesh::penClicked(const sf::Vector2i& position)
@@ -243,7 +243,7 @@ void ToolMesh::loadFrom(const LevelD& lvd)
     }
 }
 
-void ToolMesh::drawTo(tgui::Canvas::Ptr& canvas, uint8_t)
+void ToolMesh::drawTo(tgui::CanvasSFML::Ptr& canvas, uint8_t)
 {
     // TODO: display other maps?
     getMap().drawTo(canvas, enableOverlay);
@@ -264,7 +264,7 @@ ExpectedPropertyPtr ToolMesh::getProperty(const sf::Vector2i& penPos) const
 
     auto tileValue = getMap().getTileValue(tilePos);
 
-    auto&& result = Box<MeshToolProperty>(
+    auto&& result = mem::Box<MeshToolProperty>(
         sidebarUser.getSpriteAsTexture(tileValue),
         tilePos.x,
         tilePos.y,

@@ -1,4 +1,4 @@
-#include "include/Interfaces/SidebarUserInterface.hpp"
+#include "Interfaces/SidebarUserInterface.hpp"
 
 void SidebarUserInterface::buildSidebar()
 {

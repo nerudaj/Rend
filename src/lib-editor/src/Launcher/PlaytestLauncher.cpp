@@ -1,14 +1,14 @@
-#include "include/Launcher/PlaytestLauncher.hpp"
-#include "include/Configs/Strings.hpp"
-#include "include/LogConsole.hpp"
+#include "Launcher/PlaytestLauncher.hpp"
+#include "Configs/Strings.hpp"
+#include "LogConsole.hpp"
 #include <functional>
 #include <optional>
 
 PlaytestLauncher::PlaytestLauncher(
-    GC<PlaytestLauncherOptions> options,
-    GC<ShortcutEngineInterface> shortcutEngine,
-    GC<ProcessCreatorInterface> processCreator,
-    GC<PlaytestSettingsDialogInterface> dialogPlaytestSettings,
+    mem::Rc<PlaytestLauncherOptions> options,
+    mem::Rc<ShortcutEngineInterface> shortcutEngine,
+    mem::Rc<ProcessCreatorInterface> processCreator,
+    mem::Rc<PlaytestSettingsDialogInterface> dialogPlaytestSettings,
     std::function<std::string()> getCurrentLevelPathCallback) noexcept
     : options(options)
     , shortcutEngine(shortcutEngine)

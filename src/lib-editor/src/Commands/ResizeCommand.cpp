@@ -1,5 +1,5 @@
-#include "include/Commands/ResizeCommand.hpp"
-#include "include/Commands/RestoreFromSnapshotCommand.hpp"
+#include "Commands/ResizeCommand.hpp"
+#include "Commands/RestoreFromSnapshotCommand.hpp"
 
 void ResizeCommand::exec()
 {
@@ -7,7 +7,7 @@ void ResizeCommand::exec()
     editor.resize(width, height, isTranslationDisabled);
 }
 
-Box<CommandInterface> ResizeCommand::getInverse() const
+mem::Box<CommandInterface> ResizeCommand::getInverse() const
 {
-    return Box<RestoreFromSnapshotCommand>(editor, levelSnapshot);
+    return mem::Box<RestoreFromSnapshotCommand>(editor, levelSnapshot);
 }
