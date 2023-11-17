@@ -1,5 +1,6 @@
 #pragma once
 
+#include <LevelItemId.hpp>
 #include <cstdint>
 #include <map>
 #include <string>
@@ -15,27 +16,6 @@ enum class TilesetMapping
     Crate2,
     Wall1 = 6,
     End = 16
-};
-
-enum class LeveldItemId
-{
-    PlayerSpawn = 0,
-    Flag,
-    Medikit,
-    ArmorShard,
-    MegaHealth,
-    MegaArmor,
-    Bullets,
-    Shells,
-    EnergyPack,
-    Rockets,
-    Shotgun,
-    Trishot,
-    Crossbow,
-    Launcher,
-    Ballista,
-    Pillar,
-    FloorLamp
 };
 
 enum class SpriteId : std::uint8_t

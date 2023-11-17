@@ -1,4 +1,5 @@
 #include "GameSettings.hpp"
+#include <Filesystem.hpp>
 #include <LevelD.hpp>
 #include <app/AppStateGameSetup.hpp>
 #include <app/AppStateIngame.hpp>
@@ -48,18 +49,15 @@ void AppStateGameSetup::buildLayoutImpl()
 
     gui->add(createH2Title("game setup"));
 
-    auto sanitizeMapName = [](const std::string& str)
-    { return str.substr(0, str.size() - 4); };
-    auto mapnames = resmgr->getLoadedResourceIds<LevelD>().value()
-                    | transform(sanitizeMapName)
-                    | std::ranges::to<std::vector<std::string>>();
+    auto mapnames = Filesystem::getLevelNames(
+        Filesystem::getLevelsDir(settings->cmdSettings.resourcesDir));
 
     getCommonLayoutBuilder(3)
         .addOption(
             "player count",
             "PlayerCount",
             WidgetCreator::createDropdown(
-                { "2", "3", "4" },
+                { "1", "2", "3", "4" },
                 std::to_string(playerCount),
                 [this]
                 {
@@ -72,7 +70,7 @@ void AppStateGameSetup::buildLayoutImpl()
             "MapnameDropdown",
             WidgetCreator::createDropdown(
                 mapnames,
-                sanitizeMapName(mapname.empty() ? mapnames.front() : mapname),
+                mapname.empty() ? mapname : mapnames.front(),
                 [this]
                 {
                     auto dropdown = gui->get<tgui::ComboBox>("MapnameDropdown");
@@ -101,6 +99,11 @@ void AppStateGameSetup::buildLayoutImpl()
 
 void AppStateGameSetup::startGame()
 {
+    auto lvd = LevelD {};
+    lvd.loadFromFile(Filesystem::getFullLevelPath(
+                         settings->cmdSettings.resourcesDir, mapname)
+                         .string());
+
     app.pushState<AppStateIngame>(
         resmgr,
         gui,
@@ -108,7 +111,8 @@ void AppStateGameSetup::startGame()
         audioPlayer,
         GameSettings { .map = settings->cmdSettings.mapname,
                        .players = createPlayerSettings(),
-                       .fraglimit = fraglimit });
+                       .fraglimit = fraglimit },
+        lvd);
 }
 
 std::vector<PlayerSettings> AppStateGameSetup::createPlayerSettings() const

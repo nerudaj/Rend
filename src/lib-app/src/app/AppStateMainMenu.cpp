@@ -1,4 +1,10 @@
 #include "app/AppStateMainMenu.hpp"
+#include "Configs/Strings.hpp"
+#include "Dialogs/ErrorInfoDialog.hpp"
+#include "Dialogs/YesNoCancelDialog.hpp"
+#include "Shortcuts/ShortcutEngine.hpp"
+#include "Utilities/FileApi.hpp"
+#include "app/AppStateEditor.hpp"
 #include "app/AppStateGameSetup.hpp"
 #include "app/AppStateIngame.hpp"
 #include "app/AppStateMenuOptions.hpp"
@@ -19,14 +25,33 @@ void AppStateMainMenu::buildLayoutImpl()
 
     createButtonListInLayout(
         layout,
-        { ButtonProps("play", [this] { goToGameSetup(); }),
+        { ButtonProps(
+              Strings::AppState::MainMenu::PLAY, [this] { goToGameSetup(); }),
           ButtonProps(
-              "options",
+              Strings::AppState::MainMenu::EDITOR,
+              [this]
+              {
+                  auto _gui = mem::Rc<Gui>();
+                  app.pushState<AppStateEditor>(
+                      gui,
+                      _gui,
+                      resmgr,
+                      settings,
+                      audioPlayer,
+                      mem::Rc<FileApi>(),
+                      mem::Rc<ShortcutEngine>(
+                          [_gui] { return _gui->isAnyModalOpened(); }),
+                      mem::Rc<YesNoCancelDialog>(_gui),
+                      mem::Rc<ErrorInfoDialog>(_gui));
+              }),
+          ButtonProps(
+              Strings::AppState::MainMenu::OPTIONS,
               [this] {
                   app.pushState<AppStateMenuOptions>(
                       gui, audioPlayer, settings);
               }),
-          ButtonProps("exit", [this] { app.exit(); }) },
+          ButtonProps(
+              Strings::AppState::MainMenu::EXIT, [this] { app.exit(); }) },
         0.05f);
 }
 
@@ -40,6 +65,8 @@ void AppStateMainMenu::input()
     sf::Event event;
     while (app.window.pollEvent(event))
     {
+        if (event.type == sf::Event::Closed) app.exit();
+
         gui->handleEvent(event);
     }
 }

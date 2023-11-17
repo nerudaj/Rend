@@ -6,6 +6,63 @@
 #include <input/PhysicalController.hpp>
 #include <utils/SceneBuilder.hpp>
 
+[[nodiscard]] static std::vector<mem::Rc<ControllerInterface>>
+createInputs(const sf::Window& window, const GameSettings& gameSettings)
+{
+    std::vector<mem::Rc<ControllerInterface>> inputs;
+    for (auto&& ps : gameSettings.players)
+    {
+        switch (ps.kind)
+        {
+            using enum PlayerKind;
+        case LocalHuman:
+            inputs.push_back(mem::Rc<PhysicalController>(window));
+            break;
+        case LocalNpc:
+            inputs.push_back(mem::Rc<AiController>());
+            break;
+        case RemoteHuman:
+            throw std::runtime_error("unsupported controller");
+            break;
+        }
+    }
+    return inputs;
+}
+
+AppStateIngame::AppStateIngame(
+    dgm::App& _app,
+    mem::Rc<const dgm::ResourceManager> _resmgr,
+    mem::Rc<tgui::Gui> _gui,
+    mem::Rc<Settings> _settings,
+    mem::Rc<AudioPlayer> _audioPlayer,
+    GameSettings gameSettings,
+    const LevelD& level,
+    bool launchedFromEditor)
+    : dgm::AppState(_app)
+    , resmgr(_resmgr)
+    , gui(_gui)
+    , settings(_settings)
+    , gameSettings(gameSettings)
+    , audioPlayer(_audioPlayer)
+    , launchedFromEditor(launchedFromEditor)
+    , inputs(createInputs(_app.window.getWindowContext(), gameSettings))
+    , scene(SceneBuilder::buildScene(
+          level, sf::Vector2f(app.window.getSize()), gameSettings))
+    , aiEngine(scene)
+    , animationEngine(scene, eventQueue)
+    , audioEngine(resmgr, audioPlayer, scene)
+    , gameRulesEngine(scene, eventQueue)
+    , physicsEngine(scene, eventQueue)
+    , renderingEngine(*resmgr, level, scene)
+    , demoFileHandler(
+          settings->cmdSettings.demoFile,
+          settings->cmdSettings.playDemo ? DemoFileMode::Read
+                                         : DemoFileMode::Write)
+{
+    lockMouse();
+    createPlayers();
+}
+
 void AppStateIngame::input()
 {
     sf::Event event;
@@ -15,12 +72,25 @@ void AppStateIngame::input()
         {
             app.exit();
         }
+        else if (event.type == sf::Event::LostFocus)
+        {
+            unlockMouse();
+        }
+        else if (event.type == sf::Event::GainedFocus)
+        {
+            lockMouse();
+        }
         else if (event.type == sf::Event::KeyPressed)
         {
             if (event.key.code == sf::Keyboard::Escape)
             {
-                unlockMouse();
-                app.pushState<AppStatePaused>(gui, audioPlayer, settings);
+                if (launchedFromEditor)
+                    app.popState();
+                else
+                {
+                    unlockMouse();
+                    app.pushState<AppStatePaused>(gui, audioPlayer, settings);
+                }
             }
             else if (event.key.code == sf::Keyboard::F1)
             {
@@ -186,60 +256,6 @@ void AppStateIngame::backupState(FrameState& state)
     state.markers = scene.markers.clone();
     state.states = scene.playerStates;
     state.cameraAnchorIdx = scene.cameraAnchorIdx;
-}
-
-[[nodiscard]] static std::vector<mem::Rc<ControllerInterface>>
-createInputs(const sf::Window& window, const GameSettings& gameSettings)
-{
-    std::vector<mem::Rc<ControllerInterface>> inputs;
-    for (auto&& ps : gameSettings.players)
-    {
-        switch (ps.kind)
-        {
-            using enum PlayerKind;
-        case LocalHuman:
-            inputs.push_back(mem::Rc<PhysicalController>(window));
-            break;
-        case LocalNpc:
-            inputs.push_back(mem::Rc<AiController>());
-            break;
-        case RemoteHuman:
-            throw std::runtime_error("unsupported controller");
-            break;
-        }
-    }
-    return inputs;
-}
-
-AppStateIngame::AppStateIngame(
-    dgm::App& _app,
-    mem::Rc<const dgm::ResourceManager> _resmgr,
-    mem::Rc<tgui::Gui> _gui,
-    mem::Rc<Settings> _settings,
-    mem::Rc<AudioPlayer> _audioPlayer,
-    GameSettings gameSettings)
-    : dgm::AppState(_app)
-    , resmgr(_resmgr)
-    , gui(_gui)
-    , settings(_settings)
-    , gameSettings(gameSettings)
-    , audioPlayer(_audioPlayer)
-    , inputs(createInputs(_app.window.getWindowContext(), gameSettings))
-    , scene(SceneBuilder::buildScene(
-          *resmgr, sf::Vector2f(app.window.getSize()), gameSettings))
-    , aiEngine(scene)
-    , animationEngine(scene, eventQueue)
-    , audioEngine(resmgr, audioPlayer, scene)
-    , gameRulesEngine(scene, eventQueue)
-    , physicsEngine(scene, eventQueue)
-    , renderingEngine(resmgr, scene)
-    , demoFileHandler(
-          settings->cmdSettings.demoFile,
-          settings->cmdSettings.playDemo ? DemoFileMode::Read
-                                         : DemoFileMode::Write)
-{
-    lockMouse();
-    createPlayers();
 }
 
 void AppStateIngame::lockMouse()

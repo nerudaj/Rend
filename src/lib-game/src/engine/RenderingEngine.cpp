@@ -26,14 +26,26 @@
 }
 
 RenderingEngine::RenderingEngine(
-    mem::Rc<const dgm::ResourceManager> _resmgr, Scene& scene)
-    : resmgr(_resmgr)
+    const dgm::ResourceManager& resmgr, const LevelD& level, Scene& scene)
+    : settings(RenderSettings {})
     , scene(scene)
-    , tileset(_resmgr->get<sf::Texture>("tileset.png").value().get())
-    , settings(RenderSettings {})
-    , context(RenderContext::buildRenderContext(
-          *resmgr, scene.mapname, settings.WIDTH, settings.HEIGHT))
+    , tilesetTexture(resmgr.get<sf::Texture>("tileset.png").value().get())
+    , tilesetClipping(resmgr.get<dgm::Clip>("tileset.png.clip").value().get())
+    , spritesheetTexture(resmgr.get<sf::Texture>("items.png").value().get())
+    , spritesheetClipping(resmgr.get<dgm::Clip>("items.png.clip").value().get())
+    , weaponSprite(RenderContextBuilder::createWeaponSprite(
+          resmgr.get<sf::Texture>("weapons.png").value().get(),
+          settings.WIDTH,
+          settings.HEIGHT))
+    , weaponClipping(resmgr.get<dgm::Clip>("weapons.png.clip").value().get())
+    , shader(resmgr.get<sf::Shader>("shader").value().get())
+    , text(RenderContextBuilder::createTextObject(
+          resmgr.get<sf::Font>("pico-8.ttf").value().get(),
+          32u,
+          sf::Color::White))
+    , drawableLevel(RenderContextBuilder::buildLevelRepresentation(level))
     , caster(scene.level.bottomMesh.getVoxelSize())
+    , depthBuffer(settings.WIDTH)
 {
 }
 
@@ -50,14 +62,11 @@ void RenderingEngine::renderWorldTo(dgm::Window&) {}
 
 void RenderingEngine::renderHudTo(dgm::Window& window)
 {
-    if (debugRender)
-        render2d(window);
-    else
-        render3d(window);
+    render3d(window);
 
-    context.text.setString(fpsCounter.getText());
-    context.text.setPosition({ 10.f, 10.f });
-    window.draw(context.text);
+    text.setString(fpsCounter.getText());
+    text.setPosition({ 10.f, 10.f });
+    window.draw(text);
 
     auto&& pov = scene.things[scene.cameraAnchorIdx];
     if (pov.typeId == EntityType::Player)
@@ -67,43 +76,13 @@ void RenderingEngine::renderHudTo(dgm::Window& window)
     }
     else
     {
-        context.text.setString("Press [Space] to respawn");
-        const auto bounds = context.text.getGlobalBounds();
-        context.text.setPosition(
+        text.setString("Press [Space] to respawn");
+        const auto bounds = text.getGlobalBounds();
+        text.setPosition(
             (settings.WIDTH - bounds.width) / 2.f,
             (settings.HEIGHT - bounds.height) / 2.f);
-        window.draw(context.text);
+        window.draw(text);
     }
-}
-
-void RenderingEngine::render2d(dgm::Window& window)
-{
-    /*const auto& player = scene.things[scene.cameraAnchorIdx];
-
-    // window.draw(context.level);
-    player.hitbox.debugRender(window, sf::Color::Red);
-
-    auto W = float(scene.level.bottomMesh.getVoxelSize().x);
-    auto pos = player.hitbox.getPosition() / W;
-    auto plane = getPerpendicular(player.direction) * settings.FOV;
-    caster.prepare();
-    for (unsigned col = 0; col < settings.WIDTH; col++)
-    {
-        const float cameraX = 2 * float(col) / settings.WIDTH - 1;
-        const auto rayDir = player.direction + plane * cameraX;
-        caster.castRay<col == 0, col == settings.WIDTH - 1>(pos, rayDir, scene);
-    }
-
-    auto&& lines = sf::VertexArray(sf::Lines);
-    VertexObjectBuilder::makeLine(
-        lines, pos * W, (pos + player.direction * 10.f) * W, sf::Color::Red);
-    for (auto&& face : caster.getBottomFaces())
-    {
-        auto avg = (face.leftVertex + face.rightVertex) / 2.f;
-        VertexObjectBuilder::makeLine(lines, pos * W, avg * W, sf::Color::Blue);
-    }
-
-    window.draw(lines);*/
 }
 
 void RenderingEngine::render3d(dgm::Window& window)
@@ -117,7 +96,7 @@ void RenderingEngine::render3d(dgm::Window& window)
     {                                                                          \
         float cameraX = 2 * float(col) / settings.WIDTH - 1;                   \
         auto&& rayDir = player.direction + plane * cameraX;                    \
-        context.depthBuffer[col] =                                             \
+        depthBuffer[col] =                                                     \
             caster.castRay<isLeftmost, isRightmost>(pos, rayDir, scene);       \
     }
 
@@ -178,7 +157,7 @@ void RenderingEngine::renderLevelMesh(
     auto getFlatTexture = [&](unsigned tileId, float heightHint)
     {
         if (heightHint < 0.f)
-            return context.level.bottomTextures[tileId];
+            return drawableLevel.bottomTextures[tileId];
         else if (heightHint > 1.f)
             return static_cast<int>(TilesetMapping::CeilSky);
         return static_cast<int>(TilesetMapping::CeilLow);
@@ -202,11 +181,11 @@ void RenderingEngine::renderLevelMesh(
                 face.heightHint,
                 static_cast<uint8_t>(
                     face.heightHint > 0.f
-                        ? context.level.upperTextures[face.tileId]
-                        : context.level.bottomTextures[face.tileId]),
+                        ? drawableLevel.upperTextures[face.tileId]
+                        : drawableLevel.bottomTextures[face.tileId]),
                 static_cast<sf::Uint8>(
-                    context.level.lightmap[face.neighboringTileId]) },
-            context.tilesetClipping);
+                    drawableLevel.lightmap[face.neighboringTileId]) },
+            tilesetClipping);
     };
 
     auto addFlat = [&](const Flat& flat)
@@ -224,8 +203,8 @@ void RenderingEngine::renderLevelMesh(
                     getFlatTexture(flat.tileId, flat.heightHint)),
 
                 .brightness = static_cast<sf::Uint8>(
-                    context.level.lightmap[flat.tileId]) },
-            context.tilesetClipping);
+                    drawableLevel.lightmap[flat.tileId]) },
+            tilesetClipping);
     };
 
     auto&& flats = caster.getFlats();
@@ -256,8 +235,8 @@ void RenderingEngine::renderLevelMesh(
     }
 
     sf::RenderStates states;
-    states.texture = &context.tilesetTexture;
-    states.shader = &context.shader;
+    states.texture = &tilesetTexture;
+    states.shader = &shader;
     window.getWindowContext().draw(quads, states);
 }
 
@@ -299,45 +278,45 @@ void RenderingEngine::renderSprites(
                 .heightHint = 0.f,
                 .textureId = static_cast<std::uint8_t>(thing.textureId),
                 .brightness = static_cast<sf::Uint8>(
-                    context.level.lightmap.at(sf::Vector2u(thing.center))),
+                    drawableLevel.lightmap.at(sf::Vector2u(thing.center))),
                 .flipTexture = thing.flipTexture },
-            context.spritesheetClipping);
+            spritesheetClipping);
     }
 
     sf::RenderStates states;
-    states.texture = &context.spritesheetTexture;
-    states.shader = &context.shader;
+    states.texture = &spritesheetTexture;
+    states.shader = &shader;
     window.getWindowContext().draw(quads, states);
 }
 
 void RenderingEngine::renderAlivePlayerHud(
     dgm::Window& window, const Entity& player, const PlayerInventory& inventory)
 {
-    auto light = context.level.lightmap.at(sf::Vector2u(
+    auto light = drawableLevel.lightmap.at(sf::Vector2u(
         player.hitbox.getPosition()
-        / static_cast<float>(context.level.lightmap.getVoxelSize().x)));
+        / static_cast<float>(drawableLevel.lightmap.getVoxelSize().x)));
 
-    context.weaponSprite.setTextureRect(context.weaponHudClipping.getFrame(
+    weaponSprite.setTextureRect(weaponClipping.getFrame(
         static_cast<std::size_t>(inventory.animationContext.spriteClipIndex)));
-    context.weaponSprite.setFillColor(sf::Color { light, light, light });
-    window.draw(context.weaponSprite);
+    weaponSprite.setFillColor(sf::Color { light, light, light });
+    window.draw(weaponSprite);
 
-    context.text.setString(std::format(
+    text.setString(std::format(
         "h: {} a: {}\nw: {}\nammo: {}\ns: {}",
         player.health,
         player.armor,
         inventory.acquiredWeapons.to_string(),
         getAmmoCountForActiveWeapon(inventory),
         inventory.score));
-    const auto textBounds = context.text.getGlobalBounds();
-    context.text.setPosition(10.f, settings.HEIGHT - textBounds.height - 10.f);
+    const auto textBounds = text.getGlobalBounds();
+    text.setPosition(10.f, settings.HEIGHT - textBounds.height - 10.f);
 
     /* FOR AI DEBUGGING
     context.text.setString(
         TOP_STATES_TO_STRING.at(scene.playerStates[0].blackboard->aiTopState)
         + " "
         + AI_STATE_TO_STRING.at(scene.playerStates[0].blackboard->aiState));*/
-    window.draw(context.text);
+    window.draw(text);
 
     auto redOverlay = sf::RectangleShape(sf::Vector2f(window.getSize()));
     redOverlay.setFillColor(
@@ -401,9 +380,8 @@ std::optional<std::pair<float, float>> RenderingEngine::cropSpriteIfObscured(
     if (leftColumn >= int(settings.WIDTH) || rightColumn < 0)
         return std::nullopt;
 
-    while (
-        leftColumn < rightColumn && leftColumn < int(settings.WIDTH)
-        && (leftColumn < 0 || context.depthBuffer[leftColumn] < thingDistance))
+    while (leftColumn < rightColumn && leftColumn < int(settings.WIDTH)
+           && (leftColumn < 0 || depthBuffer[leftColumn] < thingDistance))
     {
         ++leftColumn;
         ++movedLeftColumnBy;
@@ -415,7 +393,7 @@ std::optional<std::pair<float, float>> RenderingEngine::cropSpriteIfObscured(
 
     while (leftColumn < rightColumn && rightColumn >= 0
            && (rightColumn >= int(settings.WIDTH)
-               || context.depthBuffer[rightColumn] < thingDistance))
+               || depthBuffer[rightColumn] < thingDistance))
     {
         --rightColumn;
         ++movedRightColumnBy;
