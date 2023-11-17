@@ -145,7 +145,7 @@ std::vector<std::string> TriggerToolProperty::getActionNames() const
     std::vector<std::string> result;
     result.reserve(actionDefinitions->size());
 
-    for (auto&& [id, def] : *actionDefinitions)
+    for (auto&& [_, def] : *actionDefinitions)
         result.push_back(def.name);
 
     return result;

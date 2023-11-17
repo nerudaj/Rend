@@ -20,17 +20,12 @@ import Memory;
 class NewLevelDialog final : public DialogInterface
 {
 public:
-    NewLevelDialog(
-        mem::Rc<Gui> gui,
-        mem::Rc<FileApiInterface> fileApi,
-        const std::optional<std::string>& configPath);
+    NewLevelDialog(mem::Rc<Gui> gui, mem::Rc<FileApiInterface> fileApi);
 
 public:
     [[nodiscard]] unsigned getLevelWidth() const;
 
     [[nodiscard]] unsigned getLevelHeight() const;
-
-    [[nodiscard]] std::string getConfigPath() const;
 
 private:
     const std::optional<std::string>& configPath;

@@ -91,7 +91,7 @@ public:
     template<TriggerOrThing ObjectType>
     static std::optional<CoordRect> getBoundingBox(
         const std::vector<ObjectType>& objects,
-        const sf::Vector2i levelSize,
+        const sf::Vector2i,
         std::function<sf::Vector2i(const ObjectType&)> getNormalizedPosition)
     {
         if (objects.empty()) return {};

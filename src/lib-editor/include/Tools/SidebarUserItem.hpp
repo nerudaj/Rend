@@ -88,6 +88,8 @@ public: // SidebarUserWithSprites
         case Unused16:
         case Unused17:
         case Unused18:
+        case Unused19:
+        case Unused20:
             return true;
         }
 

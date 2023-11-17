@@ -3,7 +3,9 @@
 #include "Camera.hpp"
 #include "Commands/CommandHistory.hpp"
 #include "Commands/CommandQueue.hpp"
+#include "Dialogs/LoadLevelDialog.hpp"
 #include "Dialogs/NewLevelDialog.hpp"
+#include "Dialogs/SaveLevelDialog.hpp"
 #include "Dialogs/UpdateConfigPathDialog.hpp"
 #include "Gui.hpp"
 #include "Interfaces/DialogInterfaces.hpp"
@@ -50,13 +52,14 @@ protected:
 
     // Attributes
     std::string savePath;
-    std::optional<std::string> configPath = {};
     bool unsavedChanges = false;
     tgui::CanvasSFML::Ptr canvas;
     mem::Rc<CommandHistory> commandHistory;
     mem::Rc<CommandQueue> commandQueue = mem::Rc<CommandQueue>(commandHistory);
     mem::Box<EditorInterface> editor;
     NewLevelDialog dialogNewLevel;
+    LoadLevelDialog dialogLoadLevel;
+    SaveLevelDialog dialogSaveLevel;
     UpdateConfigPathDialog dialogUpdateConfigPath;
     ClickPreventer clickPreventer;
 
@@ -105,10 +108,11 @@ protected: // Callback handlers
         const std::string& pathToLevel,
         std::optional<std::string> pathToConfigOverride = {});
     void handleSaveLevel(bool forceNewPath = false) noexcept;
+    void saveLevel();
     void handlePlayLevel();
     void handleUndo();
     void handleRedo();
-    void handleExit(YesNoCancelDialogInterface& dialoConfirmExit);
+    void handleExit(YesNoCancelDialogInterface& dialoConfirmExit, bool exitApp);
 
 protected:
     void setupFont();

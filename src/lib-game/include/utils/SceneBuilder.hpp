@@ -1,6 +1,7 @@
 #pragma once
 
 #include "GameSettings.hpp"
+#include <LevelD.hpp>
 #include <core/Enums.hpp>
 #include <core/Scene.hpp>
 #include <core/Types.hpp>
@@ -10,7 +11,7 @@ class SceneBuilder
 {
 public:
     [[nodiscard]] static Scene buildScene(
-        const dgm::ResourceManager& resmgr,
+        const LevelD& level,
         const sf::Vector2f& baseResolution,
         const GameSettings& settings);
 

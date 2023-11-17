@@ -1,41 +1,16 @@
 #include "app/AppStateEditor.hpp"
 #include "Configs/Sizers.hpp"
 #include "Configs/Strings.hpp"
-#include "Dialogs/NewLevelDialog.hpp"
 #include "Dialogs/PlaytestSettingsDialog.hpp"
 #include "Editor/Editor.hpp"
 #include "Editor/NullEditor.hpp"
+#include "Filesystem.hpp"
 #include "Launcher/NullPlaytestLauncher.hpp"
 #include "Launcher/PlaytestLauncher.hpp"
+#include "Utilities/Literals.hpp"
 #include "Utilities/ProcessCreator.hpp"
 #include "app/AppStateIngame.hpp"
 #include <cmath>
-
-void AppStateEditor::handleExit(YesNoCancelDialogInterface& confirmExitDialog)
-{
-    if (unsavedChanges)
-    {
-        using namespace Strings::Dialog;
-
-        confirmExitDialog.open(
-            Title::WARNING,
-            Message::UNSAVED_CHANGES,
-            [&](UserChoice choice)
-            {
-                if (choice == UserChoice::Cancelled)
-                    return;
-                else if (choice == UserChoice::Confirmed)
-                    handleSaveLevel();
-                else
-                    unsavedChanges = false;
-                handleExit(confirmExitDialog);
-            });
-    }
-    else
-    {
-        app.popState();
-    }
-}
 
 void AppStateEditor::setupFont()
 {
@@ -62,7 +37,7 @@ void AppStateEditor::input()
 
         if (event.type == sf::Event::Closed)
         {
-            handleExit(*dialogConfirmExit);
+            handleExit(*dialogConfirmExit, true);
         }
         else if (event.type == sf::Event::KeyPressed)
         {
@@ -140,12 +115,11 @@ AppStateEditor::AppStateEditor(
     , dialogConfirmExit(dialogConfirmExit)
     , dialogErrorInfo(dialogErrorInfo)
     , editor(mem::Box<NullEditor>())
-    , dialogNewLevel(gui, fileApi, configPath)
+    , dialogNewLevel(gui, fileApi)
+    , dialogLoadLevel(gui, settings->cmdSettings.resourcesDir)
+    , dialogSaveLevel(gui)
     , dialogUpdateConfigPath(gui, fileApi)
 {
-    configPath =
-        (settings->cmdSettings.resourcesDir / "editor-config.json").string();
-
     try
     {
         gui->theme.load(
@@ -184,8 +158,7 @@ void AppStateEditor::buildLayout()
         std::to_string(Sizers::GetMenuBarHeight());
     const unsigned TOPBAR_FONT_HEIGHT = Sizers::GetMenuBarTextHeight();
     const std::string SIDEBAR_WIDTH = "8%";
-    const std::string SIDEBAR_HEIGHT =
-        "&.height - 2*" + TOPBAR_HEIGHT; // 2* because of the logger
+    const std::string SIDEBAR_HEIGHT = "&.height - " + TOPBAR_HEIGHT;
     const std::string SIDEBAR_XPOS = "&.width - " + SIDEBAR_WIDTH;
 
     // Canvas
@@ -196,7 +169,7 @@ void AppStateEditor::buildLayout()
     buildSidebarLayout(runToken, SIDEBAR_WIDTH, SIDEBAR_HEIGHT, TOPBAR_HEIGHT);
 
     auto layerLabel = tgui::Label::create();
-    layerLabel->setPosition({ "1%", ("100% - 2 * " + TOPBAR_HEIGHT).c_str() });
+    layerLabel->setPosition({ "1%", ("100% - " + TOPBAR_HEIGHT).c_str() });
     gui->gui.add(layerLabel, "LayerLabel");
 }
 
@@ -255,7 +228,7 @@ tgui::MenuBar::Ptr AppStateEditor::buildMenuBarLayout(
         UNDO, [this] { handleUndo(); }, sf::Keyboard::Z);
     addFileMenuItem(
         REDO, [this] { handleRedo(); }, sf::Keyboard::Y);
-    addFileMenuItem(EXIT, [this] { handleExit(*dialogConfirmExit); });
+    addFileMenuItem(EXIT, [this] { handleExit(*dialogConfirmExit, false); });
 
     gui->gui.add(menu, "TopMenuBar");
 
@@ -284,9 +257,11 @@ void AppStateEditor::newLevelDialogCallback()
     // Get settings from modal
     unsigned levelWidth = dialogNewLevel.getLevelWidth();
     unsigned levelHeight = dialogNewLevel.getLevelHeight();
-    configPath = dialogNewLevel.getConfigPath();
 
-    editor->init(levelWidth, levelHeight, configPath.value());
+    editor->init(
+        levelWidth,
+        levelHeight,
+        Filesystem::getEditorConfigPath(settings->cmdSettings.resourcesDir));
 }
 
 void AppStateEditor::handleNewLevel()
@@ -296,8 +271,14 @@ void AppStateEditor::handleNewLevel()
 
 void AppStateEditor::handleLoadLevel()
 {
-    auto r = fileApi->getOpenFileName(LVLD_FILTER);
-    if (r.has_value()) loadLevel(r.value());
+    dialogLoadLevel.open(
+        [this]
+        {
+            loadLevel(Filesystem::getFullLevelPath(
+                          settings->cmdSettings.resourcesDir,
+                          dialogLoadLevel.getLevelName())
+                          .string());
+        });
 }
 
 void AppStateEditor::loadLevel(
@@ -309,8 +290,8 @@ void AppStateEditor::loadLevel(
         LevelD lvd;
         lvd.loadFromFile(pathToLevel);
 
-        auto configPathFS = std::filesystem::path(
-            pathToConfigOverride.value_or(lvd.metadata.description));
+        auto configPathFS =
+            Filesystem::getEditorConfigPath(settings->cmdSettings.resourcesDir);
         if (!std::filesystem::exists(configPathFS))
         {
             dialogUpdateConfigPath.open(
@@ -324,7 +305,6 @@ void AppStateEditor::loadLevel(
         }
 
         savePath = pathToLevel;
-        configPath = configPathFS.string();
 
         editor->loadFrom(lvd, configPathFS);
         unsavedChanges = false;
@@ -338,21 +318,27 @@ void AppStateEditor::loadLevel(
 
 void AppStateEditor::handleSaveLevel(bool forceNewPath) noexcept
 {
-    assert(configPath.has_value());
-
     if (savePath.empty() || forceNewPath)
     {
-        if (auto str = getNewSavePath())
-            savePath = *str;
-        else // user cancelled
-            return;
+        dialogSaveLevel.open(
+            [&]
+            {
+                savePath = dialogSaveLevel.getLevelName();
+                saveLevel();
+            });
     }
+    else
+    {
+        saveLevel();
+    }
+}
 
+void AppStateEditor::saveLevel()
+{
     try
     {
         unsavedChanges = false;
         auto&& lvd = editor->save();
-        lvd.metadata.description = configPath.value();
         lvd.saveToFile(savePath);
         updateWindowTitle();
     }
@@ -377,8 +363,16 @@ void AppStateEditor::handlePlayLevel()
         .fraglimit = 1
     };
 
+    auto lvd = LevelD {};
+    lvd.loadFromFile(savePath);
     app.pushState<AppStateIngame>(
-        resmgr, nativeGui, settings, audioPlayer, gameSettings);
+        resmgr,
+        nativeGui,
+        settings,
+        audioPlayer,
+        gameSettings,
+        lvd,
+        "launchedFromEditor"_true);
 }
 
 void AppStateEditor::handleUndo()
@@ -389,4 +383,35 @@ void AppStateEditor::handleUndo()
 void AppStateEditor::handleRedo()
 {
     commandHistory->redo();
+}
+
+void AppStateEditor::handleExit(
+    YesNoCancelDialogInterface& confirmExitDialog, bool exitApp)
+{
+    if (unsavedChanges)
+    {
+        using namespace Strings::Dialog;
+
+        confirmExitDialog.open(
+            Title::WARNING,
+            Message::UNSAVED_CHANGES,
+            [&](UserChoice choice)
+            {
+                if (choice == UserChoice::Cancelled)
+                    return;
+                else if (choice == UserChoice::Confirmed)
+                    handleSaveLevel();
+                else
+                    unsavedChanges = false;
+                handleExit(confirmExitDialog, exitApp);
+            });
+    }
+    else if (exitApp)
+    {
+        app.exit();
+    }
+    else
+    {
+        app.popState();
+    }
 }

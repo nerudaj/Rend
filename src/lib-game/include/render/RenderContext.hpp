@@ -1,35 +1,20 @@
 #pragma once
 
 #include <DGM/dgm.hpp>
-#include <core/Types.hpp>
+#include <LevelD.hpp>
+#include <render/DrawableLevel.hpp>
 
-struct DrawableLevel
+class RenderContextBuilder
 {
-    dgm::Mesh bottomTextures;
-    dgm::Mesh upperTextures;
-    LightmapType lightmap;
-};
+public:
+    [[nodiscard]] static sf::RectangleShape createWeaponSprite(
+        const sf::Texture& texture,
+        const unsigned screenWidth,
+        const unsigned screenHeight);
 
-// Struct that should contain all primitives needed to render
-// the Scene.
-// Automatically constructed by the RenderingEngine using the
-// buildRenderContext method
-struct RenderContext
-{
-    sf::Text text;
-    DrawableLevel level;
-    const sf::Texture& tilesetTexture;
-    const sf::Texture& spritesheetTexture;
-    dgm::Clip tilesetClipping;
-    dgm::Clip spritesheetClipping;
-    dgm::Clip weaponHudClipping;
-    const sf::Shader& shader;
-    std::vector<float> depthBuffer;
-    sf::RectangleShape weaponSprite;
+    [[nodiscard]] static sf::Text
+    createTextObject(const sf::Font& font, unsigned charSize, sf::Color color);
 
-    [[nodiscard]] static RenderContext buildRenderContext(
-        const dgm::ResourceManager& resmgr,
-        const std::string& mapname,
-        unsigned screenWidth,
-        unsigned screenHeight);
+    [[nodiscard]] static DrawableLevel
+    buildLevelRepresentation(const LevelD& level);
 };

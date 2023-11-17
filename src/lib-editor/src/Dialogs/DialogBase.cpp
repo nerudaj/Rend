@@ -24,6 +24,8 @@ void DialogInterface::open(std::function<void()> confirmCallback)
     constexpr auto ROW_HEIGHT_STR = "6%";
     constexpr auto MARGIN = 2_upercent;
     constexpr auto ROW_SPACING = 1_upercent;
+    constexpr auto LABEL_WIDTH = "48%";
+    constexpr auto INPUT_POSITION_X = "52%";
 
     auto computeYposFromRow = [&](unsigned row) -> std::string
     { return std::to_string(row * (ROW_HEIGHT + ROW_SPACING) + MARGIN) + "%"; };
@@ -38,7 +40,7 @@ void DialogInterface::open(std::function<void()> confirmCallback)
     auto addLabel = [&](const std::string& text, unsigned row)
     {
         auto label = tgui::Label::create(text);
-        label->setSize("26%", ROW_HEIGHT_STR);
+        label->setSize(LABEL_WIDTH, ROW_HEIGHT_STR);
         label->setPosition("2%", computeYposFromRow(row).c_str());
         label->setVerticalAlignment(tgui::Label::VerticalAlignment::Center);
         modal->add(label);
@@ -50,8 +52,8 @@ void DialogInterface::open(std::function<void()> confirmCallback)
                           bool narrow = false)
     {
         auto box = tgui::EditBox::create();
-        box->setSize(narrow ? "58%" : "66%", ROW_HEIGHT_STR);
-        box->setPosition("32%", computeYposFromRow(row).c_str());
+        box->setSize(narrow ? "38%" : "46%", ROW_HEIGHT_STR);
+        box->setPosition(INPUT_POSITION_X, computeYposFromRow(row).c_str());
         box->setText(value);
         modal->add(box, id);
     };
@@ -59,7 +61,7 @@ void DialogInterface::open(std::function<void()> confirmCallback)
     auto addCheckbox = [&](const bool, const std::string& id, unsigned row)
     {
         auto check = tgui::CheckBox::create();
-        check->setPosition("32%", computeYposFromRow(row).c_str());
+        check->setPosition(INPUT_POSITION_X, computeYposFromRow(row).c_str());
         modal->add(check, id);
     };
 
@@ -80,6 +82,20 @@ void DialogInterface::open(std::function<void()> confirmCallback)
         label->setPosition("2%", computeYposFromRow(row).c_str());
         label->setVerticalAlignment(tgui::Label::VerticalAlignment::Center);
         modal->add(label);
+    };
+
+    auto addDropdown = [&](const std::string& id,
+                           const std::vector<std::string>& values,
+                           unsigned row)
+    {
+        auto combo = tgui::ComboBox::create();
+        for (auto&& opt : values)
+        {
+            combo->addItem(opt);
+        }
+        combo->setPosition(INPUT_POSITION_X, computeYposFromRow(row).c_str());
+        combo->setSelectedItem(values.front());
+        modal->add(combo, id);
     };
 
     unsigned row = 0;
@@ -120,6 +136,11 @@ void DialogInterface::open(std::function<void()> confirmCallback)
                 {
                     addText(input.text, input.rowsToAllocate, row);
                     row += input.rowsToAllocate - 1;
+                },
+                [&](const OptionDropdown& input)
+                {
+                    addLabel(input.label, row);
+                    addDropdown(input.id, input.values, row);
                 } }
 
             ,

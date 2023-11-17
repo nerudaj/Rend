@@ -46,13 +46,21 @@ struct OptionText
     unsigned rowsToAllocate;
 };
 
+struct OptionDropdown
+{
+    std::string label;
+    std::string id;
+    std::vector<std::string> values;
+};
+
 using OptionLine = std::variant<
     OptionInput,
     OptionDeferredInput,
     OptionInputWithButton,
     OptionDeferredInputWithButton,
     OptionCheckbox,
-    OptionText>;
+    OptionText,
+    OptionDropdown>;
 
 class DialogInterface
 {

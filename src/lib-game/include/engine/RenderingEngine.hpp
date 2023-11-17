@@ -6,6 +6,7 @@
 #include "render/Raycaster.hpp"
 #include "render/RenderContext.hpp"
 #include <DGM/DGM.hpp>
+#include <LevelD.hpp>
 
 import Memory;
 
@@ -20,13 +21,13 @@ class RenderingEngine final
 {
 public:
     [[nodiscard]] RenderingEngine(
-        mem::Rc<const dgm::ResourceManager> resmgr, Scene& scene);
+        const dgm::ResourceManager& resmgr, const LevelD& level, Scene& scene);
 
 public: // Must visit on all related events
     constexpr inline void operator()(const EventRenderToggle& e) noexcept
     {
         if (e.fpsDisplay) showFps = !showFps;
-        if (e.topDownRender) debugRender = !debugRender;
+        // if (e.topDownRender) debugRender = !debugRender;
     }
 
 public:
@@ -37,8 +38,6 @@ public:
     void renderHudTo(dgm::Window& window);
 
 private:
-    void render2d(dgm::Window& window);
-
     void render3d(dgm::Window& window);
 
     void renderLevelMesh(
@@ -83,13 +82,19 @@ private:
         int& leftColumn, int& rightColumn, float thingDistance);
 
 private:
-    mem::Rc<const dgm::ResourceManager> resmgr;
-    Scene& scene;
-    const sf::Texture& tileset;
-    bool showFps = true;
-    bool debugRender = false;
-    FpsCounter fpsCounter;
     const RenderSettings settings;
-    RenderContext context;
+    Scene& scene;
+    const sf::Texture& tilesetTexture;
+    dgm::Clip tilesetClipping;
+    const sf::Texture& spritesheetTexture;
+    dgm::Clip spritesheetClipping;
+    sf::RectangleShape weaponSprite;
+    dgm::Clip weaponClipping;
+    const sf::Shader& shader;
+    sf::Text text;
+    DrawableLevel drawableLevel;
     Raycaster caster;
+    FpsCounter fpsCounter;
+    bool showFps = true;
+    std::vector<float> depthBuffer;
 };

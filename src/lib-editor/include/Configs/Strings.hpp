@@ -25,7 +25,9 @@ namespace Strings
         namespace Title
         {
             constexpr const char* WARNING = "Warning";
-        }
+            constexpr const char* OPEN_LEVEL = "Open level";
+            constexpr const char* SAVE_LEVEL = "Save level";
+        } // namespace Title
 
         namespace Message
         {
@@ -35,6 +37,12 @@ namespace Strings
             constexpr const char* CANNOT_PLAY_LEVEL =
                 "Cannot play level because no level is opened.";
         } // namespace Message
+
+        namespace Body
+        {
+            constexpr const char* SELECT_LEVEL = "Select level";
+            constexpr const char* LEVEL_NAME = "Level name";
+        } // namespace Body
     }     // namespace Dialog
 
     namespace Editor

@@ -32,7 +32,7 @@ protected:
 
     [[nodiscard]] virtual std::size_t getSpriteCount() const = 0;
 
-    [[nodiscard]] virtual bool shouldSkipSprite(unsigned spriteId) const
+    [[nodiscard]] virtual bool shouldSkipSprite(unsigned) const
     {
         return false;
     }

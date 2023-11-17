@@ -107,11 +107,10 @@ createSpatialIndex(const LevelD& level)
 }
 
 Scene SceneBuilder::buildScene(
-    const dgm::ResourceManager& resmgr,
+    const LevelD& level,
     const sf::Vector2f& baseResolution,
     const GameSettings& settings)
 {
-    auto&& level = resmgr.get<LevelD>(settings.map).value().get();
     const auto bottomMesh = Builder::buildMeshFromLvd(level, 0);
 
     return Scene { .things = createThingsBuffer(level),

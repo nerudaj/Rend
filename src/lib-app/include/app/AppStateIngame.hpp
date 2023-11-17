@@ -10,6 +10,7 @@
 #include "engine/RenderingEngine.hpp"
 #include <DGM/dgm.hpp>
 #include <GameSettings.hpp>
+#include <LevelD.hpp>
 #include <TGUI/Backend/SFML-Graphics.hpp>
 #include <TGUI/TGUI.hpp>
 #include <core/Scene.hpp>
@@ -30,7 +31,9 @@ public:
         mem::Rc<tgui::Gui> gui,
         mem::Rc<Settings> settings,
         mem::Rc<AudioPlayer> audioPlayer,
-        GameSettings gameSettings);
+        GameSettings gameSettings,
+        const LevelD& level,
+        bool launchedFromEditor = false);
 
     ~AppStateIngame()
     {
@@ -83,6 +86,7 @@ protected:
     GameSettings gameSettings;
     mem::Rc<AudioPlayer> audioPlayer;
     mem::Rc<EventQueue> eventQueue;
+    bool launchedFromEditor;
 
     std::vector<mem::Rc<ControllerInterface>> inputs;
     Scene scene;
