@@ -159,7 +159,7 @@ void RenderingEngine::renderLevelMesh(
         if (heightHint < 0.f)
             return drawableLevel.bottomTextures[tileId];
         else if (heightHint > 1.f)
-            return static_cast<int>(TilesetMapping::CeilSky);
+            return drawableLevel.upperTextures[tileId];
         return static_cast<int>(TilesetMapping::CeilLow);
     };
 

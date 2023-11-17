@@ -7,14 +7,14 @@
 
 enum class TilesetMapping
 {
-    Floor1 = 0,
+    Floor1,
     Floor2,
-    CeilSky = 2,
     CeilLow,
-    // TODO: CeilHigh
-    Crate1 = 4,
+    CeilSky,
+    CeilHigh,
+    Crate1,
     Crate2,
-    Wall1 = 6,
+    Wall1,
     End = 16
 };
 

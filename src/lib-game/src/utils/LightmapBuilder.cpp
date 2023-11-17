@@ -3,7 +3,7 @@
 
 constexpr LightType OUTSIDE_DAY_LIGHT_LEVEL = 224;
 constexpr LightType INSIDE_CORRIDOR_LIGHT_LEVEL = 96;
-constexpr LightType INSIDE_ROOM_LIGHT_LEVEL = 192; // Currently unused
+constexpr LightType INSIDE_ROOM_LIGHT_LEVEL = 192;
 constexpr LightType ARTIFICIAL_LIGHT_SOURCE_LEVEL = 255;
 constexpr LightType LIGHT_DECAY_AMOUNT = 16;
 
@@ -51,10 +51,15 @@ std::vector<LightType> LightmapBuilder::getDataWithBaseLightLevels(
     {
         for (MeshItrType x = 0; x < bottom.getDataSize().y; ++x, ++i)
         {
-            if (static_cast<TilesetMapping>(upper.at(x, y))
-                == TilesetMapping::CeilSky)
+            auto upperTileType = static_cast<TilesetMapping>(upper.at(x, y));
+
+            if (upperTileType == TilesetMapping::CeilSky)
             {
                 data[i] = OUTSIDE_DAY_LIGHT_LEVEL;
+            }
+            else if (upperTileType == TilesetMapping::CeilHigh)
+            {
+                data[i] = INSIDE_ROOM_LIGHT_LEVEL;
             }
             else if (
                 static_cast<TilesetMapping>(bottom.at(x, y))
