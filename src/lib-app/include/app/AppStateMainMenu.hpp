@@ -37,6 +37,7 @@ public:
 
     virtual void restoreFocus() override
     {
+        app.window.getWindowContext().setTitle("Rend");
         GuiState::restoreFocus(app.window.getWindowContext());
     }
 
