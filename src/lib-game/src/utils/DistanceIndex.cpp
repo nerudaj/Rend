@@ -30,9 +30,17 @@ int DistanceIndex::getDistance(
 
     if (fromTile == toTile) return 0;
 
-    return index
-        .at(std::min(fromTile, toTile, dgm::Utility::less<sf::Vector2u> {}))
-        .at(std::max(fromTile, toTile, dgm::Utility::less<sf::Vector2u> {}));
+    try
+    {
+        return index
+            .at(std::min(fromTile, toTile, dgm::Utility::less<sf::Vector2u> {}))
+            .at(std::max(
+                fromTile, toTile, dgm::Utility::less<sf::Vector2u> {}));
+    }
+    catch (...)
+    {
+        return 1000;
+    }
 }
 
 sf::Vector2u DistanceIndex::toTileCoord(unsigned meshIndex) const noexcept
