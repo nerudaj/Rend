@@ -6,89 +6,101 @@
 
 struct [[nodiscard]] FlaregunFiredAudioEvent
 {
-    PlayerStateIndexType channel;
+    PlayerStateIndexType stateIdx;
     sf::Vector2f position;
 
     constexpr FlaregunFiredAudioEvent(
-        PlayerStateIndexType channel,
+        PlayerStateIndexType stateIdx,
         dgm::UniversalReference<sf::Vector2f> auto&& position) noexcept
-        : channel(channel), position(std::forward<decltype(position)>(position))
+        : stateIdx(stateIdx)
+        , position(std::forward<decltype(position)>(position))
     {
     }
 };
 
 struct [[nodiscard]] ShotgunFiredAudioEvent
 {
-    PlayerStateIndexType channel;
+    PlayerStateIndexType stateIdx;
     sf::Vector2f position;
 
     constexpr ShotgunFiredAudioEvent(
-        PlayerStateIndexType channel,
+        PlayerStateIndexType stateIdx,
         dgm::UniversalReference<sf::Vector2f> auto&& position) noexcept
-        : channel(channel), position(std::forward<decltype(position)>(position))
+        : stateIdx(stateIdx)
+        , position(std::forward<decltype(position)>(position))
     {
     }
 };
 
 struct BulletFiredAudioEvent
 {
-    PlayerStateIndexType channel;
+    PlayerStateIndexType stateIdx;
     sf::Vector2f position;
 
     [[nodiscard]] constexpr BulletFiredAudioEvent(
-        PlayerStateIndexType channel,
+        PlayerStateIndexType stateIdx,
         dgm::UniversalReference<sf::Vector2f> auto&& position) noexcept
-        : channel(channel), position(std::forward<decltype(position)>(position))
+        : stateIdx(stateIdx)
+        , position(std::forward<decltype(position)>(position))
     {
     }
 };
 
 struct RocketFiredAudioEvent
 {
-    PlayerStateIndexType channel;
+    PlayerStateIndexType stateIdx;
     sf::Vector2f position;
 
     [[nodiscard]] constexpr RocketFiredAudioEvent(
-        PlayerStateIndexType channel,
+        PlayerStateIndexType stateIdx,
         dgm::UniversalReference<sf::Vector2f> auto&& position) noexcept
-        : channel(channel), position(std::forward<decltype(position)>(position))
+        : stateIdx(stateIdx)
+        , position(std::forward<decltype(position)>(position))
     {
     }
 };
 
 struct [[nodiscard]] LaserCrossbowAudioEvent
 {
-    PlayerStateIndexType channel;
+    PlayerStateIndexType stateIdx;
     sf::Vector2f position;
 
     constexpr LaserCrossbowAudioEvent(
-        PlayerStateIndexType channel,
+        PlayerStateIndexType stateIdx,
         dgm::UniversalReference<sf::Vector2f> auto&& position) noexcept
-        : channel(channel), position(std::forward<decltype(position)>(position))
+        : stateIdx(stateIdx)
+        , position(std::forward<decltype(position)>(position))
     {
     }
 };
 
 struct [[nodiscard]] LaserDartBouncedAudioEvent
 {
+    PlayerStateIndexType stateIdx;
     sf::Vector2f position;
 
     constexpr LaserDartBouncedAudioEvent(
+        PlayerStateIndexType stateIdx,
         dgm::UniversalReference<sf::Vector2f> auto&& position) noexcept
-        : position(std::forward<decltype(position)>(position))
+        : stateIdx(stateIdx)
+        , position(std::forward<decltype(position)>(position))
     {
     }
 };
 
 struct [[nodiscard]] ExplosionTriggeredAudioEvent
 {
+    PlayerStateIndexType stateIdx;
     EntityType type;
     sf::Vector2f position;
 
     constexpr ExplosionTriggeredAudioEvent(
         EntityType type,
+        PlayerStateIndexType stateIdx,
         dgm::UniversalReference<sf::Vector2f> auto&& position) noexcept
-        : type(type), position(std::forward<decltype(position)>(position))
+        : type(type)
+        , stateIdx(stateIdx)
+        , position(std::forward<decltype(position)>(position))
     {
     }
 };
@@ -96,11 +108,11 @@ struct [[nodiscard]] ExplosionTriggeredAudioEvent
 struct [[nodiscard]] PickablePickedUpAudioEvent
 {
     EntityType type;
-    PlayerStateIndexType channel;
+    PlayerStateIndexType stateIdx;
 
     constexpr PickablePickedUpAudioEvent(
-        EntityType type, PlayerStateIndexType channel) noexcept
-        : type(type), channel(channel)
+        EntityType type, PlayerStateIndexType stateIdx) noexcept
+        : type(type), stateIdx(stateIdx)
     {
     }
 };
@@ -108,11 +120,11 @@ struct [[nodiscard]] PickablePickedUpAudioEvent
 struct [[nodiscard]] WeaponRecoveringAudioEvent
 {
     EntityType type;
-    PlayerStateIndexType channel;
+    PlayerStateIndexType stateIdx;
 
     constexpr WeaponRecoveringAudioEvent(
-        EntityType type, PlayerStateIndexType channel) noexcept
-        : type(type), channel(channel)
+        EntityType type, PlayerStateIndexType stateIdx) noexcept
+        : type(type), stateIdx(stateIdx)
     {
     }
 };

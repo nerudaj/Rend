@@ -30,11 +30,16 @@ public: // Must visit on all related events
     void operator()(const WeaponRecoveringAudioEvent&);
 
 public:
-    void update(const float deltaTime);
+    void update(const float);
 
 private:
     [[nodiscard]] sf::Vector2f
     getRelativePosition(const sf::Vector2f& position) const;
+
+    [[nodiscard]] std::optional<sf::Vector2f> getRelativePosition(
+        PlayerStateIndexType stateIdx, const sf::Vector2f& position) const;
+
+    [[nodiscard]] bool isPovStateIndex(PlayerStateIndexType stateIdx) const;
 
 private:
     mem::Rc<const dgm::ResourceManager> resmgr;

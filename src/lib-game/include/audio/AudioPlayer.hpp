@@ -8,30 +8,11 @@
 
 import Memory;
 
-constexpr unsigned CHANNEL_COUNT = 8;
+constexpr const unsigned CHANNEL_COUNT = 10;
 
 class AudioPlayer
 {
-private:
-    std::vector<sf::Sound> channels;
-    mem::Rc<const dgm::ResourceManager> resmgr;
-
-    [[nodiscard]] bool isChannelActive(const std::size_t channel) const
-    {
-        return channels[channel].getStatus() == sf::Sound::Status::Playing;
-    }
-
 public:
-    void playSoundOnChannel(
-        const std::string& soundName,
-        const std::size_t channel,
-        const bool force = false,
-        const sf::Vector2f& position = sf::Vector2f(0.f, 0.f));
-
-    void stopChannel(const std::size_t channel);
-
-    void setSoundVolume(const float volume);
-
     [[nodiscard]] AudioPlayer(
         const std::size_t channelCount,
         mem::Rc<const dgm::ResourceManager> resmgr) noexcept
@@ -40,4 +21,24 @@ public:
     }
 
     ~AudioPlayer();
+
+public:
+    void playSoundOnChannel(
+        const std::string& soundName,
+        const std::size_t channel,
+        const bool force = false,
+        std::optional<sf::Vector2f> position = std::nullopt);
+
+    void stopChannel(const std::size_t channel);
+
+    void setSoundVolume(const float volume);
+
+private:
+    std::vector<sf::Sound> channels;
+    mem::Rc<const dgm::ResourceManager> resmgr;
+
+    [[nodiscard]] bool isChannelActive(const std::size_t channel) const
+    {
+        return channels[channel].getStatus() == sf::Sound::Status::Playing;
+    }
 };
