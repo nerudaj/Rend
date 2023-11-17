@@ -67,13 +67,12 @@ protected:
     void updateWindowTitle()
     {
         app.window.getWindowContext().setTitle(
-            "DGM Level Editor" + (savePath.empty() ? "" : " - " + savePath)
+            "Rend Level Editor" + (savePath.empty() ? "" : " - " + savePath)
             + (unsavedChanges ? " *" : ""));
     }
 
     // IO
     void newLevelDialogCallback();
-    std::optional<std::string> getNewSavePath();
 
 protected: // Build functions
     class AllowExecutionToken;

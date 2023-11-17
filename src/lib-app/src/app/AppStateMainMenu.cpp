@@ -1,4 +1,5 @@
 #include "app/AppStateMainMenu.hpp"
+#include "Configs/Strings.hpp"
 #include "Dialogs/ErrorInfoDialog.hpp"
 #include "Dialogs/YesNoCancelDialog.hpp"
 #include "Shortcuts/ShortcutEngine.hpp"
@@ -24,9 +25,10 @@ void AppStateMainMenu::buildLayoutImpl()
 
     createButtonListInLayout(
         layout,
-        { ButtonProps("play", [this] { goToGameSetup(); }),
+        { ButtonProps(
+              Strings::AppState::MainMenu::PLAY, [this] { goToGameSetup(); }),
           ButtonProps(
-              "editor",
+              Strings::AppState::MainMenu::EDITOR,
               [this]
               {
                   auto _gui = mem::Rc<Gui>();
@@ -43,12 +45,13 @@ void AppStateMainMenu::buildLayoutImpl()
                       mem::Rc<ErrorInfoDialog>(_gui));
               }),
           ButtonProps(
-              "options",
+              Strings::AppState::MainMenu::OPTIONS,
               [this] {
                   app.pushState<AppStateMenuOptions>(
                       gui, audioPlayer, settings);
               }),
-          ButtonProps("exit", [this] { app.exit(); }) },
+          ButtonProps(
+              Strings::AppState::MainMenu::EXIT, [this] { app.exit(); }) },
         0.05f);
 }
 

@@ -1,5 +1,4 @@
 #include "Configs/Sizers.hpp"
-#include <WinUser.h>
 #include <Windows.h>
 
 unsigned Sizers::GetSystemDPI()

@@ -1,11 +1,21 @@
-cmake_minimum_required ( VERSION 3.26 )
+cmake_minimum_required ( VERSION 3.19 )
 
-project ( lib-defines LANGUAGES CXX )
+file (
+	COPY "${CMAKE_BINARY_DIR}/.clang-format"
+	DESTINATION "${CMAKE_CURRENT_SOURCE_DIR}"
+)
 
-get_latest_clang_format()
+project ( lib-defines )
 
-add_library ( ${PROJECT_NAME} INTERFACE )
+glob_sources_and_headers ( HEADERS SOURCES )
+
+add_library ( ${PROJECT_NAME} STATIC
+	${SOURCES} ${HEADERS}
+	"${CMAKE_CURRENT_SOURCE_DIR}/.clang-format"
+)
 
 target_include_directories ( ${PROJECT_NAME}
-	INTERFACE "${CMAKE_CURRENT_SOURCE_DIR}/include"
+	PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include"
 )
+
+autoset_target_compile_options ( ${PROJECT_NAME} FALSE )

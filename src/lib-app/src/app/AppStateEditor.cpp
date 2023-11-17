@@ -1,28 +1,74 @@
 #include "app/AppStateEditor.hpp"
 #include "Configs/Sizers.hpp"
 #include "Configs/Strings.hpp"
-#include "Dialogs/PlaytestSettingsDialog.hpp"
 #include "Editor/Editor.hpp"
 #include "Editor/NullEditor.hpp"
 #include "Filesystem.hpp"
-#include "Launcher/NullPlaytestLauncher.hpp"
-#include "Launcher/PlaytestLauncher.hpp"
 #include "Utilities/Literals.hpp"
 #include "Utilities/ProcessCreator.hpp"
 #include "app/AppStateIngame.hpp"
 #include <cmath>
 
+AppStateEditor::AppStateEditor(
+    dgm::App& app,
+    mem::Rc<tgui::Gui> nativeGui,
+    mem::Rc<Gui> gui,
+    mem::Rc<const dgm::ResourceManager> resmgr,
+    mem::Rc<Settings> settings,
+    mem::Rc<AudioPlayer> audioPlayer,
+    mem::Rc<FileApiInterface> fileApi,
+    mem::Rc<ShortcutEngineInterface> shortcutEngine,
+    mem::Rc<YesNoCancelDialogInterface> dialogConfirmExit,
+    mem::Rc<ErrorInfoDialogInterface> dialogErrorInfo)
+    : dgm::AppState(app)
+    , nativeGui(nativeGui)
+    , gui(gui)
+    , resmgr(resmgr)
+    , settings(settings)
+    , audioPlayer(audioPlayer)
+    , fileApi(fileApi)
+    , shortcutEngine(shortcutEngine)
+    , dialogConfirmExit(dialogConfirmExit)
+    , dialogErrorInfo(dialogErrorInfo)
+    , editor(mem::Box<NullEditor>())
+    , dialogNewLevel(gui, fileApi)
+    , dialogLoadLevel(gui, settings->cmdSettings.resourcesDir)
+    , dialogSaveLevel(gui)
+    , dialogUpdateConfigPath(gui, fileApi)
+{
+    try
+    {
+        gui->theme.load(
+            (settings->cmdSettings.resourcesDir / "editor/TransparentGrey.txt")
+                .string());
+        setupFont();
+    }
+    catch (std::exception& e)
+    {
+        std::cerr << "error:AppStateMainMenu: " << e.what() << std::endl;
+        throw;
+    }
+
+    // Setup resources
+    gui->gui.setTarget(app.window.getWindowContext());
+
+    buildLayout();
+
+    auto onStateChanged = [this]
+    {
+        unsavedChanges = true;
+        updateWindowTitle();
+    };
+
+    editor = mem::Box<Editor>(
+        gui, canvas, onStateChanged, commandQueue, this->shortcutEngine);
+
+    updateWindowTitle();
+}
+
 void AppStateEditor::setupFont()
 {
     gui->gui.setFont(resmgr->get<tgui::Font>("cruft.ttf").value().get());
-}
-
-std::optional<std::string> AppStateEditor::getNewSavePath()
-{
-    auto result = fileApi->getSaveFileName(LVLD_FILTER);
-    return result.transform(
-        [](const std::string& s) -> std::string
-        { return s.ends_with(".lvd") ? s : s + ".lvd"; });
 }
 
 void AppStateEditor::input()
@@ -91,63 +137,6 @@ void AppStateEditor::draw()
 
     // Whole window
     gui->gui.draw();
-}
-
-AppStateEditor::AppStateEditor(
-    dgm::App& app,
-    mem::Rc<tgui::Gui> nativeGui,
-    mem::Rc<Gui> gui,
-    mem::Rc<const dgm::ResourceManager> resmgr,
-    mem::Rc<Settings> settings,
-    mem::Rc<AudioPlayer> audioPlayer,
-    mem::Rc<FileApiInterface> fileApi,
-    mem::Rc<ShortcutEngineInterface> shortcutEngine,
-    mem::Rc<YesNoCancelDialogInterface> dialogConfirmExit,
-    mem::Rc<ErrorInfoDialogInterface> dialogErrorInfo)
-    : dgm::AppState(app)
-    , nativeGui(nativeGui)
-    , gui(gui)
-    , resmgr(resmgr)
-    , settings(settings)
-    , audioPlayer(audioPlayer)
-    , fileApi(fileApi)
-    , shortcutEngine(shortcutEngine)
-    , dialogConfirmExit(dialogConfirmExit)
-    , dialogErrorInfo(dialogErrorInfo)
-    , editor(mem::Box<NullEditor>())
-    , dialogNewLevel(gui, fileApi)
-    , dialogLoadLevel(gui, settings->cmdSettings.resourcesDir)
-    , dialogSaveLevel(gui)
-    , dialogUpdateConfigPath(gui, fileApi)
-{
-    try
-    {
-        gui->theme.load(
-            (settings->cmdSettings.resourcesDir / "editor/TransparentGrey.txt")
-                .string());
-        setupFont();
-    }
-    catch (std::exception& e)
-    {
-        std::cerr << "error:AppStateMainMenu: " << e.what() << std::endl;
-        throw;
-    }
-
-    // Setup resources
-    gui->gui.setTarget(app.window.getWindowContext());
-
-    buildLayout();
-
-    auto onStateChanged = [this]
-    {
-        unsavedChanges = true;
-        updateWindowTitle();
-    };
-
-    editor = mem::Box<Editor>(
-        gui, canvas, onStateChanged, commandQueue, this->shortcutEngine);
-
-    updateWindowTitle();
 }
 
 AppStateEditor::~AppStateEditor() {}
