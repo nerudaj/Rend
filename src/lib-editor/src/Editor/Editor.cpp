@@ -185,10 +185,16 @@ void Editor::init(
             tool.resize(levelWidth, levelHeight, "isTranslationDisabled"_false);
         });
 
+    const auto tileSize =
+        config["toolMesh"]["texture"]["tileDimensions"][0].get<float>();
+
     // Configure camera
     camera.init();
     camera.resetPosition();
     camera.resetZoom();
+    camera.move(
+        sf::Vector2f(levelWidth, levelHeight) * static_cast<float>(tileSize)
+        - sf::Vector2f(canvas->getSize()) / 2.f);
 
     initialized = true;
 
@@ -232,6 +238,12 @@ void Editor::loadFrom(
         init(1, 1, pathToJsonConfig);
 
     stateMgr.forallStates([&lvd](ToolInterface& tool) { tool.loadFrom(lvd); });
+
+    camera.resetPosition();
+    camera.move(
+        sf::Vector2f(lvd.mesh.layerWidth, lvd.mesh.layerHeight)
+            * static_cast<float>(lvd.mesh.tileWidth)
+        - sf::Vector2f(canvas->getSize()) / 2.f);
 }
 
 void Editor::resizeDialog()
