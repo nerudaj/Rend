@@ -257,7 +257,7 @@ void GameRulesEngine::handlePlayer(Entity& thing, std::size_t idx)
                == AnimationStateId::Recovery;
 
     // No weapon interaction allowed when weapon is not in idle
-    if (isAllowedToSwapWeapons && state.input.isShooting()
+    if (isAllowedToFire && state.input.isShooting()
         && canFireActiveWeapon(state.inventory))
     {
         eventQueue->emplace<PlayerFiredAnimationEvent>(idx);
