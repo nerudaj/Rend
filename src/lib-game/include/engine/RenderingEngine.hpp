@@ -89,6 +89,7 @@ private:
     const sf::Texture& spritesheetTexture;
     dgm::Clip spritesheetClipping;
     sf::RectangleShape weaponSprite;
+    sf::RectangleShape skyboxSprite;
     dgm::Clip weaponClipping;
     const sf::Shader& shader;
     sf::Text text;

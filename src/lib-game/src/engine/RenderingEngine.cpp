@@ -25,6 +25,15 @@
     return { baseClipIndex + 4u, false };
 }
 
+[[nodiscard]] static sf::RectangleShape createSkybox(
+    const sf::Texture& texture, unsigned screenWidth, unsigned screenHeight)
+{
+    auto result = sf::RectangleShape(
+        sf::Vector2f(sf::Vector2u(screenWidth * 2, screenHeight / 2)));
+    result.setTexture(&texture);
+    return result;
+}
+
 RenderingEngine::RenderingEngine(
     const dgm::ResourceManager& resmgr, const LevelD& level, Scene& scene)
     : settings(RenderSettings {})
@@ -35,6 +44,10 @@ RenderingEngine::RenderingEngine(
     , spritesheetClipping(resmgr.get<dgm::Clip>("items.png.clip").value().get())
     , weaponSprite(RenderContextBuilder::createWeaponSprite(
           resmgr.get<sf::Texture>("weapons.png").value().get(),
+          settings.WIDTH,
+          settings.HEIGHT))
+    , skyboxSprite(createSkybox(
+          resmgr.get<sf::Texture>("skyboxes.png").value().get(),
           settings.WIDTH,
           settings.HEIGHT))
     , weaponClipping(resmgr.get<dgm::Clip>("weapons.png.clip").value().get())
@@ -62,13 +75,24 @@ void RenderingEngine::renderWorldTo(dgm::Window&) {}
 
 void RenderingEngine::renderHudTo(dgm::Window& window)
 {
+    auto&& pov = scene.things[scene.cameraAnchorIdx];
+
+    // Render skybox
+    const auto povAngle = dgm::Math::cartesianToPolar(pov.direction).angle;
+    skyboxSprite.setPosition(
+        -povAngle * 2 * settings.WIDTH / 180.f - 2 * settings.WIDTH, 0.f);
+    window.draw(skyboxSprite);
+    skyboxSprite.setPosition(-povAngle * 2 * settings.WIDTH / 180.f, 0.f);
+    window.draw(skyboxSprite);
+    skyboxSprite.setPosition(
+        -povAngle * 2 * settings.WIDTH / 180.f + 2 * settings.WIDTH, 0.f);
+
     render3d(window);
 
     text.setString(fpsCounter.getText());
     text.setPosition({ 10.f, 10.f });
     window.draw(text);
 
-    auto&& pov = scene.things[scene.cameraAnchorIdx];
     if (pov.typeId == EntityType::Player)
     {
         renderAlivePlayerHud(
