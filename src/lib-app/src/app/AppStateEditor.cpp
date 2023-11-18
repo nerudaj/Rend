@@ -312,7 +312,10 @@ void AppStateEditor::handleSaveLevel(bool forceNewPath) noexcept
         dialogSaveLevel.open(
             [&]
             {
-                savePath = dialogSaveLevel.getLevelName();
+                savePath = Filesystem::getFullLevelPath(
+                               settings->cmdSettings.resourcesDir,
+                               dialogSaveLevel.getLevelName())
+                               .string();
                 saveLevel();
             });
     }
