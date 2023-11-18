@@ -79,13 +79,21 @@ void RenderingEngine::renderHudTo(dgm::Window& window)
 
     // Render skybox
     const auto povAngle = dgm::Math::cartesianToPolar(pov.direction).angle;
-    skyboxSprite.setPosition(
-        -povAngle * 2 * settings.WIDTH / 180.f - 2 * settings.WIDTH, 0.f);
+    const auto w2 = 2 * settings.WIDTH;
+    const auto renderPositionX = -povAngle * w2 / 180.f;
+    skyboxSprite.setPosition(renderPositionX, 0.f);
     window.draw(skyboxSprite);
-    skyboxSprite.setPosition(-povAngle * 2 * settings.WIDTH / 180.f, 0.f);
-    window.draw(skyboxSprite);
-    skyboxSprite.setPosition(
-        -povAngle * 2 * settings.WIDTH / 180.f + 2 * settings.WIDTH, 0.f);
+
+    if (renderPositionX > 0)
+    {
+        skyboxSprite.setPosition(renderPositionX - w2, 0.f);
+        window.draw(skyboxSprite);
+    }
+    else if (renderPositionX + w2 < settings.WIDTH)
+    {
+        skyboxSprite.setPosition(renderPositionX + w2, 0.f);
+        window.draw(skyboxSprite);
+    }
 
     render3d(window);
 
