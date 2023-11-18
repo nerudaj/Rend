@@ -42,7 +42,13 @@ private:
     [[nodiscard]] bool isPovStateIndex(PlayerStateIndexType stateIdx) const;
 
 private:
+    void updatAmbientChannelIndex();
+    void updatePovChannelIndex();
+
+private:
     mem::Rc<const dgm::ResourceManager> resmgr;
     mem::Rc<AudioPlayer> audioPlayer;
     Scene& scene;
+    int povChannelIndex = 0;
+    int ambientChannelIndex = 0;
 };

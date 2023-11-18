@@ -2,8 +2,9 @@
 
 constexpr unsigned PLAYER_1_CHANNEL = 0;
 constexpr unsigned AMBIENT_1_CHANNEL = 4;
-constexpr unsigned POV_PICKUP_CHANNEL = 8;
-constexpr unsigned POV_RECOVERY_CHANNEL = 9;
+constexpr unsigned POV_CHANNEL = 8;
+constexpr unsigned POV_CHANNEL_COUNT = 2;
+constexpr unsigned AMBIENT_CHANNEL_COUNT = 4;
 
 void AudioEngine::operator()(const FlaregunFiredAudioEvent& e)
 {
@@ -54,9 +55,10 @@ void AudioEngine::operator()(const LaserDartBouncedAudioEvent& e)
 {
     audioPlayer->playSoundOnChannel(
         "dart_bounce.wav",
-        AMBIENT_1_CHANNEL + e.stateIdx,
+        AMBIENT_1_CHANNEL + ambientChannelIndex,
         true,
         getRelativePosition(e.position));
+    updatAmbientChannelIndex();
 }
 
 void AudioEngine::operator()(const ExplosionTriggeredAudioEvent& e)
@@ -68,9 +70,10 @@ void AudioEngine::operator()(const ExplosionTriggeredAudioEvent& e)
 
     audioPlayer->playSoundOnChannel(
         soundName,
-        AMBIENT_1_CHANNEL + e.stateIdx,
+        AMBIENT_1_CHANNEL + ambientChannelIndex,
         true,
         getRelativePosition(e.position));
+    updatAmbientChannelIndex();
 }
 
 void AudioEngine::operator()(const PickablePickedUpAudioEvent& e)
@@ -80,7 +83,10 @@ void AudioEngine::operator()(const PickablePickedUpAudioEvent& e)
     bool megaPickup = e.type == EntityType::PickupMegaHealth
                       || e.type == EntityType::PickupMegaArmor;
     audioPlayer->playSoundOnChannel(
-        megaPickup ? "megapickup.wav" : "pickup.wav", POV_PICKUP_CHANNEL, true);
+        megaPickup ? "megapickup.wav" : "pickup.wav",
+        POV_CHANNEL + povChannelIndex,
+        true);
+    updatePovChannelIndex();
 }
 
 void AudioEngine::operator()(const WeaponRecoveringAudioEvent& e)
@@ -88,7 +94,8 @@ void AudioEngine::operator()(const WeaponRecoveringAudioEvent& e)
     if (!isPovStateIndex(e.stateIdx)) return;
 
     audioPlayer->playSoundOnChannel(
-        "ssg_reload2.wav", POV_RECOVERY_CHANNEL, true);
+        "ssg_reload2.wav", POV_CHANNEL + povChannelIndex, true);
+    updatePovChannelIndex();
 }
 
 void AudioEngine::update(const float) {}
@@ -115,4 +122,14 @@ bool AudioEngine::isPovStateIndex(PlayerStateIndexType stateIdx) const
 {
     return scene.playerStates[stateIdx].inventory.ownerIdx
            == scene.cameraAnchorIdx;
+}
+
+void AudioEngine::updatAmbientChannelIndex()
+{
+    ambientChannelIndex = (ambientChannelIndex + 1) % AMBIENT_CHANNEL_COUNT;
+}
+
+void AudioEngine::updatePovChannelIndex()
+{
+    povChannelIndex = (povChannelIndex + 1) % POV_CHANNEL_COUNT;
 }
