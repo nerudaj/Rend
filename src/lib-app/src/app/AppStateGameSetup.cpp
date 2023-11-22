@@ -45,12 +45,12 @@ void AppStateGameSetup::input()
 
 void AppStateGameSetup::buildLayoutImpl()
 {
-    using namespace std::views;
-
     gui->add(createH2Title("game setup"));
 
     auto mapnames = Filesystem::getLevelNames(
         Filesystem::getLevelsDir(settings->cmdSettings.resourcesDir));
+
+    if (mapname.empty()) mapname = mapnames.front();
 
     getCommonLayoutBuilder(3)
         .addOption(
@@ -70,11 +70,11 @@ void AppStateGameSetup::buildLayoutImpl()
             "MapnameDropdown",
             WidgetCreator::createDropdown(
                 mapnames,
-                mapname.empty() ? mapname : mapnames.front(),
+                mapname,
                 [this]
                 {
                     auto dropdown = gui->get<tgui::ComboBox>("MapnameDropdown");
-                    mapname = std::string(dropdown->getSelectedItem() + ".lvd");
+                    mapname = dropdown->getSelectedItem().toStdString();
                 }))
         .addOption(
             "fraglimit",
