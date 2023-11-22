@@ -97,6 +97,8 @@ protected:
     AudioEngine audioEngine;
     GameRulesEngine gameRulesEngine;
     PhysicsEngine physicsEngine;
+    RenderSettings renderSettings = {};
     RenderingEngine renderingEngine;
     DemoFileHandler demoFileHandler;
+    dgm::Camera camera;
 };

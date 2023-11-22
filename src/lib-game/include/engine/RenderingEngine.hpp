@@ -21,7 +21,10 @@ class RenderingEngine final
 {
 public:
     [[nodiscard]] RenderingEngine(
-        const dgm::ResourceManager& resmgr, const LevelD& level, Scene& scene);
+        const RenderSettings& settings,
+        const dgm::ResourceManager& resmgr,
+        const LevelD& level,
+        Scene& scene);
 
 public: // Must visit on all related events
     constexpr inline void operator()(const EventRenderToggle& e) noexcept
@@ -82,7 +85,7 @@ private:
         int& leftColumn, int& rightColumn, float thingDistance);
 
 private:
-    const RenderSettings settings;
+    const RenderSettings settings = {};
     Scene& scene;
     const sf::Texture& tilesetTexture;
     dgm::Clip tilesetClipping;

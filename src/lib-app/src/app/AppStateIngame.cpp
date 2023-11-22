@@ -53,13 +53,18 @@ AppStateIngame::AppStateIngame(
     , audioEngine(resmgr, audioPlayer, scene)
     , gameRulesEngine(scene, eventQueue)
     , physicsEngine(scene, eventQueue)
-    , renderingEngine(*resmgr, level, scene)
+    , renderingEngine(renderSettings, *resmgr, level, scene)
     , demoFileHandler(
           settings->cmdSettings.demoFile,
           settings->cmdSettings.playDemo ? DemoFileMode::Read
                                          : DemoFileMode::Write)
+    , camera(
+          sf::FloatRect(0.f, 0.f, 1.f, 1.f),
+          sf::Vector2f(
+              sf::Vector2u(renderSettings.WIDTH, renderSettings.HEIGHT)))
 {
     app.window.getWindowContext().setFramerateLimit(60);
+    camera.setPosition(renderSettings.WIDTH / 2.f, renderSettings.HEIGHT / 2.f);
     lockMouse();
     createPlayers();
 }
@@ -146,6 +151,7 @@ void AppStateIngame::update()
 
 void AppStateIngame::draw()
 {
+    app.window.getWindowContext().setView(camera.getCurrentView());
     renderingEngine.renderWorldTo(app.window);
     renderingEngine.renderHudTo(app.window);
 }

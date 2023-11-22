@@ -35,8 +35,11 @@
 }
 
 RenderingEngine::RenderingEngine(
-    const dgm::ResourceManager& resmgr, const LevelD& level, Scene& scene)
-    : settings(RenderSettings {})
+    const RenderSettings& settings,
+    const dgm::ResourceManager& resmgr,
+    const LevelD& level,
+    Scene& scene)
+    : settings(settings)
     , scene(scene)
     , tilesetTexture(resmgr.get<sf::Texture>("tileset.png").value().get())
     , tilesetClipping(resmgr.get<dgm::Clip>("tileset.png.clip").value().get())
