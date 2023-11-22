@@ -52,6 +52,7 @@ public:
 
     virtual void restoreFocus() override
     {
+        app.window.getWindowContext().setFramerateLimit(60);
         lockMouse();
     }
 

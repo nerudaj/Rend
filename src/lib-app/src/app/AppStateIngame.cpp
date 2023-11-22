@@ -59,6 +59,7 @@ AppStateIngame::AppStateIngame(
           settings->cmdSettings.playDemo ? DemoFileMode::Read
                                          : DemoFileMode::Write)
 {
+    app.window.getWindowContext().setFramerateLimit(60);
     lockMouse();
     createPlayers();
 }
