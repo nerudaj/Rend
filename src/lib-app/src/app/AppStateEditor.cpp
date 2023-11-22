@@ -348,6 +348,8 @@ void AppStateEditor::handlePlayLevel()
         return;
     }
 
+    handleSaveLevel();
+
     const auto gameSettings = GameSettings {
         .map = std::filesystem::path(savePath).filename().string(),
         .players = { PlayerSettings { .kind = PlayerKind::LocalHuman,
