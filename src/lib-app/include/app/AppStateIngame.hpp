@@ -1,6 +1,5 @@
 #pragma once
 
-#include "Settings.hpp"
 #include "audio/AudioPlayer.hpp"
 #include "engine/AiEngine.hpp"
 #include "engine/AnimationEngine.hpp"
@@ -9,7 +8,6 @@
 #include "engine/PhysicsEngine.hpp"
 #include "engine/RenderingEngine.hpp"
 #include <DGM/dgm.hpp>
-#include <GameSettings.hpp>
 #include <LevelD.hpp>
 #include <TGUI/Backend/SFML-Graphics.hpp>
 #include <TGUI/TGUI.hpp>
@@ -20,6 +18,7 @@
 #include <utils/DemoFileHandler.hpp>
 #include <utils/RoundRobinBuffer.hpp>
 
+import Options;
 import Memory;
 
 class AppStateIngame final : public dgm::AppState
@@ -29,9 +28,9 @@ public:
         dgm::App& app,
         mem::Rc<const dgm::ResourceManager> resmgr,
         mem::Rc<tgui::Gui> gui,
-        mem::Rc<Settings> settings,
+        mem::Rc<AppOptions> settings,
         mem::Rc<AudioPlayer> audioPlayer,
-        GameSettings gameSettings,
+        GameOptions gameSettings,
         const LevelD& level,
         bool launchedFromEditor = false);
 
@@ -83,8 +82,8 @@ private:
 protected:
     mem::Rc<const dgm::ResourceManager> resmgr;
     mem::Rc<tgui::Gui> gui;
-    mem::Rc<Settings> settings;
-    GameSettings gameSettings;
+    mem::Rc<AppOptions> settings;
+    GameOptions gameSettings;
     mem::Rc<AudioPlayer> audioPlayer;
     mem::Rc<EventQueue> eventQueue;
     bool launchedFromEditor;

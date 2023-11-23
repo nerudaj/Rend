@@ -19,7 +19,7 @@ target_include_directories ( ${PROJECT_NAME}
 )
 
 target_link_libraries ( ${PROJECT_NAME}
-	lib-memory lib-filesystem Dep_json Dep_dgm Dep_tgui lib-defines
+	lib-memory lib-resources Dep_json Dep_dgm Dep_tgui lib-defines
 )
 
 autoset_target_compile_options ( ${PROJECT_NAME} FALSE )

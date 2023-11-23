@@ -1,14 +1,14 @@
-#include "GameSettings.hpp"
-#include <Filesystem.hpp>
 #include <LevelD.hpp>
 #include <app/AppStateGameSetup.hpp>
 #include <app/AppStateIngame.hpp>
+
+import Resources;
 
 AppStateGameSetup::AppStateGameSetup(
     dgm::App& app,
     mem::Rc<const dgm::ResourceManager> resmgr,
     mem::Rc<tgui::Gui> gui,
-    mem::Rc<Settings> settings,
+    mem::Rc<AppOptions> settings,
     mem::Rc<AudioPlayer> audioPlayer) noexcept
     : AppState(app)
     , GuiState(gui, audioPlayer)
@@ -109,21 +109,20 @@ void AppStateGameSetup::startGame()
         gui,
         settings,
         audioPlayer,
-        GameSettings { .map = settings->cmdSettings.mapname,
-                       .players = createPlayerSettings(),
-                       .fraglimit = fraglimit },
+        GameOptions { .players = createPlayerSettings(),
+                      .fraglimit = static_cast<unsigned>(fraglimit) },
         lvd);
 }
 
-std::vector<PlayerSettings> AppStateGameSetup::createPlayerSettings() const
+std::vector<PlayerOptions> AppStateGameSetup::createPlayerSettings() const
 {
-    std::vector<PlayerSettings> result;
+    std::vector<PlayerOptions> result;
 
     for (unsigned i = 0; i < playerCount; i++)
     {
-        result.push_back(PlayerSettings {
-            .kind = i == 0 ? PlayerKind::LocalHuman : PlayerKind::LocalNpc,
-            .bindCamera = i == 0 });
+        result.push_back(PlayerOptions { .kind = i == 0 ? PlayerKind::LocalHuman
+                                                        : PlayerKind::LocalNpc,
+                                         .bindCamera = i == 0 });
     }
 
     return result;

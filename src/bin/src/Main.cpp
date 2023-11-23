@@ -1,6 +1,5 @@
 #include "Loader.hpp"
 #include <DGM/dgm.hpp>
-#include <Settings.hpp>
 #include <app/AppStateMainMenu.hpp>
 #include <audio/AudioPlayer.hpp>
 #include <core/Scene.hpp>
@@ -8,8 +7,9 @@
 #include <settings/GameTitle.hpp>
 
 import Memory;
+import Options;
 
-CmdSettings processCmdParameters(int argc, char* argv[])
+CmdParameters processCmdParameters(int argc, char* argv[])
 {
     cxxopts::Options options("MyProgram", "One line description of MyProgram");
     // clang-format off
@@ -24,7 +24,7 @@ CmdSettings processCmdParameters(int argc, char* argv[])
     // clang-format on
     auto args = options.parse(argc, argv);
 
-    CmdSettings result;
+    CmdParameters result;
 
     if (args.count("skip-menu") > 0)
         result.skipMainMenu = args["skip-menu"].as<bool>();
@@ -43,27 +43,30 @@ CmdSettings processCmdParameters(int argc, char* argv[])
     return result;
 }
 
-AppSettings loadAppSettings(const std::filesystem::path& path)
+AppOptions loadAppSettings(const std::filesystem::path& path)
 {
     try
     {
-        return loadFromFile(path);
+        std::ifstream load(path);
+        nlohmann::json j;
+        load >> j;
+        AppOptions result = j;
+        return result;
     }
     catch (std::exception& e)
     {
         std::cerr << e.what() << std::endl;
     }
 
-    return AppSettings {};
+    return AppOptions {};
 }
 
 int main(int argc, char* argv[])
 {
     const auto CONFIG_FILE_PATH = "app.json";
 
-    auto&& settings = mem::Rc<Settings>();
+    auto&& settings = mem::Rc<AppOptions>(loadAppSettings(CONFIG_FILE_PATH));
     settings->cmdSettings = processCmdParameters(argc, argv);
-    settings->appSettings = loadAppSettings(CONFIG_FILE_PATH);
 
     if (settings->cmdSettings.playerCount > 4)
     {
@@ -72,10 +75,10 @@ int main(int argc, char* argv[])
 
     dgm::WindowSettings windowSettings = {
         .resolution = sf::Vector2u(
-            settings->appSettings.windowWidth,
-            settings->appSettings.windowHeight),
+            settings->display.resolution.width,
+            settings->display.resolution.height),
         .title = GAME_TITLE,
-        .useFullscreen = settings->appSettings.fullscreen
+        .useFullscreen = settings->display.isFullscreen
     };
 
     dgm::Window window(windowSettings);
@@ -86,7 +89,7 @@ int main(int argc, char* argv[])
     gui->setTarget(window.getWindowContext());
     auto&& resmgr = mem::Rc<dgm::ResourceManager>();
     auto&& audioPlayer = mem::Rc<AudioPlayer>(CHANNEL_COUNT, resmgr);
-    audioPlayer->setSoundVolume(settings->appSettings.soundVolume);
+    audioPlayer->setSoundVolume(settings->audio.soundVolume);
 
     try
     {
@@ -105,10 +108,13 @@ int main(int argc, char* argv[])
     auto outWindowSettings = window.close();
 
     // Update configuration file
-    settings->appSettings.windowWidth = outWindowSettings.resolution.x;
-    settings->appSettings.windowHeight = outWindowSettings.resolution.y;
-    settings->appSettings.fullscreen = outWindowSettings.useFullscreen;
-    saveToFile(CONFIG_FILE_PATH, settings->appSettings);
+    settings->display.resolution.width = outWindowSettings.resolution.x;
+    settings->display.resolution.height = outWindowSettings.resolution.y;
+    settings->display.isFullscreen = outWindowSettings.useFullscreen;
+
+    nlohmann::json json = *settings;
+    std::ofstream save(CONFIG_FILE_PATH);
+    save << json;
 
     return 0;
 }

@@ -1,9 +1,9 @@
 #pragma once
 
 import Memory;
+import Options;
 
 #include "GuiState.hpp"
-#include <Settings.hpp>
 #include <TGUI/Backend/SFML-Graphics.hpp>
 #include <TGUI/TGUI.hpp>
 #include <audio/AudioPlayer.hpp>
@@ -19,7 +19,7 @@ public:
         dgm::App& app,
         mem::Rc<const dgm::ResourceManager> resmgr,
         mem::Rc<tgui::Gui> gui,
-        mem::Rc<Settings> settings,
+        mem::Rc<AppOptions> settings,
         mem::Rc<AudioPlayer> audioPlayer) noexcept;
 
 public:
@@ -52,12 +52,12 @@ private:
 
     void startGame();
 
-    [[nodiscard]] std::vector<PlayerSettings> createPlayerSettings() const;
+    [[nodiscard]] std::vector<PlayerOptions> createPlayerSettings() const;
 
 private:
     mem::Rc<const dgm::ResourceManager> resmgr;
     mem::Rc<tgui::Gui> gui;
-    mem::Rc<Settings> settings;
+    mem::Rc<AppOptions> settings;
     mem::Rc<AudioPlayer> audioPlayer;
     int fraglimit;
     unsigned playerCount;

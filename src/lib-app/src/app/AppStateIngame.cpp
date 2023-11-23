@@ -7,7 +7,7 @@
 #include <utils/SceneBuilder.hpp>
 
 [[nodiscard]] static std::vector<mem::Rc<ControllerInterface>>
-createInputs(const sf::Window& window, const GameSettings& gameSettings)
+createInputs(const sf::Window& window, const GameOptions& gameSettings)
 {
     std::vector<mem::Rc<ControllerInterface>> inputs;
     for (auto&& ps : gameSettings.players)
@@ -33,9 +33,9 @@ AppStateIngame::AppStateIngame(
     dgm::App& _app,
     mem::Rc<const dgm::ResourceManager> _resmgr,
     mem::Rc<tgui::Gui> _gui,
-    mem::Rc<Settings> _settings,
+    mem::Rc<AppOptions> _settings,
     mem::Rc<AudioPlayer> _audioPlayer,
-    GameSettings gameSettings,
+    GameOptions gameSettings,
     const LevelD& level,
     bool launchedFromEditor)
     : dgm::AppState(_app)
@@ -46,8 +46,7 @@ AppStateIngame::AppStateIngame(
     , audioPlayer(_audioPlayer)
     , launchedFromEditor(launchedFromEditor)
     , inputs(createInputs(_app.window.getWindowContext(), gameSettings))
-    , scene(SceneBuilder::buildScene(
-          level, sf::Vector2f(app.window.getSize()), gameSettings))
+    , scene(SceneBuilder::buildScene(level, gameSettings))
     , aiEngine(scene)
     , animationEngine(scene, eventQueue)
     , audioEngine(resmgr, audioPlayer, scene)

@@ -1,10 +1,9 @@
 #pragma once
 
 import Memory;
+import Options;
 
-#include "GameSettings.hpp"
 #include "GuiState.hpp"
-#include "Settings.hpp"
 #include <DGM/classes/AppState.hpp>
 #include <DGM/classes/Traits.hpp>
 #include <TGUI/Backend/SFML-Graphics.hpp>
@@ -19,7 +18,7 @@ public:
         dgm::App& app,
         mem::Rc<tgui::Gui> gui,
         mem::Rc<AudioPlayer> audioPlayer,
-        const GameSettings& gameSettings,
+        const GameOptions& gameSettings,
         dgm::UniversalReference<std::vector<int>> auto&& scores)
         : dgm::AppState(app)
         , GuiState(gui, audioPlayer)
@@ -55,7 +54,7 @@ private:
 
 private:
     mem::Rc<tgui::Gui> gui;
-    GameSettings gameSettings;
+    GameOptions gameSettings;
     std::vector<int> scores;
     float transitionTimeout = 4.f; // seconds
 };

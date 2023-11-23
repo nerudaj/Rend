@@ -25,7 +25,7 @@ set_target_properties ( ${PROJECT_NAME} PROPERTIES
 )
 
 add_dependencies ( ${PROJECT_NAME}
-	lib-app lib-game lib-memory lib-settings
+	lib-app lib-game lib-memory lib-options
 )
 
 autoset_target_compile_options ( ${PROJECT_NAME} FALSE )

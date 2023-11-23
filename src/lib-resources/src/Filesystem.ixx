@@ -1,10 +1,12 @@
-#pragma once
+module;
 
-#include <filesystem>
 #include <string>
+#include <filesystem>
 #include <vector>
 
-class Filesystem
+export module Resources;
+
+export class Filesystem
 {
 public:
     static [[nodiscard]] std::filesystem::path getFullLevelPath(

@@ -3,18 +3,19 @@
 #include "Configs/Strings.hpp"
 #include "Editor/Editor.hpp"
 #include "Editor/NullEditor.hpp"
-#include "Filesystem.hpp"
 #include "Utilities/Literals.hpp"
 #include "Utilities/ProcessCreator.hpp"
 #include "app/AppStateIngame.hpp"
 #include <cmath>
+
+import Resources;
 
 AppStateEditor::AppStateEditor(
     dgm::App& app,
     mem::Rc<tgui::Gui> nativeGui,
     mem::Rc<Gui> gui,
     mem::Rc<const dgm::ResourceManager> resmgr,
-    mem::Rc<Settings> settings,
+    mem::Rc<AppOptions> settings,
     mem::Rc<AudioPlayer> audioPlayer,
     mem::Rc<FileApiInterface> fileApi,
     mem::Rc<ShortcutEngineInterface> shortcutEngine,
@@ -350,12 +351,10 @@ void AppStateEditor::handlePlayLevel()
 
     handleSaveLevel();
 
-    const auto gameSettings = GameSettings {
-        .map = std::filesystem::path(savePath).filename().string(),
-        .players = { PlayerSettings { .kind = PlayerKind::LocalHuman,
-                                      .bindCamera = true } },
-        .fraglimit = 1
-    };
+    const auto gameSettings = GameOptions { .players = { PlayerOptions {
+                                                .kind = PlayerKind::LocalHuman,
+                                                .bindCamera = true } },
+                                            .fraglimit = 1 };
 
     auto lvd = LevelD {};
     lvd.loadFromFile(savePath);

@@ -1,7 +1,6 @@
 #pragma once
 
 #include <DGM/dgm.hpp>
-#include <Settings.hpp>
 #include <array>
 #include <bitset>
 #include <core/Constants.hpp>

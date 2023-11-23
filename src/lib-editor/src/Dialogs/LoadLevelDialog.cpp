@@ -1,7 +1,8 @@
 #include "Dialogs/LoadLevelDialog.hpp"
 #include "Configs/Strings.hpp"
-#include "Filesystem.hpp"
 #include <filesystem>
+
+import Resources;
 
 constexpr const char* SELECT_LEVEL_ID = "SelectLevelId";
 

@@ -1,11 +1,9 @@
 #pragma once
 
 import Memory;
+import Options;
 
-#include "GameSettings.hpp"
 #include "GuiState.hpp"
-#include "PlayerSettings.hpp"
-#include "Settings.hpp"
 #include <vector>
 
 class AppStateMainMenu final
@@ -46,7 +44,7 @@ public:
         mem::Rc<const dgm::ResourceManager> resmgr,
         mem::Rc<tgui::Gui> gui,
         mem::Rc<AudioPlayer> audioPlayer,
-        mem::Rc<Settings> settings)
+        mem::Rc<AppOptions> settings)
         : dgm::AppState(app)
         , GuiState(gui, audioPlayer)
         , settings(settings)
@@ -59,6 +57,6 @@ private:
     void goToGameSetup();
 
 private:
-    mem::Rc<Settings> settings;
+    mem::Rc<AppOptions> settings;
     mem::Rc<const dgm::ResourceManager> resmgr;
 };

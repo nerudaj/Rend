@@ -1,7 +1,8 @@
 #pragma once
 
 #include "GuiState.hpp"
-#include "Settings.hpp"
+
+import Options;
 
 class AppStateMenuOptions final
     : public dgm::AppState
@@ -12,7 +13,7 @@ public:
         dgm::App& app,
         mem::Rc<tgui::Gui> gui,
         mem::Rc<AudioPlayer> audioPlayer,
-        mem::Rc<Settings> settings)
+        mem::Rc<AppOptions> settings)
         : dgm::AppState(app), GuiState(gui, audioPlayer), settings(settings)
     {
         buildLayout();
@@ -47,5 +48,5 @@ private:
     void buildLayoutImpl() override;
 
 private:
-    mem::Rc<Settings> settings;
+    mem::Rc<AppOptions> settings;
 };

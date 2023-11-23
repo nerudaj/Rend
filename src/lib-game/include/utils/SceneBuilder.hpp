@@ -1,19 +1,18 @@
 #pragma once
 
-#include "GameSettings.hpp"
 #include <LevelD.hpp>
 #include <core/Enums.hpp>
 #include <core/Scene.hpp>
 #include <core/Types.hpp>
 #include <utils/SemanticTypes.hpp>
 
+import Options;
+
 class SceneBuilder
 {
 public:
-    [[nodiscard]] static Scene buildScene(
-        const LevelD& level,
-        const sf::Vector2f& baseResolution,
-        const GameSettings& settings);
+    [[nodiscard]] static Scene
+    buildScene(const LevelD& level, const GameOptions& settings);
 
     [[nodiscard]] static Entity createPlayer(
         const Position& position,

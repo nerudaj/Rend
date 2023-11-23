@@ -16,12 +16,12 @@
 #include "Utilities/ClickPreventer.hpp"
 #include "audio/AudioPlayer.hpp"
 #include <DGM/dgm.hpp>
-#include <Settings.hpp>
 #include <TGUI/Backend/SFML-Graphics.hpp>
 #include <TGUI/TGUI.hpp>
 #include <optional>
 
 import Memory;
+import Options;
 
 class AppStateEditor : public dgm::AppState
 {
@@ -31,7 +31,7 @@ public:
         mem::Rc<tgui::Gui> nativeGui,
         mem::Rc<Gui> gui,
         mem::Rc<const dgm::ResourceManager> resmgr,
-        mem::Rc<Settings> settings,
+        mem::Rc<AppOptions> settings,
         mem::Rc<AudioPlayer> audioPlayer,
         mem::Rc<FileApiInterface> fileApi,
         mem::Rc<ShortcutEngineInterface> shortcutEngine,
@@ -43,7 +43,7 @@ protected:
     mem::Rc<tgui::Gui> nativeGui;
     mem::Rc<Gui> gui;
     mem::Rc<const dgm::ResourceManager> resmgr;
-    mem::Rc<Settings> settings;
+    mem::Rc<AppOptions> settings;
     mem::Rc<AudioPlayer> audioPlayer;
     mem::Rc<ShortcutEngineInterface> shortcutEngine;
     mem::Rc<FileApiInterface> fileApi;
