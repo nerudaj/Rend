@@ -210,7 +210,7 @@ void AppStateIngame::evaluateWinCondition()
 {
     for (auto&& [_, inventory, __] : scene.playerStates)
     {
-        if (inventory.score >= gameSettings.fraglimit)
+        if (inventory.score >= static_cast<int>(gameSettings.fraglimit))
         {
             unlockMouse();
             app.pushState<AppStateWinnerAnnounced>(

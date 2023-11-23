@@ -19,15 +19,9 @@ public:
     }
 
 public: // Must visit on all related events
-    void operator()(const FlaregunFiredAudioEvent&);
-    void operator()(const ShotgunFiredAudioEvent&);
-    void operator()(const BulletFiredAudioEvent&);
-    void operator()(const RocketFiredAudioEvent&);
-    void operator()(const LaserCrossbowAudioEvent&);
     void operator()(const LaserDartBouncedAudioEvent&);
-    void operator()(const ExplosionTriggeredAudioEvent&);
     void operator()(const PickablePickedUpAudioEvent&);
-    void operator()(const WeaponRecoveringAudioEvent&);
+    void operator()(const SoundTriggeredAudioEvent&);
 
 public:
     void update(const float);
@@ -42,8 +36,8 @@ private:
     [[nodiscard]] bool isPovStateIndex(PlayerStateIndexType stateIdx) const;
 
 private:
-    void updatAmbientChannelIndex();
-    void updatePovChannelIndex();
+    size_t getAmbientChannelIndex();
+    size_t getPovChannelIndex();
 
 private:
     mem::Rc<const dgm::ResourceManager> resmgr;

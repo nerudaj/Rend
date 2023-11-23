@@ -67,7 +67,7 @@ tgui::EditBox::Ptr WidgetCreator::createTextInput(
 void GuiOptionsBuilder::build()
 {
     auto size = rowContainer->getSize();
-    labelFontSize = size.y / rowsToBuild.size() * 0.8f;
+    labelFontSize = static_cast<unsigned>(size.y / rowsToBuild.size() * 0.8f);
 
     for (auto&& [name, id, widget] : rowsToBuild)
     {

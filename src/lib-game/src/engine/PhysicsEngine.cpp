@@ -85,7 +85,5 @@ void PhysicsEngine::handleProjectile(
     if (hasCollided)
     {
         eventQueue->emplace<ProjectileDestroyedGameEvent>(id);
-        eventQueue->emplace<ExplosionTriggeredAudioEvent>(
-            thing.typeId, thing.stateIdx, thing.hitbox.getPosition());
     }
 }

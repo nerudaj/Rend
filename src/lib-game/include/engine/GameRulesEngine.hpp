@@ -110,9 +110,10 @@ private: // Scripts API
         const Direction& direction,
         PlayerStateIndexType inventoryIdx);
 
-    void fireHarpoon(
+    void fireBallista(
         const Position& position,
         const Direction& direction,
+        EntityIndexType playerIdx,
         PlayerStateIndexType inventoryIdx);
 
 private:

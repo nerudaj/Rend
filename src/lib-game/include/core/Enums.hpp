@@ -106,6 +106,9 @@ enum class SpriteId : std::uint8_t
     WallDecalB,
     FleshDecalA,
     FleshDecalB,
+    RailDecalA,
+    RailDecalB,
+    RailDecalC,
     ErrorRender,
 
     // These are different texture, but I need them to have the same enum type
@@ -203,6 +206,7 @@ enum class EntityType
     EffectRocketExplosion,
     EffectDartExplosion,
     EffectSpawn,
+    EffectRailDecal,
     EffectEnd,
 
     InventoryBegin,
@@ -236,9 +240,16 @@ enum class ScriptId
     FireBullet,
     FireLaserDart,
     FireRocket,
-    FireHarpoon,
+    FireRay,
     ReleaseTrigger,
-    PlayRecoverySound,
+    TriggerSound,
+};
+
+enum class SoundSourceType
+{
+    Ambient,
+    Pov,
+    Player,
 };
 
 enum class AnimationStateId
@@ -260,13 +271,6 @@ enum class AiTopState
     Dead
 };
 
-const std::map<AiTopState, std::string> TOP_STATES_TO_STRING = {
-    { AiTopState::BootstrapAlive, "BootstrapAlive" },
-    { AiTopState::Alive, "Alive" },
-    { AiTopState::BootstrapDead, "BootstrapDead" },
-    { AiTopState::Dead, "Dead" }
-};
-
 enum class AiState
 {
     Start,
@@ -282,17 +286,4 @@ enum class AiState
     WaitForRespawnRequest,
     RequestRespawn,
     WaitForRespawn
-};
-
-const std::map<AiState, std::string> AI_STATE_TO_STRING = {
-    { AiState::Start, "Start" },
-    { AiState::PickNextJumpPoint, "PickNextJumpPoint" },
-    { AiState::TryToPickNewTarget, "TryToPickNewTarget" },
-    { AiState::ShootTarget, "ShootTarget" },
-    { AiState::SwapWeapon, "SwapWeapon" },
-    { AiState::Delay, "Delay" },
-    { AiState::Update, "Update" },
-    { AiState::WaitForRespawnRequest, "WaitForRespawnRequest" },
-    { AiState::RequestRespawn, "RequestRespawn" },
-    { AiState::WaitForRespawn, "WaitForRespawn" },
 };

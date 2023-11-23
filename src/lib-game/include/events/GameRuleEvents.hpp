@@ -114,10 +114,18 @@ struct ScriptTriggeredGameEvent
 {
     ScriptId scriptId;
     EntityIndexType targetEntityIdx;
+    const std::string sound;
+    SoundSourceType sourceType;
 
     [[nodiscard]] constexpr ScriptTriggeredGameEvent(
-        ScriptId scriptId, EntityIndexType targetEntityIdx) noexcept
-        : scriptId(scriptId), targetEntityIdx(targetEntityIdx)
+        ScriptId scriptId,
+        EntityIndexType targetEntityIdx,
+        const std::string& sound,
+        SoundSourceType sourceType) noexcept
+        : scriptId(scriptId)
+        , targetEntityIdx(targetEntityIdx)
+        , sound(sound)
+        , sourceType(sourceType)
     {
     }
 };

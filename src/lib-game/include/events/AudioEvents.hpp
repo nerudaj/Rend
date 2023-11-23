@@ -4,76 +4,6 @@
 #include <core/Types.hpp>
 #include <variant>
 
-struct [[nodiscard]] FlaregunFiredAudioEvent
-{
-    PlayerStateIndexType stateIdx;
-    sf::Vector2f position;
-
-    constexpr FlaregunFiredAudioEvent(
-        PlayerStateIndexType stateIdx,
-        dgm::UniversalReference<sf::Vector2f> auto&& position) noexcept
-        : stateIdx(stateIdx)
-        , position(std::forward<decltype(position)>(position))
-    {
-    }
-};
-
-struct [[nodiscard]] ShotgunFiredAudioEvent
-{
-    PlayerStateIndexType stateIdx;
-    sf::Vector2f position;
-
-    constexpr ShotgunFiredAudioEvent(
-        PlayerStateIndexType stateIdx,
-        dgm::UniversalReference<sf::Vector2f> auto&& position) noexcept
-        : stateIdx(stateIdx)
-        , position(std::forward<decltype(position)>(position))
-    {
-    }
-};
-
-struct BulletFiredAudioEvent
-{
-    PlayerStateIndexType stateIdx;
-    sf::Vector2f position;
-
-    [[nodiscard]] constexpr BulletFiredAudioEvent(
-        PlayerStateIndexType stateIdx,
-        dgm::UniversalReference<sf::Vector2f> auto&& position) noexcept
-        : stateIdx(stateIdx)
-        , position(std::forward<decltype(position)>(position))
-    {
-    }
-};
-
-struct RocketFiredAudioEvent
-{
-    PlayerStateIndexType stateIdx;
-    sf::Vector2f position;
-
-    [[nodiscard]] constexpr RocketFiredAudioEvent(
-        PlayerStateIndexType stateIdx,
-        dgm::UniversalReference<sf::Vector2f> auto&& position) noexcept
-        : stateIdx(stateIdx)
-        , position(std::forward<decltype(position)>(position))
-    {
-    }
-};
-
-struct [[nodiscard]] LaserCrossbowAudioEvent
-{
-    PlayerStateIndexType stateIdx;
-    sf::Vector2f position;
-
-    constexpr LaserCrossbowAudioEvent(
-        PlayerStateIndexType stateIdx,
-        dgm::UniversalReference<sf::Vector2f> auto&& position) noexcept
-        : stateIdx(stateIdx)
-        , position(std::forward<decltype(position)>(position))
-    {
-    }
-};
-
 struct [[nodiscard]] LaserDartBouncedAudioEvent
 {
     PlayerStateIndexType stateIdx;
@@ -83,23 +13,6 @@ struct [[nodiscard]] LaserDartBouncedAudioEvent
         PlayerStateIndexType stateIdx,
         dgm::UniversalReference<sf::Vector2f> auto&& position) noexcept
         : stateIdx(stateIdx)
-        , position(std::forward<decltype(position)>(position))
-    {
-    }
-};
-
-struct [[nodiscard]] ExplosionTriggeredAudioEvent
-{
-    PlayerStateIndexType stateIdx;
-    EntityType type;
-    sf::Vector2f position;
-
-    constexpr ExplosionTriggeredAudioEvent(
-        EntityType type,
-        PlayerStateIndexType stateIdx,
-        dgm::UniversalReference<sf::Vector2f> auto&& position) noexcept
-        : type(type)
-        , stateIdx(stateIdx)
         , position(std::forward<decltype(position)>(position))
     {
     }
@@ -129,13 +42,27 @@ struct [[nodiscard]] WeaponRecoveringAudioEvent
     }
 };
 
+struct [[nodiscard]] SoundTriggeredAudioEvent
+{
+    const std::string sound;
+    SoundSourceType sourceType;
+    PlayerStateIndexType stateIdx;
+    sf::Vector2f position;
+
+    constexpr SoundTriggeredAudioEvent(
+        const std::string& sound,
+        SoundSourceType sourceType,
+        PlayerStateIndexType stateIdx,
+        const sf::Vector2f& position) noexcept
+        : sound(sound)
+        , sourceType(sourceType)
+        , stateIdx(stateIdx)
+        , position(position)
+    {
+    }
+};
+
 using AudioEvent = std::variant<
-    FlaregunFiredAudioEvent,
-    ShotgunFiredAudioEvent,
-    BulletFiredAudioEvent,
-    RocketFiredAudioEvent,
-    LaserCrossbowAudioEvent,
     LaserDartBouncedAudioEvent,
-    ExplosionTriggeredAudioEvent,
     PickablePickedUpAudioEvent,
-    WeaponRecoveringAudioEvent>;
+    SoundTriggeredAudioEvent>;

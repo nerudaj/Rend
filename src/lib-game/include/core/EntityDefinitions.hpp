@@ -1,9 +1,44 @@
 #pragma once
 
-#include <core/Enums.hpp>
-#include <core/Scene.hpp>
+#include <core/EntityDefinitionTypes.hpp>
 #include <map>
 #include <vector>
+
+constexpr Script playSound(
+    const std::string& sound, SoundSourceType type = SoundSourceType::Ambient)
+{
+    return Script(sound, type);
+}
+
+constexpr Script fireFlaregun(const std::string& sound)
+{
+    return Script(ScriptId::FireFlare, sound, SoundSourceType::Player);
+}
+
+constexpr Script firePellets(const std::string& sound)
+{
+    return Script(ScriptId::FirePellets, sound, SoundSourceType::Player);
+}
+
+constexpr Script fireBullet(const std::string& sound)
+{
+    return Script(ScriptId::FireBullet, sound, SoundSourceType::Player);
+}
+
+constexpr Script fireRocket(const std::string& sound)
+{
+    return Script(ScriptId::FireRocket, sound, SoundSourceType::Player);
+}
+
+constexpr Script fireDart(const std::string& sound)
+{
+    return Script(ScriptId::FireLaserDart, sound, SoundSourceType::Player);
+}
+
+constexpr Script fireRay(const std::string& sound)
+{
+    return Script(ScriptId::FireRay, sound, SoundSourceType::Player);
+}
 
 const static inline auto ENTITY_PROPERTIES =
     []() -> std::map<EntityType, EntityProperties>
@@ -28,7 +63,9 @@ const static inline auto ENTITY_PROPERTIES =
               .initialSpriteIndex = FlareExplosionA,
               .states = { { AnimationStateId::Idle,
                             AnimationState {
-                                .clip = { { FlareExplosionA, 7 },
+                                .clip = { { FlareExplosionA,
+                                            7,
+                                            playSound("flare_explosion.wav") },
                                           { FlareExplosionB, 7 },
                                           { FlareExplosionC, 7 },
                                           { FlareExplosionD, 7 },
@@ -42,7 +79,9 @@ const static inline auto ENTITY_PROPERTIES =
               .initialSpriteIndex = ExplosionA,
               .states = { { AnimationStateId::Idle,
                             AnimationState {
-                                .clip = { { ExplosionA, 2 },
+                                .clip = { { ExplosionA,
+                                            2,
+                                            playSound("rocket_explosion.wav") },
                                           { ExplosionB, 2 },
                                           { ExplosionC, 2 },
                                           { ExplosionD, 2 },
@@ -56,7 +95,9 @@ const static inline auto ENTITY_PROPERTIES =
               .initialSpriteIndex = DartExplosionA,
               .states = { { AnimationStateId::Idle,
                             AnimationState {
-                                .clip = { { DartExplosionA, 3 },
+                                .clip = { { DartExplosionA,
+                                            3,
+                                            playSound("dart_explosion.wav") },
                                           { DartExplosionB, 3 },
                                           { DartExplosionC, 3 } },
                                 .transition =
@@ -70,6 +111,17 @@ const static inline auto ENTITY_PROPERTIES =
                                 .clip = { { SpawnItemA, 10 },
                                           { SpawnItemB, 10 },
                                           { SpawnItemC, 10 } },
+                                .transition =
+                                    AnimationStateId::MarkerDestroy } } } } },
+        { EntityType::EffectRailDecal,
+          EntityProperties {
+              .radius = 4_px,
+              .initialSpriteIndex = RailDecalA,
+              .states = { { AnimationStateId::Idle,
+                            AnimationState {
+                                .clip = { { RailDecalA, 10 },
+                                          { RailDecalB, 10 },
+                                          { RailDecalC, 10 } },
                                 .transition =
                                     AnimationStateId::MarkerDestroy } } } } },
         { EntityType::Player,
@@ -192,10 +244,12 @@ const static inline auto ENTITY_PROPERTIES =
                                       AnimationStateId::MarkerLoop } },
                             { AnimationStateId::Missile,
                               AnimationState {
-                                  .clip = { { HUD_FlaregunFA, 20 },
-                                            { HUD_FlaregunFB,
-                                              20,
-                                              ScriptId::FireFlare } },
+                                  .clip = { { HUD_FlaregunFA, 10 },
+                                            { HUD_FlaregunFA,
+                                              10,
+                                              fireFlaregun(
+                                                  "flaregun_fire.wav") },
+                                            { HUD_FlaregunFB, 20 } },
                                   .transition = AnimationStateId::Recovery } },
                             { AnimationStateId::Recovery,
                               AnimationState {
@@ -219,14 +273,16 @@ const static inline auto ENTITY_PROPERTIES =
                                   .clip = { { HUD_ShotgunFA, 10 },
                                             { HUD_ShotgunFB,
                                               10,
-                                              ScriptId::FirePellets },
+                                              firePellets("shotgun.wav") },
                                             { HUD_ShotgunFA, 10 } },
                                   .transition = AnimationStateId::Recovery } },
                             { AnimationStateId::Recovery,
                               AnimationState {
                                   .clip = { { HUD_ShotgunRA,
                                               10,
-                                              ScriptId::PlayRecoverySound },
+                                              playSound(
+                                                  "ssg_reload2.wav",
+                                                  SoundSourceType::Pov) },
                                             { HUD_ShotgunRB, 10 },
                                             { HUD_ShotgunRC, 10 } },
                                   .transition = AnimationStateId::Idle } } } },
@@ -247,19 +303,19 @@ const static inline auto ENTITY_PROPERTIES =
                               AnimationState {
                                   .clip = { { HUD_TrishotFA,
                                               3,
-                                              ScriptId::FireBullet },
+                                              fireBullet("bullet.wav") },
                                             { HUD_TrishotFB, 3 },
                                             { HUD_TrishotFC, 3 },
                                             { HUD_TrishotFD, 3 },
                                             { HUD_TrishotFA,
                                               3,
-                                              ScriptId::FireBullet },
+                                              fireBullet("bullet.wav") },
                                             { HUD_TrishotFB, 3 },
                                             { HUD_TrishotFC, 3 },
                                             { HUD_TrishotFD, 3 },
                                             { HUD_TrishotFA,
                                               3,
-                                              ScriptId::FireBullet },
+                                              fireBullet("bullet.wav") },
                                             { HUD_TrishotFB, 3 },
                                             { HUD_TrishotFC, 3 },
                                             { HUD_TrishotFD,
@@ -285,7 +341,8 @@ const static inline auto ENTITY_PROPERTIES =
                                             { HUD_CrossbowFB, 5 },
                                             { HUD_CrossbowFC,
                                               5,
-                                              ScriptId::FireLaserDart },
+                                              fireDart(
+                                                  "lasercrossbow_fire.wav") },
                                             { HUD_CrossbowFD, 5 },
                                             { HUD_CrossbowFE, 5 },
                                             { HUD_CrossbowA, 10 } },
@@ -307,7 +364,7 @@ const static inline auto ENTITY_PROPERTIES =
                               AnimationState {
                                   .clip = { { HUD_LauncherFA,
                                               10,
-                                              ScriptId::FireRocket },
+                                              fireRocket("launcher_fire.wav") },
                                             { HUD_LauncherFB, 10 },
                                             { HUD_LauncherFC, 10 },
                                             { HUD_LauncherFD,
@@ -331,7 +388,11 @@ const static inline auto ENTITY_PROPERTIES =
                                       AnimationStateId::MarkerLoop } },
                             { AnimationStateId::Missile,
                               AnimationState {
-                                  .clip = { { HUD_BallistaFA, 5 },
+                                  .clip = { { HUD_BallistaFA,
+                                              5,
+                                              playSound(
+                                                  "ballista_powering.wav",
+                                                  SoundSourceType::Player) },
                                             { HUD_BallistaFB, 5 },
                                             { HUD_BallistaFC, 5 },
                                             { HUD_BallistaFD, 5 },
@@ -339,11 +400,15 @@ const static inline auto ENTITY_PROPERTIES =
                                             { HUD_BallistaFF, 5 },
                                             { HUD_BallistaFG,
                                               5,
-                                              ScriptId::FireHarpoon } },
+                                              fireRay("railgun.wav") } },
                                   .transition = AnimationStateId::Recovery } },
                             { AnimationStateId::Recovery,
                               AnimationState {
-                                  .clip = { { HUD_BallistaRA, 10 },
+                                  .clip = { { HUD_BallistaRA,
+                                              10,
+                                              playSound(
+                                                  "ballista_depowering.wav",
+                                                  SoundSourceType::Player) },
                                             { HUD_BallistaRB, 10 },
                                             { HUD_BallistaRC, 10 },
                                             { HUD_BallistaRD, 10 },

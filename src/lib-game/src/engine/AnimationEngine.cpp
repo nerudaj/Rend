@@ -119,7 +119,8 @@ void AnimationEngine::updateSpriteId(
     context.lastAnimationUpdate = scene.tick;
     context.spriteClipIndex = state.clip[context.animationFrameIndex].spriteId;
 
-    auto script = state.clip[context.animationFrameIndex].scriptToTrigger;
-    if (script != ScriptId::NoAction)
-        eventQueue->emplace<ScriptTriggeredGameEvent>(script, idx);
+    auto& script = state.clip[context.animationFrameIndex].scriptToTrigger;
+    if (script.id != ScriptId::NoAction)
+        eventQueue->emplace<ScriptTriggeredGameEvent>(
+            script.id, idx, script.sound, script.soundSourceType);
 }

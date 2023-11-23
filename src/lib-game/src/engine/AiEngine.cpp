@@ -1,6 +1,26 @@
 #include <core/EntityTraits.hpp>
 #include <engine/AiEngine.hpp>
 
+const std::map<AiTopState, std::string> TOP_STATES_TO_STRING = {
+    { AiTopState::BootstrapAlive, "BootstrapAlive" },
+    { AiTopState::Alive, "Alive" },
+    { AiTopState::BootstrapDead, "BootstrapDead" },
+    { AiTopState::Dead, "Dead" }
+};
+
+const std::map<AiState, std::string> AI_STATE_TO_STRING = {
+    { AiState::Start, "Start" },
+    { AiState::PickNextJumpPoint, "PickNextJumpPoint" },
+    { AiState::TryToPickNewTarget, "TryToPickNewTarget" },
+    { AiState::ShootTarget, "ShootTarget" },
+    { AiState::SwapWeapon, "SwapWeapon" },
+    { AiState::Delay, "Delay" },
+    { AiState::Update, "Update" },
+    { AiState::WaitForRespawnRequest, "WaitForRespawnRequest" },
+    { AiState::RequestRespawn, "RequestRespawn" },
+    { AiState::WaitForRespawn, "WaitForRespawn" },
+};
+
 AiEngine::AiEngine(Scene& scene)
     : scene(scene)
     , hitscanner(scene)

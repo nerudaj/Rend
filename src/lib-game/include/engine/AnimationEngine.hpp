@@ -1,5 +1,6 @@
 #pragma once
 
+#include <core/EntityDefinitionTypes.hpp>
 #include <core/Scene.hpp>
 #include <events/AnimationEvents.hpp>
 #include <events/EventQueue.hpp>

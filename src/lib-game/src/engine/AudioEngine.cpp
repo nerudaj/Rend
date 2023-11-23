@@ -6,74 +6,13 @@ constexpr unsigned POV_CHANNEL = 8;
 constexpr unsigned POV_CHANNEL_COUNT = 2;
 constexpr unsigned AMBIENT_CHANNEL_COUNT = 4;
 
-void AudioEngine::operator()(const FlaregunFiredAudioEvent& e)
-{
-    audioPlayer->playSoundOnChannel(
-        "flaregun_fire.wav",
-        e.stateIdx,
-        true,
-        getRelativePosition(e.stateIdx, e.position));
-}
-
-void AudioEngine::operator()(const ShotgunFiredAudioEvent& e)
-{
-    audioPlayer->playSoundOnChannel(
-        "shotgun.wav",
-        e.stateIdx,
-        true,
-        getRelativePosition(e.stateIdx, e.position));
-}
-
-void AudioEngine::operator()(const BulletFiredAudioEvent& e)
-{
-    audioPlayer->playSoundOnChannel(
-        "bullet.wav",
-        e.stateIdx,
-        true,
-        getRelativePosition(e.stateIdx, e.position));
-}
-
-void AudioEngine::operator()(const RocketFiredAudioEvent& e)
-{
-    audioPlayer->playSoundOnChannel(
-        "launcher_fire.wav",
-        e.stateIdx,
-        true,
-        getRelativePosition(e.stateIdx, e.position));
-}
-
-void AudioEngine::operator()(const LaserCrossbowAudioEvent& e)
-{
-    audioPlayer->playSoundOnChannel(
-        "lasercrossbow_fire.wav",
-        e.stateIdx,
-        true,
-        getRelativePosition(e.stateIdx, e.position));
-}
-
 void AudioEngine::operator()(const LaserDartBouncedAudioEvent& e)
 {
     audioPlayer->playSoundOnChannel(
         "dart_bounce.wav",
-        AMBIENT_1_CHANNEL + ambientChannelIndex,
+        getAmbientChannelIndex(),
         true,
         getRelativePosition(e.position));
-    updatAmbientChannelIndex();
-}
-
-void AudioEngine::operator()(const ExplosionTriggeredAudioEvent& e)
-{
-    const auto soundName =
-        e.type == EntityType::ProjectileFlare       ? "flare_explosion.wav"
-        : e.type == EntityType::ProjectileLaserDart ? "dart_explosion.wav"
-                                                    : "rocket_explosion.wav";
-
-    audioPlayer->playSoundOnChannel(
-        soundName,
-        AMBIENT_1_CHANNEL + ambientChannelIndex,
-        true,
-        getRelativePosition(e.position));
-    updatAmbientChannelIndex();
 }
 
 void AudioEngine::operator()(const PickablePickedUpAudioEvent& e)
@@ -84,18 +23,26 @@ void AudioEngine::operator()(const PickablePickedUpAudioEvent& e)
                       || e.type == EntityType::PickupMegaArmor;
     audioPlayer->playSoundOnChannel(
         megaPickup ? "megapickup.wav" : "pickup.wav",
-        POV_CHANNEL + povChannelIndex,
+        getPovChannelIndex(),
         true);
-    updatePovChannelIndex();
 }
 
-void AudioEngine::operator()(const WeaponRecoveringAudioEvent& e)
+void AudioEngine::operator()(const SoundTriggeredAudioEvent& e)
 {
-    if (!isPovStateIndex(e.stateIdx)) return;
+    if (e.sourceType == SoundSourceType::Pov && !isPovStateIndex(e.stateIdx))
+        return;
+
+    auto channelIdx = [&]
+    {
+        if (e.sourceType == SoundSourceType::Pov)
+            return getPovChannelIndex();
+        else if (e.sourceType == SoundSourceType::Ambient)
+            return getAmbientChannelIndex();
+        return PLAYER_1_CHANNEL + e.stateIdx;
+    }();
 
     audioPlayer->playSoundOnChannel(
-        "ssg_reload2.wav", POV_CHANNEL + povChannelIndex, true);
-    updatePovChannelIndex();
+        e.sound, channelIdx, true, getRelativePosition(e.stateIdx, e.position));
 }
 
 void AudioEngine::update(const float) {}
@@ -124,12 +71,14 @@ bool AudioEngine::isPovStateIndex(PlayerStateIndexType stateIdx) const
            == scene.cameraAnchorIdx;
 }
 
-void AudioEngine::updatAmbientChannelIndex()
+size_t AudioEngine::getAmbientChannelIndex()
 {
     ambientChannelIndex = (ambientChannelIndex + 1) % AMBIENT_CHANNEL_COUNT;
+    return AMBIENT_CHANNEL_COUNT + ambientChannelIndex;
 }
 
-void AudioEngine::updatePovChannelIndex()
+size_t AudioEngine::getPovChannelIndex()
 {
     povChannelIndex = (povChannelIndex + 1) % POV_CHANNEL_COUNT;
+    return POV_CHANNEL + povChannelIndex;
 }

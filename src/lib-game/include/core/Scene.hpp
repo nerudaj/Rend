@@ -19,39 +19,6 @@ struct HitscanResult
     std::optional<EntityIndexType> impactedEntityIdx = std::nullopt;
 };
 
-struct AnimationFrame
-{
-    SpriteId spriteId = SpriteId::ErrorRender;
-    std::size_t duration = 10; // in ticks
-    ScriptId scriptToTrigger = ScriptId::NoAction;
-};
-
-using AnimationClip = std::vector<AnimationFrame>;
-
-struct AnimationState
-{
-    AnimationClip clip;
-    AnimationStateId transition;
-};
-
-using EntityStates = std::map<AnimationStateId, AnimationState>;
-
-struct EntityProperties
-{
-    float radius;
-    float speed = 0.f;
-    bool isExplosive = false;
-    float explosionRadius = 0_px;
-    int damage = 0;
-    AmmoType ammoType;
-    int ammoAmount = 0;
-    int healthAmount = 0;
-    int armorAmount = 0;
-    EntityType debrisEffectType = EntityType::None;
-    SpriteId initialSpriteIndex;
-    EntityStates states;
-};
-
 struct AnimationContext
 {
     SpriteId spriteClipIndex;

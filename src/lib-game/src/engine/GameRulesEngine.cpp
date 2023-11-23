@@ -169,19 +169,28 @@ void GameRulesEngine::operator()(ScriptTriggeredGameEvent e)
         fireRocket(position, Direction { thing.direction }, thing.stateIdx);
         break;
 
-    case FireHarpoon:
-        fireHarpoon(position, Direction { thing.direction }, thing.stateIdx);
+    case FireRay:
+        fireBallista(
+            position,
+            Direction { thing.direction },
+            e.targetEntityIdx,
+            thing.stateIdx);
         break;
 
     case ReleaseTrigger:
         scene.playerStates[thing.stateIdx].input.stopShooting();
         break;
 
-    case PlayRecoverySound:
-        eventQueue->emplace<WeaponRecoveringAudioEvent>(
-            scene.playerStates[thing.stateIdx].inventory.activeWeaponType,
-            thing.stateIdx);
+    case TriggerSound:
+        eventQueue->emplace<SoundTriggeredAudioEvent>(
+            e.sound, e.sourceType, thing.stateIdx, thing.hitbox.getPosition());
         break;
+    }
+
+    if (e.scriptId != ScriptId::TriggerSound && !e.sound.empty())
+    {
+        eventQueue->emplace<SoundTriggeredAudioEvent>(
+            e.sound, e.sourceType, thing.stateIdx, thing.hitbox.getPosition());
     }
 }
 
@@ -527,7 +536,6 @@ void GameRulesEngine::fireFlare(
         position.value,
         direction.value,
         inventoryIdx);
-    eventQueue->emplace<FlaregunFiredAudioEvent>(inventoryIdx, position.value);
 }
 
 void GameRulesEngine::firePellets(
@@ -550,8 +558,6 @@ void GameRulesEngine::firePellets(
             eventQueue->emplace<HitscanProjectileFiredGameEvent>(
                 hit, SHELL_DAMAGE, inventoryIdx);
         });
-
-    eventQueue->emplace<ShotgunFiredAudioEvent>(inventoryIdx, position.value);
 }
 
 void GameRulesEngine::fireBullet(
@@ -566,7 +572,6 @@ void GameRulesEngine::fireBullet(
     auto hit = hitscanner.hitscan(position, direction, playerIdx);
     eventQueue->emplace<HitscanProjectileFiredGameEvent>(
         hit, TRISHOT_BULLET_DAMAGE, inventoryIdx);
-    eventQueue->emplace<BulletFiredAudioEvent>(inventoryIdx, position.value);
 }
 
 void GameRulesEngine::fireLaserDart(
@@ -583,7 +588,6 @@ void GameRulesEngine::fireLaserDart(
         position.value,
         direction.value,
         inventoryIdx);
-    eventQueue->emplace<LaserCrossbowAudioEvent>(inventoryIdx, position.value);
 }
 
 void GameRulesEngine::fireRocket(
@@ -599,12 +603,31 @@ void GameRulesEngine::fireRocket(
         position.value,
         direction.value,
         inventoryIdx);
-    eventQueue->emplace<RocketFiredAudioEvent>(inventoryIdx, position.value);
 }
 
-void GameRulesEngine::fireHarpoon(
-    const Position&, const Direction&, PlayerStateIndexType)
+void GameRulesEngine::fireBallista(
+    const Position& position,
+    const Direction& direction,
+    EntityIndexType playerIdx,
+    PlayerStateIndexType inventoryIdx)
 {
+    auto& inventory = scene.playerStates[inventoryIdx].inventory;
+    --inventory.ammo[ammoTypeToAmmoIndex(AmmoType::Bullets)];
+
+    auto hit = hitscanner.hitscan(position, direction, playerIdx);
+    eventQueue->emplace<HitscanProjectileFiredGameEvent>(
+        hit, 200, inventoryIdx);
+
+    auto dirToImpact = hit.impactPosition - position.value;
+    const float dirSize = dgm::Math::getSize(dirToImpact);
+    auto unitDirToImpact = dirToImpact / dirSize;
+    for (float t = 8.f; t < dirSize; t += 8.f)
+    {
+        scene.things.emplaceBack(SceneBuilder::createEffect(
+            EntityType::EffectRailDecal,
+            Position { position.value + unitDirToImpact * t },
+            scene.tick));
+    }
 }
 
 #pragma endregion
