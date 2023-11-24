@@ -6,8 +6,10 @@
 #include <input/PhysicalController.hpp>
 #include <utils/SceneBuilder.hpp>
 
-[[nodiscard]] static std::vector<mem::Rc<ControllerInterface>>
-createInputs(const sf::Window& window, const GameOptions& gameSettings)
+[[nodiscard]] static std::vector<mem::Rc<ControllerInterface>> createInputs(
+    const sf::Window& window,
+    const GameOptions& gameSettings,
+    float mouseSensitivity)
 {
     std::vector<mem::Rc<ControllerInterface>> inputs;
     for (auto&& ps : gameSettings.players)
@@ -16,7 +18,8 @@ createInputs(const sf::Window& window, const GameOptions& gameSettings)
         {
             using enum PlayerKind;
         case LocalHuman:
-            inputs.push_back(mem::Rc<PhysicalController>(window));
+            inputs.push_back(
+                mem::Rc<PhysicalController>(window, mouseSensitivity));
             break;
         case LocalNpc:
             inputs.push_back(mem::Rc<AiController>());
@@ -45,7 +48,10 @@ AppStateIngame::AppStateIngame(
     , gameSettings(gameSettings)
     , audioPlayer(_audioPlayer)
     , launchedFromEditor(launchedFromEditor)
-    , inputs(createInputs(_app.window.getWindowContext(), gameSettings))
+    , inputs(createInputs(
+          _app.window.getWindowContext(),
+          gameSettings,
+          settings->input.mouseSensitivity))
     , scene(SceneBuilder::buildScene(level))
     , aiEngine(scene)
     , animationEngine(scene, eventQueue)
@@ -295,5 +301,25 @@ void AppStateIngame::createPlayers()
             scene.playerStates[i].blackboard =
                 AiBlackboard { .input = inputs[i].castTo<AiController>(),
                                .playerStateIdx = i };
+    }
+}
+
+void AppStateIngame::propagateSettings()
+{
+    /*
+    * requires new version of dgm-lib
+    camera = dgm::Camera(
+        sf::FloatRect(0.f, 0.f, 1.f, 1.f),
+        sf::Vector2f(sf::Vector2u(
+            settings->display.resolution.width,
+            settings->display.resolution.height)));*/
+
+    for (std::size_t idx = 0; idx < gameSettings.players.size(); idx++)
+    {
+        if (gameSettings.players[idx].kind == PlayerKind::LocalHuman)
+        {
+            inputs[idx].castTo<PhysicalController>()->setMouseSensitivity(
+                settings->input.mouseSensitivity);
+        }
     }
 }

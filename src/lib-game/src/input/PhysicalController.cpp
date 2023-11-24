@@ -1,7 +1,8 @@
 #include <input/PhysicalController.hpp>
 
-PhysicalController::PhysicalController(const sf::Window& window)
-    : window(window)
+PhysicalController::PhysicalController(
+    const sf::Window& window, float mouseSensitivity)
+    : window(window), mouseSensitivity(mouseSensitivity)
 {
     input.bindInput(InputCode::Forward, sf::Keyboard::W);
     input.bindInput(InputCode::Backward, sf::Keyboard::S);
@@ -57,13 +58,16 @@ float PhysicalController::getSidewardThrust() const
 
 float PhysicalController::getSteer() const
 {
-    const float MOUSE_SENSITIVITY =
-        25.f; // Half of the screen is this many degrees of rotation
-
     const auto windowWidthHalf = window.getSize().x / 2.f;
     const auto position = sf::Mouse::getPosition(window);
     const auto xDiff = (position.x - windowWidthHalf);
 
-    return xDiff / MOUSE_SENSITIVITY - input.getValue(InputCode::TurnLeft)
+    return xDiff / mouseSensitivity - input.getValue(InputCode::TurnLeft)
            + input.getValue(InputCode::TurnRight);
+}
+
+void PhysicalController::setMouseSensitivity(float value)
+{
+    // Value needs to be inverted
+    mouseSensitivity = 50.f - value;
 }

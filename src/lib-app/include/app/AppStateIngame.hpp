@@ -36,6 +36,8 @@ public:
 
     ~AppStateIngame()
     {
+        app.window.getWindowContext().setView(
+            app.window.getWindowContext().getDefaultView());
         unlockMouse();
     }
 
@@ -52,6 +54,7 @@ public:
     virtual void restoreFocus() override
     {
         app.window.getWindowContext().setFramerateLimit(60);
+        propagateSettings();
         lockMouse();
     }
 
@@ -78,6 +81,8 @@ private:
     void unlockMouse();
 
     void createPlayers();
+
+    void propagateSettings();
 
 protected:
     mem::Rc<const dgm::ResourceManager> resmgr;

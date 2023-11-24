@@ -21,7 +21,7 @@ public:
     };
 
 public:
-    PhysicalController(const sf::Window& window);
+    PhysicalController(const sf::Window& window, float mouseSensitivity);
 
 public:
     bool isShooting() const override;
@@ -38,8 +38,11 @@ public:
 
     float getSteer() const override;
 
+    void setMouseSensitivity(float value);
+
 private:
     const sf::Window& window;
     mutable dgm::Controller input;
     mutable sf::Vector2i lastMousePos;
+    float mouseSensitivity = 25.f;
 };

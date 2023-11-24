@@ -119,7 +119,10 @@ void AppStateMenuOptions::buildInputOptionsLayout(GuiOptionsBuilder2& builder)
         Strings::AppState::Options::MOUSE_SENSITIVITY,
         WidgetCreator2::createSlider(
             settings->input.mouseSensitivity,
-            [this](float value) { settings->input.mouseSensitivity = value; }));
+            [this](float value) { settings->input.mouseSensitivity = value; },
+            1.f,
+            50.f,
+            1.f));
 }
 
 void AppStateMenuOptions::input()
