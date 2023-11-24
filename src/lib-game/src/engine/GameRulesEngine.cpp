@@ -141,6 +141,12 @@ void GameRulesEngine::operator()(ScriptTriggeredGameEvent e)
         Position { thing.hitbox.getPosition()
                    + thing.direction * thing.hitbox.getRadius() * 2.f };
 
+    if (e.scriptId == ScriptId::TriggerSound || !e.sound.empty())
+    {
+        eventQueue->emplace<SoundTriggeredAudioEvent>(
+            e.sound, e.sourceType, thing.stateIdx, thing.hitbox.getPosition());
+    }
+
     switch (e.scriptId)
     {
         using enum ScriptId;
@@ -180,17 +186,6 @@ void GameRulesEngine::operator()(ScriptTriggeredGameEvent e)
     case ReleaseTrigger:
         scene.playerStates[thing.stateIdx].input.stopShooting();
         break;
-
-    case TriggerSound:
-        eventQueue->emplace<SoundTriggeredAudioEvent>(
-            e.sound, e.sourceType, thing.stateIdx, thing.hitbox.getPosition());
-        break;
-    }
-
-    if (e.scriptId != ScriptId::TriggerSound && !e.sound.empty())
-    {
-        eventQueue->emplace<SoundTriggeredAudioEvent>(
-            e.sound, e.sourceType, thing.stateIdx, thing.hitbox.getPosition());
     }
 }
 
