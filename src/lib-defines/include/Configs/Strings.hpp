@@ -27,6 +27,19 @@ namespace Strings
             RAWSTRING OPTIONS = "options";
             RAWSTRING EXIT = "exit";
         } // namespace MainMenu
+
+        namespace Options
+        {
+            RAWSTRING TITLE = "options";
+            RAWSTRING DISPLAY = "display";
+            RAWSTRING AUDIO = "audio";
+            RAWSTRING INPUT = "input";
+            RAWSTRING FULLSCREEN = "fullscreen";
+            RAWSTRING SET_RESOLUTION = "set resolution";
+            RAWSTRING SOUND_VOLUME = "sound volume";
+            RAWSTRING MUSIC_VOLUME = "music volume";
+            RAWSTRING MOUSE_SENSITIVITY = "mouse sensitivity";
+        } // namespace Options
     }     // namespace AppState
 
     namespace Dialog

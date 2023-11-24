@@ -1,5 +1,6 @@
 #include "app/AppStateMenuOptions.hpp"
 #include "app/GuiBuilder.hpp"
+#include <Configs/Strings.hpp>
 #include <ranges>
 
 static const std::vector<std::string> STRING_RESOLUTIONS = {
@@ -20,58 +21,105 @@ std::string getWindowResolutionAsString(const dgm::Window& window)
 
 void AppStateMenuOptions::buildLayoutImpl()
 {
-    gui->add(createH2Title("options"));
+    gui->add(createH2Title(Strings::AppState::Options::TITLE));
 
-    getCommonLayoutBuilder(4)
+    auto panel = tgui::Panel::create();
+    panel->setPosition("20%", "35%");
+    panel->setSize("60%", "50%");
+    gui->add(panel, "IdTabPanel");
+
+    auto tabs = tgui::Tabs::create();
+    tabs->setPosition("20%", "30%");
+    tabs->setSize("60%", "5%");
+    tabs->add(Strings::AppState::Options::DISPLAY);
+    tabs->add(Strings::AppState::Options::AUDIO);
+    tabs->add(Strings::AppState::Options::INPUT);
+    tabs->onTabSelect(
+        [&](const tgui::String& tabname)
+        {
+            auto panel = gui->get<tgui::Panel>("IdTabPanel");
+            panel->removeAllWidgets();
+
+            if (tabname == Strings::AppState::Options::DISPLAY)
+            {
+                auto&& builder = GuiOptionsBuilder2(panel);
+                buildDisplayOptionsLayout(builder);
+                builder.build();
+            }
+            else if (tabname == Strings::AppState::Options::AUDIO)
+            {
+                auto&& builder = GuiOptionsBuilder2(panel);
+                buildAudioOptionsLayout(builder);
+                builder.build();
+            }
+            else if (tabname == Strings::AppState::Options::INPUT)
+            {
+                auto&& builder = GuiOptionsBuilder2(panel);
+                buildInputOptionsLayout(builder);
+                builder.build();
+            }
+        });
+    tabs->select(Strings::AppState::Options::DISPLAY);
+    gui->add(tabs);
+
+    gui->add(createBackButton([this] { app.popState(); }));
+}
+
+void AppStateMenuOptions::buildDisplayOptionsLayout(GuiOptionsBuilder2& builder)
+{
+    builder
         .addOption(
-            "fullscreen",
-            "CheckboxFullscreen",
-            WidgetCreator::createCheckbox(
+            Strings::AppState::Options::FULLSCREEN,
+            WidgetCreator2::createCheckbox(
                 app.window.isFullscreen(),
                 [this](bool) { app.window.toggleFullscreen(); }))
         .addOption(
-            "sound volume",
-            "SliderSoundVolume",
-            WidgetCreator::createSlider(
-                settings->audio.soundVolume,
-                [this]
-                {
-                    settings->audio.soundVolume =
-                        gui->get<tgui::Slider>("SliderSoundVolume")->getValue();
-                    audioPlayer->setSoundVolume(settings->audio.soundVolume);
-                }))
-        .addOption(
-            "music volume",
-            "SliderMusicVolume",
-            WidgetCreator::createSlider(
-                settings->audio.musicVolume,
-                [this]
-                {
-                    settings->audio.musicVolume =
-                        gui->get<tgui::Slider>("SliderMusicVolume")->getValue();
-                    audioPlayer->setSoundVolume(settings->audio.musicVolume);
-                }))
-        .addOption(
-            "set resolution",
-            "DropdownResolution",
-            WidgetCreator::createDropdown(
+            Strings::AppState::Options::SET_RESOLUTION,
+            WidgetCreator2::createDropdown(
                 STRING_RESOLUTIONS,
                 getWindowResolutionAsString(app.window),
-                [this]
+                [this](std::size_t idx)
                 {
-                    auto item = gui->get<tgui::ComboBox>("DropdownResolution");
-                    auto index = item->getSelectedItemIndex();
-                    if (index == -1) return;
+                    if (idx == -1) return;
 
                     // Restart window with new resolution
-                    app.window.changeResolution(NUM_RESOLUTIONS[index]);
+                    app.window.changeResolution(NUM_RESOLUTIONS[idx]);
 
                     // Force gui to update viewport and resolution
                     restoreFocus();
-                }))
-        .build();
+                }));
+}
 
-    gui->add(createBackButton([this] { app.popState(); }));
+void AppStateMenuOptions::buildAudioOptionsLayout(GuiOptionsBuilder2& builder)
+{
+    builder
+        .addOption(
+            Strings::AppState::Options::SOUND_VOLUME,
+            WidgetCreator2::createSlider(
+                settings->audio.soundVolume,
+                [this](float value)
+                {
+                    settings->audio.soundVolume = value;
+                    audioPlayer->setSoundVolume(settings->audio.soundVolume);
+                }))
+        .addOption(
+            Strings::AppState::Options::MUSIC_VOLUME,
+            WidgetCreator2::createSlider(
+                settings->audio.musicVolume,
+                [this](float value)
+                {
+                    settings->audio.musicVolume = value;
+                    audioPlayer->setSoundVolume(settings->audio.musicVolume);
+                }));
+}
+
+void AppStateMenuOptions::buildInputOptionsLayout(GuiOptionsBuilder2& builder)
+{
+    builder.addOption(
+        Strings::AppState::Options::MOUSE_SENSITIVITY,
+        WidgetCreator2::createSlider(
+            settings->input.mouseSensitivity,
+            [this](float value) { settings->input.mouseSensitivity = value; }));
 }
 
 void AppStateMenuOptions::input()

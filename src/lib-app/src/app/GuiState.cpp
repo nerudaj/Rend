@@ -23,7 +23,7 @@ tgui::Label::Ptr GuiState::createH1Title(const std::string& text)
 
 tgui::Label::Ptr GuiState::createH2Title(const std::string& text)
 {
-    auto title = createWindowTitle({ "0%", "5%" }, { "100%", "25%" }, text);
+    auto title = createWindowTitle({ "0%", "5%" }, { "100%", "20%" }, text);
     title->setHorizontalAlignment(tgui::Label::HorizontalAlignment::Center);
     title->setTextSize(64);
     return title;

@@ -1,4 +1,5 @@
 #include "app/GuiBuilder.hpp"
+#include <Configs/Sizers.hpp>
 
 tgui::Label::Ptr
 WidgetCreator::createLabel(const std::string& text, unsigned fontSize)
@@ -72,6 +73,7 @@ void GuiOptionsBuilder::build()
     for (auto&& [name, id, widget] : rowsToBuild)
     {
         auto row = tgui::HorizontalLayout::create();
+        row->setSize("100%", "5%");
         rowContainer->add(row);
 
         auto label = WidgetCreator::createLabel(name, labelFontSize);
@@ -90,4 +92,77 @@ void GuiOptionsBuilder::build()
             row->setRatio(1, 0.5f);
         }
     }
+}
+
+void GuiOptionsBuilder2::build()
+{
+    unsigned rowIdx = 0;
+    auto rowHeight = Sizers::GetMenuBarHeight();
+
+    for (auto&& [labelText, widgetPtr] : rowsToBuild)
+    {
+        auto row = tgui::Panel::create();
+        row->setSize("100%", std::to_string(rowHeight).c_str());
+        row->setPosition("0%", std::to_string(rowHeight * rowIdx++).c_str());
+        panel->add(row);
+
+        auto label = tgui::Label::create(labelText);
+        label->setSize("60%", "100%");
+        label->setPosition("0%", "0%");
+        label->setTextSize(Sizers::GetMenuBarTextHeight());
+        label->setVerticalAlignment(tgui::Label::VerticalAlignment::Center);
+        row->add(label);
+
+        auto widgetPanel = tgui::Panel::create({ "40%", "100%" });
+        widgetPanel->setPosition("60%", "0%");
+        row->add(widgetPanel);
+        widgetPanel->add(widgetPtr);
+    }
+}
+
+tgui::CheckBox::Ptr
+WidgetCreator2::createCheckbox(bool checked, std::function<void(bool)> onChange)
+{
+    auto checkbox = tgui::CheckBox::create();
+    auto size = checkbox->getSizeLayout();
+    checkbox->setPosition(("100%" - size.x) / 2, ("100%" - size.y) / 2);
+    checkbox->setChecked(checked);
+    checkbox->onChange(onChange);
+    return checkbox;
+}
+
+tgui::Slider::Ptr WidgetCreator2::createSlider(
+    float value,
+    std::function<void(float)> onChange,
+    float lo,
+    float hi,
+    float step)
+{
+    auto slider = tgui::Slider::create(lo, hi);
+
+    slider->setStep(step);
+    slider->setValue(value);
+    slider->onValueChange(onChange);
+    slider->setPosition("0%", "25%");
+    slider->setSize("100%", "50%");
+
+    return slider;
+}
+
+tgui::ComboBox::Ptr WidgetCreator2::createDropdown(
+    const std::vector<std::string>& items,
+    const std::string& selected,
+    std::function<void(std::size_t)> onSelect)
+{
+    auto dropdown = tgui::ComboBox::create();
+    dropdown->setSize("100%", "80%");
+    dropdown->setPosition("0%", "10%");
+    for (auto& item : items)
+    {
+        dropdown->addItem(item, item);
+    }
+    dropdown->setSelectedItem(selected);
+    dropdown->onItemSelect(onSelect);
+
+    return dropdown;
 }

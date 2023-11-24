@@ -46,6 +46,9 @@ public:
 
 private:
     void buildLayoutImpl() override;
+    void buildDisplayOptionsLayout(GuiOptionsBuilder2& builder);
+    void buildAudioOptionsLayout(GuiOptionsBuilder2& builder);
+    void buildInputOptionsLayout(GuiOptionsBuilder2& builder);
 
 private:
     mem::Rc<AppOptions> settings;

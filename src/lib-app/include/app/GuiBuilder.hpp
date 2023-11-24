@@ -37,10 +37,28 @@ public:
     }
 };
 
+class WidgetCreator2
+{
+public:
+    static [[nodiscard]] tgui::CheckBox::Ptr
+    createCheckbox(bool checked, std::function<void(bool)> onChange);
+
+    static [[nodiscard]] tgui::Slider::Ptr createSlider(
+        float value,
+        std::function<void(float)> onChange,
+        float lo = 0.f,
+        float hi = 100.f,
+        float step = 1.f);
+
+    static [[nodiscard]] tgui::ComboBox::Ptr createDropdown(
+        const std::vector<std::string>& items,
+        const std::string& selected,
+        std::function<void(std::size_t)> onSelect);
+};
+
 class GuiOptionsBuilder final
 {
 private:
-    mem::Rc<tgui::Gui> gui;
     tgui::VerticalLayout::Ptr rowContainer;
     unsigned labelFontSize;
     std::vector<std::tuple<std::string, std::string, tgui::Widget::Ptr>>
@@ -51,11 +69,20 @@ public:
         mem::Rc<tgui::Gui> gui,
         const tgui::Layout2d& pos,
         const tgui::Layout2d& size)
-        : gui(gui)
     {
         rowContainer = tgui::VerticalLayout::create(size);
         rowContainer->setPosition(pos);
         gui->add(rowContainer);
+    }
+
+    [[nodiscard]] GuiOptionsBuilder(
+        tgui::Panel::Ptr panel,
+        const tgui::Layout2d& pos,
+        const tgui::Layout2d& size)
+    {
+        rowContainer = tgui::VerticalLayout::create(size);
+        rowContainer->setPosition(pos);
+        panel->add(rowContainer);
     }
 
 public:
@@ -69,4 +96,25 @@ public:
     }
 
     void build();
+};
+
+class [[nodiscard]] GuiOptionsBuilder2 final
+{
+public:
+    GuiOptionsBuilder2(tgui::Panel::Ptr panel) : panel(panel) {}
+
+public:
+    [[nodiscard]] GuiOptionsBuilder2&
+    addOption(const std::string& labelText, tgui::Widget::Ptr widget)
+    {
+        rowsToBuild.push_back({ labelText, widget });
+        return *this;
+    }
+
+    void build();
+
+private:
+    tgui::Panel::Ptr panel;
+    unsigned labelFontSize;
+    std::vector<std::tuple<std::string, tgui::Widget::Ptr>> rowsToBuild;
 };
