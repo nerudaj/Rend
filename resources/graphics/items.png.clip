@@ -5,13 +5,13 @@
         "height": 16
     }, 
     "spacing": {
-        "horizontal": 0, 
-        "vertical": 0
+        "horizontal": 2, 
+        "vertical": 2
     }, 
     "bounds": {
-        "width": 144, 
+        "width": 160, 
         "top": 0, 
-        "height": 160, 
+        "height": 178, 
         "left": 0
     }, 
     "nframes": 90, 
