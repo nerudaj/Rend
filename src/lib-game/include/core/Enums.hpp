@@ -235,12 +235,10 @@ enum class AmmoType
 enum class ScriptId
 {
     NoAction,
-    FireFlare,
     FirePellets,
     FireBullet,
-    FireLaserDart,
-    FireRocket,
     FireRay,
+    FireProjectile,
     ReleaseTrigger,
     TriggerSound,
 };

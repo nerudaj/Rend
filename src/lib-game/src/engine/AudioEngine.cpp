@@ -6,27 +6,6 @@ constexpr unsigned POV_CHANNEL = 8;
 constexpr unsigned POV_CHANNEL_COUNT = 2;
 constexpr unsigned AMBIENT_CHANNEL_COUNT = 4;
 
-void AudioEngine::operator()(const LaserDartBouncedAudioEvent& e)
-{
-    audioPlayer->playSoundOnChannel(
-        "dart_bounce.wav",
-        getAmbientChannelIndex(),
-        true,
-        getRelativePosition(e.position));
-}
-
-void AudioEngine::operator()(const PickablePickedUpAudioEvent& e)
-{
-    if (!isPovStateIndex(e.stateIdx)) return;
-
-    bool megaPickup = e.type == EntityType::PickupMegaHealth
-                      || e.type == EntityType::PickupMegaArmor;
-    audioPlayer->playSoundOnChannel(
-        megaPickup ? "megapickup.wav" : "pickup.wav",
-        getPovChannelIndex(),
-        true);
-}
-
 void AudioEngine::operator()(const SoundTriggeredAudioEvent& e)
 {
     if (e.sourceType == SoundSourceType::Pov && !isPovStateIndex(e.stateIdx))

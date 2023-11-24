@@ -4,50 +4,12 @@
 #include <core/Types.hpp>
 #include <variant>
 
-struct [[nodiscard]] LaserDartBouncedAudioEvent
-{
-    PlayerStateIndexType stateIdx;
-    sf::Vector2f position;
-
-    constexpr LaserDartBouncedAudioEvent(
-        PlayerStateIndexType stateIdx,
-        dgm::UniversalReference<sf::Vector2f> auto&& position) noexcept
-        : stateIdx(stateIdx)
-        , position(std::forward<decltype(position)>(position))
-    {
-    }
-};
-
-struct [[nodiscard]] PickablePickedUpAudioEvent
-{
-    EntityType type;
-    PlayerStateIndexType stateIdx;
-
-    constexpr PickablePickedUpAudioEvent(
-        EntityType type, PlayerStateIndexType stateIdx) noexcept
-        : type(type), stateIdx(stateIdx)
-    {
-    }
-};
-
-struct [[nodiscard]] WeaponRecoveringAudioEvent
-{
-    EntityType type;
-    PlayerStateIndexType stateIdx;
-
-    constexpr WeaponRecoveringAudioEvent(
-        EntityType type, PlayerStateIndexType stateIdx) noexcept
-        : type(type), stateIdx(stateIdx)
-    {
-    }
-};
-
 struct [[nodiscard]] SoundTriggeredAudioEvent
 {
     const std::string sound;
     SoundSourceType sourceType;
     PlayerStateIndexType stateIdx;
-    sf::Vector2f position;
+    sf::Vector2f position = { 0.f, 0.f };
 
     constexpr SoundTriggeredAudioEvent(
         const std::string& sound,
@@ -60,9 +22,17 @@ struct [[nodiscard]] SoundTriggeredAudioEvent
         , position(position)
     {
     }
+
+    constexpr SoundTriggeredAudioEvent(
+        const std::string& sound,
+        PlayerStateIndexType stateIdx,
+        const sf::Vector2f& position = { 0.f, 0.f }) noexcept
+        : sound(sound)
+        , sourceType(SoundSourceType::Pov)
+        , stateIdx(stateIdx)
+        , position(position)
+    {
+    }
 };
 
-using AudioEvent = std::variant<
-    LaserDartBouncedAudioEvent,
-    PickablePickedUpAudioEvent,
-    SoundTriggeredAudioEvent>;
+using AudioEvent = std::variant<SoundTriggeredAudioEvent>;

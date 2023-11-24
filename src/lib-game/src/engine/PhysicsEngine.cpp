@@ -54,14 +54,17 @@ void PhysicsEngine::handleProjectile(
         if (dgm::Collision::advanced(
                 scene.level.bottomMesh, thing.hitbox, forward))
         {
-            if (isBouncyProjectile(thing.typeId) && thing.health > 0)
+            if (def.isBouncy && thing.health > 0)
             {
                 thing.health -= 50;
                 // invert components of direction vector that caused collision
                 thing.direction.x *= forward.x == 0.f ? -1.f : 1.f;
                 thing.direction.y *= forward.y == 0.f ? -1.f : 1.f;
-                eventQueue->emplace<LaserDartBouncedAudioEvent>(
-                    thing.stateIdx, thing.hitbox.getPosition());
+                eventQueue->emplace<SoundTriggeredAudioEvent>(
+                    def.specialSound,
+                    SoundSourceType::Ambient,
+                    thing.stateIdx,
+                    thing.hitbox.getPosition());
                 return false;
             }
             return true;

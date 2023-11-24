@@ -50,13 +50,6 @@ isProjectile(EntityType type) noexcept
 }
 
 [[nodiscard]] static constexpr inline bool
-isBouncyProjectile(EntityType type) noexcept
-{
-    using enum EntityType;
-    return type == ProjectileLaserDart;
-}
-
-[[nodiscard]] static constexpr inline bool
 isHealthArmorPickable(EntityType type) noexcept
 {
     using enum EntityType;

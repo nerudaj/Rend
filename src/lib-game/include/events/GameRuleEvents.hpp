@@ -1,6 +1,7 @@
 #pragma once
 
 #include <DGM/dgm.hpp>
+#include <core/EntityDefinitionTypes.hpp>
 #include <core/Enums.hpp>
 #include <variant>
 
@@ -112,20 +113,12 @@ struct HitscanProjectileFiredGameEvent
 
 struct ScriptTriggeredGameEvent
 {
-    ScriptId scriptId;
+    Script script;
     EntityIndexType targetEntityIdx;
-    const std::string sound;
-    SoundSourceType sourceType;
 
     [[nodiscard]] constexpr ScriptTriggeredGameEvent(
-        ScriptId scriptId,
-        EntityIndexType targetEntityIdx,
-        const std::string& sound,
-        SoundSourceType sourceType) noexcept
-        : scriptId(scriptId)
-        , targetEntityIdx(targetEntityIdx)
-        , sound(sound)
-        , sourceType(sourceType)
+        Script script, EntityIndexType targetEntityIdx) noexcept
+        : script(script), targetEntityIdx(targetEntityIdx)
     {
     }
 };

@@ -2,42 +2,47 @@
 
 #include <core/EntityDefinitionTypes.hpp>
 #include <map>
+#include <utils/SemanticTypes.hpp>
 #include <vector>
 
 constexpr Script playSound(
     const std::string& sound, SoundSourceType type = SoundSourceType::Ambient)
 {
-    return Script(sound, type);
+    return Script { .sound = sound, .soundSourceType = type };
 }
 
-constexpr Script fireFlaregun(const std::string& sound)
+constexpr Script
+fireProjectile(EntityType projectileType, const std::string& sound)
 {
-    return Script(ScriptId::FireFlare, sound, SoundSourceType::Player);
+    return Script { .id = ScriptId::FireProjectile,
+                    .sound = sound,
+                    .soundSourceType = SoundSourceType::Player,
+                    .entityType = projectileType };
 }
 
-constexpr Script firePellets(const std::string& sound)
+constexpr Script firePellets(int count, int damage, const std::string& sound)
 {
-    return Script(ScriptId::FirePellets, sound, SoundSourceType::Player);
+    return Script { .id = ScriptId::FirePellets,
+                    .sound = sound,
+                    .soundSourceType = SoundSourceType::Player,
+                    .count = count,
+                    .damage = damage };
 }
 
-constexpr Script fireBullet(const std::string& sound)
+constexpr Script fireBullet(int damage, const std::string& sound)
 {
-    return Script(ScriptId::FireBullet, sound, SoundSourceType::Player);
+    return Script { .id = ScriptId::FireBullet,
+                    .sound = sound,
+                    .soundSourceType = SoundSourceType::Player,
+                    .damage = damage };
 }
 
-constexpr Script fireRocket(const std::string& sound)
+constexpr Script fireRay(int damage, const std::string& sound)
 {
-    return Script(ScriptId::FireRocket, sound, SoundSourceType::Player);
-}
-
-constexpr Script fireDart(const std::string& sound)
-{
-    return Script(ScriptId::FireLaserDart, sound, SoundSourceType::Player);
-}
-
-constexpr Script fireRay(const std::string& sound)
-{
-    return Script(ScriptId::FireRay, sound, SoundSourceType::Player);
+    return Script { .id = ScriptId::FireRay,
+                    .sound = sound,
+                    .soundSourceType = SoundSourceType::Player,
+                    .damage = damage };
 }
 
 const static inline auto ENTITY_PROPERTIES =
@@ -145,34 +150,42 @@ const static inline auto ENTITY_PROPERTIES =
                                 .transition = AnimationStateId::Idle } } } } },
         { EntityType::PickupHealth,
           EntityProperties { .radius = 3_px,
+                             .specialSound = "pickup.wav",
                              .healthAmount = 25,
                              .initialSpriteIndex = MedikitA } },
         { EntityType::PickupArmor,
           EntityProperties { .radius = 3_px,
+                             .specialSound = "pickup.wav",
                              .armorAmount = 10,
                              .initialSpriteIndex = ArmorShardA } },
         { EntityType::PickupMegaHealth,
           EntityProperties { .radius = 6_px,
+                             .specialSound = "megapickup.wav",
                              .healthAmount = 100,
                              .initialSpriteIndex = MegaHealthA } },
         { EntityType::PickupMegaArmor,
           EntityProperties { .radius = 3_px,
+                             .specialSound = "megapickup.wav",
                              .armorAmount = 100,
                              .initialSpriteIndex = MegaArmorA } },
         { EntityType::PickupBullets,
           EntityProperties { .radius = 4_px,
+                             .specialSound = "pickup.wav",
                              .ammoAmount = 100,
                              .initialSpriteIndex = BulletsA } },
         { EntityType::PickupShells,
           EntityProperties { .radius = 3_px,
+                             .specialSound = "pickup.wav",
                              .ammoAmount = 20,
                              .initialSpriteIndex = ShellsA } },
         { EntityType::PickupEnergy,
           EntityProperties { .radius = 4_px,
+                             .specialSound = "pickup.wav",
                              .ammoAmount = 20,
                              .initialSpriteIndex = EnergyPackA } },
         { EntityType::PickupRockets,
           EntityProperties { .radius = 3_px,
+                             .specialSound = "pickup.wav",
                              .ammoAmount = 10,
                              .initialSpriteIndex = RocketsA } },
         { EntityType::PickupShotgun,
@@ -226,6 +239,8 @@ const static inline auto ENTITY_PROPERTIES =
           EntityProperties {
               .radius = 2_px,
               .speed = 150_unitspersec,
+              .isBouncy = true,
+              .specialSound = "dart_bounce.wav",
               .damage = 96,
               .debrisEffectType = EntityType::EffectDartExplosion,
               .initialSpriteIndex = LaserDartA0,
@@ -247,7 +262,8 @@ const static inline auto ENTITY_PROPERTIES =
                                   .clip = { { HUD_FlaregunFA, 10 },
                                             { HUD_FlaregunFA,
                                               10,
-                                              fireFlaregun(
+                                              fireProjectile(
+                                                  EntityType::ProjectileFlare,
                                                   "flaregun_fire.wav") },
                                             { HUD_FlaregunFB, 20 } },
                                   .transition = AnimationStateId::Recovery } },
@@ -273,7 +289,10 @@ const static inline auto ENTITY_PROPERTIES =
                                   .clip = { { HUD_ShotgunFA, 10 },
                                             { HUD_ShotgunFB,
                                               10,
-                                              firePellets("shotgun.wav") },
+                                              firePellets(
+                                                  8,
+                                                  10_damage,
+                                                  "shotgun.wav") },
                                             { HUD_ShotgunFA, 10 } },
                                   .transition = AnimationStateId::Recovery } },
                             { AnimationStateId::Recovery,
@@ -303,19 +322,22 @@ const static inline auto ENTITY_PROPERTIES =
                               AnimationState {
                                   .clip = { { HUD_TrishotFA,
                                               3,
-                                              fireBullet("bullet.wav") },
+                                              fireBullet(
+                                                  40_damage, "bullet.wav") },
                                             { HUD_TrishotFB, 3 },
                                             { HUD_TrishotFC, 3 },
                                             { HUD_TrishotFD, 3 },
                                             { HUD_TrishotFA,
                                               3,
-                                              fireBullet("bullet.wav") },
+                                              fireBullet(
+                                                  40_damage, "bullet.wav") },
                                             { HUD_TrishotFB, 3 },
                                             { HUD_TrishotFC, 3 },
                                             { HUD_TrishotFD, 3 },
                                             { HUD_TrishotFA,
                                               3,
-                                              fireBullet("bullet.wav") },
+                                              fireBullet(
+                                                  40_damage, "bullet.wav") },
                                             { HUD_TrishotFB, 3 },
                                             { HUD_TrishotFC, 3 },
                                             { HUD_TrishotFD,
@@ -341,7 +363,9 @@ const static inline auto ENTITY_PROPERTIES =
                                             { HUD_CrossbowFB, 5 },
                                             { HUD_CrossbowFC,
                                               5,
-                                              fireDart(
+                                              fireProjectile(
+                                                  EntityType::
+                                                      ProjectileLaserDart,
                                                   "lasercrossbow_fire.wav") },
                                             { HUD_CrossbowFD, 5 },
                                             { HUD_CrossbowFE, 5 },
@@ -364,7 +388,9 @@ const static inline auto ENTITY_PROPERTIES =
                               AnimationState {
                                   .clip = { { HUD_LauncherFA,
                                               10,
-                                              fireRocket("launcher_fire.wav") },
+                                              fireProjectile(
+                                                  EntityType::ProjectileRocket,
+                                                  "launcher_fire.wav") },
                                             { HUD_LauncherFB, 10 },
                                             { HUD_LauncherFC, 10 },
                                             { HUD_LauncherFD,
@@ -400,7 +426,9 @@ const static inline auto ENTITY_PROPERTIES =
                                             { HUD_BallistaFF, 5 },
                                             { HUD_BallistaFG,
                                               5,
-                                              fireRay("railgun.wav") } },
+                                              fireRay(
+                                                  200_damage,
+                                                  "railgun.wav") } },
                                   .transition = AnimationStateId::Recovery } },
                             { AnimationStateId::Recovery,
                               AnimationState {

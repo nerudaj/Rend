@@ -131,7 +131,7 @@ void GameRulesEngine::operator()(ScriptTriggeredGameEvent e)
         "{}: scriptTriggered(idx = {}, script = {})",
         scene.tick,
         e.targetEntityIdx,
-        static_cast<int>(e.scriptId))
+        static_cast<int>(e.script.id))
               << std::endl;
 
 #endif
@@ -141,20 +141,22 @@ void GameRulesEngine::operator()(ScriptTriggeredGameEvent e)
         Position { thing.hitbox.getPosition()
                    + thing.direction * thing.hitbox.getRadius() * 2.f };
 
-    if (e.scriptId == ScriptId::TriggerSound || !e.sound.empty())
+    if (!e.script.sound.empty())
     {
         eventQueue->emplace<SoundTriggeredAudioEvent>(
-            e.sound, e.sourceType, thing.stateIdx, thing.hitbox.getPosition());
+            e.script.sound,
+            e.script.soundSourceType,
+            thing.stateIdx,
+            thing.hitbox.getPosition());
     }
 
-    switch (e.scriptId)
+    switch (e.script.id)
     {
         using enum ScriptId;
-    case FireFlare:
-        fireFlare(position, Direction { thing.direction }, thing.stateIdx);
-        break;
     case FirePellets:
         firePellets(
+            e.script.count,
+            e.script.damage,
             position,
             Direction { thing.direction },
             e.targetEntityIdx,
@@ -162,21 +164,23 @@ void GameRulesEngine::operator()(ScriptTriggeredGameEvent e)
         break;
     case FireBullet:
         fireBullet(
+            e.script.damage,
             position,
             Direction { thing.direction },
             e.targetEntityIdx,
             thing.stateIdx);
         break;
-    case FireLaserDart:
-        fireLaserDart(position, Direction { thing.direction }, thing.stateIdx);
-        break;
-
-    case FireRocket:
-        fireRocket(position, Direction { thing.direction }, thing.stateIdx);
+    case FireProjectile:
+        fireProjectile(
+            e.script.entityType,
+            position,
+            Direction { thing.direction },
+            thing.stateIdx);
         break;
 
     case FireRay:
-        fireBallista(
+        fireRay(
+            e.script.damage,
             position,
             Direction { thing.direction },
             e.targetEntityIdx,
@@ -325,8 +329,9 @@ void GameRulesEngine::handleGrabbedPickable(
         eventQueue->emplace<PickablePickedUpGameEvent>(pickupId);
 
         if (inventory.ownerIdx == scene.cameraAnchorIdx)
-            eventQueue->emplace<PickablePickedUpAudioEvent>(
-                pickup.typeId, entity.stateIdx);
+            eventQueue->emplace<SoundTriggeredAudioEvent>(
+                ENTITY_PROPERTIES.at(pickup.typeId).specialSound,
+                entity.stateIdx);
     }
 }
 
@@ -517,23 +522,9 @@ sf::Vector2f GameRulesEngine::getBestSpawnDirection(
         scene.spatialIndex.getBoundingBox().getCenter() - spawnPosition);
 }
 
-void GameRulesEngine::fireFlare(
-    const Position& position,
-    const Direction& direction,
-    PlayerStateIndexType inventoryIdx)
-{
-    auto& inventory = scene.playerStates[inventoryIdx].inventory;
-    --inventory.ammo[ammoTypeToAmmoIndex(
-        ENTITY_PROPERTIES.at(EntityType::WeaponFlaregun).ammoType)];
-
-    eventQueue->emplace<ProjectileCreatedGameEvent>(
-        EntityType::ProjectileFlare,
-        position.value,
-        direction.value,
-        inventoryIdx);
-}
-
 void GameRulesEngine::firePellets(
+    int amount,
+    int damage,
     const Position& position,
     const Direction& direction,
     EntityIndexType playerIdx,
@@ -545,17 +536,18 @@ void GameRulesEngine::firePellets(
     forEachDirection(
         direction.value,
         getPerpendicular(direction.value) * SHOTGUN_SPREAD,
-        SHOTGUN_PELLET_AMOUNT,
+        amount,
         [&](const sf::Vector2f& hitscanDir)
         {
             auto hit = hitscanner.hitscan(
                 position, Direction { hitscanDir }, playerIdx);
             eventQueue->emplace<HitscanProjectileFiredGameEvent>(
-                hit, SHELL_DAMAGE, inventoryIdx);
+                hit, damage, inventoryIdx);
         });
 }
 
 void GameRulesEngine::fireBullet(
+    int damage,
     const Position& position,
     const Direction& direction,
     EntityIndexType playerIdx,
@@ -566,41 +558,25 @@ void GameRulesEngine::fireBullet(
 
     auto hit = hitscanner.hitscan(position, direction, playerIdx);
     eventQueue->emplace<HitscanProjectileFiredGameEvent>(
-        hit, TRISHOT_BULLET_DAMAGE, inventoryIdx);
+        hit, damage, inventoryIdx);
 }
 
-void GameRulesEngine::fireLaserDart(
+void GameRulesEngine::fireProjectile(
+    EntityType projectileType,
     const Position& position,
     const Direction& direction,
     PlayerStateIndexType inventoryIdx)
 {
     auto& inventory = scene.playerStates[inventoryIdx].inventory;
     --inventory.ammo[ammoTypeToAmmoIndex(
-        ENTITY_PROPERTIES.at(EntityType::WeaponCrossbow).ammoType)];
+        ENTITY_PROPERTIES.at(inventory.activeWeaponType).ammoType)];
 
     eventQueue->emplace<ProjectileCreatedGameEvent>(
-        EntityType::ProjectileLaserDart,
-        position.value,
-        direction.value,
-        inventoryIdx);
+        projectileType, position.value, direction.value, inventoryIdx);
 }
 
-void GameRulesEngine::fireRocket(
-    const Position& position,
-    const Direction& direction,
-    PlayerStateIndexType inventoryIdx)
-{
-    auto& inventory = scene.playerStates[inventoryIdx].inventory;
-    --inventory.ammo[ammoTypeToAmmoIndex(AmmoType::Rockets)];
-
-    eventQueue->emplace<ProjectileCreatedGameEvent>(
-        EntityType::ProjectileRocket,
-        position.value,
-        direction.value,
-        inventoryIdx);
-}
-
-void GameRulesEngine::fireBallista(
+void GameRulesEngine::fireRay(
+    int damage,
     const Position& position,
     const Direction& direction,
     EntityIndexType playerIdx,
@@ -611,7 +587,7 @@ void GameRulesEngine::fireBallista(
 
     auto hit = hitscanner.hitscan(position, direction, playerIdx);
     eventQueue->emplace<HitscanProjectileFiredGameEvent>(
-        hit, 200, inventoryIdx);
+        hit, damage, inventoryIdx);
 
     auto dirToImpact = hit.impactPosition - position.value;
     const float dirSize = dgm::Math::getSize(dirToImpact);

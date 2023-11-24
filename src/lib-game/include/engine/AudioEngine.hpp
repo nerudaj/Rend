@@ -19,8 +19,6 @@ public:
     }
 
 public: // Must visit on all related events
-    void operator()(const LaserDartBouncedAudioEvent&);
-    void operator()(const PickablePickedUpAudioEvent&);
     void operator()(const SoundTriggeredAudioEvent&);
 
 public:

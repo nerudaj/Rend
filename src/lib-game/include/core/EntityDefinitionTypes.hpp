@@ -8,25 +8,9 @@ struct Script
     ScriptId id = ScriptId::NoAction;
     const std::string sound = "";
     SoundSourceType soundSourceType = SoundSourceType::Ambient;
-
-    constexpr Script() = default;
-
-    constexpr Script(ScriptId id) : id(id) {}
-
-    constexpr Script(
-        const std::string& sound,
-        SoundSourceType type = SoundSourceType::Ambient)
-        : id(ScriptId::TriggerSound), sound(sound), soundSourceType(type)
-    {
-    }
-
-    constexpr Script(
-        ScriptId id,
-        const std::string& sound,
-        SoundSourceType type = SoundSourceType::Ambient)
-        : id(id), sound(sound), soundSourceType(type)
-    {
-    }
+    EntityType entityType = EntityType::Error;
+    int count = 0;
+    int damage = 0;
 };
 
 struct AnimationFrame
@@ -48,11 +32,14 @@ using EntityStates = std::map<AnimationStateId, AnimationState>;
 
 struct EntityProperties
 {
-    float radius;
+    float radius = 0_px;
     float speed = 0.f;
     bool isExplosive = false;
-    float explosionRadius = 0_px;
-    int damage = 0;
+    bool isBouncy = false;        // only considered for projectiles
+    float explosionRadius = 0_px; // only considered for explosives
+    const std::string specialSound =
+        "";         // sounds related to game rules, like pickups or bounces
+    int damage = 0; // only considered for projectiles
     AmmoType ammoType;
     int ammoAmount = 0;
     int healthAmount = 0;

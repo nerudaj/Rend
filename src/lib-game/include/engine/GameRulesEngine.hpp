@@ -83,34 +83,29 @@ private:
     void removeEntity(std::size_t index);
 
 private: // Scripts API
-    void fireFlare(
-        const Position& position,
-        const Direction& direction,
-        PlayerStateIndexType inventoryIdx);
-
     void firePellets(
+        int amount,
+        int damage,
         const Position& position,
         const Direction& direction,
         EntityIndexType playerIdx,
         PlayerStateIndexType inventoryIdx);
 
     void fireBullet(
+        int damage,
         const Position& position,
         const Direction& direction,
         EntityIndexType playerIdx,
         PlayerStateIndexType inventoryIdx);
 
-    void fireLaserDart(
+    void fireProjectile(
+        EntityType projectileType,
         const Position& position,
         const Direction& direction,
         PlayerStateIndexType inventoryIdx);
 
-    void fireRocket(
-        const Position& position,
-        const Direction& direction,
-        PlayerStateIndexType inventoryIdx);
-
-    void fireBallista(
+    void fireRay(
+        int damage,
         const Position& position,
         const Direction& direction,
         EntityIndexType playerIdx,
