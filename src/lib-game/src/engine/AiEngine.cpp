@@ -1,4 +1,4 @@
-#include <core/EntityTraits.hpp>
+#include <core/EntityDefinitions.hpp>
 #include <engine/AiEngine.hpp>
 
 const std::map<AiTopState, std::string> TOP_STATES_TO_STRING = {
@@ -174,16 +174,18 @@ int AiEngine::getItemBaseScore(
     constexpr const unsigned ARMOR_SCORE = 100;
     constexpr const unsigned AMMO_SCORE = 50;
 
-    if (isWeaponPickable(type)
+    const auto& def = ENTITY_PROPERTIES.at(type);
+
+    if (def.traits & Trait::WeaponPickup
         && !inventory.acquiredWeapons[weaponPickupToIndex(type)]) // && unpicked
         return WEAPON_SCORE;
-    else if (isPowerItemPickable(type))
+    else if (def.traits & Trait::PowerItem)
         return POWERITEM_SCORE;
     else if (type == EntityType::PickupHealth)
         return (100 - myHealth) * MEDIKIT_BASE_SCORE;
     else if (type == EntityType::PickupArmor)
         return ARMOR_SCORE;
-    else if (isPickable(type))
+    else if (def.traits & Trait::Pickable)
     {
         const auto ammoIndex = ammoPickupToAmmoIndex(type);
         return inventory.ammo[ammoIndex] < AMMO_LIMIT[ammoIndex] ? AMMO_SCORE
@@ -226,10 +228,12 @@ void AiEngine::pickJumpPoint(
     float bestScore = 0;
     for (auto&& [thing, idx] : scene.things)
     {
-        if (isWeaponPickable(thing.typeId)
+        const auto& def = ENTITY_PROPERTIES.at(thing.typeId);
+
+        if (def.traits & Trait::WeaponPickup
             && inventory.acquiredWeapons[weaponPickupToIndex(thing.typeId)])
             continue;
-        else if (!isPickable(thing.typeId))
+        else if (!(def.traits & Trait::Pickable))
             continue;
 
         int currentScore =

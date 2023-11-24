@@ -117,7 +117,6 @@ struct Scene
     dgm::SpatialIndex<EntityIndexType> spatialIndex;
     DistanceIndex distanceIndex;
     std::vector<sf::Vector2f> spawns;
-    std::string mapname;
 };
 
 // TODO: move somewhere else

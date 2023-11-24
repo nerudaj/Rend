@@ -1,5 +1,5 @@
 #include <core/Constants.hpp>
-#include <core/EntityTraits.hpp>
+#include <core/EntityDefinitions.hpp>
 #include <utils/Hitscanner.hpp>
 
 HitscanResult Hitscanner::hitscan(
@@ -58,8 +58,9 @@ std::optional<EntityIndexType> Hitscanner::findHitInCandidates(
                                   { return idx != idxToIgnore; })
              | std::views::transform(candidateToIdxAndEntity))
     {
-
-        if (isDestructible(entity.typeId)
+        const bool isDestructible =
+            ENTITY_PROPERTIES.at(entity.typeId).traits & Trait::Destructible;
+        if (isDestructible
             && dgm::Math::hasIntersection(aimLine, entity.hitbox))
         {
             const float distance = dgm::Math::getSize(

@@ -224,6 +224,32 @@ enum class EntityType
     Decal
 };
 
+enum class Trait
+{
+    None = 0,
+    Solid = 0b1,
+    Destructible = 0b10,
+    Directional = 0b100,
+    Projectile = 0b1000,
+    Bouncy = 0b10000,
+    Explosive = 0b100000,
+    Pickable = 0b1000000,
+    PowerItem = 0b10000000,
+    WeaponPickup = 0b100000000,
+};
+
+constexpr Trait operator|(Trait a, Trait b)
+{
+    using T = std::underlying_type_t<Trait>;
+    return static_cast<Trait>(static_cast<T>(a) | static_cast<T>(b));
+}
+
+constexpr bool operator&(Trait base, Trait question)
+{
+    using T = std::underlying_type_t<Trait>;
+    return static_cast<T>(base) & static_cast<T>(question);
+}
+
 enum class AmmoType
 {
     Bullets = 0,

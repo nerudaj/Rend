@@ -1,6 +1,5 @@
 #include "engine/RenderingEngine.hpp"
 #include "utils/VertexArrayBuilder.hpp"
-#include <core/EntityTraits.hpp>
 #include <numbers>
 #include <utils/GameLogicHelpers.hpp>
 
@@ -379,8 +378,10 @@ RenderingEngine::getFilteredAndOrderedThingsToRender(
         auto&& thing = scene.things[id];
 
         const auto& thingPosition = thing.hitbox.getPosition() / W;
+        const bool isDirectional =
+            ENTITY_PROPERTIES.at(thing.typeId).traits & Trait::Directional;
         const auto [textureId, flipTexture] =
-            isDirectional(thing.typeId)
+            isDirectional
                 ? getRotatedSpriteClipId(
                     cameraDirection,
                     -thing.direction,

@@ -2,6 +2,7 @@
 
 #include "core/Scene.hpp"
 #include <DGM/DGM.hpp>
+#include <core/EntityDefinitionTypes.hpp>
 #include <events/EventQueue.hpp>
 
 import Memory;
@@ -19,8 +20,16 @@ public: // Visiting on thing types
     void update(const float deltaTime);
 
 private:
-    void handlePlayer(Entity& thing, const float deltaTime);
-    void handleProjectile(Entity& thing, std::size_t id, float deltaTime);
+    void handlePlayer(
+        const EntityProperties& properties,
+        Entity& thing,
+        const float deltaTime);
+
+    void handleProjectile(
+        const EntityProperties& properties,
+        Entity& thing,
+        std::size_t id,
+        float deltaTime);
 
 private:
     Scene& scene;

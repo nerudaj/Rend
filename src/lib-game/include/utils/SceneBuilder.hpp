@@ -11,8 +11,7 @@ import Options;
 class SceneBuilder
 {
 public:
-    [[nodiscard]] static Scene
-    buildScene(const LevelD& level, const GameOptions& settings);
+    [[nodiscard]] static Scene buildScene(const LevelD& level);
 
     [[nodiscard]] static Entity createPlayer(
         const Position& position,

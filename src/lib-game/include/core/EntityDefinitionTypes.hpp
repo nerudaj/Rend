@@ -34,8 +34,7 @@ struct EntityProperties
 {
     float radius = 0_px;
     float speed = 0.f;
-    bool isExplosive = false;
-    bool isBouncy = false;        // only considered for projectiles
+    Trait traits = Trait::None;
     float explosionRadius = 0_px; // only considered for explosives
     const std::string specialSound =
         "";         // sounds related to game rules, like pickups or bounces

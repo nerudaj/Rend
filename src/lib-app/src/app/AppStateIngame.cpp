@@ -46,7 +46,7 @@ AppStateIngame::AppStateIngame(
     , audioPlayer(_audioPlayer)
     , launchedFromEditor(launchedFromEditor)
     , inputs(createInputs(_app.window.getWindowContext(), gameSettings))
-    , scene(SceneBuilder::buildScene(level, gameSettings))
+    , scene(SceneBuilder::buildScene(level))
     , aiEngine(scene)
     , animationEngine(scene, eventQueue)
     , audioEngine(resmgr, audioPlayer, scene)

@@ -106,7 +106,7 @@ createSpatialIndex(const LevelD& level)
     return result;
 }
 
-Scene SceneBuilder::buildScene(const LevelD& level, const GameOptions& settings)
+Scene SceneBuilder::buildScene(const LevelD& level)
 {
     const auto bottomMesh = Builder::buildMeshFromLvd(level, 0);
 
@@ -118,8 +118,7 @@ Scene SceneBuilder::buildScene(const LevelD& level, const GameOptions& settings)
                                   Builder::buildMeshFromLvd(level, 1) },
                    .spatialIndex = createSpatialIndex(level),
                    .distanceIndex = DistanceIndex(bottomMesh),
-                   .spawns = createSpawns(level),
-                   .mapname = "TODO: remove" };
+                   .spawns = createSpawns(level) };
 }
 
 Entity SceneBuilder::createPlayer(

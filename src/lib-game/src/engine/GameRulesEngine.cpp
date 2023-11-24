@@ -1,7 +1,6 @@
 #include "engine/GameRulesEngine.hpp"
 #include "events/EventQueue.hpp"
 #include <core/EntityDefinitions.hpp>
-#include <core/EntityTraits.hpp>
 #include <utils/GameLogicHelpers.hpp>
 #include <utils/SceneBuilder.hpp>
 
@@ -31,24 +30,28 @@ void GameRulesEngine::operator()(const ProjectileDestroyedGameEvent& e)
 {
     const auto& projectile = scene.things[e.entityIndex];
     const auto& DEF = ENTITY_PROPERTIES.at(projectile.typeId);
+    const bool isExplosive = DEF.traits & Trait::Explosive;
     const auto hitbox =
-        DEF.isExplosive
+        isExplosive
+
             ? dgm::Circle(projectile.hitbox.getPosition(), DEF.explosionRadius)
             : projectile.hitbox;
 
     // Damage all destructibles in vicinity
     for (auto&& [candidateId, candidate] : getOverlapCandidates(hitbox))
     {
-        if (isDestructible(candidate.typeId)
-            && dgm::Collision::basic(hitbox, candidate.hitbox))
+        bool isDestructible =
+            ENTITY_PROPERTIES.at(candidate.typeId).traits & Trait::Destructible;
+
+        if (isDestructible && dgm::Collision::basic(hitbox, candidate.hitbox))
         {
-            const int damageAmount = DEF.isExplosive ? static_cast<int>(
+            const int damageAmount = isExplosive ? static_cast<int>(
                                          DEF.damage
                                          / std::pow(
                                              getNormalizedDistanceToEpicenter(
                                                  candidate.hitbox, hitbox),
                                              2.f))
-                                                     : DEF.damage;
+                                                 : DEF.damage;
             assert(damageAmount > 0);
 
             damage(
@@ -248,7 +251,8 @@ void GameRulesEngine::handlePlayer(Entity& thing, std::size_t idx)
 
     for (auto&& [candidateId, candidate] : getOverlapCandidates(thing.hitbox))
     {
-        if (isPickable(candidate.typeId)
+        const auto& def = ENTITY_PROPERTIES.at(candidate.typeId);
+        if (def.traits & Trait::Pickable
             && dgm::Collision::basic(thing.hitbox, candidate.hitbox))
         {
             handleGrabbedPickable(
@@ -323,15 +327,11 @@ void GameRulesEngine::handleGrabbedPickable(
     Entity pickup,
     std::size_t pickupId)
 {
-    if (give(entity, inventory, pickup.typeId)
-        && !isWeaponPickable(pickup.typeId))
+    if (give(entity, inventory, pickup.typeId))
     {
         eventQueue->emplace<PickablePickedUpGameEvent>(pickupId);
-
-        if (inventory.ownerIdx == scene.cameraAnchorIdx)
-            eventQueue->emplace<SoundTriggeredAudioEvent>(
-                ENTITY_PROPERTIES.at(pickup.typeId).specialSound,
-                entity.stateIdx);
+        eventQueue->emplace<SoundTriggeredAudioEvent>(
+            ENTITY_PROPERTIES.at(pickup.typeId).specialSound, entity.stateIdx);
     }
 }
 
@@ -401,10 +401,10 @@ bool GameRulesEngine::give(
     case PickupCrossbow:
     case PickupLauncher:
     case PickupBallista: {
-        const auto ammoIndex = ammoTypeToAmmoIndex(def.ammoType);
         const auto index = weaponPickupToIndex(pickupType);
         if (inventory.acquiredWeapons[index]) return false;
-        give(entity, inventory, ammoTypeToPickupType(def.ammoType));
+        std::ignore =
+            give(entity, inventory, ammoTypeToPickupType(def.ammoType));
         inventory.acquiredWeapons[index] = true;
         return false;
     }
@@ -460,7 +460,7 @@ void GameRulesEngine::removeEntity(std::size_t index)
 
 #endif
 
-    EntityIndexType effectIdx;
+    EntityIndexType effectIdx = 0;
     if (DEF.debrisEffectType != EntityType::None)
     {
         effectIdx = scene.things.emplaceBack(SceneBuilder::createEffect(
@@ -521,6 +521,8 @@ sf::Vector2f GameRulesEngine::getBestSpawnDirection(
     return dgm::Math::toUnit(
         scene.spatialIndex.getBoundingBox().getCenter() - spawnPosition);
 }
+
+#pragma endregion
 
 void GameRulesEngine::firePellets(
     int amount,
@@ -600,5 +602,3 @@ void GameRulesEngine::fireRay(
             scene.tick));
     }
 }
-
-#pragma endregion
