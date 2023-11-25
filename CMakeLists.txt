@@ -32,6 +32,7 @@ add_subdirectory ( "src/lib-editor" )
 add_subdirectory ( "src/lib-game" )
 add_subdirectory ( "src/lib-app" )
 add_subdirectory ( "src/bin" )
+add_subdirectory ( "src/demo-ordered-dither" )
 
 if ( NOT ${DISABLE_TESTING} )
 	add_subdirectory ( "src/tests" )
