@@ -95,6 +95,7 @@ private:
     sf::RectangleShape skyboxSprite;
     dgm::Clip weaponClipping;
     const sf::Shader& shader;
+    const sf::Texture& noiseTexture;
     sf::Text text;
     DrawableLevel drawableLevel;
     Raycaster caster;

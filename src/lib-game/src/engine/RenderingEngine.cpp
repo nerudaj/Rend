@@ -54,6 +54,7 @@ RenderingEngine::RenderingEngine(
           settings.HEIGHT))
     , weaponClipping(resmgr.get<dgm::Clip>("weapons.png.clip").value().get())
     , shader(resmgr.get<sf::Shader>("shader").value().get())
+    , noiseTexture(resmgr.get<sf::Texture>("noise2.png").value().get())
     , text(RenderContextBuilder::createTextObject(
           resmgr.get<sf::Font>("pico-8.ttf").value().get(),
           32u,
