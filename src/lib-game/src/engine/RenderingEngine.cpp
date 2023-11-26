@@ -66,8 +66,8 @@ RenderingEngine::RenderingEngine(
     , depthBuffer(settings.WIDTH)
 {
     ditheredShader.setUniform("noise", noiseTexture);
-    ditheredShader.setUniform(
-        "shadeColor", sf::Glsl::Vec4(sf::Color(29, 43, 83)));
+    // 29, 43, 83
+    ditheredShader.setUniform("shadeColor", sf::Glsl::Vec4(sf::Color(0, 0, 0)));
     ditheredShader.setUniform(
         "resolution", sf::Glsl::Vec2(settings.WIDTH, settings.HEIGHT));
 }
