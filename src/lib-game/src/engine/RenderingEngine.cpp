@@ -54,6 +54,8 @@ RenderingEngine::RenderingEngine(
           settings.HEIGHT))
     , weaponClipping(resmgr.get<dgm::Clip>("weapons.png.clip").value().get())
     , shader(resmgr.get<sf::Shader>("shader").value().get())
+    , ditheredShader(
+          resmgr.getMutable<sf::Shader>("ditheredShader").value().get())
     , noiseTexture(resmgr.get<sf::Texture>("noise2.png").value().get())
     , text(RenderContextBuilder::createTextObject(
           resmgr.get<sf::Font>("pico-8.ttf").value().get(),
@@ -63,6 +65,11 @@ RenderingEngine::RenderingEngine(
     , caster(scene.level.bottomMesh.getVoxelSize())
     , depthBuffer(settings.WIDTH)
 {
+    ditheredShader.setUniform("noise", noiseTexture);
+    ditheredShader.setUniform(
+        "shadeColor", sf::Glsl::Vec4(sf::Color(29, 43, 83)));
+    ditheredShader.setUniform(
+        "resolution", sf::Glsl::Vec2(settings.WIDTH, settings.HEIGHT));
 }
 
 void RenderingEngine::update(const float deltaTime)
@@ -271,7 +278,7 @@ void RenderingEngine::renderLevelMesh(
 
     sf::RenderStates states;
     states.texture = &tilesetTexture;
-    states.shader = &shader;
+    states.shader = useDitheredShader ? &ditheredShader : &shader;
     window.getWindowContext().draw(quads, states);
 }
 
@@ -320,7 +327,7 @@ void RenderingEngine::renderSprites(
 
     sf::RenderStates states;
     states.texture = &spritesheetTexture;
-    states.shader = &shader;
+    states.shader = useDitheredShader ? &ditheredShader : &shader;
     window.getWindowContext().draw(quads, states);
 }
 

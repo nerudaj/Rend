@@ -37,10 +37,12 @@ void VertexObjectBuilder::makeFace(
     uint16_t left = face.leftHeight;
     uint16_t right = face.rightHeight;
 
-    auto light1 = sf::Color(left >> 8, left & 255, face.brightness, 0);
-    auto light2 = sf::Color(right >> 8, right & 255, face.brightness, 0);
+    auto light1 = sf::Color(left >> 8, left & 255, face.brightness, 0b00);
+    auto light2 = sf::Color(right >> 8, right & 255, face.brightness, 0b10);
+    auto light3 = sf::Color(right >> 8, right & 255, face.brightness, 0b11);
+    auto light4 = sf::Color(left >> 8, left & 255, face.brightness, 0b01);
 
-    // Upper triangle
+    // Upper triangle ABD
     quads.append(sf::Vertex(
         sf::Vector2f(static_cast<float>(face.leftColumn), leftHeightTop),
         light1,
@@ -51,13 +53,13 @@ void VertexObjectBuilder::makeFace(
         { rtx, tty }));
     quads.append(sf::Vertex(
         sf::Vector2f(static_cast<float>(face.leftColumn), leftHeightBottom),
-        light1,
+        light4,
         { ltx, bty }));
 
-    // Bottom triangle
+    // Bottom triangle DBC
     quads.append(sf::Vertex(
         sf::Vector2f(static_cast<float>(face.leftColumn), leftHeightBottom),
-        light1,
+        light4,
         { ltx, bty }));
     quads.append(sf::Vertex(
         sf::Vector2f(static_cast<float>(face.rightColumn), rightHeightTop),
@@ -65,7 +67,7 @@ void VertexObjectBuilder::makeFace(
         { rtx, tty }));
     quads.append(sf::Vertex(
         sf::Vector2f(static_cast<float>(face.rightColumn), rightHeightBottom),
-        light2,
+        light3,
         { rtx, bty }));
 }
 
@@ -80,7 +82,15 @@ void VertexObjectBuilder::makeFlat(
     const float rtx = static_cast<float>(clipRect.left + clipRect.width);
     const float tty = static_cast<float>(clipRect.top);
     const float bty = static_cast<float>(clipRect.top + clipRect.height);
-    auto light = sf::Color(flat.brightness, flat.brightness, flat.brightness);
+
+    const auto light1 =
+        sf::Color(flat.brightness, flat.brightness, flat.brightness, 0b00);
+    const auto light2 =
+        sf::Color(flat.brightness, flat.brightness, flat.brightness, 0b10);
+    const auto light3 =
+        sf::Color(flat.brightness, flat.brightness, flat.brightness, 0b11);
+    const auto light4 =
+        sf::Color(flat.brightness, flat.brightness, flat.brightness, 0b01);
 
     const float h0 = midHeight - flat.vertices[0].y * flat.heightHint;
     const float h1 = midHeight - flat.vertices[1].y * flat.heightHint;
@@ -92,17 +102,17 @@ void VertexObjectBuilder::makeFlat(
 
     // Upper triangle
     quads.append(sf::Vertex(
-        sf::Vector2f { flat.vertices[0].x, h0 }, light, { ltx, tty }));
+        sf::Vector2f { flat.vertices[0].x, h0 }, light1, { ltx, tty }));
     quads.append(sf::Vertex(
-        sf::Vector2f { flat.vertices[1].x, h1 }, light, { rtx, tty }));
+        sf::Vector2f { flat.vertices[1].x, h1 }, light2, { rtx, tty }));
     quads.append(sf::Vertex(
-        sf::Vector2f { flat.vertices[2].x, h2 }, light, { rtx, bty }));
+        sf::Vector2f { flat.vertices[2].x, h2 }, light3, { rtx, bty }));
 
     // Bottom triangle
     quads.append(sf::Vertex(
-        sf::Vector2f { flat.vertices[0].x, h0 }, light, { ltx, tty }));
+        sf::Vector2f { flat.vertices[0].x, h0 }, light1, { ltx, tty }));
     quads.append(sf::Vertex(
-        sf::Vector2f { flat.vertices[2].x, h2 }, light, { rtx, bty }));
+        sf::Vector2f { flat.vertices[2].x, h2 }, light3, { rtx, bty }));
     quads.append(sf::Vertex(
-        sf::Vector2f { flat.vertices[3].x, h3 }, light, { ltx, bty }));
+        sf::Vector2f { flat.vertices[3].x, h3 }, light4, { ltx, bty }));
 }

@@ -5,7 +5,7 @@ constexpr LightType OUTSIDE_DAY_LIGHT_LEVEL = 224;
 constexpr LightType INSIDE_CORRIDOR_LIGHT_LEVEL = 96;
 constexpr LightType INSIDE_ROOM_LIGHT_LEVEL = 192;
 constexpr LightType ARTIFICIAL_LIGHT_SOURCE_LEVEL = 255;
-constexpr LightType LIGHT_DECAY_AMOUNT = 16;
+constexpr LightType LIGHT_DECAY_AMOUNT = 32;
 
 LightmapType LightmapBuilder::buildLightmap(
     const dgm::Mesh& bottom, const dgm::Mesh& upper, const LevelD& level)

@@ -30,6 +30,7 @@ public: // Must visit on all related events
     constexpr inline void operator()(const EventRenderToggle& e) noexcept
     {
         if (e.fpsDisplay) showFps = !showFps;
+        if (e.ditheredShader) useDitheredShader = !useDitheredShader;
         // if (e.topDownRender) debugRender = !debugRender;
     }
 
@@ -95,11 +96,13 @@ private:
     sf::RectangleShape skyboxSprite;
     dgm::Clip weaponClipping;
     const sf::Shader& shader;
+    sf::Shader& ditheredShader;
     const sf::Texture& noiseTexture;
     sf::Text text;
     DrawableLevel drawableLevel;
     Raycaster caster;
     FpsCounter fpsCounter;
     bool showFps = true;
+    bool useDitheredShader = true;
     std::vector<float> depthBuffer;
 };
