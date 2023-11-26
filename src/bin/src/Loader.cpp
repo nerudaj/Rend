@@ -86,6 +86,8 @@ void Loader::loadResources(
 
     THROW_ON_ERROR(resmgr.loadResource<sf::Shader>(
         rootDir / "shaders" / "shader", loadShader));
+    THROW_ON_ERROR(resmgr.loadResource<sf::Shader>(
+        rootDir / "shaders" / "ditheredShader", loadShader));
 }
 
 #undef THROW_ON_ERROR
