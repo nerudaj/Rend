@@ -1,50 +1,32 @@
 #include <core/Enums.hpp>
 #include <utils/LightmapBuilder.hpp>
 
-constexpr LightType OUTSIDE_DAY_LIGHT_LEVEL = 224;
-constexpr LightType INSIDE_CORRIDOR_LIGHT_LEVEL = 96;
-constexpr LightType INSIDE_ROOM_LIGHT_LEVEL = 192;
-constexpr LightType ARTIFICIAL_LIGHT_SOURCE_LEVEL = 255;
-constexpr LightType LIGHT_DECAY_AMOUNT = 32;
+constexpr LightType NATURAL_OUTDOOR_LIGHT_LEVEL = 255;
+constexpr LightType ARTIFICIAL_LIGHT_LEVEL = 192;
+constexpr LightType VERTICAL_LIGHT_DECAY_AMOUNT =
+    64; // anything that comes from tiles
+constexpr LightType HORIZONTAL_LIGHT_DECAY_AMOUNT =
+    32; // anything that comes from items
 
 LightmapType LightmapBuilder::buildLightmap(
     const dgm::Mesh& bottom, const dgm::Mesh& upper, const LevelD& level)
 {
     const auto& voxelSize = upper.getVoxelSize();
-    auto data = getDataWithBaseLightLevels(bottom, upper);
-    auto lightPointsToFloodFrom = getInitialLightSourceQueue(level, voxelSize);
+    const auto dataSize = bottom.getDataSize().x * bottom.getDataSize().y;
+    auto data = std::vector<LightType>(dataSize, 0);
 
-    while (!lightPointsToFloodFrom.empty())
-    {
-        auto front = lightPointsToFloodFrom.front();
-        lightPointsToFloodFrom.pop();
-
-        const auto index = front.y * voxelSize.x + front.x;
-
-        auto currentLevel = data.at(index);
-        if (0 == currentLevel || currentLevel >= front.lightLevel) continue;
-
-        data.at(index) = front.lightLevel;
-        const auto decayedLight =
-            static_cast<LightType>(front.lightLevel - LIGHT_DECAY_AMOUNT);
-        lightPointsToFloodFrom.push(LightPoint {
-            .x = front.x - 1, .y = front.y, .lightLevel = decayedLight });
-        lightPointsToFloodFrom.push(LightPoint {
-            .x = front.x + 1, .y = front.y, .lightLevel = decayedLight });
-        lightPointsToFloodFrom.push(LightPoint {
-            .x = front.x, .y = front.y - 1, .lightLevel = decayedLight });
-        lightPointsToFloodFrom.push(LightPoint {
-            .x = front.x, .y = front.y + 1, .lightLevel = decayedLight });
-    }
+    processLightPointQueue(
+        getTileBasedLightSources(bottom, upper), data, bottom, upper);
+    processLightPointQueue(
+        getItemBasedLightSources(level, voxelSize), data, bottom, upper);
 
     return LightmapType(data, bottom.getDataSize(), voxelSize);
 }
 
-std::vector<LightType> LightmapBuilder::getDataWithBaseLightLevels(
+std::queue<LightPoint> LightmapBuilder::getTileBasedLightSources(
     const dgm::Mesh& bottom, const dgm::Mesh& upper)
 {
-    const auto dataSize = bottom.getDataSize().x * bottom.getDataSize().y;
-    auto data = std::vector<LightType>(dataSize, 0);
+    std::queue<LightPoint> queue;
 
     // Set base levels
     for (MeshItrType y = 0, i = 0; y < bottom.getDataSize().y; ++y)
@@ -52,32 +34,33 @@ std::vector<LightType> LightmapBuilder::getDataWithBaseLightLevels(
         for (MeshItrType x = 0; x < bottom.getDataSize().y; ++x, ++i)
         {
             auto upperTileType = static_cast<TilesetMapping>(upper.at(x, y));
+            auto bottomTileType = static_cast<TilesetMapping>(bottom.at(x, y));
 
             if (upperTileType == TilesetMapping::CeilSky)
             {
-                data[i] = OUTSIDE_DAY_LIGHT_LEVEL;
-            }
-            else if (upperTileType == TilesetMapping::CeilHigh)
-            {
-                data[i] = INSIDE_ROOM_LIGHT_LEVEL;
+                queue.emplace(
+                    LightPoint { .x = x,
+                                 .y = y,
+                                 .lightLevel = NATURAL_OUTDOOR_LIGHT_LEVEL,
+                                 .decayAmount = VERTICAL_LIGHT_DECAY_AMOUNT });
             }
             else if (
-                static_cast<TilesetMapping>(bottom.at(x, y))
-                > TilesetMapping::CeilLow)
+                bottomTileType == TilesetMapping::FlatLight
+                || upperTileType == TilesetMapping::FlatLight)
             {
-                data[i] = 0; // inside wall
-            }
-            else
-            {
-                data[i] = INSIDE_CORRIDOR_LIGHT_LEVEL;
+                queue.emplace(
+                    LightPoint { .x = x,
+                                 .y = y,
+                                 .lightLevel = ARTIFICIAL_LIGHT_LEVEL,
+                                 .decayAmount = VERTICAL_LIGHT_DECAY_AMOUNT });
             }
         }
     }
 
-    return data;
+    return queue;
 }
 
-std::queue<LightPoint> LightmapBuilder::getInitialLightSourceQueue(
+std::queue<LightPoint> LightmapBuilder::getItemBasedLightSources(
     const LevelD& level, const sf::Vector2u& voxelSize)
 {
     std::queue<LightPoint> queue;
@@ -91,7 +74,8 @@ std::queue<LightPoint> LightmapBuilder::getInitialLightSourceQueue(
             queue.push(
                 LightPoint { .x = thing.x / voxelSize.x,
                              .y = thing.y / voxelSize.y,
-                             .lightLevel = ARTIFICIAL_LIGHT_SOURCE_LEVEL });
+                             .lightLevel = ARTIFICIAL_LIGHT_LEVEL,
+                             .decayAmount = HORIZONTAL_LIGHT_DECAY_AMOUNT });
             break;
         default:
             break;
@@ -99,4 +83,47 @@ std::queue<LightPoint> LightmapBuilder::getInitialLightSourceQueue(
     }
 
     return queue;
+}
+
+void LightmapBuilder::processLightPointQueue(
+    std::queue<LightPoint> queue,
+    std::vector<LightType>& data,
+    const dgm::Mesh& bottom,
+    const dgm::Mesh& upper)
+{
+
+    while (!queue.empty())
+    {
+        auto front = queue.front();
+        queue.pop();
+
+        const auto index = front.y * bottom.getDataSize().x + front.x;
+
+        auto currentLevel = data.at(index);
+        if ((bottom[index] > 4 && upper[index] > 4)
+            || currentLevel > front.lightLevel)
+            continue;
+
+        data.at(index) = front.lightLevel;
+        if (front.lightLevel < front.decayAmount) continue;
+
+        const auto decayedLight =
+            static_cast<LightType>(front.lightLevel - front.decayAmount);
+        queue.push(LightPoint { .x = front.x - 1,
+                                .y = front.y,
+                                .lightLevel = decayedLight,
+                                .decayAmount = front.decayAmount });
+        queue.push(LightPoint { .x = front.x + 1,
+                                .y = front.y,
+                                .lightLevel = decayedLight,
+                                .decayAmount = front.decayAmount });
+        queue.push(LightPoint { .x = front.x,
+                                .y = front.y - 1,
+                                .lightLevel = decayedLight,
+                                .decayAmount = front.decayAmount });
+        queue.push(LightPoint { .x = front.x,
+                                .y = front.y + 1,
+                                .lightLevel = decayedLight,
+                                .decayAmount = front.decayAmount });
+    }
 }

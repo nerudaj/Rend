@@ -7,11 +7,11 @@
 
 enum class TilesetMapping
 {
-    Floor1,
-    Floor2,
+    Flat1,
+    Flat2,
     CeilLow,
     CeilSky,
-    CeilHigh,
+    FlatLight,
     Crate1,
     Crate2,
     Wall1,
