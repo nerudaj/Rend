@@ -81,6 +81,8 @@ int main(int argc, char* argv[])
         .useFullscreen = settings->display.isFullscreen
     };
 
+    tgui::Texture::setDefaultSmooth(false);
+
     dgm::Window window(windowSettings);
     window.getWindowContext().setFramerateLimit(60);
 
