@@ -1,5 +1,5 @@
+#include <builder/LightmapBuilder.hpp>
 #include <core/Enums.hpp>
-#include <utils/LightmapBuilder.hpp>
 
 constexpr LightType NATURAL_OUTDOOR_LIGHT_LEVEL = 255;
 constexpr LightType ARTIFICIAL_LIGHT_LEVEL = 192;

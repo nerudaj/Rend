@@ -168,7 +168,6 @@ private: // fsm updates
 private:
     Scene& scene;
     Hitscanner hitscanner;
-    dgm::WorldNavMesh navmesh;
     dgm::fsm::Fsm<AiTopState, AiBlackboard> fsmTop;
     dgm::fsm::Fsm<AiState, AiBlackboard, Entity, PlayerInventory> fsmAlive;
     dgm::fsm::Fsm<AiState, AiBlackboard> fsmDead;

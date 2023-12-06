@@ -14,7 +14,4 @@ public:
 
     [[nodiscard]] static sf::Text
     createTextObject(const sf::Font& font, unsigned charSize, sf::Color color);
-
-    [[nodiscard]] static DrawableLevel
-    buildLevelRepresentation(const LevelD& level);
 };

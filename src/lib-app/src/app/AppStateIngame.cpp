@@ -1,10 +1,10 @@
 #include "app/AppStateIngame.hpp"
 #include "app/AppStatePaused.hpp"
 #include "app/AppStateWinnerAnnounced.hpp"
+#include <builder/SceneBuilder.hpp>
 #include <events/EventQueue.hpp>
 #include <input/NullController.hpp>
 #include <input/PhysicalController.hpp>
-#include <utils/SceneBuilder.hpp>
 
 [[nodiscard]] static std::vector<mem::Rc<ControllerInterface>> createInputs(
     const sf::Window& window,
@@ -53,23 +53,22 @@ AppStateIngame::AppStateIngame(
           gameSettings,
           settings->input.mouseSensitivity))
     , scene(SceneBuilder::buildScene(level))
-    , aiEngine(scene)
-    , animationEngine(scene, eventQueue)
-    , audioEngine(resmgr, audioPlayer, scene)
-    , gameRulesEngine(scene, eventQueue)
-    , physicsEngine(scene, eventQueue)
-    , renderingEngine(renderSettings, *resmgr, level, scene)
+    , gameLoop(scene, eventQueue, resmgr, audioPlayer, getRenderSettings())
     , demoFileHandler(
           settings->cmdSettings.demoFile,
           settings->cmdSettings.playDemo ? DemoFileMode::Read
                                          : DemoFileMode::Write)
     , camera(
           sf::FloatRect(0.f, 0.f, 1.f, 1.f),
-          sf::Vector2f(
-              sf::Vector2u(renderSettings.WIDTH, renderSettings.HEIGHT)))
+          sf::Vector2f(sf::Vector2u(
+              settings->display.resolution.width,
+              settings->display.resolution.height)))
 {
     app.window.getWindowContext().setFramerateLimit(60);
-    camera.setPosition(renderSettings.WIDTH / 2.f, renderSettings.HEIGHT / 2.f);
+    // TODO: remove with newer camera
+    camera->setPosition(
+        settings->display.resolution.width / 2,
+        settings->display.resolution.height / 2);
     lockMouse();
     createPlayers();
 }
@@ -160,9 +159,8 @@ void AppStateIngame::update()
 
 void AppStateIngame::draw()
 {
-    app.window.getWindowContext().setView(camera.getCurrentView());
-    renderingEngine.renderWorldTo(app.window);
-    renderingEngine.renderHudTo(app.window);
+    app.window.getWindowContext().setView(camera->getCurrentView());
+    gameLoop->renderTo(app.window);
 }
 
 void AppStateIngame::snapshotInputs(FrameState& state)
@@ -193,9 +191,7 @@ void AppStateIngame::simulateFrameFromState(
     const FrameState& state, bool skipAudio)
 {
     restoreState(state);
-    updateEngines();
-    processEvents(skipAudio);
-    gameRulesEngine.deleteMarkedObjects();
+    gameLoop->update(FRAME_TIME, skipAudio);
 }
 
 void AppStateIngame::restoreState(const FrameState& state)
@@ -218,51 +214,18 @@ void AppStateIngame::restoreState(const FrameState& state)
 
 void AppStateIngame::evaluateWinCondition()
 {
-    for (auto&& [_, inventory, __] : scene.playerStates)
+    if (gameLoop->isPointlimitReached(gameSettings.fraglimit))
     {
-        if (inventory.score >= static_cast<int>(gameSettings.fraglimit))
-        {
-            unlockMouse();
-            app.pushState<AppStateWinnerAnnounced>(
-                gui,
-                audioPlayer,
-                gameSettings,
-                scene.playerStates
-                    | std::views::transform([](const PlayerState& state)
-                                            { return state.inventory.score; })
-                    | std::ranges::to<std::vector<int>>());
-        }
+        unlockMouse();
+        app.pushState<AppStateWinnerAnnounced>(
+            gui,
+            audioPlayer,
+            gameSettings,
+            scene.playerStates
+                | std::views::transform([](const PlayerState& state)
+                                        { return state.inventory.score; })
+                | std::ranges::to<std::vector<int>>());
     }
-}
-
-void AppStateIngame::updateEngines()
-{
-    aiEngine.update(FRAME_TIME);
-    animationEngine.update(FRAME_TIME);
-    audioEngine.update(FRAME_TIME);
-    physicsEngine.update(FRAME_TIME);
-    gameRulesEngine.update(FRAME_TIME);
-    renderingEngine.update(FRAME_TIME);
-}
-
-void AppStateIngame::processEvents(bool skipAudio)
-{
-    // Animation, Physics and Game can produce GameEvent
-    eventQueue->processAndClear(animationEngine);
-    eventQueue->processAndClear(gameRulesEngine);
-
-    // Audio can only produce Audio events
-    if (skipAudio)
-    {
-        eventQueue->processAndClear(audioEngine);
-    }
-    else
-    {
-        eventQueue->clear<AudioEvent>();
-    }
-
-    // Rendering can only produce Rendering events
-    eventQueue->processAndClear(renderingEngine);
 }
 
 void AppStateIngame::backupState(FrameState& state)
@@ -291,10 +254,11 @@ void AppStateIngame::createPlayers()
 {
     for (PlayerStateIndexType i = 0; i < gameSettings.players.size(); ++i)
     {
-        auto spawnPosition = gameRulesEngine.getBestSpawnPosition();
+        auto spawnPosition = gameLoop->getRulesEngine().getBestSpawnPosition();
         auto idx = scene.things.emplaceBack(SceneBuilder::createPlayer(
             Position { spawnPosition },
-            Direction { gameRulesEngine.getBestSpawnDirection(spawnPosition) },
+            Direction { gameLoop->getRulesEngine().getBestSpawnDirection(
+                spawnPosition) },
             i));
         scene.playerStates.push_back(PlayerState {});
         scene.playerStates.back().inventory =
@@ -310,13 +274,14 @@ void AppStateIngame::createPlayers()
 
 void AppStateIngame::propagateSettings()
 {
-    /*
-    * requires new version of dgm-lib
-    camera = dgm::Camera(
+    camera = mem::Box<dgm::Camera>(
         sf::FloatRect(0.f, 0.f, 1.f, 1.f),
         sf::Vector2f(sf::Vector2u(
             settings->display.resolution.width,
-            settings->display.resolution.height)));*/
+            settings->display.resolution.height)));
+    camera->setPosition(
+        settings->display.resolution.width / 2,
+        settings->display.resolution.height / 2);
 
     for (std::size_t idx = 0; idx < gameSettings.players.size(); idx++)
     {
@@ -326,4 +291,7 @@ void AppStateIngame::propagateSettings()
                 settings->input.mouseSensitivity);
         }
     }
+
+    gameLoop = mem::Box<GameLoop>(
+        scene, eventQueue, resmgr, audioPlayer, getRenderSettings());
 }

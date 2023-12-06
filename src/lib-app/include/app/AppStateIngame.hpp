@@ -8,6 +8,7 @@
 #include "engine/PhysicsEngine.hpp"
 #include "engine/RenderingEngine.hpp"
 #include <DGM/dgm.hpp>
+#include <GameLoop.hpp>
 #include <LevelD.hpp>
 #include <TGUI/Backend/SFML-Graphics.hpp>
 #include <TGUI/TGUI.hpp>
@@ -84,6 +85,14 @@ private:
 
     void propagateSettings();
 
+    [[nodiscard]] RenderSettings getRenderSettings() const noexcept
+    {
+        return RenderSettings { .WIDTH = settings->display.resolution.width,
+                                .HEIGHT = settings->display.resolution.height,
+                                .useDitheredShadows =
+                                    settings->display.useDitheredShadows };
+    }
+
 protected:
     mem::Rc<const dgm::ResourceManager> resmgr;
     mem::Rc<tgui::Gui> gui;
@@ -96,13 +105,7 @@ protected:
     std::vector<mem::Rc<ControllerInterface>> inputs;
     Scene scene;
     RoundRobinBuffer<FrameState, 10> stateBuffer;
-    AiEngine aiEngine;
-    AnimationEngine animationEngine;
-    AudioEngine audioEngine;
-    GameRulesEngine gameRulesEngine;
-    PhysicsEngine physicsEngine;
-    RenderSettings renderSettings = {};
-    RenderingEngine renderingEngine;
+    mem::Box<GameLoop> gameLoop;
     DemoFileHandler demoFileHandler;
-    dgm::Camera camera;
+    mem::Box<dgm::Camera> camera;
 };

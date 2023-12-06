@@ -4,7 +4,6 @@
 #include "events/RenderingEvents.hpp"
 #include "render/FpsCounter.hpp"
 #include "render/Raycaster.hpp"
-#include "render/RenderContext.hpp"
 #include <DGM/DGM.hpp>
 #include <LevelD.hpp>
 
@@ -15,6 +14,7 @@ struct RenderSettings
     const float FOV = 0.66f;
     const unsigned WIDTH = 1280;
     const unsigned HEIGHT = 720;
+    const bool useDitheredShadows = false;
 };
 
 class RenderingEngine final
@@ -23,7 +23,6 @@ public:
     [[nodiscard]] RenderingEngine(
         const RenderSettings& settings,
         const dgm::ResourceManager& resmgr,
-        const LevelD& level,
         Scene& scene);
 
 public: // Must visit on all related events
@@ -37,9 +36,7 @@ public: // Must visit on all related events
 public:
     void update(const float deltaTime);
 
-    void renderWorldTo(dgm::Window& window);
-
-    void renderHudTo(dgm::Window& window);
+    void renderTo(dgm::Window& window);
 
 private:
     void render3d(dgm::Window& window);
@@ -99,7 +96,6 @@ private:
     sf::Shader& ditheredShader;
     const sf::Texture& noiseTexture;
     sf::Text text;
-    DrawableLevel drawableLevel;
     Raycaster caster;
     FpsCounter fpsCounter;
     bool showFps = true;

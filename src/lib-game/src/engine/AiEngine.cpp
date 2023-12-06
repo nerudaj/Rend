@@ -24,7 +24,6 @@ const std::map<AiState, std::string> AI_STATE_TO_STRING = {
 AiEngine::AiEngine(Scene& scene)
     : scene(scene)
     , hitscanner(scene)
-    , navmesh(scene.level.bottomMesh)
     , fsmTop(createTopFsm(*this))
     , fsmAlive(createAliveFsm(*this))
     , fsmDead(createDeadFsm(*this))
@@ -254,7 +253,7 @@ void AiEngine::pickJumpPoint(
     if (bestPosition.x == 0.f && bestPosition.y == 0.f) return;
 
     const auto& path =
-        navmesh.getPath(player.hitbox.getPosition(), bestPosition);
+        scene.navmesh.getPath(player.hitbox.getPosition(), bestPosition);
     if (path.isTraversed()) return;
     blackboard.nextStop = path.getCurrentPoint().coord;
 }
@@ -311,7 +310,7 @@ bool AiEngine::isEnemyVisible(
 bool AiEngine::isJumpPointReached(
     const AiBlackboard& blackboard,
     const Entity& player,
-    const PlayerInventory& inventory) const noexcept
+    const PlayerInventory&) const noexcept
 {
     return dgm::Math::getSize(player.hitbox.getPosition() - blackboard.nextStop)
            < AI_MAX_POSITION_ERROR;

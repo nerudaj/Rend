@@ -1,8 +1,8 @@
 #include "engine/GameRulesEngine.hpp"
 #include "events/EventQueue.hpp"
+#include <builder/SceneBuilder.hpp>
 #include <core/EntityDefinitions.hpp>
 #include <utils/GameLogicHelpers.hpp>
-#include <utils/SceneBuilder.hpp>
 
 #pragma region EventHandling
 

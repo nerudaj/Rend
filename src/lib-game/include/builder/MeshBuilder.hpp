@@ -3,7 +3,7 @@
 #include <DGM/dgm.hpp>
 #include <LevelD.hpp>
 
-class Builder
+class MeshBuilder
 {
 public:
     [[nodiscard]] static dgm::Mesh

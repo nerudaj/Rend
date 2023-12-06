@@ -1,4 +1,4 @@
-#include "utils/VertexArrayBuilder.hpp"
+#include <builder/VertexArrayBuilder.hpp>
 
 void VertexObjectBuilder::makeFace(
     sf::VertexArray& quads,
@@ -34,8 +34,8 @@ void VertexObjectBuilder::makeFace(
     // Removes some visual artifacts
     if (leftHeightBottom < 0.f && rightHeightBottom < 0.f) return;
 
-    uint16_t left = face.leftHeight;
-    uint16_t right = face.rightHeight;
+    uint16_t left = static_cast<uint16_t>(face.leftHeight);
+    uint16_t right = static_cast<uint16_t>(face.rightHeight);
 
     auto light1 = sf::Color(left >> 8, left & 255, face.brightness, 0b00);
     auto light2 = sf::Color(right >> 8, right & 255, face.brightness, 0b10);

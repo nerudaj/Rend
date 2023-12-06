@@ -1,11 +1,12 @@
 #include <DGM/dgm.hpp>
 #include <LevelD.hpp>
+#include <builder/LightmapBuilder.hpp>
+#include <builder/MeshBuilder.hpp>
+#include <builder/SceneBuilder.hpp>
 #include <core/Constants.hpp>
 #include <core/EntityDefinitions.hpp>
 #include <input/NullController.hpp>
 #include <tuple>
-#include <utils/Builder.hpp>
-#include <utils/SceneBuilder.hpp>
 
 static inline const sf::FloatRect FULLSCREEN_VIEWPORT = { 0.f, 0.f, 1.f, 1.f };
 
@@ -106,19 +107,48 @@ createSpatialIndex(const LevelD& level)
     return result;
 }
 
+[[nodiscard]] dgm::WorldNavMesh
+createNavMesh(dgm::Mesh collisionMesh, dgm::DynamicBuffer<Entity>& things)
+{
+    for (auto&& [thing, _] : things)
+    {
+        auto& def = ENTITY_PROPERTIES.at(thing.typeId);
+        if (def.traits & Trait::Solid)
+        {
+            collisionMesh.at(
+                sf::Vector2u(thing.hitbox.getPosition())
+                / collisionMesh.getVoxelSize().x) = 1;
+        }
+    }
+
+    return dgm::WorldNavMesh(collisionMesh);
+}
+
 Scene SceneBuilder::buildScene(const LevelD& level)
 {
-    const auto bottomMesh = Builder::buildMeshFromLvd(level, 0);
+    auto things = createThingsBuffer(level);
+    const auto bottomMesh = MeshBuilder::buildMeshFromLvd(level, 0);
+    auto navmesh = createNavMesh(bottomMesh, things);
+    const auto bottomTextureMesh =
+        MeshBuilder::buildTextureMeshFromLvd(level, 0);
+    const auto upperTextureMesh =
+        MeshBuilder::buildTextureMeshFromLvd(level, 1);
 
-    return Scene { .things = createThingsBuffer(level),
-                   .level = { .width = level.mesh.layerWidth,
-                              .heightHint = level.mesh.layerHeight,
-                              .bottomMesh = bottomMesh,
-                              .upperMesh =
-                                  Builder::buildMeshFromLvd(level, 1) },
-                   .spatialIndex = createSpatialIndex(level),
-                   .distanceIndex = DistanceIndex(bottomMesh),
-                   .spawns = createSpawns(level) };
+    return Scene {
+        .things = std::move(things),
+        .level = { .width = level.mesh.layerWidth,
+                   .heightHint = level.mesh.layerHeight,
+                   .bottomMesh = bottomMesh,
+                   .upperMesh = MeshBuilder::buildMeshFromLvd(level, 1) },
+        .drawableLevel = { .bottomTextures = bottomTextureMesh,
+                           .upperTextures = upperTextureMesh,
+                           .lightmap = LightmapBuilder::buildLightmap(
+                               bottomTextureMesh, upperTextureMesh, level) },
+        .spatialIndex = createSpatialIndex(level),
+        .distanceIndex = DistanceIndex(bottomMesh),
+        .spawns = createSpawns(level),
+        .navmesh = std::move(navmesh)
+    };
 }
 
 Entity SceneBuilder::createPlayer(

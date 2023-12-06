@@ -1,5 +1,6 @@
 #include "engine/RenderingEngine.hpp"
-#include "utils/VertexArrayBuilder.hpp"
+#include "builder/VertexArrayBuilder.hpp"
+#include <builder/RenderContextBuilder.hpp>
 #include <numbers>
 #include <utils/GameLogicHelpers.hpp>
 
@@ -36,7 +37,6 @@
 RenderingEngine::RenderingEngine(
     const RenderSettings& settings,
     const dgm::ResourceManager& resmgr,
-    const LevelD& level,
     Scene& scene)
     : settings(settings)
     , scene(scene)
@@ -61,7 +61,6 @@ RenderingEngine::RenderingEngine(
           resmgr.get<sf::Font>("pico-8.ttf").value().get(),
           32u,
           sf::Color::White))
-    , drawableLevel(RenderContextBuilder::buildLevelRepresentation(level))
     , caster(scene.level.bottomMesh.getVoxelSize())
     , depthBuffer(settings.WIDTH)
 {
@@ -70,6 +69,7 @@ RenderingEngine::RenderingEngine(
     ditheredShader.setUniform("shadeColor", sf::Glsl::Vec4(sf::Color(0, 0, 0)));
     ditheredShader.setUniform(
         "resolution", sf::Glsl::Vec2(settings.WIDTH, settings.HEIGHT));
+    useDitheredShader = settings.useDitheredShadows;
 }
 
 void RenderingEngine::update(const float deltaTime)
@@ -81,9 +81,7 @@ void RenderingEngine::update(const float deltaTime)
         255.f);
 }
 
-void RenderingEngine::renderWorldTo(dgm::Window&) {}
-
-void RenderingEngine::renderHudTo(dgm::Window& window)
+void RenderingEngine::renderTo(dgm::Window& window)
 {
     auto&& pov = scene.things[scene.cameraAnchorIdx];
 
@@ -199,9 +197,9 @@ void RenderingEngine::renderLevelMesh(
     auto getFlatTexture = [&](unsigned tileId, float heightHint)
     {
         if (heightHint < 0.f)
-            return drawableLevel.bottomTextures[tileId];
+            return scene.drawableLevel.bottomTextures[tileId];
         else if (heightHint > 1.f)
-            return drawableLevel.upperTextures[tileId];
+            return scene.drawableLevel.upperTextures[tileId];
         return static_cast<int>(TilesetMapping::CeilLow);
     };
 
@@ -223,10 +221,10 @@ void RenderingEngine::renderLevelMesh(
                 face.heightHint,
                 static_cast<uint8_t>(
                     face.heightHint > 0.f
-                        ? drawableLevel.upperTextures[face.tileId]
-                        : drawableLevel.bottomTextures[face.tileId]),
+                        ? scene.drawableLevel.upperTextures[face.tileId]
+                        : scene.drawableLevel.bottomTextures[face.tileId]),
                 static_cast<sf::Uint8>(
-                    drawableLevel.lightmap[face.neighboringTileId]) },
+                    scene.drawableLevel.lightmap[face.neighboringTileId]) },
             tilesetClipping);
     };
 
@@ -245,7 +243,7 @@ void RenderingEngine::renderLevelMesh(
                     getFlatTexture(flat.tileId, flat.heightHint)),
 
                 .brightness = static_cast<sf::Uint8>(
-                    drawableLevel.lightmap[flat.tileId]) },
+                    scene.drawableLevel.lightmap[flat.tileId]) },
             tilesetClipping);
     };
 
@@ -319,8 +317,9 @@ void RenderingEngine::renderSprites(
                 .rightTexHint = hints->second,
                 .heightHint = 0.f,
                 .textureId = static_cast<std::uint8_t>(thing.textureId),
-                .brightness = static_cast<sf::Uint8>(
-                    drawableLevel.lightmap.at(sf::Vector2u(thing.center))),
+                .brightness =
+                    static_cast<sf::Uint8>(scene.drawableLevel.lightmap.at(
+                        sf::Vector2u(thing.center))),
                 .flipTexture = thing.flipTexture },
             spritesheetClipping);
     }
@@ -334,9 +333,9 @@ void RenderingEngine::renderSprites(
 void RenderingEngine::renderAlivePlayerHud(
     dgm::Window& window, const Entity& player, const PlayerInventory& inventory)
 {
-    auto light = drawableLevel.lightmap.at(sf::Vector2u(
+    auto light = scene.drawableLevel.lightmap.at(sf::Vector2u(
         player.hitbox.getPosition()
-        / static_cast<float>(drawableLevel.lightmap.getVoxelSize().x)));
+        / static_cast<float>(scene.drawableLevel.lightmap.getVoxelSize().x)));
 
     weaponSprite.setTextureRect(weaponClipping.getFrame(
         static_cast<std::size_t>(inventory.animationContext.spriteClipIndex)));

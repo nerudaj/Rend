@@ -36,6 +36,7 @@ namespace Strings
             RAWSTRING INPUT = "input";
             RAWSTRING FULLSCREEN = "fullscreen";
             RAWSTRING SET_RESOLUTION = "set resolution";
+            RAWSTRING USE_DITHERED_SHADES = "dithered shadows";
             RAWSTRING SOUND_VOLUME = "sound volume";
             RAWSTRING MUSIC_VOLUME = "music volume";
             RAWSTRING MOUSE_SENSITIVITY = "mouse sensitivity";

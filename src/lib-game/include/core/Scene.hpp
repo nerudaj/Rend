@@ -8,6 +8,7 @@
 #include <core/Types.hpp>
 #include <input/AiController.hpp>
 #include <input/SimpleController.hpp>
+#include <render/DrawableLevel.hpp>
 #include <utils/DistanceIndex.hpp>
 #include <utils/SemanticTypes.hpp>
 
@@ -114,9 +115,11 @@ struct Scene
 
     // This doesn't have to be backed up
     Level level;
+    DrawableLevel drawableLevel;
     dgm::SpatialIndex<EntityIndexType> spatialIndex;
     DistanceIndex distanceIndex;
     std::vector<sf::Vector2f> spawns;
+    dgm::WorldNavMesh navmesh;
 };
 
 // TODO: move somewhere else

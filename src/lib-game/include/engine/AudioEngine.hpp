@@ -18,6 +18,9 @@ public:
     {
     }
 
+    AudioEngine(AudioEngine&&) = default;
+    AudioEngine(const AudioEngine&) = delete;
+
 public: // Must visit on all related events
     void operator()(const SoundTriggeredAudioEvent&);
 

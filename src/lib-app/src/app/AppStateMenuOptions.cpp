@@ -87,6 +87,15 @@ void AppStateMenuOptions::buildDisplayOptionsLayout(GuiOptionsBuilder2& builder)
 
                     // Force gui to update viewport and resolution
                     restoreFocus();
+                }))
+        .addOption(
+            Strings::AppState::Options::USE_DITHERED_SHADES,
+            WidgetCreator2::createCheckbox(
+                settings->display.useDitheredShadows,
+                [this](bool)
+                {
+                    settings->display.useDitheredShadows =
+                        !settings->display.useDitheredShadows;
                 }));
 }
 

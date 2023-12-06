@@ -1,9 +1,7 @@
-#include "render/RenderContext.hpp"
-#include "utils/Builder.hpp"
+#include "builder/RenderContextBuilder.hpp"
 #include <LevelD.hpp>
 #include <core/Enums.hpp>
 #include <queue>
-#include <utils/LightmapBuilder.hpp>
 
 sf::Text RenderContextBuilder::createTextObject(
     const sf::Font& font, unsigned charSize, sf::Color color)
@@ -14,17 +12,6 @@ sf::Text RenderContextBuilder::createTextObject(
     text.setFillColor(color);
     return text;
 };
-
-DrawableLevel
-RenderContextBuilder::buildLevelRepresentation(const LevelD& level)
-{
-    auto bottomMesh = Builder::buildTextureMeshFromLvd(level, 0);
-    auto upperMesh = Builder::buildTextureMeshFromLvd(level, 1);
-    return DrawableLevel { .bottomTextures = bottomMesh,
-                           .upperTextures = upperMesh,
-                           .lightmap = LightmapBuilder::buildLightmap(
-                               bottomMesh, upperMesh, level) };
-}
 
 sf::RectangleShape RenderContextBuilder::createWeaponSprite(
     const sf::Texture& texture,
