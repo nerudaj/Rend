@@ -131,8 +131,10 @@ void AppStateIngame::update()
         sf::Vector2i(app.window.getSize() / 2u), app.window.getWindowContext());
 
     const unsigned howMuchToUnroll =
-        9u; // Can be more, based on network latency
-    const unsigned startIndex = stateBuffer.getSize() - howMuchToUnroll;
+        10u; // Can be more, based on network latency
+    const unsigned startIndex = stateBuffer.getSize() < howMuchToUnroll
+                                    ? 0u
+                                    : stateBuffer.getSize() - howMuchToUnroll;
     // Excluding state pushed back earlier - that is the next
     // frame
     const unsigned endIndex = stateBuffer.getSize() - 1u;
