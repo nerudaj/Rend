@@ -98,14 +98,6 @@ void AppStateIngame::input()
                     app.pushState<AppStatePaused>(gui, audioPlayer, settings);
                 }
             }
-            else if (event.key.code == sf::Keyboard::F1)
-            {
-                eventQueue->emplace<EventRenderToggle>(false, true);
-            }
-            else if (event.key.code == sf::Keyboard::F2)
-            {
-                eventQueue->emplace<EventRenderToggle>(false, false, true);
-            }
             else if (event.key.code == sf::Keyboard::P)
             {
                 for (auto&& thing : scene.things)

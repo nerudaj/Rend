@@ -1,5 +1,6 @@
 #include "engine/RenderingEngine.hpp"
 #include "builder/VertexArrayBuilder.hpp"
+#include <Configs/Strings.hpp>
 #include <builder/RenderContextBuilder.hpp>
 #include <numbers>
 #include <utils/GameLogicHelpers.hpp>
@@ -42,34 +43,32 @@ RenderingEngine::RenderingEngine(
     , scene(scene)
     , tilesetTexture(resmgr.get<sf::Texture>("tileset.png").value().get())
     , tilesetClipping(resmgr.get<dgm::Clip>("tileset.png.clip").value().get())
-    , spritesheetTexture(resmgr.get<sf::Texture>("items.png").value().get())
-    , spritesheetClipping(resmgr.get<dgm::Clip>("items.png.clip").value().get())
+    , spritesheetTexture(resmgr.get<sf::Texture>("sprites.png").value().get())
+    , spritesheetClipping(
+          resmgr.get<dgm::Clip>("sprites.png.clip").value().get())
     , weaponSprite(RenderContextBuilder::createWeaponSprite(
           resmgr.get<sf::Texture>("weapons.png").value().get(),
-          settings.WIDTH,
-          settings.HEIGHT))
+          settings.width,
+          settings.height))
     , skyboxSprite(createSkybox(
           resmgr.get<sf::Texture>("skyboxes.png").value().get(),
-          settings.WIDTH,
-          settings.HEIGHT))
+          settings.width,
+          settings.height))
     , weaponClipping(resmgr.get<dgm::Clip>("weapons.png.clip").value().get())
-    , shader(resmgr.get<sf::Shader>("shader").value().get())
-    , ditheredShader(
-          resmgr.getMutable<sf::Shader>("ditheredShader").value().get())
-    , noiseTexture(resmgr.get<sf::Texture>("noise2.png").value().get())
+    , shader(resmgr.getMutable<sf::Shader>("shader").value().get())
+    , noiseTexture(resmgr.get<sf::Texture>("ditherNoise.png").value().get())
     , text(RenderContextBuilder::createTextObject(
           resmgr.get<sf::Font>("pico-8.ttf").value().get(),
           32u,
           sf::Color::White))
     , caster(scene.level.bottomMesh.getVoxelSize())
-    , depthBuffer(settings.WIDTH)
+    , depthBuffer(settings.width)
 {
-    ditheredShader.setUniform("noise", noiseTexture);
-    // 29, 43, 83
-    ditheredShader.setUniform("shadeColor", sf::Glsl::Vec4(sf::Color(0, 0, 0)));
-    ditheredShader.setUniform(
-        "resolution", sf::Glsl::Vec2(settings.WIDTH, settings.HEIGHT));
-    useDitheredShader = settings.useDitheredShadows;
+    shader.setUniform("noise", noiseTexture);
+    shader.setUniform("shadeColor", sf::Glsl::Vec4(sf::Color(0, 0, 0)));
+    shader.setUniform(
+        "resolution", sf::Glsl::Vec2(settings.width, settings.height));
+    shader.setUniform("ditherShadows", settings.useDitheredShadows);
 }
 
 void RenderingEngine::update(const float deltaTime)
@@ -85,10 +84,25 @@ void RenderingEngine::renderTo(dgm::Window& window)
 {
     auto&& pov = scene.things[scene.cameraAnchorIdx];
 
-    // Render skybox
-    const auto povAngle = dgm::Math::cartesianToPolar(pov.direction).angle;
-    const auto w2 = 2 * settings.WIDTH;
-    const auto renderPositionX = -povAngle * w2 / 180.f;
+    renderSkybox(window, dgm::Math::cartesianToPolar(pov.direction).angle);
+    renderWorld(window);
+    renderFps(window);
+
+    if (pov.typeId == EntityType::Player)
+    {
+        renderPlayerHud(
+            window, pov, scene.playerStates[pov.stateIdx].inventory);
+    }
+    else
+    {
+        renderRespawnPrompt(window);
+    }
+}
+
+void RenderingEngine::renderSkybox(dgm::Window& window, const float angle)
+{
+    const auto w2 = 2 * settings.width;
+    const auto renderPositionX = -angle * w2 / 180.f;
     skyboxSprite.setPosition(renderPositionX, 0.f);
     window.draw(skyboxSprite);
 
@@ -97,35 +111,14 @@ void RenderingEngine::renderTo(dgm::Window& window)
         skyboxSprite.setPosition(renderPositionX - w2, 0.f);
         window.draw(skyboxSprite);
     }
-    else if (renderPositionX + w2 < settings.WIDTH)
+    else if (renderPositionX + w2 < settings.width)
     {
         skyboxSprite.setPosition(renderPositionX + w2, 0.f);
         window.draw(skyboxSprite);
     }
-
-    render3d(window);
-
-    text.setString(fpsCounter.getText());
-    text.setPosition({ 10.f, 10.f });
-    window.draw(text);
-
-    if (pov.typeId == EntityType::Player)
-    {
-        renderAlivePlayerHud(
-            window, pov, scene.playerStates[pov.stateIdx].inventory);
-    }
-    else
-    {
-        text.setString("Press [Space] to respawn");
-        const auto bounds = text.getGlobalBounds();
-        text.setPosition(
-            (settings.WIDTH - bounds.width) / 2.f,
-            (settings.HEIGHT - bounds.height) / 2.f);
-        window.draw(text);
-    }
 }
 
-void RenderingEngine::render3d(dgm::Window& window)
+void RenderingEngine::renderWorld(dgm::Window& window)
 {
     const auto W = float(scene.level.bottomMesh.getVoxelSize().x);
     const auto& player = scene.things[scene.cameraAnchorIdx];
@@ -134,7 +127,7 @@ void RenderingEngine::render3d(dgm::Window& window)
 
 #define fireRay(col, isLeftmost, isRightmost)                                  \
     {                                                                          \
-        float cameraX = 2 * float(col) / settings.WIDTH - 1;                   \
+        float cameraX = 2 * float(col) / settings.width - 1;                   \
         auto&& rayDir = player.direction + plane * cameraX;                    \
         depthBuffer[col] =                                                     \
             caster.castRay<isLeftmost, isRightmost>(pos, rayDir, scene);       \
@@ -146,7 +139,7 @@ void RenderingEngine::render3d(dgm::Window& window)
             const sf::Vector2f& point) { // Normally this should be divided by
                                          // camera direction vector size, but
                                          // that is guaranteed to be unit
-            return settings.HEIGHT
+            return settings.height
                    / std::abs(
                        (dgm::Math::getDotProduct(point, player.direction) + c));
         };
@@ -160,7 +153,7 @@ void RenderingEngine::render3d(dgm::Window& window)
         bool isXnearZero = std::abs(plane.x) < EPSILON;
         float col =
             isXnearZero ? scaledPlane.y / plane.y : scaledPlane.x / plane.x;
-        return int(((col + 1) / 2) * settings.WIDTH);
+        return int(((col + 1) / 2) * settings.width);
     };
 
     /*
@@ -174,8 +167,8 @@ void RenderingEngine::render3d(dgm::Window& window)
      */
     caster.prepare();
     fireRay(0, true, false);
-    fireRay(settings.WIDTH - 1, false, true);
-    for (unsigned col = 1; col < settings.WIDTH - 1; col++)
+    fireRay(settings.width - 1, false, true);
+    for (unsigned col = 1; col < settings.width - 1; col++)
     {
         fireRay(col, false, false);
     }
@@ -183,6 +176,59 @@ void RenderingEngine::render3d(dgm::Window& window)
 
     renderLevelMesh(window, getHeight, getColumn);
     renderSprites(window, pos, player.direction, getHeight, getColumn);
+}
+
+void RenderingEngine::renderFps(dgm::Window& window)
+{
+    if (!settings.showFps) return;
+    text.setString(fpsCounter.getText());
+    text.setPosition({ 10.f, 10.f });
+    window.draw(text);
+}
+
+void RenderingEngine::renderPlayerHud(
+    dgm::Window& window, const Entity& player, const PlayerInventory& inventory)
+{
+    auto light = scene.drawableLevel.lightmap.at(sf::Vector2u(
+        player.hitbox.getPosition()
+        / static_cast<float>(scene.drawableLevel.lightmap.getVoxelSize().x)));
+
+    weaponSprite.setTextureRect(weaponClipping.getFrame(
+        static_cast<std::size_t>(inventory.animationContext.spriteClipIndex)));
+    weaponSprite.setFillColor(sf::Color { light, light, light });
+    window.draw(weaponSprite);
+
+    text.setString(std::format(
+        "h: {} a: {}\nw: {}\nammo: {}\ns: {}",
+        player.health,
+        player.armor,
+        inventory.acquiredWeapons.to_string(),
+        getAmmoCountForActiveWeapon(inventory),
+        inventory.score));
+    const auto textBounds = text.getGlobalBounds();
+    text.setPosition(10.f, settings.height - textBounds.height - 10.f);
+
+    /* FOR AI DEBUGGING
+    context.text.setString(
+        TOP_STATES_TO_STRING.at(scene.playerStates[0].blackboard->aiTopState)
+        + " "
+        + AI_STATE_TO_STRING.at(scene.playerStates[0].blackboard->aiState));*/
+    window.draw(text);
+
+    auto redOverlay = sf::RectangleShape(sf::Vector2f(window.getSize()));
+    redOverlay.setFillColor(
+        sf::Color(255, 0, 0, sf::Int8(scene.redOverlayIntensity)));
+    window.draw(redOverlay);
+}
+
+void RenderingEngine::renderRespawnPrompt(dgm::Window& window)
+{
+    text.setString(Strings::Game::RESPAWN_PROMPT);
+    const auto bounds = text.getGlobalBounds();
+    text.setPosition(
+        (settings.width - bounds.width) / 2.f,
+        (settings.height - bounds.height) / 2.f);
+    window.draw(text);
 }
 
 void RenderingEngine::renderLevelMesh(
@@ -204,7 +250,7 @@ void RenderingEngine::renderLevelMesh(
     };
 
     auto&& quads = sf::VertexArray(sf::Triangles); // mesh to render
-    const float midHeight = settings.HEIGHT / 2.f;
+    const float midHeight = settings.height / 2.f;
 
     auto addFace = [&](const Face& face)
     {
@@ -276,7 +322,7 @@ void RenderingEngine::renderLevelMesh(
 
     sf::RenderStates states;
     states.texture = &tilesetTexture;
-    states.shader = useDitheredShader ? &ditheredShader : &shader;
+    states.shader = &shader;
     window.getWindowContext().draw(quads, states);
 }
 
@@ -287,7 +333,7 @@ void RenderingEngine::renderSprites(
     std::function<float(const sf::Vector2f&)> getHeight,
     std::function<int(const sf::Vector2f&)> getColumn)
 {
-    const auto&& midHeight = settings.HEIGHT / 2.f;
+    const auto&& midHeight = settings.height / 2.f;
     const auto&& thingPlane = getPerpendicular(cameraDirection) * 0.5f;
 
     const auto&& thingsToRender = getFilteredAndOrderedThingsToRender(
@@ -326,43 +372,8 @@ void RenderingEngine::renderSprites(
 
     sf::RenderStates states;
     states.texture = &spritesheetTexture;
-    states.shader = useDitheredShader ? &ditheredShader : &shader;
+    states.shader = &shader;
     window.getWindowContext().draw(quads, states);
-}
-
-void RenderingEngine::renderAlivePlayerHud(
-    dgm::Window& window, const Entity& player, const PlayerInventory& inventory)
-{
-    auto light = scene.drawableLevel.lightmap.at(sf::Vector2u(
-        player.hitbox.getPosition()
-        / static_cast<float>(scene.drawableLevel.lightmap.getVoxelSize().x)));
-
-    weaponSprite.setTextureRect(weaponClipping.getFrame(
-        static_cast<std::size_t>(inventory.animationContext.spriteClipIndex)));
-    weaponSprite.setFillColor(sf::Color { light, light, light });
-    window.draw(weaponSprite);
-
-    text.setString(std::format(
-        "h: {} a: {}\nw: {}\nammo: {}\ns: {}",
-        player.health,
-        player.armor,
-        inventory.acquiredWeapons.to_string(),
-        getAmmoCountForActiveWeapon(inventory),
-        inventory.score));
-    const auto textBounds = text.getGlobalBounds();
-    text.setPosition(10.f, settings.HEIGHT - textBounds.height - 10.f);
-
-    /* FOR AI DEBUGGING
-    context.text.setString(
-        TOP_STATES_TO_STRING.at(scene.playerStates[0].blackboard->aiTopState)
-        + " "
-        + AI_STATE_TO_STRING.at(scene.playerStates[0].blackboard->aiState));*/
-    window.draw(text);
-
-    auto redOverlay = sf::RectangleShape(sf::Vector2f(window.getSize()));
-    redOverlay.setFillColor(
-        sf::Color(255, 0, 0, sf::Int8(scene.redOverlayIntensity)));
-    window.draw(redOverlay);
 }
 
 std::vector<RenderingEngine::ThingToRender>
@@ -420,10 +431,10 @@ std::optional<std::pair<float, float>> RenderingEngine::cropSpriteIfObscured(
     int movedLeftColumnBy = 0;
     int movedRightColumnBy = 0;
 
-    if (leftColumn >= int(settings.WIDTH) || rightColumn < 0)
+    if (leftColumn >= int(settings.width) || rightColumn < 0)
         return std::nullopt;
 
-    while (leftColumn < rightColumn && leftColumn < int(settings.WIDTH)
+    while (leftColumn < rightColumn && leftColumn < int(settings.width)
            && (leftColumn < 0 || depthBuffer[leftColumn] < thingDistance))
     {
         ++leftColumn;
@@ -431,11 +442,11 @@ std::optional<std::pair<float, float>> RenderingEngine::cropSpriteIfObscured(
     }
 
     // Fully obscured or outside of view
-    if (leftColumn >= int(settings.WIDTH) || leftColumn >= rightColumn)
+    if (leftColumn >= int(settings.width) || leftColumn >= rightColumn)
         return std::nullopt;
 
     while (leftColumn < rightColumn && rightColumn >= 0
-           && (rightColumn >= int(settings.WIDTH)
+           && (rightColumn >= int(settings.width)
                || depthBuffer[rightColumn] < thingDistance))
     {
         --rightColumn;

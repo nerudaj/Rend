@@ -49,7 +49,4 @@ void GameLoop::processEvents(const bool skipAudio)
     {
         eventQueue->clear<AudioEvent>();
     }
-
-    // Rendering can only produce Rendering events
-    eventQueue->processAndClear(renderingEngine);
 }

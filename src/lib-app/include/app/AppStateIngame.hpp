@@ -87,10 +87,11 @@ private:
 
     [[nodiscard]] RenderSettings getRenderSettings() const noexcept
     {
-        return RenderSettings { .WIDTH = settings->display.resolution.width,
-                                .HEIGHT = settings->display.resolution.height,
+        return RenderSettings { .width = settings->display.resolution.width,
+                                .height = settings->display.resolution.height,
                                 .useDitheredShadows =
-                                    settings->display.useDitheredShadows };
+                                    settings->display.useDitheredShadows,
+                                .showFps = settings->display.showFps };
     }
 
 protected:

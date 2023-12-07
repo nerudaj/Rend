@@ -5,29 +5,6 @@
 #include <core/Scene.hpp>
 #include <core/Types.hpp>
 
-// TODO: remove this
-[[nodiscard]] constexpr static EntityType
-weaponToAmmoPickupType(EntityType type) noexcept
-{
-    // TODO: Move this to entity defintions?
-    switch (type)
-    {
-        using enum EntityType;
-    case WeaponFlaregun:
-        return PickupEnergy;
-    case WeaponShotgun:
-        return PickupShells;
-    case WeaponTrishot:
-        return PickupBullets;
-    case WeaponCrossbow:
-        return PickupEnergy;
-    case WeaponLauncher:
-        return PickupRockets;
-    case WeaponBallista:
-        return PickupRockets;
-    }
-}
-
 [[nodiscard]] constexpr static AmmoCounterType
 getAmmoCountForActiveWeapon(const PlayerInventory& inventory) noexcept
 {
@@ -55,4 +32,13 @@ getMinimumAmmoNeededToFireWeapon(EntityType type)
     case WeaponBallista:
         return 2;
     }
+}
+
+[[nodiscard]] static float getNormalizedDistanceToEpicenter(
+    const dgm::Circle& entityHitbox, const dgm::Circle& explosionHitbox)
+{
+    return (dgm::Math::getSize(
+                entityHitbox.getPosition() - explosionHitbox.getPosition())
+            - entityHitbox.getRadius())
+           / explosionHitbox.getRadius();
 }

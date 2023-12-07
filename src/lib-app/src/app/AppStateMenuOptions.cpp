@@ -96,7 +96,13 @@ void AppStateMenuOptions::buildDisplayOptionsLayout(GuiOptionsBuilder2& builder)
                 {
                     settings->display.useDitheredShadows =
                         !settings->display.useDitheredShadows;
-                }));
+                }))
+        .addOption(
+            Strings::AppState::Options::SHOW_FPS,
+            WidgetCreator2::createCheckbox(
+                settings->display.showFps,
+                [this](bool)
+                { settings->display.showFps = !settings->display.showFps; }));
 }
 
 void AppStateMenuOptions::buildAudioOptionsLayout(GuiOptionsBuilder2& builder)

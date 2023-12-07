@@ -37,6 +37,7 @@ namespace Strings
             RAWSTRING FULLSCREEN = "fullscreen";
             RAWSTRING SET_RESOLUTION = "set resolution";
             RAWSTRING USE_DITHERED_SHADES = "dithered shadows";
+            RAWSTRING SHOW_FPS = "show fps";
             RAWSTRING SOUND_VOLUME = "sound volume";
             RAWSTRING MUSIC_VOLUME = "music volume";
             RAWSTRING MOUSE_SENSITIVITY = "mouse sensitivity";
@@ -81,6 +82,11 @@ namespace Strings
             RAWSTRING LAYER_DOWN = "Move to lower layer (Ctrl + Down)";
         } // namespace ContextMenu
     }     // namespace Editor
+
+    namespace Game
+    {
+        RAWSTRING RESPAWN_PROMPT = "Press [Space] to respawn";
+    }
 } // namespace Strings
 
 #undef RAWSTRING

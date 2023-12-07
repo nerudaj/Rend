@@ -1,7 +1,6 @@
 #pragma once
 
 #include "core/Scene.hpp"
-#include "events/RenderingEvents.hpp"
 #include "render/FpsCounter.hpp"
 #include "render/Raycaster.hpp"
 #include <DGM/DGM.hpp>
@@ -12,9 +11,10 @@ import Memory;
 struct RenderSettings
 {
     const float FOV = 0.66f;
-    const unsigned WIDTH = 1280;
-    const unsigned HEIGHT = 720;
+    const unsigned width = 1280;
+    const unsigned height = 720;
     const bool useDitheredShadows = false;
+    const bool showFps = false;
 };
 
 class RenderingEngine final
@@ -25,21 +25,20 @@ public:
         const dgm::ResourceManager& resmgr,
         Scene& scene);
 
-public: // Must visit on all related events
-    constexpr inline void operator()(const EventRenderToggle& e) noexcept
-    {
-        if (e.fpsDisplay) showFps = !showFps;
-        if (e.ditheredShader) useDitheredShader = !useDitheredShader;
-        // if (e.topDownRender) debugRender = !debugRender;
-    }
-
 public:
     void update(const float deltaTime);
 
     void renderTo(dgm::Window& window);
 
 private:
-    void render3d(dgm::Window& window);
+    void renderSkybox(dgm::Window& window, const float angle);
+    void renderWorld(dgm::Window& window);
+    void renderFps(dgm::Window& window);
+    void renderPlayerHud(
+        dgm::Window& window,
+        const Entity& player,
+        const PlayerInventory& inventory);
+    void renderRespawnPrompt(dgm::Window& window);
 
     void renderLevelMesh(
         dgm::Window& window,
@@ -52,11 +51,6 @@ private:
         const sf::Vector2f& cameraDirection,
         std::function<float(const sf::Vector2f&)> getHeight,
         std::function<int(const sf::Vector2f&)> getColumn);
-
-    void renderAlivePlayerHud(
-        dgm::Window& window,
-        const Entity& player,
-        const PlayerInventory& inventory);
 
     struct ThingToRender
     {
@@ -83,7 +77,7 @@ private:
         int& leftColumn, int& rightColumn, float thingDistance);
 
 private:
-    const RenderSettings settings = {};
+    const RenderSettings settings;
     Scene& scene;
     const sf::Texture& tilesetTexture;
     dgm::Clip tilesetClipping;
@@ -92,13 +86,10 @@ private:
     sf::RectangleShape weaponSprite;
     sf::RectangleShape skyboxSprite;
     dgm::Clip weaponClipping;
-    const sf::Shader& shader;
-    sf::Shader& ditheredShader;
+    sf::Shader& shader;
     const sf::Texture& noiseTexture;
     sf::Text text;
     Raycaster caster;
     FpsCounter fpsCounter;
-    bool showFps = true;
-    bool useDitheredShader = true;
     std::vector<float> depthBuffer;
 };

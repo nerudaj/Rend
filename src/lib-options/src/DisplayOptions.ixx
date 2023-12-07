@@ -19,8 +19,9 @@ export
         Resolution resolution = { 1280u, 720u };
         bool isFullscreen = false;
         bool useDitheredShadows = false;
+        bool showFps = false;
     };
 
     NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(
-        DisplayOptions, resolution, isFullscreen);
+        DisplayOptions, resolution, isFullscreen, useDitheredShadows, showFps);
 }
