@@ -56,12 +56,3 @@ getMinimumAmmoNeededToFireWeapon(EntityType type)
         return 2;
     }
 }
-
-[[nodiscard]] static float getNormalizedDistanceToEpicenter(
-    const dgm::Circle& entityHitbox, const dgm::Circle& explosionHitbox)
-{
-    return (dgm::Math::getSize(
-                entityHitbox.getPosition() - explosionHitbox.getPosition())
-            - entityHitbox.getRadius())
-           / explosionHitbox.getRadius();
-}
