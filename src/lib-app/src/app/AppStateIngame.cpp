@@ -65,10 +65,6 @@ AppStateIngame::AppStateIngame(
               settings->display.resolution.height)))
 {
     app.window.getWindowContext().setFramerateLimit(60);
-    // TODO: remove with newer camera
-    camera->setPosition(
-        settings->display.resolution.width / 2,
-        settings->display.resolution.height / 2);
     lockMouse();
     createPlayers();
 }
@@ -277,9 +273,6 @@ void AppStateIngame::propagateSettings()
         sf::Vector2f(sf::Vector2u(
             settings->display.resolution.width,
             settings->display.resolution.height)));
-    camera->setPosition(
-        settings->display.resolution.width / 2,
-        settings->display.resolution.height / 2);
 
     for (std::size_t idx = 0; idx < gameSettings.players.size(); idx++)
     {
