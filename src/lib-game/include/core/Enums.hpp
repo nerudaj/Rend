@@ -158,6 +158,7 @@ enum class EntityType
 {
     Error,
     None,
+    CameraAnchor,
     StaticDecorationBegin,
     Pillar,
     FloorLamp,

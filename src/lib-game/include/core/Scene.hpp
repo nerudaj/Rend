@@ -72,7 +72,7 @@ struct PlayerInventory
 struct AiBlackboard
 {
     mem::Rc<AiController> input;
-    AiTopState aiTopState = AiTopState::Alive;
+    AiTopState aiTopState = AiTopState::BootstrapDead;
     AiState aiState = AiState::Start;
     PlayerStateIndexType playerStateIdx;
     EntityIndexType trackedEnemyIdx = 0;

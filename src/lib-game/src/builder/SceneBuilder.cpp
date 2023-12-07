@@ -69,21 +69,47 @@ convertLeveldItemIdToEntityType(LevelItemId id) noexcept
     }
 }
 
-static auto createEntity(const LevelD::Thing& thing)
+[[nodiscard]] static auto
+createEntity(EntityType typeId, const sf::Vector2f& position)
 {
-    const auto typeId =
-        convertLeveldItemIdToEntityType(static_cast<LevelItemId>(thing.id));
     const auto& props = ENTITY_PROPERTIES.at(typeId);
-    const auto hitbox = dgm::Circle(getThingPosition(thing), props.radius);
     return Entity { .typeId = typeId,
                     .animationContext { .spriteClipIndex =
                                             props.initialSpriteIndex },
-                    .hitbox = hitbox };
+                    .hitbox = dgm::Circle(position, props.radius) };
 }
 
-static auto createThingsBuffer(const LevelD& level)
+[[nodiscard]] static auto createEntity(const LevelD::Thing& thing)
+{
+    return createEntity(
+        convertLeveldItemIdToEntityType(static_cast<LevelItemId>(thing.id)),
+        getThingPosition(thing));
+}
+
+static void createCameraAnchorsAtPlaceOfFirstSpawn(
+    const LevelD& level,
+    dgm::DynamicBuffer<Entity>& result,
+    unsigned maxPlayerCount)
+{
+    for (auto&& thing : level.things)
+    {
+        if (isSpawn(thing))
+        {
+            for (std::size_t idx : std::views::iota(0u, maxPlayerCount))
+            {
+                result.emplaceBack(createEntity(
+                    EntityType::CameraAnchor, sf::Vector2f(thing.x, thing.y)));
+            }
+            return;
+        }
+    }
+}
+
+static auto createThingsBuffer(const LevelD& level, unsigned maxPlayerCount)
 {
     auto&& result = dgm::DynamicBuffer<Entity>();
+
+    createCameraAnchorsAtPlaceOfFirstSpawn(level, result, maxPlayerCount);
 
     for (auto&& thing : level.things)
     {
@@ -124,9 +150,9 @@ createNavMesh(dgm::Mesh collisionMesh, dgm::DynamicBuffer<Entity>& things)
     return dgm::WorldNavMesh(collisionMesh);
 }
 
-Scene SceneBuilder::buildScene(const LevelD& level)
+Scene SceneBuilder::buildScene(const LevelD& level, unsigned maxPlayerCount)
 {
-    auto things = createThingsBuffer(level);
+    auto things = createThingsBuffer(level, maxPlayerCount);
     const auto bottomMesh = MeshBuilder::buildMeshFromLvd(level, 0);
     auto navmesh = createNavMesh(bottomMesh, things);
     const auto bottomTextureMesh =

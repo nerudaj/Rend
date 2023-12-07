@@ -460,10 +460,9 @@ void GameRulesEngine::removeEntity(std::size_t index)
 
 #endif
 
-    EntityIndexType effectIdx = 0;
     if (DEF.debrisEffectType != EntityType::None)
     {
-        effectIdx = scene.things.emplaceBack(SceneBuilder::createEffect(
+        scene.things.emplaceBack(SceneBuilder::createEffect(
             DEF.debrisEffectType,
             Position { thing.hitbox.getPosition() },
             scene.tick));
@@ -475,13 +474,16 @@ void GameRulesEngine::removeEntity(std::size_t index)
         state.inventory.ownerIdx = std::numeric_limits<EntityIndexType>::max();
         state.input.stopShooting();
 
-        scene.things[effectIdx].direction = thing.direction;
+        // First N things are camera anchors, one for each player
+        scene.things[thing.stateIdx].direction = thing.direction;
+        scene.things[thing.stateIdx].hitbox.setPosition(
+            thing.hitbox.getPosition());
 
         bool rebindCamera = scene.cameraAnchorIdx == index;
         scene.markers.emplaceBack(MarkerDeadPlayer {
             .rebindCamera = rebindCamera, .stateIdx = thing.stateIdx });
 
-        if (rebindCamera) scene.cameraAnchorIdx = effectIdx;
+        if (rebindCamera) scene.cameraAnchorIdx = thing.stateIdx;
     }
 
     scene.spatialIndex.removeFromLookup(index, thing.hitbox);

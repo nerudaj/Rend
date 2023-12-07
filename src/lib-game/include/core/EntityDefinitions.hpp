@@ -52,6 +52,8 @@ const static inline auto ENTITY_PROPERTIES =
 {
     using enum SpriteId;
     return {
+        { EntityType::CameraAnchor,
+          EntityProperties { .radius = 1_px, .initialSpriteIndex = NoRender } },
         { EntityType::EffectDyingPlayer,
           EntityProperties {
               .radius = 8_px,

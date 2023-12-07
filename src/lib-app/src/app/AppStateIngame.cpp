@@ -52,7 +52,7 @@ AppStateIngame::AppStateIngame(
           _app.window.getWindowContext(),
           gameSettings,
           settings->input.mouseSensitivity))
-    , scene(SceneBuilder::buildScene(level))
+    , scene(SceneBuilder::buildScene(level, gameSettings.players.size()))
     , gameLoop(scene, eventQueue, resmgr, audioPlayer, getRenderSettings())
     , demoFileHandler(
           settings->cmdSettings.demoFile,
@@ -254,17 +254,15 @@ void AppStateIngame::createPlayers()
 {
     for (PlayerStateIndexType i = 0; i < gameSettings.players.size(); ++i)
     {
-        auto spawnPosition = gameLoop->getRulesEngine().getBestSpawnPosition();
-        auto idx = scene.things.emplaceBack(SceneBuilder::createPlayer(
-            Position { spawnPosition },
-            Direction { gameLoop->getRulesEngine().getBestSpawnDirection(
-                spawnPosition) },
-            i));
+        scene.markers.emplaceBack(MarkerDeadPlayer {
+            .rebindCamera = gameSettings.players[i].bindCamera,
+            .stateIdx = i });
+
         scene.playerStates.push_back(PlayerState {});
         scene.playerStates.back().inventory =
-            SceneBuilder::getDefaultInventory(idx, 0);
+            SceneBuilder::getDefaultInventory(i, 0);
 
-        if (gameSettings.players[i].bindCamera) scene.cameraAnchorIdx = idx;
+        if (gameSettings.players[i].bindCamera) scene.cameraAnchorIdx = i;
         if (gameSettings.players[i].kind == PlayerKind::LocalNpc)
             scene.playerStates[i].blackboard =
                 AiBlackboard { .input = inputs[i].castTo<AiController>(),
