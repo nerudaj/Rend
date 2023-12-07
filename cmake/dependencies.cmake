@@ -1,4 +1,4 @@
-set ( DGM_LIB_VERSION     "2.2.4" )
+set ( DGM_LIB_VERSION     "2.2.5" )
 set ( DGM_FSM_LIB_VERSION "1.2.0" )
 set ( DSH_VERSION         "1.7.2" )
 set ( SFML_VERSION        "2.6.0" )
