@@ -76,7 +76,8 @@ createEntity(EntityType typeId, const sf::Vector2f& position)
     return Entity { .typeId = typeId,
                     .animationContext { .spriteClipIndex =
                                             props.initialSpriteIndex },
-                    .hitbox = dgm::Circle(position, props.radius) };
+                    .hitbox = dgm::Circle(position, props.radius),
+                    .direction = { 1.f, 0.f } };
 }
 
 [[nodiscard]] static auto createEntity(const LevelD::Thing& thing)
