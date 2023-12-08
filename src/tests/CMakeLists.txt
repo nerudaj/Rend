@@ -9,46 +9,19 @@ configure_file (
 	"${CMAKE_CURRENT_SOURCE_DIR}/include/TestHelpers/TestAssets.hpp"
 )
 
-file (
-	GLOB HEADERS
-	CONFIGURE_DEPENDS
-	"${CMAKE_CURRENT_SOURCE_DIR}/include/**/*.hpp"
-)
-
-glob_sources ( SOURCES )
+glob_sources_and_headers ( HEADERS SOURCES )
 
 add_executable ( ${PROJECT_NAME}
 	${SOURCES} ${HEADERS}
 	"${CMAKE_CURRENT_SOURCE_DIR}/.clang-format"
-) 
+)
 
 target_include_directories ( ${PROJECT_NAME}
-	PRIVATE "${CATCH_FOLDER}"
+	PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/include"
 )
 
 target_link_libraries( ${PROJECT_NAME}
-	lib-app lib-game lib-editor
-)
-
-target_precompile_headers ( ${PROJECT_NAME}
-	PRIVATE
-		<vector>
-		<format>
-		<map>
-		<unordered_map>
-		<array>
-		<optional>
-		<expected>
-		<fstream>
-		<filesystem>
-		<functional>
-		<concepts>
-		<memory>
-		<string>
-		<cstdint>
-		<DGM/dgm.hpp>
-		<TGUI/tgui.hpp>
-		<nlohmann/json.hpp>
+	lib-app lib-game lib-editor Dep_catch Dep_fakeit
 )
 
 add_test (

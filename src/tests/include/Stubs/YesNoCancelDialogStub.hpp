@@ -1,4 +1,4 @@
-#include "include/Dialogs/YesNoCancelDialog.hpp"
+#include "Dialogs/YesNoCancelDialog.hpp"
 
 /**
  * Usage:
@@ -10,9 +10,10 @@
 class YesNoCancelDialogStub : public YesNoCancelDialogInterface
 {
 public:
-	virtual void open(
-		const std::string,
-		const std::string&,
-		std::function<void(UserChoice)> completedCallback)
-	{}
+    virtual void open(
+        const std::string,
+        const std::string&,
+        std::function<void(UserChoice)> completedCallback)
+    {
+    }
 };

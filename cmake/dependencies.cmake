@@ -7,6 +7,7 @@ set ( CATCH_VERSION       "2.10.2" )
 set ( JSON_VERSION        "3.11.2" )
 set ( CXXOPTS_VERSION     "3.1.1" )
 set ( ENTT_VERSION        "3.12.2" )
+set ( FAKEIT_VERSION  "2.3.2" )
 
 set ( DGM_LIB_URL "https://github.com/nerudaj/dgm-lib/releases/download/v${DGM_LIB_VERSION}/dgm-lib-${DGM_LIB_VERSION}-winx64-vc17-x64-for-SFML-${SFML_VERSION}.zip" )
 set ( DGM_FSM_LIB_URL "https://github.com/nerudaj/dgm-fsm-lib/releases/download/v${DGM_FSM_LIB_VERSION}/dgm-fsm-lib-${DGM_FSM_LIB_VERSION}-windows-vc17-x64.zip" )
@@ -17,6 +18,7 @@ set ( CATCH_URL "https://github.com/catchorg/Catch2/releases/download/v${CATCH_V
 set ( JSON_URL  "https://github.com/nlohmann/json/releases/download/v${JSON_VERSION}/include.zip" )
 set ( CXXOPTS_URL "https://github.com/jarro2783/cxxopts/archive/refs/tags/v${CXXOPTS_VERSION}.zip" )
 set ( ENTT_URL "https://github.com/skypjack/entt/archive/refs/tags/v${ENTT_VERSION}.zip" )
+set ( FAKEIT_URL "https://github.com/eranpeer/FakeIt/archive/refs/tags/${FAKEIT_VERSION}.zip" )
 
 include ( FetchContent )
 
@@ -55,6 +57,7 @@ fetch_dependency ( CATCH ${CATCH_URL} TRUE )
 fetch_dependency ( JSON  ${JSON_URL}  FALSE )
 fetch_dependency ( CXXOPTS ${CXXOPTS_URL} FALSE )
 fetch_dependency ( ENTT ${ENTT_URL} FALSE )
+fetch_dependency ( FAKEIT ${FAKEIT_URL} FALSE )
 
 # Verify folder paths
 message ( "Dependencies downloaded to: " )
@@ -67,6 +70,7 @@ message ( "  CATCH: ${CATCH_FOLDER}" )
 message ( "  JSON:  ${JSON_FOLDER}" )
 message ( "  OPTS:  ${CXXOPTS_FOLDER}" )
 message ( "  ENTT:  ${ENTT_FOLDER}" )
+message ( "  FAKEIT: ${FAKEIT_FOLDER}" )
 
 # Make libraries visible to cmake linker
 link_directories("${DSH_FOLDER}/lib")
@@ -175,3 +179,8 @@ target_include_directories ( Dep_json INTERFACE "${JSON_FOLDER}/include" )
 add_library ( Dep_opts INTERFACE )
 target_include_directories ( Dep_opts INTERFACE "${CXXOPTS_FOLDER}/include" )
 
+add_library ( Dep_catch INTERFACE )
+target_include_directories ( Dep_catch INTERFACE "${CATCH_FOLDER}" )
+
+add_library ( Dep_fakeit INTERFACE )
+target_include_directories ( Dep_fakeit INTERFACE "${FAKEIT_FOLDER}/single_header/standalone" )

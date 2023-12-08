@@ -1,17 +1,21 @@
+#include "Interfaces/ToolInterface.hpp"
 #include "TestHelpers/NullCallback.hpp"
-#include "include/Interfaces/ToolInterface.hpp"
-#include "include/Tools/LayerController.hpp"
+#include "Tools/LayerController.hpp"
+#include <Editor/EditorStateManager.hpp>
+#include <Shortcuts/ShortcutEngine.hpp>
+#include <TGUI/Backend/SFML-Graphics.hpp>
+#include <TGUI/TGUI.hpp>
 #include <catch.hpp>
-#include <include/Editor/EditorStateManager.hpp>
-#include <include/Shortcuts/ShortcutEngine.hpp>
+
+import Memory;
 
 class ToolMock : public ToolInterface
 {
 public:
     ToolMock(
         std::function<void(void)> onStateChanged,
-        GC<ShortcutEngineInterface> shortcutEngine,
-        GC<LayerObserverInterface> layerObserver,
+        mem::Rc<ShortcutEngineInterface> shortcutEngine,
+        mem::Rc<LayerObserverInterface> layerObserver,
         const std::string& name,
         std::vector<std::string>& invocations)
         : ToolInterface(onStateChanged, shortcutEngine, layerObserver)
@@ -44,42 +48,38 @@ public:
         invocations.push_back(name + ":buildSidebar");
     }
 
-    virtual void configure(nlohmann::json& config) override {}
+    virtual void configure(nlohmann::json&) override {}
 
-    virtual void
-    resize(unsigned width, unsigned height, bool isTranslationDisable) override
-    {
-    }
+    virtual void resize(unsigned, unsigned, bool) override {}
 
-    virtual void shrinkTo(const TileRect& r) override {}
+    virtual void shrinkTo(const TileRect&) override {}
 
-    virtual void saveTo(LevelD& lvd) const override {}
+    virtual void saveTo(LevelD&) const override {}
 
-    virtual void loadFrom(const LevelD& lvd) override {}
+    virtual void loadFrom(const LevelD&) override {}
 
-    virtual void drawTo(tgui::Canvas::Ptr& canvas, uint8_t opacity) override {}
+    virtual void drawTo(tgui::CanvasSFML::Ptr&, uint8_t) override {}
 
-    virtual ExpectedPropertyPtr
-    getProperty(const sf::Vector2i& penPos) const override
+    virtual ExpectedPropertyPtr getProperty(const sf::Vector2i&) const override
     {
         return std::unexpected(BaseError());
     }
 
-    virtual void setProperty(const ToolPropertyInterface& prop) override {}
+    virtual void setProperty(const ToolPropertyInterface&) override {}
 
     virtual std::optional<GenericObject>
-    getHighlightedObject(const sf::Vector2i& penPos) const override
+    getHighlightedObject(const sf::Vector2i&) const override
     {
         return {};
     }
 
     virtual std::vector<sf::Vector2u>
-    getPositionsOfObjectsWithTag(unsigned tag) const override
+    getPositionsOfObjectsWithTag(unsigned) const override
     {
         return {};
     }
 
-    virtual void buildCtxMenuInternal(tgui::MenuBar::Ptr& menu) override {}
+    virtual void buildCtxMenuInternal(tgui::MenuBar::Ptr&) override {}
 
     std::optional<TileRect> getBoundingBox() const noexcept override
     {
@@ -93,8 +93,8 @@ private:
 
 TEST_CASE("[EditorStateManager]")
 {
-    auto&& engine = GC<ShortcutEngine> { [] { return false; } };
-    auto&& layerController = GC<LayerController> {};
+    auto&& engine = mem::Rc<ShortcutEngine> { [] { return false; } };
+    auto&& layerController = mem::Rc<LayerController> {};
     auto&& invocations = std::vector<std::string> {};
     EditorStateManager manager;
 

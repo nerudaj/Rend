@@ -1,6 +1,6 @@
 #pragma once
 
-#include "include/Editor/Editor.hpp"
+#include "Editor/Editor.hpp"
 
 struct EditorMockState
 {

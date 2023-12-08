@@ -1,4 +1,4 @@
-#include "include/Shortcuts/ShortcutEngine.hpp"
+#include "Shortcuts/ShortcutEngine.hpp"
 #include "TestHelpers/NullCallback.hpp"
 #include <catch.hpp>
 

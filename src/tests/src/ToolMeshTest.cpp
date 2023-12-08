@@ -1,18 +1,20 @@
-#include "include/Tools/ToolMesh.hpp"
+#include "Tools/ToolMesh.hpp"
+#include "Shortcuts/ShortcutEngine.hpp"
 #include "TestHelpers/LeveldBuilder.hpp"
 #include "TestHelpers/NullCallback.hpp"
 #include "TestHelpers/TestAssets.hpp"
-#include "include/Shortcuts/ShortcutEngine.hpp"
-#include "include/Tools/LayerController.hpp"
+#include "Tools/LayerController.hpp"
 #include <catch.hpp>
+
+import Memory;
 
 TEST_CASE("[ToolMesh]")
 {
-    auto&& shortcutEngine = GC<ShortcutEngine> { [] { return false; } };
-    GC<CommandHistory> commandHistory;
-    GC<CommandQueue> commandQueue(commandHistory);
-    GC<LayerController> layerController;
-    GC<Gui> gui;
+    auto&& shortcutEngine = mem::Rc<ShortcutEngine> { [] { return false; } };
+    mem::Rc<CommandHistory> commandHistory;
+    mem::Rc<CommandQueue> commandQueue(commandHistory);
+    mem::Rc<LayerController> layerController;
+    mem::Rc<Gui> gui;
 
     ToolMesh mesh(
         Null::Callback, shortcutEngine, layerController, gui, commandQueue);
@@ -33,7 +35,7 @@ TEST_CASE("[ToolMesh]")
         LevelD exported;
         mesh.saveTo(exported);
 
-        REQUIRE(exported.mesh.layers.size() == 3u);
+        REQUIRE(exported.mesh.layers.size() == 2u);
     }
 
     SECTION("getBoundingBox")

@@ -1,21 +1,25 @@
 #include "TestHelpers/LeveldBuilder.hpp"
 #include "TestHelpers/NullCallback.hpp"
 #include "TestHelpers/TestAssets.hpp"
+#include <Editor/Editor.hpp>
+#include <TGUI/Backend/SFML-Graphics.hpp>
+#include <TGUI/TGUI.hpp>
 #include <catch.hpp>
-#include <include/Editor/Editor.hpp>
+
+import Memory;
 
 TEST_CASE("[Editor]")
 {
-    GC<Gui> gui;
+    mem::Rc<Gui> gui;
     gui->gui.add(tgui::MenuBar::create(), "TopMenuBar");
     gui->gui.add(tgui::Group::create(), "Sidebar");
 
     sf::View view;
-    tgui::Canvas::Ptr canvas = tgui::Canvas::create();
+    tgui::CanvasSFML::Ptr canvas = tgui::CanvasSFML::create();
     canvas->setView(view);
     CommandHistory commandHistory;
-    GC<CommandQueue> commandQueue(commandHistory);
-    auto&& shortcutEngine = GC<ShortcutEngine> { [] { return false; } };
+    mem::Rc<CommandQueue> commandQueue(commandHistory);
+    auto&& shortcutEngine = mem::Rc<ShortcutEngine> { [] { return false; } };
 
     Editor editor(gui, canvas, Null::Callback, commandQueue, shortcutEngine);
 
