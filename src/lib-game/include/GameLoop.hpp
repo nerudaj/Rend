@@ -11,6 +11,8 @@
 #include <events/EventQueue.hpp>
 
 import Memory;
+import Options;
+import Audio;
 
 class [[nodiscard]] GameLoop final
 {
@@ -20,7 +22,7 @@ public:
         mem::Rc<EventQueue> eventQueue,
         mem::Rc<const dgm::ResourceManager> resmgr,
         mem::Rc<AudioPlayer> audioPlayer,
-        const RenderSettings& renderSettings)
+        const DisplayOptions& renderSettings)
         : scene(scene)
         , eventQueue(eventQueue)
         , aiEngine(scene)

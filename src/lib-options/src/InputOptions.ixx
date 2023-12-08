@@ -8,7 +8,7 @@ export
 {
     struct InputOptions
     {
-        float mouseSensitivity = 1.f;
+        float mouseSensitivity = 25.f;
     };
 
     NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(InputOptions, mouseSensitivity);

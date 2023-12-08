@@ -98,7 +98,10 @@ static void createCameraAnchorsAtPlaceOfFirstSpawn(
             for (std::size_t idx : std::views::iota(0u, maxPlayerCount))
             {
                 result.emplaceBack(createEntity(
-                    EntityType::CameraAnchor, sf::Vector2f(thing.x, thing.y)));
+                    EntityType::CameraAnchor,
+                    sf::Vector2f(
+                        static_cast<float>(thing.x),
+                        static_cast<float>(thing.y))));
             }
             return;
         }

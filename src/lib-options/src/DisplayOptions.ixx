@@ -20,6 +20,7 @@ export
         bool isFullscreen = false;
         bool useDitheredShadows = false;
         bool showFps = false;
+        float fov = 0.66f;
     };
 
     NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(

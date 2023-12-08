@@ -1,4 +1,4 @@
-#pragma once
+module;
 
 #include <DGM/DGM.hpp>
 #pragma warning(push, 0)
@@ -6,11 +6,13 @@
 #pragma warning(pop)
 #include <vector>
 
+export module AudioPlayer;
+
 import Memory;
 
-constexpr const unsigned CHANNEL_COUNT = 10;
+export constexpr const unsigned CHANNEL_COUNT = 10;
 
-class AudioPlayer
+export class AudioPlayer
 {
 public:
     [[nodiscard]] AudioPlayer(

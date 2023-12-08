@@ -1,12 +1,12 @@
 #pragma once
 
 #include "GuiBuilder.hpp"
-#include "audio/AudioPlayer.hpp"
 #include <DGM/dgm.hpp>
 #include <TGUI/Backend/SFML-Graphics.hpp>
 #include <TGUI/TGUI.hpp>
 
 import Memory;
+import Audio;
 
 class GuiState
 {

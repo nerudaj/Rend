@@ -1,13 +1,13 @@
 #include "Loader.hpp"
 #include <DGM/dgm.hpp>
 #include <app/AppStateMainMenu.hpp>
-#include <audio/AudioPlayer.hpp>
 #include <core/Scene.hpp>
 #include <cxxopts.hpp>
 #include <settings/GameTitle.hpp>
 
 import Memory;
 import Options;
+import Audio;
 
 CmdParameters processCmdParameters(int argc, char* argv[])
 {

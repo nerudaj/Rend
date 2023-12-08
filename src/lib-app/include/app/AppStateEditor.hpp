@@ -14,7 +14,6 @@
 #include "Interfaces/PlaytestLauncherInterface.hpp"
 #include "Interfaces/ShortcutEngineInterface.hpp"
 #include "Utilities/ClickPreventer.hpp"
-#include "audio/AudioPlayer.hpp"
 #include <DGM/dgm.hpp>
 #include <TGUI/Backend/SFML-Graphics.hpp>
 #include <TGUI/TGUI.hpp>
@@ -22,6 +21,7 @@
 
 import Memory;
 import Options;
+import Audio;
 
 class AppStateEditor : public dgm::AppState
 {

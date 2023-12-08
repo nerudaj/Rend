@@ -2,11 +2,11 @@
 
 import Memory;
 import Options;
+import Audio;
 
 #include "GuiState.hpp"
 #include <TGUI/Backend/SFML-Graphics.hpp>
 #include <TGUI/TGUI.hpp>
-#include <audio/AudioPlayer.hpp>
 #include <dgm/classes/AppState.hpp>
 #include <dgm/classes/ResourceManager.hpp>
 

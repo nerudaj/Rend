@@ -1,4 +1,10 @@
-#include "audio/AudioPlayer.hpp"
+import AudioPlayer;
+
+#include <DGM/DGM.hpp>
+#pragma warning(push, 0)
+#include <SFML/Audio.hpp>
+#pragma warning(pop)
+#include <vector>
 
 void AudioPlayer::playSoundOnChannel(
     const std::string& soundName,

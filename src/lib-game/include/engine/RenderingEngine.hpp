@@ -7,21 +7,13 @@
 #include <LevelD.hpp>
 
 import Memory;
-
-struct RenderSettings
-{
-    const float FOV = 0.66f;
-    const unsigned width = 1280;
-    const unsigned height = 720;
-    const bool useDitheredShadows = false;
-    const bool showFps = false;
-};
+import Options;
 
 class RenderingEngine final
 {
 public:
     [[nodiscard]] RenderingEngine(
-        const RenderSettings& settings,
+        const DisplayOptions& settings,
         const dgm::ResourceManager& resmgr,
         Scene& scene);
 
@@ -77,7 +69,7 @@ private:
         int& leftColumn, int& rightColumn, float thingDistance);
 
 private:
-    const RenderSettings settings;
+    const DisplayOptions settings;
     Scene& scene;
     const sf::Texture& tilesetTexture;
     dgm::Clip tilesetClipping;

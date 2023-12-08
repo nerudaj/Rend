@@ -102,7 +102,15 @@ void AppStateMenuOptions::buildDisplayOptionsLayout(GuiOptionsBuilder2& builder)
             WidgetCreator2::createCheckbox(
                 settings->display.showFps,
                 [this](bool)
-                { settings->display.showFps = !settings->display.showFps; }));
+                { settings->display.showFps = !settings->display.showFps; }))
+        .addOption(
+            Strings::AppState::Options::FOV,
+            WidgetCreator2::createSlider(
+                settings->display.fov,
+                [this](float value) { settings->display.fov = value; },
+                0.6f,
+                1.2f,
+                0.01f));
 }
 
 void AppStateMenuOptions::buildAudioOptionsLayout(GuiOptionsBuilder2& builder)

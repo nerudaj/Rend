@@ -1,11 +1,11 @@
 #pragma once
 
-#include "audio/AudioPlayer.hpp"
 #include "events/AudioEvents.hpp"
 #include <DGM/DGM.hpp>
 #include <core/Scene.hpp>
 
 import Memory;
+import AudioPlayer;
 
 class AudioEngine final
 {

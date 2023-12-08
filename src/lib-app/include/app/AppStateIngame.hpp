@@ -1,6 +1,5 @@
 #pragma once
 
-#include "audio/AudioPlayer.hpp"
 #include "engine/AiEngine.hpp"
 #include "engine/AnimationEngine.hpp"
 #include "engine/AudioEngine.hpp"
@@ -21,6 +20,7 @@
 
 import Options;
 import Memory;
+import Audio;
 
 class AppStateIngame final : public dgm::AppState
 {
@@ -84,15 +84,6 @@ private:
     void createPlayers();
 
     void propagateSettings();
-
-    [[nodiscard]] RenderSettings getRenderSettings() const noexcept
-    {
-        return RenderSettings { .width = settings->display.resolution.width,
-                                .height = settings->display.resolution.height,
-                                .useDitheredShadows =
-                                    settings->display.useDitheredShadows,
-                                .showFps = settings->display.showFps };
-    }
 
 protected:
     mem::Rc<const dgm::ResourceManager> resmgr;

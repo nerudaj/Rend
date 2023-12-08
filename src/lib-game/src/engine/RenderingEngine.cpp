@@ -36,7 +36,7 @@
 }
 
 RenderingEngine::RenderingEngine(
-    const RenderSettings& settings,
+    const DisplayOptions& settings,
     const dgm::ResourceManager& resmgr,
     Scene& scene)
     : settings(settings)
@@ -48,12 +48,12 @@ RenderingEngine::RenderingEngine(
           resmgr.get<dgm::Clip>("sprites.png.clip").value().get())
     , weaponSprite(RenderContextBuilder::createWeaponSprite(
           resmgr.get<sf::Texture>("weapons.png").value().get(),
-          settings.width,
-          settings.height))
+          settings.resolution.width,
+          settings.resolution.height))
     , skyboxSprite(createSkybox(
           resmgr.get<sf::Texture>("skyboxes.png").value().get(),
-          settings.width,
-          settings.height))
+          settings.resolution.width,
+          settings.resolution.height))
     , weaponClipping(resmgr.get<dgm::Clip>("weapons.png.clip").value().get())
     , shader(resmgr.getMutable<sf::Shader>("shader").value().get())
     , noiseTexture(resmgr.get<sf::Texture>("ditherNoise.png").value().get())
@@ -62,12 +62,13 @@ RenderingEngine::RenderingEngine(
           32u,
           sf::Color::White))
     , caster(scene.level.bottomMesh.getVoxelSize())
-    , depthBuffer(settings.width)
+    , depthBuffer(settings.resolution.width)
 {
     shader.setUniform("noise", noiseTexture);
     shader.setUniform("shadeColor", sf::Glsl::Vec4(sf::Color(0, 0, 0)));
     shader.setUniform(
-        "resolution", sf::Glsl::Vec2(settings.width, settings.height));
+        "resolution",
+        sf::Glsl::Vec2(settings.resolution.width, settings.resolution.height));
     shader.setUniform("ditherShadows", settings.useDitheredShadows);
 }
 
@@ -101,7 +102,7 @@ void RenderingEngine::renderTo(dgm::Window& window)
 
 void RenderingEngine::renderSkybox(dgm::Window& window, const float angle)
 {
-    const auto w2 = 2 * settings.width;
+    const auto w2 = 2 * settings.resolution.width;
     const auto renderPositionX = -angle * w2 / 180.f;
     skyboxSprite.setPosition(renderPositionX, 0.f);
     window.draw(skyboxSprite);
@@ -111,7 +112,7 @@ void RenderingEngine::renderSkybox(dgm::Window& window, const float angle)
         skyboxSprite.setPosition(renderPositionX - w2, 0.f);
         window.draw(skyboxSprite);
     }
-    else if (renderPositionX + w2 < settings.width)
+    else if (renderPositionX + w2 < settings.resolution.width)
     {
         skyboxSprite.setPosition(renderPositionX + w2, 0.f);
         window.draw(skyboxSprite);
@@ -123,11 +124,11 @@ void RenderingEngine::renderWorld(dgm::Window& window)
     const auto W = float(scene.level.bottomMesh.getVoxelSize().x);
     const auto& player = scene.things[scene.cameraAnchorIdx];
     const auto pos = player.hitbox.getPosition() / W;
-    const auto plane = getPerpendicular(player.direction) * settings.FOV;
+    const auto plane = getPerpendicular(player.direction) * settings.fov;
 
 #define fireRay(col, isLeftmost, isRightmost)                                  \
     {                                                                          \
-        float cameraX = 2 * float(col) / settings.width - 1;                   \
+        float cameraX = 2 * float(col) / settings.resolution.width - 1;        \
         auto&& rayDir = player.direction + plane * cameraX;                    \
         depthBuffer[col] =                                                     \
             caster.castRay<isLeftmost, isRightmost>(pos, rayDir, scene);       \
@@ -139,7 +140,7 @@ void RenderingEngine::renderWorld(dgm::Window& window)
             const sf::Vector2f& point) { // Normally this should be divided by
                                          // camera direction vector size, but
                                          // that is guaranteed to be unit
-            return settings.height
+            return settings.resolution.height
                    / std::abs(
                        (dgm::Math::getDotProduct(point, player.direction) + c));
         };
@@ -153,7 +154,7 @@ void RenderingEngine::renderWorld(dgm::Window& window)
         bool isXnearZero = std::abs(plane.x) < EPSILON;
         float col =
             isXnearZero ? scaledPlane.y / plane.y : scaledPlane.x / plane.x;
-        return int(((col + 1) / 2) * settings.width);
+        return int(((col + 1) / 2) * settings.resolution.width);
     };
 
     /*
@@ -167,8 +168,8 @@ void RenderingEngine::renderWorld(dgm::Window& window)
      */
     caster.prepare();
     fireRay(0, true, false);
-    fireRay(settings.width - 1, false, true);
-    for (unsigned col = 1; col < settings.width - 1; col++)
+    fireRay(settings.resolution.width - 1, false, true);
+    for (unsigned col = 1; col < settings.resolution.width - 1; col++)
     {
         fireRay(col, false, false);
     }
@@ -206,7 +207,8 @@ void RenderingEngine::renderPlayerHud(
         getAmmoCountForActiveWeapon(inventory),
         inventory.score));
     const auto textBounds = text.getGlobalBounds();
-    text.setPosition(10.f, settings.height - textBounds.height - 10.f);
+    text.setPosition(
+        10.f, settings.resolution.height - textBounds.height - 10.f);
 
     /* FOR AI DEBUGGING
     context.text.setString(
@@ -226,8 +228,8 @@ void RenderingEngine::renderRespawnPrompt(dgm::Window& window)
     text.setString(Strings::Game::RESPAWN_PROMPT);
     const auto bounds = text.getGlobalBounds();
     text.setPosition(
-        (settings.width - bounds.width) / 2.f,
-        (settings.height - bounds.height) / 2.f);
+        (settings.resolution.width - bounds.width) / 2.f,
+        (settings.resolution.height - bounds.height) / 2.f);
     window.draw(text);
 }
 
@@ -250,7 +252,7 @@ void RenderingEngine::renderLevelMesh(
     };
 
     auto&& quads = sf::VertexArray(sf::Triangles); // mesh to render
-    const float midHeight = settings.height / 2.f;
+    const float midHeight = settings.resolution.height / 2.f;
 
     auto addFace = [&](const Face& face)
     {
@@ -333,7 +335,7 @@ void RenderingEngine::renderSprites(
     std::function<float(const sf::Vector2f&)> getHeight,
     std::function<int(const sf::Vector2f&)> getColumn)
 {
-    const auto&& midHeight = settings.height / 2.f;
+    const auto&& midHeight = settings.resolution.height / 2.f;
     const auto&& thingPlane = getPerpendicular(cameraDirection) * 0.5f;
 
     const auto&& thingsToRender = getFilteredAndOrderedThingsToRender(
@@ -431,10 +433,11 @@ std::optional<std::pair<float, float>> RenderingEngine::cropSpriteIfObscured(
     int movedLeftColumnBy = 0;
     int movedRightColumnBy = 0;
 
-    if (leftColumn >= int(settings.width) || rightColumn < 0)
+    if (leftColumn >= int(settings.resolution.width) || rightColumn < 0)
         return std::nullopt;
 
-    while (leftColumn < rightColumn && leftColumn < int(settings.width)
+    while (leftColumn < rightColumn
+           && leftColumn < int(settings.resolution.width)
            && (leftColumn < 0 || depthBuffer[leftColumn] < thingDistance))
     {
         ++leftColumn;
@@ -442,11 +445,12 @@ std::optional<std::pair<float, float>> RenderingEngine::cropSpriteIfObscured(
     }
 
     // Fully obscured or outside of view
-    if (leftColumn >= int(settings.width) || leftColumn >= rightColumn)
+    if (leftColumn >= int(settings.resolution.width)
+        || leftColumn >= rightColumn)
         return std::nullopt;
 
     while (leftColumn < rightColumn && rightColumn >= 0
-           && (rightColumn >= int(settings.width)
+           && (rightColumn >= int(settings.resolution.width)
                || depthBuffer[rightColumn] < thingDistance))
     {
         --rightColumn;

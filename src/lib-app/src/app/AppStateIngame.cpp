@@ -53,7 +53,7 @@ AppStateIngame::AppStateIngame(
           gameSettings,
           settings->input.mouseSensitivity))
     , scene(SceneBuilder::buildScene(level, gameSettings.players.size()))
-    , gameLoop(scene, eventQueue, resmgr, audioPlayer, getRenderSettings())
+    , gameLoop(scene, eventQueue, resmgr, audioPlayer, settings->display)
     , demoFileHandler(
           settings->cmdSettings.demoFile,
           settings->cmdSettings.playDemo ? DemoFileMode::Read
@@ -278,5 +278,5 @@ void AppStateIngame::propagateSettings()
     }
 
     gameLoop = mem::Box<GameLoop>(
-        scene, eventQueue, resmgr, audioPlayer, getRenderSettings());
+        scene, eventQueue, resmgr, audioPlayer, settings->display);
 }

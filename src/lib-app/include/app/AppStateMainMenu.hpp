@@ -2,6 +2,7 @@
 
 import Memory;
 import Options;
+import Audio;
 
 #include "GuiState.hpp"
 #include <vector>
