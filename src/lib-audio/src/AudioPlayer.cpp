@@ -12,6 +12,7 @@ void AudioPlayer::playSoundOnChannel(
     const bool force,
     std::optional<sf::Vector2f> position)
 {
+    assert(channel < channels.size());
     if (force || !isChannelActive(channel))
     {
         channels[channel].setBuffer(
@@ -33,6 +34,7 @@ void AudioPlayer::playSoundOnChannel(
 
 void AudioPlayer::stopChannel(const std::size_t channel)
 {
+    assert(channel < channels.size());
     channels[channel].stop();
 }
 

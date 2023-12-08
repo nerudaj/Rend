@@ -3,6 +3,7 @@
 #include "GuiState.hpp"
 
 import Options;
+import Audio;
 
 class AppStateMenuOptions final
     : public dgm::AppState
@@ -13,8 +14,12 @@ public:
         dgm::App& app,
         mem::Rc<tgui::Gui> gui,
         mem::Rc<AudioPlayer> audioPlayer,
+        mem::Rc<Jukebox> jukebox,
         mem::Rc<AppOptions> settings)
-        : dgm::AppState(app), GuiState(gui, audioPlayer), settings(settings)
+        : dgm::AppState(app)
+        , GuiState(gui, audioPlayer)
+        , jukebox(jukebox)
+        , settings(settings)
     {
         buildLayout();
     }
@@ -51,5 +56,6 @@ private:
     void buildInputOptionsLayout(GuiOptionsBuilder2& builder);
 
 private:
+    mem::Rc<Jukebox> jukebox;
     mem::Rc<AppOptions> settings;
 };

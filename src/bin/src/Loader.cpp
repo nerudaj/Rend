@@ -4,6 +4,9 @@
 #include <SFML/Audio.hpp>
 #pragma warning(pop)
 #include <TGUI/TGUI.hpp>
+#include <nlohmann/json.hpp>
+
+import Playlist;
 
 // Takes std::expected and throws exception if it contains error
 #define THROW_ON_ERROR(expr)                                                   \
@@ -60,6 +63,15 @@ loadShader(const std::filesystem::path& path, sf::Shader& shader)
     }
 }
 
+static inline void
+loadPlaylist(const std::filesystem::path& path, Playlist& playlist)
+{
+    std::ifstream load(path);
+    nlohmann::json json;
+    load >> json;
+    playlist = json;
+}
+
 void Loader::loadResources(
     dgm::ResourceManager& resmgr, const std::filesystem::path& rootDir)
 {
@@ -86,6 +98,9 @@ void Loader::loadResources(
 
     THROW_ON_ERROR(resmgr.loadResource<sf::Shader>(
         rootDir / "shaders" / "shader", loadShader));
+
+    THROW_ON_ERROR(resmgr.loadResource<Playlist>(
+        rootDir / "music" / "tracks.playlist", loadPlaylist));
 }
 
 #undef THROW_ON_ERROR

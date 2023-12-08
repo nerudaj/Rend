@@ -38,6 +38,7 @@ void AppStateMainMenu::buildLayoutImpl()
                       resmgr,
                       settings,
                       audioPlayer,
+                      jukebox,
                       mem::Rc<FileApi>(),
                       mem::Rc<ShortcutEngine>(
                           [_gui] { return _gui->isAnyModalOpened(); }),
@@ -48,7 +49,7 @@ void AppStateMainMenu::buildLayoutImpl()
               Strings::AppState::MainMenu::OPTIONS,
               [this] {
                   app.pushState<AppStateMenuOptions>(
-                      gui, audioPlayer, settings);
+                      gui, audioPlayer, jukebox, settings);
               }),
           ButtonProps(
               Strings::AppState::MainMenu::EXIT, [this] { app.exit(); }) },
@@ -73,5 +74,6 @@ void AppStateMainMenu::input()
 
 void AppStateMainMenu::goToGameSetup()
 {
-    app.pushState<AppStateGameSetup>(resmgr, gui, settings, audioPlayer);
+    app.pushState<AppStateGameSetup>(
+        resmgr, gui, settings, audioPlayer, jukebox);
 }

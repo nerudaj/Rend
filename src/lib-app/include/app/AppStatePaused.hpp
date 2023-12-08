@@ -13,8 +13,12 @@ public:
         dgm::App& app,
         mem::Rc<tgui::Gui> gui,
         mem::Rc<AudioPlayer> audioPlayer,
+        mem::Rc<Jukebox> jukebox,
         mem::Rc<AppOptions> settings)
-        : dgm::AppState(app), GuiState(gui, audioPlayer), settings(settings)
+        : dgm::AppState(app)
+        , GuiState(gui, audioPlayer)
+        , jukebox(jukebox)
+        , settings(settings)
     {
         buildLayout();
     }
@@ -43,5 +47,6 @@ private:
     void buildLayoutImpl() override;
 
 private:
+    mem::Rc<Jukebox> jukebox;
     mem::Rc<AppOptions> settings;
 };

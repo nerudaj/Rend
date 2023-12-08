@@ -9,13 +9,15 @@ AppStateGameSetup::AppStateGameSetup(
     mem::Rc<const dgm::ResourceManager> resmgr,
     mem::Rc<tgui::Gui> gui,
     mem::Rc<AppOptions> settings,
-    mem::Rc<AudioPlayer> audioPlayer) noexcept
+    mem::Rc<AudioPlayer> audioPlayer,
+    mem::Rc<Jukebox> jukebox) noexcept
     : AppState(app)
     , GuiState(gui, audioPlayer)
     , resmgr(resmgr)
     , gui(gui)
     , settings(settings)
     , audioPlayer(audioPlayer)
+    , jukebox(jukebox)
     , fraglimit(settings->cmdSettings.fraglimit)
     , playerCount(settings->cmdSettings.playerCount)
     , mapname(settings->cmdSettings.mapname)
@@ -109,6 +111,7 @@ void AppStateGameSetup::startGame()
         gui,
         settings,
         audioPlayer,
+        jukebox,
         GameOptions { .players = createPlayerSettings(),
                       .fraglimit = static_cast<unsigned>(fraglimit) },
         lvd);

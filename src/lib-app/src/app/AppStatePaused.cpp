@@ -19,7 +19,7 @@ void AppStatePaused::buildLayoutImpl()
               "options",
               [&] {
                   app.pushState<AppStateMenuOptions>(
-                      gui, audioPlayer, settings);
+                      gui, audioPlayer, jukebox, settings);
               }),
           ButtonProps(" main menu ", [&] { app.popState(2); }),
           ButtonProps("exit", [&] { app.exit(); }) },

@@ -12,10 +12,10 @@ import Memory;
 
 export constexpr const unsigned CHANNEL_COUNT = 10;
 
-export class AudioPlayer
+export class [[nodiscard]] AudioPlayer
 {
 public:
-    [[nodiscard]] AudioPlayer(
+    AudioPlayer(
         const std::size_t channelCount,
         mem::Rc<const dgm::ResourceManager> resmgr) noexcept
         : channels(channelCount), resmgr(resmgr)

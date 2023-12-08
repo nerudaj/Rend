@@ -20,7 +20,8 @@ public:
         mem::Rc<const dgm::ResourceManager> resmgr,
         mem::Rc<tgui::Gui> gui,
         mem::Rc<AppOptions> settings,
-        mem::Rc<AudioPlayer> audioPlayer) noexcept;
+        mem::Rc<AudioPlayer> audioPlayer,
+        mem::Rc<Jukebox> jukebox) noexcept;
 
 public:
     void input() override;
@@ -59,6 +60,7 @@ private:
     mem::Rc<tgui::Gui> gui;
     mem::Rc<AppOptions> settings;
     mem::Rc<AudioPlayer> audioPlayer;
+    mem::Rc<Jukebox> jukebox;
     int fraglimit;
     unsigned playerCount;
     std::string mapname;

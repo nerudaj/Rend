@@ -38,6 +38,7 @@ AppStateIngame::AppStateIngame(
     mem::Rc<tgui::Gui> _gui,
     mem::Rc<AppOptions> _settings,
     mem::Rc<AudioPlayer> _audioPlayer,
+    mem::Rc<Jukebox> _jukebox,
     GameOptions gameSettings,
     const LevelD& level,
     bool launchedFromEditor)
@@ -47,6 +48,7 @@ AppStateIngame::AppStateIngame(
     , settings(_settings)
     , gameSettings(gameSettings)
     , audioPlayer(_audioPlayer)
+    , jukebox(_jukebox)
     , launchedFromEditor(launchedFromEditor)
     , inputs(createInputs(
           _app.window.getWindowContext(),
@@ -67,6 +69,7 @@ AppStateIngame::AppStateIngame(
     app.window.getWindowContext().setFramerateLimit(60);
     lockMouse();
     createPlayers();
+    jukebox->playIngameSong();
 }
 
 void AppStateIngame::input()
@@ -95,7 +98,8 @@ void AppStateIngame::input()
                 else
                 {
                     unlockMouse();
-                    app.pushState<AppStatePaused>(gui, audioPlayer, settings);
+                    app.pushState<AppStatePaused>(
+                        gui, audioPlayer, jukebox, settings);
                 }
             }
             else if (event.key.code == sf::Keyboard::P)
@@ -210,6 +214,7 @@ void AppStateIngame::evaluateWinCondition()
         app.pushState<AppStateWinnerAnnounced>(
             gui,
             audioPlayer,
+            jukebox,
             gameSettings,
             scene.playerStates
                 | std::views::transform([](const PlayerState& state)

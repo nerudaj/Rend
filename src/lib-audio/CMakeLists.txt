@@ -11,6 +11,6 @@ glob_modules ( SRCS )
 
 add_library ( ${PROJECT_NAME} ${SRCS} )
 
-target_link_libraries ( ${PROJECT_NAME} lib-memory Dep_dgm Dep_sfml )
+target_link_libraries ( ${PROJECT_NAME} lib-memory Dep_json Dep_dgm Dep_sfml )
 
 autoset_target_compile_options ( ${PROJECT_NAME} FALSE )

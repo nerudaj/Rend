@@ -90,8 +90,6 @@ int main(int argc, char* argv[])
     auto&& gui = mem::Rc<tgui::Gui>();
     gui->setTarget(window.getWindowContext());
     auto&& resmgr = mem::Rc<dgm::ResourceManager>();
-    auto&& audioPlayer = mem::Rc<AudioPlayer>(CHANNEL_COUNT, resmgr);
-    audioPlayer->setSoundVolume(settings->audio.soundVolume);
 
     try
     {
@@ -102,9 +100,16 @@ int main(int argc, char* argv[])
         std::cerr << std::format("error:Loading resources: {}\n", e.what());
         throw;
     }
+
+    auto&& audioPlayer = mem::Rc<AudioPlayer>(CHANNEL_COUNT, resmgr);
+    audioPlayer->setSoundVolume(settings->audio.soundVolume);
+    auto&& jukebox =
+        mem::Rc<Jukebox>(*resmgr, settings->cmdSettings.resourcesDir);
+    jukebox->setVolume(settings->audio.musicVolume);
     gui->setFont(resmgr->get<tgui::Font>("pico-8.ttf").value());
 
-    app.pushState<AppStateMainMenu>(resmgr, gui, audioPlayer, settings);
+    app.pushState<AppStateMainMenu>(
+        resmgr, gui, audioPlayer, jukebox, settings);
     app.run();
 
     auto outWindowSettings = window.close();

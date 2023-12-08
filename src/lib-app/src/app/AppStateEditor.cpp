@@ -9,6 +9,7 @@
 #include <cmath>
 
 import Resources;
+import Audio;
 
 AppStateEditor::AppStateEditor(
     dgm::App& app,
@@ -17,6 +18,7 @@ AppStateEditor::AppStateEditor(
     mem::Rc<const dgm::ResourceManager> resmgr,
     mem::Rc<AppOptions> settings,
     mem::Rc<AudioPlayer> audioPlayer,
+    mem::Rc<Jukebox> jukebox,
     mem::Rc<FileApiInterface> fileApi,
     mem::Rc<ShortcutEngineInterface> shortcutEngine,
     mem::Rc<YesNoCancelDialogInterface> dialogConfirmExit,
@@ -27,6 +29,7 @@ AppStateEditor::AppStateEditor(
     , resmgr(resmgr)
     , settings(settings)
     , audioPlayer(audioPlayer)
+    , jukebox(jukebox)
     , fileApi(fileApi)
     , shortcutEngine(shortcutEngine)
     , dialogConfirmExit(dialogConfirmExit)
@@ -363,6 +366,7 @@ void AppStateEditor::handlePlayLevel()
         nativeGui,
         settings,
         audioPlayer,
+        jukebox,
         gameSettings,
         lvd,
         "launchedFromEditor"_true);

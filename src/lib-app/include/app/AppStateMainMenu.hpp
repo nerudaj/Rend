@@ -11,6 +11,24 @@ class AppStateMainMenu final
     : public dgm::AppState
     , public GuiState
 {
+public:
+    [[nodiscard]] AppStateMainMenu(
+        dgm::App& app,
+        mem::Rc<const dgm::ResourceManager> resmgr,
+        mem::Rc<tgui::Gui> gui,
+        mem::Rc<AudioPlayer> audioPlayer,
+        mem::Rc<Jukebox> jukebox,
+        mem::Rc<AppOptions> settings)
+        : dgm::AppState(app)
+        , GuiState(gui, audioPlayer)
+        , resmgr(resmgr)
+        , jukebox(jukebox)
+        , settings(settings)
+    {
+        buildLayout();
+        jukebox->playTitleSong();
+    }
+
 private:
     void buildLayoutImpl() override;
 
@@ -38,26 +56,14 @@ public:
     {
         app.window.getWindowContext().setTitle("Rend");
         GuiState::restoreFocus(app.window.getWindowContext());
-    }
-
-    [[nodiscard]] AppStateMainMenu(
-        dgm::App& app,
-        mem::Rc<const dgm::ResourceManager> resmgr,
-        mem::Rc<tgui::Gui> gui,
-        mem::Rc<AudioPlayer> audioPlayer,
-        mem::Rc<AppOptions> settings)
-        : dgm::AppState(app)
-        , GuiState(gui, audioPlayer)
-        , settings(settings)
-        , resmgr(resmgr)
-    {
-        buildLayout();
+        jukebox->playTitleSong();
     }
 
 private:
     void goToGameSetup();
 
 private:
-    mem::Rc<AppOptions> settings;
     mem::Rc<const dgm::ResourceManager> resmgr;
+    mem::Rc<Jukebox> jukebox;
+    mem::Rc<AppOptions> settings;
 };

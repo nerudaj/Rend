@@ -67,78 +67,82 @@ void AppStateMenuOptions::buildLayoutImpl()
 
 void AppStateMenuOptions::buildDisplayOptionsLayout(GuiOptionsBuilder2& builder)
 {
-    builder
-        .addOption(
-            Strings::AppState::Options::FULLSCREEN,
-            WidgetCreator2::createCheckbox(
-                app.window.isFullscreen(),
-                [this](bool) { app.window.toggleFullscreen(); }))
-        .addOption(
-            Strings::AppState::Options::SET_RESOLUTION,
-            WidgetCreator2::createDropdown(
-                STRING_RESOLUTIONS,
-                getWindowResolutionAsString(app.window),
-                [this](std::size_t idx)
-                {
-                    if (idx == -1) return;
+    std::ignore =
+        builder
+            .addOption(
+                Strings::AppState::Options::FULLSCREEN,
+                WidgetCreator2::createCheckbox(
+                    app.window.isFullscreen(),
+                    [this](bool) { app.window.toggleFullscreen(); }))
+            .addOption(
+                Strings::AppState::Options::SET_RESOLUTION,
+                WidgetCreator2::createDropdown(
+                    STRING_RESOLUTIONS,
+                    getWindowResolutionAsString(app.window),
+                    [this](std::size_t idx)
+                    {
+                        if (idx == -1) return;
 
-                    // Restart window with new resolution
-                    app.window.changeResolution(NUM_RESOLUTIONS[idx]);
+                        // Restart window with new resolution
+                        app.window.changeResolution(NUM_RESOLUTIONS[idx]);
 
-                    // Force gui to update viewport and resolution
-                    restoreFocus();
-                }))
-        .addOption(
-            Strings::AppState::Options::USE_DITHERED_SHADES,
-            WidgetCreator2::createCheckbox(
-                settings->display.useDitheredShadows,
-                [this](bool)
-                {
-                    settings->display.useDitheredShadows =
-                        !settings->display.useDitheredShadows;
-                }))
-        .addOption(
-            Strings::AppState::Options::SHOW_FPS,
-            WidgetCreator2::createCheckbox(
-                settings->display.showFps,
-                [this](bool)
-                { settings->display.showFps = !settings->display.showFps; }))
-        .addOption(
-            Strings::AppState::Options::FOV,
-            WidgetCreator2::createSlider(
-                settings->display.fov,
-                [this](float value) { settings->display.fov = value; },
-                0.6f,
-                1.2f,
-                0.01f));
+                        // Force gui to update viewport and resolution
+                        restoreFocus();
+                    }))
+            .addOption(
+                Strings::AppState::Options::USE_DITHERED_SHADES,
+                WidgetCreator2::createCheckbox(
+                    settings->display.useDitheredShadows,
+                    [this](bool)
+                    {
+                        settings->display.useDitheredShadows =
+                            !settings->display.useDitheredShadows;
+                    }))
+            .addOption(
+                Strings::AppState::Options::SHOW_FPS,
+                WidgetCreator2::createCheckbox(
+                    settings->display.showFps,
+                    [this](bool) {
+                        settings->display.showFps = !settings->display.showFps;
+                    }))
+            .addOption(
+                Strings::AppState::Options::FOV,
+                WidgetCreator2::createSlider(
+                    settings->display.fov,
+                    [this](float value) { settings->display.fov = value; },
+                    0.6f,
+                    1.2f,
+                    0.01f));
 }
 
 void AppStateMenuOptions::buildAudioOptionsLayout(GuiOptionsBuilder2& builder)
 {
-    builder
-        .addOption(
-            Strings::AppState::Options::SOUND_VOLUME,
-            WidgetCreator2::createSlider(
-                settings->audio.soundVolume,
-                [this](float value)
-                {
-                    settings->audio.soundVolume = value;
-                    audioPlayer->setSoundVolume(settings->audio.soundVolume);
-                }))
-        .addOption(
-            Strings::AppState::Options::MUSIC_VOLUME,
-            WidgetCreator2::createSlider(
-                settings->audio.musicVolume,
-                [this](float value)
-                {
-                    settings->audio.musicVolume = value;
-                    audioPlayer->setSoundVolume(settings->audio.musicVolume);
-                }));
+    std::ignore =
+        builder
+            .addOption(
+                Strings::AppState::Options::SOUND_VOLUME,
+                WidgetCreator2::createSlider(
+                    settings->audio.soundVolume,
+                    [this](float value)
+                    {
+                        settings->audio.soundVolume = value;
+                        audioPlayer->setSoundVolume(
+                            settings->audio.soundVolume);
+                    }))
+            .addOption(
+                Strings::AppState::Options::MUSIC_VOLUME,
+                WidgetCreator2::createSlider(
+                    settings->audio.musicVolume,
+                    [this](float value)
+                    {
+                        settings->audio.musicVolume = value;
+                        jukebox->setVolume(settings->audio.musicVolume);
+                    }));
 }
 
 void AppStateMenuOptions::buildInputOptionsLayout(GuiOptionsBuilder2& builder)
 {
-    builder.addOption(
+    std::ignore = builder.addOption(
         Strings::AppState::Options::MOUSE_SENSITIVITY,
         WidgetCreator2::createSlider(
             settings->input.mouseSensitivity,

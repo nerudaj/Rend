@@ -2,6 +2,7 @@
 
 import Memory;
 import Options;
+import Audio;
 
 #include "GuiState.hpp"
 #include <DGM/classes/AppState.hpp>
@@ -18,15 +19,18 @@ public:
         dgm::App& app,
         mem::Rc<tgui::Gui> gui,
         mem::Rc<AudioPlayer> audioPlayer,
+        mem::Rc<Jukebox> jukebox,
         const GameOptions& gameSettings,
         dgm::UniversalReference<std::vector<int>> auto&& scores)
         : dgm::AppState(app)
         , GuiState(gui, audioPlayer)
         , gui(gui)
+        , jukebox(jukebox)
         , gameSettings(gameSettings)
         , scores(std::forward<decltype(scores)>(scores))
     {
         buildLayout();
+        jukebox->playInterludeSong();
     }
 
 public:
@@ -54,6 +58,7 @@ private:
 
 private:
     mem::Rc<tgui::Gui> gui;
+    mem::Rc<Jukebox> jukebox;
     GameOptions gameSettings;
     std::vector<int> scores;
     float transitionTimeout = 4.f; // seconds

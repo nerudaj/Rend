@@ -33,6 +33,7 @@ public:
         mem::Rc<const dgm::ResourceManager> resmgr,
         mem::Rc<AppOptions> settings,
         mem::Rc<AudioPlayer> audioPlayer,
+        mem::Rc<Jukebox> jukebox,
         mem::Rc<FileApiInterface> fileApi,
         mem::Rc<ShortcutEngineInterface> shortcutEngine,
         mem::Rc<YesNoCancelDialogInterface> dialogConfirmExit,
@@ -45,6 +46,7 @@ protected:
     mem::Rc<const dgm::ResourceManager> resmgr;
     mem::Rc<AppOptions> settings;
     mem::Rc<AudioPlayer> audioPlayer;
+    mem::Rc<Jukebox> jukebox;
     mem::Rc<ShortcutEngineInterface> shortcutEngine;
     mem::Rc<FileApiInterface> fileApi;
     mem::Rc<YesNoCancelDialogInterface> dialogConfirmExit;

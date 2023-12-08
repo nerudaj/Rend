@@ -31,6 +31,7 @@ public:
         mem::Rc<tgui::Gui> gui,
         mem::Rc<AppOptions> settings,
         mem::Rc<AudioPlayer> audioPlayer,
+        mem::Rc<Jukebox> jukebox,
         GameOptions gameSettings,
         const LevelD& level,
         bool launchedFromEditor = false);
@@ -91,6 +92,7 @@ protected:
     mem::Rc<AppOptions> settings;
     GameOptions gameSettings;
     mem::Rc<AudioPlayer> audioPlayer;
+    mem::Rc<Jukebox> jukebox;
     mem::Rc<EventQueue> eventQueue;
     bool launchedFromEditor;
 
