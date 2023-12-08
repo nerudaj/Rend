@@ -206,8 +206,6 @@ struct overloaded : Ts...
 
 void GameRulesEngine::update(const float deltaTime)
 {
-    indicesToRemove.clear();
-
     for (auto&& [thing, id] : scene.things)
     {
         switch (thing.typeId)
@@ -241,6 +239,7 @@ void GameRulesEngine::deleteMarkedObjects()
             scene.things.eraseAtIndex(indicesToRemove[i]);
         }
     }
+    indicesToRemove.clear();
 }
 
 void GameRulesEngine::handlePlayer(Entity& thing, std::size_t idx)

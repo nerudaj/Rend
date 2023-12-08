@@ -95,7 +95,7 @@ static void createCameraAnchorsAtPlaceOfFirstSpawn(
     {
         if (isSpawn(thing))
         {
-            for (std::size_t idx : std::views::iota(0u, maxPlayerCount))
+            for (std::size_t _ : std::views::iota(0u, maxPlayerCount))
             {
                 result.emplaceBack(createEntity(
                     EntityType::CameraAnchor,

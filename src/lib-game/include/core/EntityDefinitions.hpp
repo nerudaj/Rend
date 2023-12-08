@@ -73,7 +73,10 @@ const static inline auto ENTITY_PROPERTIES =
               .states = { { AnimationStateId::Idle,
                             AnimationState {
                                 .clip = { { FlareExplosionA,
-                                            7,
+                                            1 }, // Padding required before
+                                                 // sound playback
+                                          { FlareExplosionA,
+                                            6,
                                             playSound("flare_explosion.wav") },
                                           { FlareExplosionB, 7 },
                                           { FlareExplosionC, 7 },
@@ -89,7 +92,10 @@ const static inline auto ENTITY_PROPERTIES =
               .states = { { AnimationStateId::Idle,
                             AnimationState {
                                 .clip = { { ExplosionA,
-                                            2,
+                                            1 }, // Padding required before
+                                                 // sound playback
+                                          { ExplosionA,
+                                            1,
                                             playSound("rocket_explosion.wav") },
                                           { ExplosionB, 2 },
                                           { ExplosionC, 2 },
@@ -105,7 +111,10 @@ const static inline auto ENTITY_PROPERTIES =
               .states = { { AnimationStateId::Idle,
                             AnimationState {
                                 .clip = { { DartExplosionA,
-                                            3,
+                                            1 }, // Padding required before
+                                                 // sound playback
+                                          { DartExplosionA,
+                                            2,
                                             playSound("dart_explosion.wav") },
                                           { DartExplosionB, 3 },
                                           { DartExplosionC, 3 } },

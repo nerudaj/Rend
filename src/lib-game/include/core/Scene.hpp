@@ -89,8 +89,9 @@ struct PlayerState
 
 struct Level
 {
-    unsigned width;
-    unsigned heightHint;
+    unsigned width = 0;
+    // ????
+    unsigned heightHint = 0;
     dgm::Mesh bottomMesh;
     dgm::Mesh upperMesh;
 };
@@ -104,9 +105,9 @@ struct Scene
 {
     // This has to be backed up
     std::size_t tick = 0;
-    dgm::DynamicBuffer<Entity> things;
-    dgm::DynamicBuffer<Marker> markers;
-    std::vector<PlayerState> playerStates;
+    dgm::DynamicBuffer<Entity> things = {};
+    dgm::DynamicBuffer<Marker> markers = {};
+    std::vector<PlayerState> playerStates = {};
 
     // TODO: Extract to CameraContext
     // TODO: Backup
@@ -118,7 +119,7 @@ struct Scene
     DrawableLevel drawableLevel;
     dgm::SpatialIndex<EntityIndexType> spatialIndex;
     DistanceIndex distanceIndex;
-    std::vector<sf::Vector2f> spawns;
+    std::vector<sf::Vector2f> spawns = {};
     dgm::WorldNavMesh navmesh;
 };
 
