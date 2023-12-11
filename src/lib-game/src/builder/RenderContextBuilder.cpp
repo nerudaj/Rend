@@ -17,7 +17,7 @@ sf::RectangleShape RenderContextBuilder::createSkybox(
     const sf::Texture& texture, unsigned screenWidth, unsigned screenHeight)
 {
     auto result = sf::RectangleShape(
-        sf::Vector2f(sf::Vector2u(screenWidth * 2, screenHeight / 2)));
+        sf::Vector2f(sf::Vector2u(screenWidth * 2, screenHeight)));
     result.setTexture(&texture);
     return result;
 }
