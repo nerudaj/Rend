@@ -40,7 +40,7 @@ public:
     getBestSpawnDirection(const sf::Vector2f& spawnPosition) const noexcept;
 
 private:
-    void handlePlayer(Entity& thing, std::size_t id);
+    void handlePlayer(Entity& thing, std::size_t id, const float dt);
 
     void handleDeadPlayer(MarkerDeadPlayer& thing, const std::size_t id);
 

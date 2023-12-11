@@ -92,6 +92,6 @@ constinit const unsigned MAX_LEVEL_WIDTH = 32;
 constinit const unsigned MAX_LEVEL_HEIGHT = 32;
 const sf::Vector2f NULL_VECTOR = { 0.f, 0.f };
 constinit const float EPSILON = 0.001f;
-constinit const float OVERLAY_INTENSITY_DECAY_RATE = 192.f; // units per second
+constinit const float OVERLAY_INTENSITY_DECAY_RATE = 96.f; // units per second
 
 #define DEBUG_REMOVALS 0

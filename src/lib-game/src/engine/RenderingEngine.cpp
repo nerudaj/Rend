@@ -3,6 +3,7 @@
 #include <Configs/Strings.hpp>
 #include <builder/RenderContextBuilder.hpp>
 #include <numbers>
+#include <ranges>
 #include <utils/GameLogicHelpers.hpp>
 
 [[nodiscard]] static std::pair<std::uint8_t, bool> getRotatedSpriteClipId(
@@ -279,13 +280,39 @@ void RenderingEngine::renderHudForAmmo(
 void RenderingEngine::renderHudForWeaponSelection(
     dgm::Window& window, const PlayerInventory& inventory)
 {
+    if (inventory.selectionTimeout <= 0.f) return;
+
+    const auto start = spriteIdToIndex(SpriteId::HUD_FlaregunOutline);
+    const auto end = spriteIdToIndex(SpriteId::HUD_OutlineEnd);
+    const auto weaponCount = end - start;
+    const float baseX = settings.resolution.width / 2.f
+                        - weaponCount * hud.sprite.getSize().x / 2.f;
+    for (auto idx : std::views::iota(0, weaponCount))
+    {
+        const bool isActive =
+            idx == weaponTypeToIndex(inventory.activeWeaponType);
+        const bool isAcquired = inventory.acquiredWeapons[idx];
+        const bool isSelected = inventory.selectionIdx == idx;
+        hud.sprite.setPosition(baseX + idx * hud.sprite.getSize().x, 10.f);
+        hud.sprite.setFillColor(
+            isActive     ? sf::Color::Yellow
+            : isSelected ? sf::Color::Magenta
+            : isAcquired ? sf::Color::Green
+                         : sf::Color::Red);
+        hud.sprite.setTextureRect(hud.clipping.getFrame(idx + start));
+        window.draw(hud.sprite);
+    }
+
+    hud.sprite.setFillColor(sf::Color::White);
+}
+
+void RenderingEngine::renderHurtOverlay(dgm::Window& window)
+{
     auto redOverlay = sf::RectangleShape(sf::Vector2f(window.getSize()));
     redOverlay.setFillColor(
         sf::Color(255, 0, 0, sf::Int8(scene.redOverlayIntensity)));
     window.draw(redOverlay);
 }
-
-void RenderingEngine::renderHurtOverlay(dgm::Window& window) {}
 
 void RenderingEngine::renderRespawnPrompt(dgm::Window& window)
 {

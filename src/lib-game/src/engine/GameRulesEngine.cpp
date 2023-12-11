@@ -211,7 +211,7 @@ void GameRulesEngine::update(const float deltaTime)
         switch (thing.typeId)
         {
         case EntityType::Player:
-            handlePlayer(thing, id);
+            handlePlayer(thing, id, deltaTime);
             break;
         default:
             break;
@@ -242,7 +242,8 @@ void GameRulesEngine::deleteMarkedObjects()
     indicesToRemove.clear();
 }
 
-void GameRulesEngine::handlePlayer(Entity& thing, std::size_t idx)
+void GameRulesEngine::handlePlayer(
+    Entity& thing, std::size_t idx, const float dt)
 {
     auto& state = scene.playerStates[thing.stateIdx];
 
@@ -259,32 +260,53 @@ void GameRulesEngine::handlePlayer(Entity& thing, std::size_t idx)
         }
     }
 
+    const auto isSelectingWeapon = state.inventory.selectionTimeout > 0.f;
+    state.inventory.selectionTimeout -= dt;
+    const auto isSelectionConfirmed =
+        state.inventory.selectionTimeout < 0.f || state.input.isShooting();
+    // No weapon interaction allowed when weapon is not in idle
     const auto isAllowedToFire =
         state.inventory.animationContext.animationStateId
         == AnimationStateId::Idle;
-    const auto isAllowedToSwapWeapons =
+    const auto isAllowedToSelectAnotherWeapon =
         isAllowedToFire
         || state.inventory.animationContext.animationStateId
                == AnimationStateId::Recovery;
-
-    // No weapon interaction allowed when weapon is not in idle
-    if (isAllowedToFire && state.input.isShooting()
+    if (isSelectingWeapon && isSelectionConfirmed)
+    {
+        state.input.stopShooting();
+        state.inventory.selectionTimeout = 0.f;
+        state.inventory.lastWeaponType = state.inventory.activeWeaponType;
+        state.inventory.activeWeaponType =
+            weaponIndexToType(state.inventory.selectionIdx);
+        eventQueue->emplace<WeaponSwappedAnimationEvent>(idx);
+    }
+    else if (
+        isAllowedToFire && state.input.isShooting()
         && canFireActiveWeapon(state.inventory))
     {
         eventQueue->emplace<PlayerFiredAnimationEvent>(idx);
     }
-    else if (isAllowedToSwapWeapons)
+    else if (isAllowedToSelectAnotherWeapon)
     {
         if (state.input.shouldSwapToPreviousWeapon())
         {
-            swapToPreviousWeapon(state.inventory, idx);
+            state.inventory.selectionIdx = getPrevToggledBit(
+                state.inventory.selectionIdx, state.inventory.acquiredWeapons);
+            state.inventory.selectionTimeout = 3.f;
         }
         else if (state.input.shouldSwapToNextWeapon())
         {
-            swapToNextWeapon(state.inventory, idx);
+            state.inventory.selectionIdx = getNextToggledBit(
+                state.inventory.selectionIdx, state.inventory.acquiredWeapons);
+            state.inventory.selectionTimeout = 3.f;
         }
         else if (state.input.shouldSwapToLastWeapon())
         {
+            std::swap(
+                state.inventory.lastWeaponType,
+                state.inventory.activeWeaponType);
+            eventQueue->emplace<WeaponSwappedAnimationEvent>(idx);
         }
     }
 

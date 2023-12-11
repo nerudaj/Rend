@@ -163,7 +163,10 @@ enum class SpriteId : std::uint8_t
     HUD_FlaregunOutline,
     HUD_ShotgunOutline,
     HUD_TrishotOutline,
-    HUD_CrossbowOutline
+    HUD_CrossbowOutline,
+    HUD_LauncherOutline,
+    HUD_BallistaOutline,
+    HUD_OutlineEnd,
 };
 
 enum class EntityType

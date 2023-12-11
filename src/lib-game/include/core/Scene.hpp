@@ -67,6 +67,8 @@ struct PlayerInventory
     std::array<AmmoCounterType, 4> ammo = { 0, 0, 0, PLAYER_INITIAL_ROCKETS };
     AcquitedWeaponsArray acquiredWeapons;
     int score = 0;
+    float selectionTimeout = 0.f;
+    std::size_t selectionIdx = 0;
 };
 
 struct AiBlackboard

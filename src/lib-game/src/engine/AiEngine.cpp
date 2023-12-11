@@ -215,6 +215,7 @@ bool AiEngine::shouldSwapWeapon(
     const Entity&,
     const PlayerInventory& inventory) const noexcept
 {
+    return false;
     auto index = blackboard.playerStateIdx;
     return inventory.acquiredWeapons[index]
            && weaponTypeToIndex(inventory.activeWeaponType) != index;
