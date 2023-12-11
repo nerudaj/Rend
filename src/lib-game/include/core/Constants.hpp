@@ -15,6 +15,7 @@ constinit const float PROJECTILE_FORWARD_SPEED = 108.f;
 // Game logic
 constinit const unsigned FPS = 60;
 constinit const float FRAME_TIME = 1.f / FPS;
+constinit const float WEAPON_SELECTION_TIMEOUT = 3_seconds;
 constinit const int PLAYER_INITIAL_HEALTH = 100;
 constinit const int PLAYER_INITIAL_ARMOR = 0;
 constinit const int PLAYER_INITIAL_ROCKETS = 20;
@@ -92,6 +93,5 @@ constinit const unsigned MAX_LEVEL_WIDTH = 32;
 constinit const unsigned MAX_LEVEL_HEIGHT = 32;
 const sf::Vector2f NULL_VECTOR = { 0.f, 0.f };
 constinit const float EPSILON = 0.001f;
-constinit const float OVERLAY_INTENSITY_DECAY_RATE = 96.f; // units per second
-
+constinit const float OVERLAY_INTENSITY_DECAY_RATE = 96_unitspersec;
 #define DEBUG_REMOVALS 0

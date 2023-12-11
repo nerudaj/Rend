@@ -57,9 +57,13 @@ private:
 
     [[nodiscard]] bool canFireActiveWeapon(PlayerInventory& inventory) noexcept;
 
-    void swapToPreviousWeapon(PlayerInventory& inventory, EntityIndexType idx);
+    void selectPreviousWeapon(PlayerInventory& inventory);
 
-    void swapToNextWeapon(PlayerInventory& inventory, EntityIndexType idx);
+    void selectNextWeapon(PlayerInventory& inventory);
+
+    void swapToSelectedWeapon(PlayerState& state, EntityIndexType idx);
+
+    void swapToLastWeapon(PlayerInventory& inventory, EntityIndexType idx);
 
     /// <returns>True if thing was succesfully given</returns>
     [[nodiscard]] bool

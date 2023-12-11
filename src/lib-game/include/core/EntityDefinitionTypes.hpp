@@ -25,7 +25,7 @@ using AnimationClip = std::vector<AnimationFrame>;
 struct AnimationState
 {
     AnimationClip clip;
-    AnimationStateId transition;
+    AnimationStateId transition = AnimationStateId::Idle;
 };
 
 using EntityStates = std::map<AnimationStateId, AnimationState>;

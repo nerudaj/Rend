@@ -38,3 +38,9 @@ operator""_damage(unsigned long long value) noexcept
 {
     return static_cast<int>(value);
 }
+
+[[nodiscard]] consteval static float
+operator""_seconds(unsigned long long value) noexcept
+{
+    return static_cast<float>(value);
+}

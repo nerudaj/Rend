@@ -213,10 +213,43 @@ void RenderingEngine::renderHudActiveWeapon(
         player.hitbox.getPosition()
         / static_cast<float>(scene.drawableLevel.lightmap.getVoxelSize().x)));
 
+    const bool isLowering = [](AnimationStateId id)
+    {
+        using enum AnimationStateId;
+        return id == Lower || id == FastLower;
+    }(inventory.animationContext.animationStateId);
+
+    const bool isRaising = [](AnimationStateId id)
+    {
+        using enum AnimationStateId;
+        return id == Raise || id == FastRaise;
+    }(inventory.animationContext.animationStateId);
+
+    const float lowerRaiseProgress =
+        (scene.tick - inventory.animationContext.lastAnimationUpdate)
+        / static_cast<float>(
+            ENTITY_PROPERTIES.at(inventory.activeWeaponType)
+                .states.at(inventory.animationContext.animationStateId)
+                .clip.front()
+                .duration);
+
+    const auto oldPos = weapon.sprite.getPosition();
+    if (isLowering || isRaising)
+    {
+        const float slideFactor =
+            isLowering ? lowerRaiseProgress : 1.f - lowerRaiseProgress;
+        const float maxSlideAmount = weapon.sprite.getSize().y;
+        const float slideOffset = weapon.sprite.getSize().y * slideFactor;
+        const float yPos = oldPos.y + slideOffset;
+        weapon.sprite.setPosition(oldPos.x, yPos);
+    }
+
     weapon.sprite.setTextureRect(weapon.clipping.getFrame(
         static_cast<std::size_t>(inventory.animationContext.spriteClipIndex)));
     weapon.sprite.setFillColor(sf::Color { light, light, light });
     window.draw(weapon.sprite);
+
+    weapon.sprite.setPosition(oldPos);
 }
 
 void RenderingEngine::renderHudForHealth(
@@ -289,14 +322,11 @@ void RenderingEngine::renderHudForWeaponSelection(
                         - weaponCount * hud.sprite.getSize().x / 2.f;
     for (auto idx : std::views::iota(0, weaponCount))
     {
-        const bool isActive =
-            idx == weaponTypeToIndex(inventory.activeWeaponType);
         const bool isAcquired = inventory.acquiredWeapons[idx];
         const bool isSelected = inventory.selectionIdx == idx;
         hud.sprite.setPosition(baseX + idx * hud.sprite.getSize().x, 10.f);
         hud.sprite.setFillColor(
-            isActive     ? sf::Color::Yellow
-            : isSelected ? sf::Color::Magenta
+            isSelected   ? sf::Color::Magenta
             : isAcquired ? sf::Color::Green
                          : sf::Color::Red);
         hud.sprite.setTextureRect(hud.clipping.getFrame(idx + start));

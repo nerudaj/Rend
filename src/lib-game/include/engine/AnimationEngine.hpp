@@ -2,17 +2,18 @@
 
 #include <core/EntityDefinitionTypes.hpp>
 #include <core/Scene.hpp>
+#include <engine/EngineCommonBase.hpp>
 #include <events/AnimationEvents.hpp>
 #include <events/EventQueue.hpp>
 
 import Memory;
 
-class AnimationEngine
+class AnimationEngine final : public EngineCommonBase
 {
 public:
     [[nodiscard]] AnimationEngine(
         Scene& scene, mem::Rc<EventQueue> eventQueue) noexcept
-        : scene(scene), eventQueue(eventQueue)
+        : EngineCommonBase(scene), eventQueue(eventQueue)
     {
     }
 
@@ -37,13 +38,6 @@ private:
         std::size_t entityIdx,
         const AnimationState& oldState);
 
-    [[nodiscard]] constexpr auto&
-    getInventory(this auto&& self, EntityIndexType playerIdx) noexcept
-    {
-        return self.scene.playerStates[self.scene.things[playerIdx].stateIdx]
-            .inventory;
-    }
-
     void
     setWeaponAnimationState(EntityIndexType playerIdx, AnimationStateId state);
 
@@ -55,6 +49,5 @@ private:
         EntityIndexType idx);
 
 private:
-    Scene& scene;
     mem::Rc<EventQueue> eventQueue;
 };

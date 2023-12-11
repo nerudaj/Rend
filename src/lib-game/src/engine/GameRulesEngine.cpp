@@ -272,14 +272,10 @@ void GameRulesEngine::handlePlayer(
         isAllowedToFire
         || state.inventory.animationContext.animationStateId
                == AnimationStateId::Recovery;
+
     if (isSelectingWeapon && isSelectionConfirmed)
     {
-        state.input.stopShooting();
-        state.inventory.selectionTimeout = 0.f;
-        state.inventory.lastWeaponType = state.inventory.activeWeaponType;
-        state.inventory.activeWeaponType =
-            weaponIndexToType(state.inventory.selectionIdx);
-        eventQueue->emplace<WeaponSwappedAnimationEvent>(idx);
+        swapToSelectedWeapon(state, idx);
     }
     else if (
         isAllowedToFire && state.input.isShooting()
@@ -291,22 +287,15 @@ void GameRulesEngine::handlePlayer(
     {
         if (state.input.shouldSwapToPreviousWeapon())
         {
-            state.inventory.selectionIdx = getPrevToggledBit(
-                state.inventory.selectionIdx, state.inventory.acquiredWeapons);
-            state.inventory.selectionTimeout = 3.f;
+            selectPreviousWeapon(state.inventory);
         }
         else if (state.input.shouldSwapToNextWeapon())
         {
-            state.inventory.selectionIdx = getNextToggledBit(
-                state.inventory.selectionIdx, state.inventory.acquiredWeapons);
-            state.inventory.selectionTimeout = 3.f;
+            selectNextWeapon(state.inventory);
         }
         else if (state.input.shouldSwapToLastWeapon())
         {
-            std::swap(
-                state.inventory.lastWeaponType,
-                state.inventory.activeWeaponType);
-            eventQueue->emplace<WeaponSwappedAnimationEvent>(idx);
+            swapToLastWeapon(state.inventory, idx);
         }
     }
 
@@ -362,22 +351,43 @@ bool GameRulesEngine::canFireActiveWeapon(PlayerInventory& inventory) noexcept
            >= getMinimumAmmoNeededToFireWeapon(inventory.activeWeaponType);
 }
 
-void GameRulesEngine::swapToPreviousWeapon(
-    PlayerInventory& inventory, EntityIndexType idx)
+void GameRulesEngine::selectPreviousWeapon(PlayerInventory& inventory)
 {
-    inventory.activeWeaponType = weaponIndexToType(getPrevToggledBit(
-        weaponTypeToIndex(inventory.activeWeaponType),
-        inventory.acquiredWeapons));
-    eventQueue->emplace<WeaponSwappedAnimationEvent>(idx);
+    inventory.selectionIdx =
+        getPrevToggledBit(inventory.selectionIdx, inventory.acquiredWeapons);
+    inventory.selectionTimeout = WEAPON_SELECTION_TIMEOUT;
 }
 
-void GameRulesEngine::swapToNextWeapon(
+void GameRulesEngine::selectNextWeapon(PlayerInventory& inventory)
+{
+    inventory.selectionIdx =
+        getNextToggledBit(inventory.selectionIdx, inventory.acquiredWeapons);
+    inventory.selectionTimeout = WEAPON_SELECTION_TIMEOUT;
+}
+
+void GameRulesEngine::swapToSelectedWeapon(
+    PlayerState& state, EntityIndexType idx)
+{
+    state.input.stopShooting();
+    state.inventory.selectionTimeout = 0.f;
+
+    if (weaponIndexToType(state.inventory.selectionIdx)
+        == state.inventory.activeWeaponType)
+        return;
+
+    // Writing lastWeaponType as animation system will swap it
+    state.inventory.lastWeaponType =
+        weaponIndexToType(state.inventory.selectionIdx);
+    eventQueue->emplace<WeaponSwappedAnimationEvent>(
+        idx, AnimationStateId::Lower);
+}
+
+void GameRulesEngine::swapToLastWeapon(
     PlayerInventory& inventory, EntityIndexType idx)
 {
-    inventory.activeWeaponType = weaponIndexToType(getNextToggledBit(
-        weaponTypeToIndex(inventory.activeWeaponType),
-        inventory.acquiredWeapons));
-    eventQueue->emplace<WeaponSwappedAnimationEvent>(idx);
+    if (inventory.lastWeaponType == inventory.activeWeaponType) return;
+    eventQueue->emplace<WeaponSwappedAnimationEvent>(
+        idx, AnimationStateId::FastLower);
 }
 
 bool GameRulesEngine::give(

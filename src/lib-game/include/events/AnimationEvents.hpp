@@ -4,27 +4,30 @@
 #include <cstdlib>
 #include <variant>
 
-struct SetStateAnimationEvent
+struct [[nodiscard]] SetStateAnimationEvent
 {
     EntityIndexType thingsId;
     int stateIdx;
 };
 
-struct PlayerFiredAnimationEvent
+struct [[nodiscard]] PlayerFiredAnimationEvent
 {
     EntityIndexType playerIdx;
 
-    PlayerFiredAnimationEvent(EntityIndexType playerIdx) : playerIdx(playerIdx)
+    PlayerFiredAnimationEvent(EntityIndexType playerIdx) noexcept
+        : playerIdx(playerIdx)
     {
     }
 };
 
-struct WeaponSwappedAnimationEvent
+struct [[nodiscard]] WeaponSwappedAnimationEvent
 {
     EntityIndexType playerIdx;
+    AnimationStateId animationId;
 
-    WeaponSwappedAnimationEvent(EntityIndexType playerIdx)
-        : playerIdx(playerIdx)
+    WeaponSwappedAnimationEvent(
+        EntityIndexType playerIdx, AnimationStateId animationId) noexcept
+        : playerIdx(playerIdx), animationId(animationId)
     {
     }
 };

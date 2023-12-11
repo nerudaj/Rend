@@ -14,7 +14,7 @@ void AnimationEngine::operator()(const PlayerFiredAnimationEvent& e)
 
 void AnimationEngine::operator()(const WeaponSwappedAnimationEvent& e)
 {
-    setWeaponAnimationState(e.playerIdx, AnimationStateId::Idle);
+    setWeaponAnimationState(e.playerIdx, e.animationId);
 }
 
 void AnimationEngine::update(const float)
@@ -58,13 +58,19 @@ void AnimationEngine::handleUpdate(
 void AnimationEngine::handleTransition(
     AnimationContext& context,
     EntityType entityType,
-    std::size_t entityIdx,
+    EntityIndexType entityIdx,
     const AnimationState& oldState)
 {
     switch (oldState.transition)
     {
         using enum AnimationStateId;
 
+    case Raise:
+        eventQueue->emplace<WeaponSwappedAnimationEvent>(entityIdx, Raise);
+        break;
+    case FastRaise:
+        eventQueue->emplace<WeaponSwappedAnimationEvent>(entityIdx, FastRaise);
+        break;
     case MarkerLoop:
         context.animationFrameIndex = 0;
         updateSpriteId(context, oldState, entityIdx);
@@ -90,6 +96,14 @@ void AnimationEngine::setWeaponAnimationState(
     EntityIndexType playerIdx, AnimationStateId state)
 {
     auto&& inventory = getInventory(playerIdx);
+
+    using enum AnimationStateId;
+    if (state == Raise || state == FastRaise)
+    {
+        assert(inventory.activeWeaponType != inventory.lastWeaponType);
+        std::swap(inventory.activeWeaponType, inventory.lastWeaponType);
+    }
+
     inventory.animationContext.animationStateId = state;
     inventory.animationContext.animationFrameIndex = 0;
     updateSpriteId(

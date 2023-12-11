@@ -5,6 +5,11 @@
 #include <utils/SemanticTypes.hpp>
 #include <vector>
 
+constinit const unsigned LOWER_TIME = 30;
+constinit const unsigned RAISE_TIME = 30;
+constinit const unsigned FAST_LOWER_TIME = 10;
+constinit const unsigned FAST_RAISE_TIME = 10;
+
 constexpr Script playSound(
     const std::string& sound, SoundSourceType type = SoundSourceType::Ambient)
 {
@@ -302,7 +307,23 @@ const static inline auto ENTITY_PROPERTIES =
                             { AnimationStateId::Recovery,
                               AnimationState {
                                   .clip = { { HUD_FlaregunA, 10 } },
-                                  .transition = AnimationStateId::Idle } } } },
+                                  .transition = AnimationStateId::Idle } },
+                            { AnimationStateId::Lower,
+                              AnimationState {
+                                  .clip = { { HUD_FlaregunA, LOWER_TIME } },
+                                  .transition = AnimationStateId::Raise } },
+                            { AnimationStateId::Raise,
+                              AnimationState {
+                                  .clip = { { HUD_FlaregunA, RAISE_TIME } } } },
+                            { AnimationStateId::FastLower,
+                              AnimationState {
+                                  .clip = { { HUD_FlaregunA,
+                                              FAST_LOWER_TIME } },
+                                  .transition = AnimationStateId::FastRaise } },
+                            { AnimationStateId::FastRaise,
+                              AnimationState {
+                                  .clip = { { HUD_FlaregunA,
+                                              FAST_RAISE_TIME } } } } } },
         },
         {
             EntityType::WeaponShotgun,
@@ -336,7 +357,26 @@ const static inline auto ENTITY_PROPERTIES =
                                                   SoundSourceType::Pov) },
                                             { HUD_ShotgunRB, 10 },
                                             { HUD_ShotgunRC, 10 } },
-                                  .transition = AnimationStateId::Idle } } } },
+                                  .transition = AnimationStateId::Idle } },
+                            { AnimationStateId::Recovery,
+                              AnimationState { .clip = { { HUD_ShotgunA, 10 } },
+                                               .transition =
+                                                   AnimationStateId::Idle } },
+                            { AnimationStateId::Lower,
+                              AnimationState {
+                                  .clip = { { HUD_ShotgunA, LOWER_TIME } },
+                                  .transition = AnimationStateId::Raise } },
+                            { AnimationStateId::Raise,
+                              AnimationState {
+                                  .clip = { { HUD_ShotgunA, RAISE_TIME } } } },
+                            { AnimationStateId::FastLower,
+                              AnimationState {
+                                  .clip = { { HUD_ShotgunA, FAST_LOWER_TIME } },
+                                  .transition = AnimationStateId::FastRaise } },
+                            { AnimationStateId::FastRaise,
+                              AnimationState {
+                                  .clip = { { HUD_ShotgunA,
+                                              FAST_RAISE_TIME } } } } } },
         },
         {
             EntityType::WeaponTrishot,
@@ -375,7 +415,22 @@ const static inline auto ENTITY_PROPERTIES =
                                             { HUD_TrishotFD,
                                               3,
                                               ScriptId::ReleaseTrigger } },
-                                  .transition = AnimationStateId::Idle } } } },
+                                  .transition = AnimationStateId::Idle } },
+                            { AnimationStateId::Lower,
+                              AnimationState {
+                                  .clip = { { HUD_TrishotA, LOWER_TIME } },
+                                  .transition = AnimationStateId::Raise } },
+                            { AnimationStateId::Raise,
+                              AnimationState {
+                                  .clip = { { HUD_TrishotA, RAISE_TIME } } } },
+                            { AnimationStateId::FastLower,
+                              AnimationState {
+                                  .clip = { { HUD_TrishotA, FAST_LOWER_TIME } },
+                                  .transition = AnimationStateId::FastRaise } },
+                            { AnimationStateId::FastRaise,
+                              AnimationState {
+                                  .clip = { { HUD_TrishotA,
+                                              FAST_RAISE_TIME } } } } } },
         },
         {
             EntityType::WeaponCrossbow,
@@ -402,7 +457,23 @@ const static inline auto ENTITY_PROPERTIES =
                                             { HUD_CrossbowFD, 5 },
                                             { HUD_CrossbowFE, 5 },
                                             { HUD_CrossbowA, 10 } },
-                                  .transition = AnimationStateId::Idle } } } },
+                                  .transition = AnimationStateId::Idle } },
+                            { AnimationStateId::Lower,
+                              AnimationState {
+                                  .clip = { { HUD_CrossbowA, LOWER_TIME } },
+                                  .transition = AnimationStateId::Raise } },
+                            { AnimationStateId::Raise,
+                              AnimationState {
+                                  .clip = { { HUD_CrossbowA, RAISE_TIME } } } },
+                            { AnimationStateId::FastLower,
+                              AnimationState {
+                                  .clip = { { HUD_CrossbowA,
+                                              FAST_LOWER_TIME } },
+                                  .transition = AnimationStateId::FastRaise } },
+                            { AnimationStateId::FastRaise,
+                              AnimationState {
+                                  .clip = { { HUD_CrossbowA,
+                                              FAST_RAISE_TIME } } } } } },
         },
         {
             EntityType::WeaponLauncher,
@@ -428,7 +499,23 @@ const static inline auto ENTITY_PROPERTIES =
                                             { HUD_LauncherFD,
                                               10,
                                               ScriptId::ReleaseTrigger } },
-                                  .transition = AnimationStateId::Idle } } } },
+                                  .transition = AnimationStateId::Idle } },
+                            { AnimationStateId::Lower,
+                              AnimationState {
+                                  .clip = { { HUD_LauncherA, LOWER_TIME } },
+                                  .transition = AnimationStateId::Raise } },
+                            { AnimationStateId::Raise,
+                              AnimationState {
+                                  .clip = { { HUD_LauncherA, RAISE_TIME } } } },
+                            { AnimationStateId::FastLower,
+                              AnimationState {
+                                  .clip = { { HUD_LauncherA,
+                                              FAST_LOWER_TIME } },
+                                  .transition = AnimationStateId::FastRaise } },
+                            { AnimationStateId::FastRaise,
+                              AnimationState {
+                                  .clip = { { HUD_LauncherA,
+                                              FAST_RAISE_TIME } } } } } },
         },
         {
             EntityType::WeaponBallista,
@@ -473,7 +560,23 @@ const static inline auto ENTITY_PROPERTIES =
                                             { HUD_BallistaRC, 10 },
                                             { HUD_BallistaRD, 10 },
                                             { HUD_BallistaRE, 10 } },
-                                  .transition = AnimationStateId::Idle } } } },
+                                  .transition = AnimationStateId::Idle } },
+                            { AnimationStateId::Lower,
+                              AnimationState {
+                                  .clip = { { HUD_BallistaA, LOWER_TIME } },
+                                  .transition = AnimationStateId::Raise } },
+                            { AnimationStateId::Raise,
+                              AnimationState {
+                                  .clip = { { HUD_BallistaA, RAISE_TIME } } } },
+                            { AnimationStateId::FastLower,
+                              AnimationState {
+                                  .clip = { { HUD_BallistaA,
+                                              FAST_LOWER_TIME } },
+                                  .transition = AnimationStateId::FastRaise } },
+                            { AnimationStateId::FastRaise,
+                              AnimationState {
+                                  .clip = { { HUD_BallistaA,
+                                              FAST_RAISE_TIME } } } } } },
         },
         {
             EntityType::Decal,

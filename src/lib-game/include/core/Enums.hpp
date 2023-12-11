@@ -298,6 +298,10 @@ enum class AnimationStateId
     Run,
     Missile,
     Recovery,
+    Lower,
+    Raise,
+    FastLower,
+    FastRaise,
     MarkerLoop,
     MarkerDestroy,
     MarkerFreeze, // Candidate for deletion
