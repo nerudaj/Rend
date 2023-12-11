@@ -152,6 +152,18 @@ enum class SpriteId : std::uint8_t
     HUD_BallistaRC,
     HUD_BallistaRD,
     HUD_BallistaRE,
+
+    // Again, different texture
+    HUD_Health = 0,
+    HUD_Armor,
+    HUD_BulletAmmo,
+    HUD_ShellAmmo,
+    HUD_EnergyAmmo,
+    HUD_RocketAmmo,
+    HUD_FlaregunOutline,
+    HUD_ShotgunOutline,
+    HUD_TrishotOutline,
+    HUD_CrossbowOutline
 };
 
 enum class EntityType

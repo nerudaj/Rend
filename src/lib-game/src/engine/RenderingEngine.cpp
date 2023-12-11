@@ -26,13 +26,10 @@
     return { baseClipIndex + 4u, false };
 }
 
-[[nodiscard]] static sf::RectangleShape createSkybox(
-    const sf::Texture& texture, unsigned screenWidth, unsigned screenHeight)
+[[nodiscard, msvc::intrinsic]] constexpr static auto
+spriteIdToIndex(SpriteId id) noexcept
 {
-    auto result = sf::RectangleShape(
-        sf::Vector2f(sf::Vector2u(screenWidth * 2, screenHeight / 2)));
-    result.setTexture(&texture);
-    return result;
+    return static_cast<std::underlying_type_t<SpriteId>>(id);
 }
 
 RenderingEngine::RenderingEngine(
@@ -41,20 +38,30 @@ RenderingEngine::RenderingEngine(
     Scene& scene)
     : settings(settings)
     , scene(scene)
-    , tilesetTexture(resmgr.get<sf::Texture>("tileset.png").value().get())
-    , tilesetClipping(resmgr.get<dgm::Clip>("tileset.png.clip").value().get())
-    , spritesheetTexture(resmgr.get<sf::Texture>("sprites.png").value().get())
-    , spritesheetClipping(
-          resmgr.get<dgm::Clip>("sprites.png.clip").value().get())
-    , weaponSprite(RenderContextBuilder::createWeaponSprite(
-          resmgr.get<sf::Texture>("weapons.png").value().get(),
-          settings.resolution.width,
-          settings.resolution.height))
-    , skyboxSprite(createSkybox(
-          resmgr.get<sf::Texture>("skyboxes.png").value().get(),
-          settings.resolution.width,
-          settings.resolution.height))
-    , weaponClipping(resmgr.get<dgm::Clip>("weapons.png.clip").value().get())
+    , tileset { .texture = resmgr.get<sf::Texture>("tileset.png").value().get(),
+                .clipping =
+                    resmgr.get<dgm::Clip>("tileset.png.clip").value().get() }
+    , spritesheet { .texture =
+                        resmgr.get<sf::Texture>("sprites.png").value().get(),
+                    .clipping = resmgr.get<dgm::Clip>("sprites.png.clip")
+                                    .value()
+                                    .get() }
+    , weapon { .sprite = RenderContextBuilder::createWeaponSprite(
+                   resmgr.get<sf::Texture>("weapons.png").value().get(),
+                   settings.resolution.width,
+                   settings.resolution.height),
+               .clipping =
+                   resmgr.get<dgm::Clip>("weapons.png.clip").value().get() }
+    , skybox { .sprite = RenderContextBuilder::createSkybox(
+                   resmgr.get<sf::Texture>("skyboxes.png").value().get(),
+                   settings.resolution.width,
+                   settings.resolution.height),
+               .clipping =
+                   resmgr.get<dgm::Clip>("skyboxes.png.clip").value().get() }
+    , hud { .sprite = RenderContextBuilder::createHudIcon(
+                resmgr.get<sf::Texture>("hud.png").value().get(),
+                settings.resolution.width),
+            .clipping = resmgr.get<dgm::Clip>("hud.png.clip").value().get() }
     , shader(resmgr.getMutable<sf::Shader>("shader").value().get())
     , noiseTexture(resmgr.get<sf::Texture>("ditherNoise.png").value().get())
     , text(RenderContextBuilder::createTextObject(
@@ -104,18 +111,18 @@ void RenderingEngine::renderSkybox(dgm::Window& window, const float angle)
 {
     const auto w2 = 2 * settings.resolution.width;
     const auto renderPositionX = -angle * w2 / 180.f;
-    skyboxSprite.setPosition(renderPositionX, 0.f);
-    window.draw(skyboxSprite);
+    skybox.sprite.setPosition(renderPositionX, 0.f);
+    window.draw(skybox.sprite);
 
     if (renderPositionX > 0)
     {
-        skyboxSprite.setPosition(renderPositionX - w2, 0.f);
-        window.draw(skyboxSprite);
+        skybox.sprite.setPosition(renderPositionX - w2, 0.f);
+        window.draw(skybox.sprite);
     }
     else if (renderPositionX + w2 < settings.resolution.width)
     {
-        skyboxSprite.setPosition(renderPositionX + w2, 0.f);
-        window.draw(skyboxSprite);
+        skybox.sprite.setPosition(renderPositionX + w2, 0.f);
+        window.draw(skybox.sprite);
     }
 }
 
@@ -190,38 +197,95 @@ void RenderingEngine::renderFps(dgm::Window& window)
 void RenderingEngine::renderPlayerHud(
     dgm::Window& window, const Entity& player, const PlayerInventory& inventory)
 {
+    renderHudActiveWeapon(window, player, inventory);
+    renderHudForHealth(window, player);
+    renderHudForArmor(window, player);
+    renderHudForAmmo(window, inventory);
+    renderHudForWeaponSelection(window, inventory);
+    renderHurtOverlay(window);
+}
+
+void RenderingEngine::renderHudActiveWeapon(
+    dgm::Window& window, const Entity& player, const PlayerInventory& inventory)
+{
     auto light = scene.drawableLevel.lightmap.at(sf::Vector2u(
         player.hitbox.getPosition()
         / static_cast<float>(scene.drawableLevel.lightmap.getVoxelSize().x)));
 
-    weaponSprite.setTextureRect(weaponClipping.getFrame(
+    weapon.sprite.setTextureRect(weapon.clipping.getFrame(
         static_cast<std::size_t>(inventory.animationContext.spriteClipIndex)));
-    weaponSprite.setFillColor(sf::Color { light, light, light });
-    window.draw(weaponSprite);
+    weapon.sprite.setFillColor(sf::Color { light, light, light });
+    window.draw(weapon.sprite);
+}
 
-    text.setString(std::format(
-        "h: {} a: {}\nw: {}\nammo: {}\ns: {}",
-        player.health,
-        player.armor,
-        inventory.acquiredWeapons.to_string(),
-        getAmmoCountForActiveWeapon(inventory),
-        inventory.score));
+void RenderingEngine::renderHudForHealth(
+    dgm::Window& window, const Entity& player)
+{
+    hud.sprite.setPosition(
+        10.f, settings.resolution.height - 10.f - hud.sprite.getSize().y);
+    hud.sprite.setTextureRect(
+        hud.clipping.getFrame(spriteIdToIndex(SpriteId::HUD_Health)));
+    window.draw(hud.sprite);
+
+    text.setString(std::to_string(player.health));
     const auto textBounds = text.getGlobalBounds();
     text.setPosition(
-        10.f, settings.resolution.height - textBounds.height - 10.f);
-
-    /* FOR AI DEBUGGING
-    context.text.setString(
-        TOP_STATES_TO_STRING.at(scene.playerStates[0].blackboard->aiTopState)
-        + " "
-        + AI_STATE_TO_STRING.at(scene.playerStates[0].blackboard->aiState));*/
+        hud.sprite.getPosition().x + hud.sprite.getSize().x + 10.f,
+        hud.sprite.getPosition().y + hud.sprite.getSize().y / 2.f
+            - textBounds.height / 2.f);
     window.draw(text);
+}
 
+void RenderingEngine::renderHudForArmor(
+    dgm::Window& window, const Entity& player)
+{
+    hud.sprite.setPosition(
+        10.f, settings.resolution.height - 10.f - hud.sprite.getSize().y * 2.f);
+    hud.sprite.setTextureRect(
+        hud.clipping.getFrame(spriteIdToIndex(SpriteId::HUD_Armor)));
+    window.draw(hud.sprite);
+
+    text.setString(std::to_string(player.armor));
+    const auto textBounds = text.getGlobalBounds();
+    text.setPosition(
+        hud.sprite.getPosition().x + hud.sprite.getSize().x + 10.f,
+        hud.sprite.getPosition().y + hud.sprite.getSize().y / 2.f
+            - textBounds.height / 2.f);
+    window.draw(text);
+}
+
+void RenderingEngine::renderHudForAmmo(
+    dgm::Window& window, const PlayerInventory& inventory)
+{
+    hud.sprite.setPosition(
+        settings.resolution.width - 10.f - hud.sprite.getSize().x,
+        settings.resolution.height - 10.f - hud.sprite.getSize().y);
+
+    auto ammoIndex = ammoTypeToAmmoIndex(
+        ENTITY_PROPERTIES.at(inventory.activeWeaponType).ammoType);
+    hud.sprite.setTextureRect(hud.clipping.getFrame(
+        spriteIdToIndex(SpriteId::HUD_BulletAmmo) + ammoIndex));
+    window.draw(hud.sprite);
+
+    text.setString(std::to_string(getAmmoCountForActiveWeapon(inventory)));
+    const auto textBounds = text.getGlobalBounds();
+    text.setPosition(
+        hud.sprite.getPosition().x - 10.f - textBounds.width,
+        hud.sprite.getPosition().y + hud.sprite.getSize().y / 2.f
+            - textBounds.height / 2.f);
+    window.draw(text);
+}
+
+void RenderingEngine::renderHudForWeaponSelection(
+    dgm::Window& window, const PlayerInventory& inventory)
+{
     auto redOverlay = sf::RectangleShape(sf::Vector2f(window.getSize()));
     redOverlay.setFillColor(
         sf::Color(255, 0, 0, sf::Int8(scene.redOverlayIntensity)));
     window.draw(redOverlay);
 }
+
+void RenderingEngine::renderHurtOverlay(dgm::Window& window) {}
 
 void RenderingEngine::renderRespawnPrompt(dgm::Window& window)
 {
@@ -273,7 +337,7 @@ void RenderingEngine::renderLevelMesh(
                         : scene.drawableLevel.bottomTextures[face.tileId]),
                 static_cast<sf::Uint8>(
                     scene.drawableLevel.lightmap[face.neighboringTileId]) },
-            tilesetClipping);
+            tileset.clipping);
     };
 
     auto addFlat = [&](const Flat& flat)
@@ -292,7 +356,7 @@ void RenderingEngine::renderLevelMesh(
 
                 .brightness = static_cast<sf::Uint8>(
                     scene.drawableLevel.lightmap[flat.tileId]) },
-            tilesetClipping);
+            tileset.clipping);
     };
 
     auto&& flats = caster.getFlats();
@@ -323,7 +387,7 @@ void RenderingEngine::renderLevelMesh(
     }
 
     sf::RenderStates states;
-    states.texture = &tilesetTexture;
+    states.texture = &tileset.texture;
     states.shader = &shader;
     window.getWindowContext().draw(quads, states);
 }
@@ -369,11 +433,11 @@ void RenderingEngine::renderSprites(
                     static_cast<sf::Uint8>(scene.drawableLevel.lightmap.at(
                         sf::Vector2u(thing.center))),
                 .flipTexture = thing.flipTexture },
-            spritesheetClipping);
+            spritesheet.clipping);
     }
 
     sf::RenderStates states;
-    states.texture = &spritesheetTexture;
+    states.texture = &spritesheet.texture;
     states.shader = &shader;
     window.getWindowContext().draw(quads, states);
 }

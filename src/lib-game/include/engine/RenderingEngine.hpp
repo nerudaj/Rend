@@ -9,6 +9,18 @@
 import Memory;
 import Options;
 
+struct ClippableTexture
+{
+    const sf::Texture& texture;
+    dgm::Clip clipping;
+};
+
+struct ClippableRect
+{
+    sf::RectangleShape sprite;
+    dgm::Clip clipping;
+};
+
 class RenderingEngine final
 {
 public:
@@ -30,6 +42,17 @@ private:
         dgm::Window& window,
         const Entity& player,
         const PlayerInventory& inventory);
+    void renderHudActiveWeapon(
+        dgm::Window& window,
+        const Entity& player,
+        const PlayerInventory& inventory);
+    void renderHudForHealth(dgm::Window& window, const Entity& player);
+    void renderHudForArmor(dgm::Window& window, const Entity& player);
+    void
+    renderHudForAmmo(dgm::Window& window, const PlayerInventory& inventory);
+    void renderHudForWeaponSelection(
+        dgm::Window& window, const PlayerInventory& inventory);
+    void renderHurtOverlay(dgm::Window& window);
     void renderRespawnPrompt(dgm::Window& window);
 
     void renderLevelMesh(
@@ -71,13 +94,11 @@ private:
 private:
     const DisplayOptions settings;
     Scene& scene;
-    const sf::Texture& tilesetTexture;
-    dgm::Clip tilesetClipping;
-    const sf::Texture& spritesheetTexture;
-    dgm::Clip spritesheetClipping;
-    sf::RectangleShape weaponSprite;
-    sf::RectangleShape skyboxSprite;
-    dgm::Clip weaponClipping;
+    ClippableTexture tileset;
+    ClippableTexture spritesheet;
+    ClippableRect weapon;
+    ClippableRect skybox;
+    ClippableRect hud;
     sf::Shader& shader;
     const sf::Texture& noiseTexture;
     sf::Text text;

@@ -11,6 +11,24 @@ sf::Text RenderContextBuilder::createTextObject(
     text.setCharacterSize(charSize);
     text.setFillColor(color);
     return text;
+}
+
+sf::RectangleShape RenderContextBuilder::createSkybox(
+    const sf::Texture& texture, unsigned screenWidth, unsigned screenHeight)
+{
+    auto result = sf::RectangleShape(
+        sf::Vector2f(sf::Vector2u(screenWidth * 2, screenHeight / 2)));
+    result.setTexture(&texture);
+    return result;
+}
+
+sf::RectangleShape RenderContextBuilder::createHudIcon(
+    const sf::Texture& texture, unsigned screenWidth)
+{
+    auto result =
+        sf::RectangleShape({ screenWidth / 10.f, screenWidth / 10.f });
+    result.setTexture(&texture);
+    return result;
 };
 
 sf::RectangleShape RenderContextBuilder::createWeaponSprite(
