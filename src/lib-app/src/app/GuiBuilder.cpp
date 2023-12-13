@@ -131,22 +131,43 @@ WidgetCreator2::createCheckbox(bool checked, std::function<void(bool)> onChange)
     return checkbox;
 }
 
-tgui::Slider::Ptr WidgetCreator2::createSlider(
+tgui::Panel::Ptr WidgetCreator2::createSlider(
     float value,
     std::function<void(float)> onChange,
+    unsigned fontSize,
+    const std::string& id,
+    mem::Rc<tgui::Gui> gui,
+    std::function<std::string(float)> valueFormatter,
     float lo,
     float hi,
     float step)
 {
+    auto result = tgui::Panel::create();
+
+    auto valueLabel = tgui::Label::create(valueFormatter(value));
+    valueLabel->setTextSize(fontSize);
+    valueLabel->setPosition("85%", "0%");
+    valueLabel->setSize("15%", "100%");
+    valueLabel->setVerticalAlignment(tgui::Label::VerticalAlignment::Center);
+    valueLabel->setHorizontalAlignment(
+        tgui::Label::HorizontalAlignment::Center);
+    result->add(valueLabel, id + "Label");
+
     auto slider = tgui::Slider::create(lo, hi);
 
+    slider->setPosition("0%", "25%");
+    slider->setSize("85%", "50%");
     slider->setStep(step);
     slider->setValue(value);
-    slider->onValueChange(onChange);
-    slider->setPosition("0%", "25%");
-    slider->setSize("100%", "50%");
+    slider->onValueChange(
+        [gui, id, onChange, valueFormatter](float value)
+        {
+            gui->get<tgui::Label>(id + "Label")->setText(valueFormatter(value));
+            onChange(value);
+        });
+    result->add(slider);
 
-    return slider;
+    return result;
 }
 
 tgui::ComboBox::Ptr WidgetCreator2::createDropdown(

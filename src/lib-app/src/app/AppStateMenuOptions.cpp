@@ -1,5 +1,6 @@
 #include "app/AppStateMenuOptions.hpp"
 #include "app/GuiBuilder.hpp"
+#include <Configs/Sizers.hpp>
 #include <Configs/Strings.hpp>
 #include <ranges>
 
@@ -67,6 +68,9 @@ void AppStateMenuOptions::buildLayoutImpl()
 
 void AppStateMenuOptions::buildDisplayOptionsLayout(GuiOptionsBuilder2& builder)
 {
+    auto fovFormatter = [](float fov)
+    { return std::to_string(static_cast<int>(fov * 100)); };
+
     std::ignore =
         builder
             .addOption(
@@ -110,6 +114,10 @@ void AppStateMenuOptions::buildDisplayOptionsLayout(GuiOptionsBuilder2& builder)
                 WidgetCreator2::createSlider(
                     settings->display.fov,
                     [this](float value) { settings->display.fov = value; },
+                    Sizers::GetMenuBarTextHeight(),
+                    "SliderFOV",
+                    gui,
+                    fovFormatter,
                     0.6f,
                     1.2f,
                     0.01f));
@@ -117,6 +125,9 @@ void AppStateMenuOptions::buildDisplayOptionsLayout(GuiOptionsBuilder2& builder)
 
 void AppStateMenuOptions::buildAudioOptionsLayout(GuiOptionsBuilder2& builder)
 {
+    auto volumeFormatter = [](float vol)
+    { return std::to_string(static_cast<int>(vol)); };
+
     std::ignore =
         builder
             .addOption(
@@ -128,7 +139,11 @@ void AppStateMenuOptions::buildAudioOptionsLayout(GuiOptionsBuilder2& builder)
                         settings->audio.soundVolume = value;
                         audioPlayer->setSoundVolume(
                             settings->audio.soundVolume);
-                    }))
+                    },
+                    Sizers::GetMenuBarTextHeight(),
+                    "SliderSoundVolume",
+                    gui,
+                    volumeFormatter))
             .addOption(
                 Strings::AppState::Options::MUSIC_VOLUME,
                 WidgetCreator2::createSlider(
@@ -137,16 +152,27 @@ void AppStateMenuOptions::buildAudioOptionsLayout(GuiOptionsBuilder2& builder)
                     {
                         settings->audio.musicVolume = value;
                         jukebox->setVolume(settings->audio.musicVolume);
-                    }));
+                    },
+                    Sizers::GetMenuBarTextHeight(),
+                    "SliderMusicVolume",
+                    gui,
+                    volumeFormatter));
 }
 
 void AppStateMenuOptions::buildInputOptionsLayout(GuiOptionsBuilder2& builder)
 {
+    auto sensitivityFormatter = [](float val)
+    { return std::to_string(static_cast<int>(val)); };
+
     std::ignore = builder.addOption(
         Strings::AppState::Options::MOUSE_SENSITIVITY,
         WidgetCreator2::createSlider(
             settings->input.mouseSensitivity,
             [this](float value) { settings->input.mouseSensitivity = value; },
+            Sizers::GetMenuBarTextHeight(),
+            "SliderSensitivityVolume",
+            gui,
+            sensitivityFormatter,
             1.f,
             50.f,
             1.f));

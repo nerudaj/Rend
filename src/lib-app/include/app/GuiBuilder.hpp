@@ -43,9 +43,13 @@ public:
     static [[nodiscard]] tgui::CheckBox::Ptr
     createCheckbox(bool checked, std::function<void(bool)> onChange);
 
-    static [[nodiscard]] tgui::Slider::Ptr createSlider(
+    static [[nodiscard]] tgui::Panel::Ptr createSlider(
         float value,
         std::function<void(float)> onChange,
+        unsigned fontSize,
+        const std::string& id,
+        mem::Rc<tgui::Gui> gui,
+        std::function<std::string(float)> valueFormatter,
         float lo = 0.f,
         float hi = 100.f,
         float step = 1.f);
