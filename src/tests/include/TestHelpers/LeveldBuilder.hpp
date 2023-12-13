@@ -1,40 +1,39 @@
 #pragma once
 
-#include <vector>
 #include <LevelD.hpp>
+#include <vector>
 
 struct TestTile
 {
-	unsigned x;
-	unsigned y;
-	unsigned value;
-	bool solid;
+    unsigned x;
+    unsigned y;
+    unsigned value;
+    bool solid;
 };
 
-class LeveldBuilder {
+class LeveldBuilder
+{
 public:
-	static LevelD buildWithMesh(
-		unsigned width,
-		unsigned height,
-		std::vector<TestTile> tiles)
-	{
-		LevelD result;
+    static LevelD
+    buildWithMesh(unsigned width, unsigned height, std::vector<TestTile> tiles)
+    {
+        LevelD result;
 
-		result.mesh.layerWidth = width;
-		result.mesh.layerHeight = height;
-		result.mesh.tileWidth = 32;
-		result.mesh.tileHeight = 32;
-		result.mesh.layers.resize(1);
-		result.mesh.layers[0].tiles.resize(width * height, 0);
-		result.mesh.layers[0].blocks.resize(width * height, 0);
+        result.mesh.layerWidth = width;
+        result.mesh.layerHeight = height;
+        result.mesh.tileWidth = 32;
+        result.mesh.tileHeight = 32;
+        result.mesh.layers.resize(1);
+        result.mesh.layers[0].tiles.resize(width * height, 0);
+        result.mesh.layers[0].blocks.resize(width * height, 0);
 
-		for (auto&& tile : tiles)
-		{
-			unsigned i = tile.y * width + tile.x;
-			result.mesh.layers[0].tiles[i] = tile.value;
-			result.mesh.layers[0].blocks[i] = tile.solid;
-		}
+        for (auto&& tile : tiles)
+        {
+            unsigned i = tile.y * width + tile.x;
+            result.mesh.layers[0].tiles[i] = tile.value;
+            result.mesh.layers[0].blocks[i] = tile.solid;
+        }
 
-		return result;
-	}
+        return result;
+    }
 };

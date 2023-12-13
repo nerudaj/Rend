@@ -32,6 +32,11 @@ public: // ToolInterface
 
     void configure(nlohmann::json& config) override;
 
+    void configure(
+        const sf::Vector2u& tileDimensions,
+        const std::filesystem::path& texturePath,
+        const dgm::Clip& clip);
+
     // Note: this could be modified to specify topleft offset
     void resize(
         unsigned width, unsigned height, bool isTranslationDisabled) override;
@@ -39,6 +44,8 @@ public: // ToolInterface
     void shrinkTo(const TileRect& boundingBox) override;
 
     void saveTo(LevelD& lvd) const override;
+
+    void validateBeforeSave() const;
 
     void loadFrom(const LevelD& lvd) override;
 

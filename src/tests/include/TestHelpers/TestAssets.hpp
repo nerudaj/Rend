@@ -1,7 +1,7 @@
 #pragma once
 
 #include <filesystem>
-
+#include <DGM/dgm.hpp>
 #include <SFML/System/Vector2.hpp>
 #include <SFML/Graphics/Rect.hpp>
 
@@ -14,6 +14,12 @@ const sf::Vector2u FRAME_SPACING(0u, 0u);
 const sf::IntRect TEXTURE_BOUNDS(0, 0, 64, 64);
 
 }
+
+namespace Item
+{
+    const sf::Vector2u TILE_SIZE(16u, 16u);
+    const dgm::Clip ITEM_CLIP(TILE_SIZE, { 0, 0, 144, 160 });
+} // namespace Item
 
 namespace Process
 {

@@ -70,16 +70,9 @@ void ToolItem::createDeleteCommand()
 /* Rest of ToolItem */
 void ToolItem::configure(nlohmann::json& config)
 {
-    items.clear();
-
     const std::string TOOL_STR = "toolItem";
     const auto rootPath =
         std::filesystem::path(config["configFolder"].get<std::string>());
-
-    coordConverter = CoordConverter(JsonHelper::arrayToVector2u(
-        config["toolMesh"]["texture"]["tileDimensions"]));
-
-    std::vector<SidebarUserItem::PathRectPair> pathRectPairs;
 
     auto texturePath = std::filesystem::path(
         config[TOOL_STR]["texturePath"].get<std::string>());
@@ -88,6 +81,24 @@ void ToolItem::configure(nlohmann::json& config)
         std::filesystem::path(config[TOOL_STR]["clipPath"].get<std::string>());
     if (clipPath.is_relative()) clipPath = rootPath / clipPath;
     const auto clip = dgm::JsonLoader {}.loadClipFromFile(clipPath);
+
+    configure(
+        JsonHelper::arrayToVector2u(
+            config["toolMesh"]["texture"]["tileDimensions"]),
+        texturePath,
+        clip);
+}
+
+void ToolItem::configure(
+    const sf::Vector2u& tileDimensions,
+    const std::filesystem::path& texturePath,
+    const dgm::Clip& clip)
+{
+    items.clear();
+
+    coordConverter = CoordConverter(tileDimensions);
+
+    std::vector<SidebarUserItem::PathRectPair> pathRectPairs;
 
     for (unsigned i = 0; i < clip.getFrameCount(); i++)
     {
@@ -142,7 +153,26 @@ void ToolItem::shrinkTo(const TileRect& boundingBox)
 
 void ToolItem::saveTo(LevelD& lvd) const
 {
+    validateBeforeSave();
+
     lvd.things = items;
+}
+
+void ToolItem::validateBeforeSave() const
+{
+    unsigned numSpawns = 0;
+    for (auto&& item : items)
+    {
+        if (static_cast<LevelItemId>(item.id) == LevelItemId::PlayerSpawn)
+            ++numSpawns;
+    }
+
+    if (numSpawns < 4)
+    {
+        throw std::runtime_error(
+            "Cannot save level! There have to be at least four player spawns "
+            "in the level.");
+    }
 }
 
 void ToolItem::loadFrom(const LevelD& lvd)
