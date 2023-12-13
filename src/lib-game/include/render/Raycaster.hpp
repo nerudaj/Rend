@@ -66,7 +66,7 @@ public:
             const unsigned realSide =
                 side == 1 ? (dir.y > 0 ? 0 : 2) : (dir.x > 0 ? 3 : 1);
             const unsigned visitedFacesIndex =
-                realSide * scene.level.width * scene.level.heightHint + tileId;
+                realSide * scene.level.width * scene.level.height + tileId;
 
             if (!lowPlaneTracker)
             {

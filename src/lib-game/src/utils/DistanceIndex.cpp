@@ -1,7 +1,8 @@
 #include "utils/DistanceIndex.hpp"
 
 DistanceIndex::DistanceIndex(const dgm::Mesh& mesh)
-    : tilesPerRow(mesh.getDataSize().x), voxelSize(mesh.getVoxelSize().x)
+    : tilesPerRow(mesh.getDataSize().x)
+    , voxelSize(static_cast<float>(mesh.getVoxelSize().x))
 {
     const auto limit = mesh.getDataSize().x * mesh.getDataSize().y;
     for (unsigned i = 0; i < limit; i++)

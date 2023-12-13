@@ -30,7 +30,7 @@ sf::Vector2f
 AudioEngine::getRelativePosition(const sf::Vector2f& position) const
 {
     const auto& povPosition =
-        scene.things[scene.cameraAnchorIdx].hitbox.getPosition();
+        scene.things[scene.camera.anchorIdx].hitbox.getPosition();
 
     return dgm::Math::toUnit(position - povPosition)
            * static_cast<float>(
@@ -47,7 +47,7 @@ std::optional<sf::Vector2f> AudioEngine::getRelativePosition(
 bool AudioEngine::isPovStateIndex(PlayerStateIndexType stateIdx) const
 {
     return scene.playerStates[stateIdx].inventory.ownerIdx
-           == scene.cameraAnchorIdx;
+           == scene.camera.anchorIdx;
 }
 
 size_t AudioEngine::getAmbientChannelIndex()

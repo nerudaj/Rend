@@ -167,7 +167,7 @@ Scene SceneBuilder::buildScene(const LevelD& level, unsigned maxPlayerCount)
     return Scene {
         .things = std::move(things),
         .level = { .width = level.mesh.layerWidth,
-                   .heightHint = level.mesh.layerHeight,
+                   .height = level.mesh.layerHeight,
                    .bottomMesh = bottomMesh,
                    .upperMesh = MeshBuilder::buildMeshFromLvd(level, 1) },
         .drawableLevel = { .bottomTextures = bottomTextureMesh,

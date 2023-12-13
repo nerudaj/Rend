@@ -2,6 +2,7 @@
 #include <core/EntityDefinitions.hpp>
 #include <events/EventQueue.hpp>
 #include <utility>
+#include <utils/MathHelpers.hpp>
 
 void PhysicsEngine::update(const float deltaTime)
 {

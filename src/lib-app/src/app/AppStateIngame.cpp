@@ -107,10 +107,10 @@ void AppStateIngame::input()
                 for (auto&& thing : scene.things)
                 {
                     if (thing.first.typeId == EntityType::Player
-                        && scene.cameraAnchorIdx != thing.second
-                        && thing.second > scene.cameraAnchorIdx)
+                        && scene.camera.anchorIdx != thing.second
+                        && thing.second > scene.camera.anchorIdx)
                     {
-                        scene.cameraAnchorIdx = thing.second;
+                        scene.camera.anchorIdx = thing.second;
                         break;
                     }
                 }
@@ -198,7 +198,7 @@ void AppStateIngame::restoreState(const FrameState& state)
     {
         scene.playerStates[i].input.deserializeFrom(state.inputs[i]);
     }
-    scene.cameraAnchorIdx = state.cameraAnchorIdx;
+    scene.camera.anchorIdx = state.cameraAnchorIdx;
 
     // rebuild spatial index
     scene.spatialIndex.clear();
@@ -229,7 +229,7 @@ void AppStateIngame::backupState(FrameState& state)
     state.things = scene.things.clone();
     state.markers = scene.markers.clone();
     state.states = scene.playerStates;
-    state.cameraAnchorIdx = scene.cameraAnchorIdx;
+    state.cameraAnchorIdx = scene.camera.anchorIdx;
 }
 
 void AppStateIngame::lockMouse()
@@ -257,7 +257,7 @@ void AppStateIngame::createPlayers()
         scene.playerStates.back().inventory =
             SceneBuilder::getDefaultInventory(i, 0);
 
-        if (gameSettings.players[i].bindCamera) scene.cameraAnchorIdx = i;
+        if (gameSettings.players[i].bindCamera) scene.camera.anchorIdx = i;
         if (gameSettings.players[i].kind == PlayerKind::LocalNpc)
             scene.playerStates[i].blackboard =
                 AiBlackboard { .input = inputs[i].castTo<AiController>(),

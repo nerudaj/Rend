@@ -2,7 +2,7 @@
 #include "events/EventQueue.hpp"
 #include <builder/SceneBuilder.hpp>
 #include <core/EntityDefinitions.hpp>
-#include <utils/GameLogicHelpers.hpp>
+#include <utils/MathHelpers.hpp>
 
 #pragma region EventHandling
 
@@ -33,7 +33,6 @@ void GameRulesEngine::operator()(const ProjectileDestroyedGameEvent& e)
     const bool isExplosive = DEF.traits & Trait::Explosive;
     const auto hitbox =
         isExplosive
-
             ? dgm::Circle(projectile.hitbox.getPosition(), DEF.explosionRadius)
             : projectile.hitbox;
 
@@ -45,13 +44,8 @@ void GameRulesEngine::operator()(const ProjectileDestroyedGameEvent& e)
 
         if (isDestructible && dgm::Collision::basic(hitbox, candidate.hitbox))
         {
-            const int damageAmount = isExplosive ? static_cast<int>(
-                                         DEF.damage
-                                         / std::pow(
-                                             getNormalizedDistanceToEpicenter(
-                                                 candidate.hitbox, hitbox),
-                                             2.f))
-                                                 : DEF.damage;
+            const int damageAmount = computeProjectileDamage(
+                DEF.damage, isExplosive, candidate.hitbox, hitbox);
             assert(damageAmount > 0);
 
             damage(
@@ -92,7 +86,7 @@ void GameRulesEngine::operator()(const PlayerRespawnedGameEvent& e)
               << std::endl;
 #endif
 
-    if (marker.rebindCamera) scene.cameraAnchorIdx = idx;
+    if (marker.rebindCamera) scene.camera.anchorIdx = idx;
 
     scene.markers.eraseAtIndex(e.markerIndex);
 }
@@ -345,10 +339,12 @@ void GameRulesEngine::handleGrabbedPickable(
     }
 }
 
-bool GameRulesEngine::canFireActiveWeapon(PlayerInventory& inventory) noexcept
+bool GameRulesEngine::canFireActiveWeapon(
+    PlayerInventory& inventory) const noexcept
 {
-    return getAmmoCountForActiveWeapon(inventory)
-           >= getMinimumAmmoNeededToFireWeapon(inventory.activeWeaponType);
+    const auto& DEF = ENTITY_PROPERTIES.at(inventory.activeWeaponType);
+    return inventory.ammo[ammoTypeToAmmoIndex(DEF.ammoType)]
+           >= DEF.minAmmoNeededToFire;
 }
 
 void GameRulesEngine::selectPreviousWeapon(PlayerInventory& inventory)
@@ -446,6 +442,24 @@ bool GameRulesEngine::give(
     return true;
 }
 
+int GameRulesEngine::computeProjectileDamage(
+    const int baseDamage,
+    const bool isExplosive,
+    const dgm::Circle& entityHitbox,
+    const dgm::Circle& explosionHitbox) noexcept
+{
+    if (!isExplosive) return baseDamage;
+
+    const float normalizedDistanceToEpicenter =
+        (dgm::Math::getSize(
+             entityHitbox.getPosition() - explosionHitbox.getPosition())
+         - entityHitbox.getRadius())
+        / explosionHitbox.getRadius();
+
+    return static_cast<int>(
+        baseDamage / std::pow(normalizedDistanceToEpicenter, 2.f));
+}
+
 void GameRulesEngine::damage(
     Entity& thing,
     std::size_t idx,
@@ -461,7 +475,7 @@ void GameRulesEngine::damage(
     damage -= amountAbsorbedByArmor;
 
     thing.health -= damage;
-    if (idx == scene.cameraAnchorIdx) scene.redOverlayIntensity = 128.f;
+    if (idx == scene.camera.anchorIdx) scene.camera.redOverlayIntensity = 128.f;
 
     if (thing.health <= 0)
     {
@@ -510,11 +524,11 @@ void GameRulesEngine::removeEntity(std::size_t index)
         scene.things[thing.stateIdx].hitbox.setPosition(
             thing.hitbox.getPosition());
 
-        bool rebindCamera = scene.cameraAnchorIdx == index;
+        bool rebindCamera = scene.camera.anchorIdx == index;
         scene.markers.emplaceBack(MarkerDeadPlayer {
             .rebindCamera = rebindCamera, .stateIdx = thing.stateIdx });
 
-        if (rebindCamera) scene.cameraAnchorIdx = thing.stateIdx;
+        if (rebindCamera) scene.camera.anchorIdx = thing.stateIdx;
     }
 
     scene.spatialIndex.removeFromLookup(index, thing.hitbox);

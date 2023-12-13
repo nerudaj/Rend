@@ -6,10 +6,16 @@ get_latest_clang_format()
 copy_dlls_to_build_folders()
 glob_sources_and_headers ( SOURCES HEADERS )
 
+configure_file (
+	"${CMAKE_CURRENT_SOURCE_DIR}/resources.rc.in"
+	"${CMAKE_CURRENT_BINARY_DIR}/resources.rc"
+)
+
 # Create final executable
 add_executable ( ${PROJECT_NAME} WIN32
 	${SOURCES} ${HEADERS}
 	"${CMAKE_CURRENT_SOURCE_DIR}/.clang-format"
+	"${CMAKE_CURRENT_BINARY_DIR}/resources.rc"
 )
 
 target_include_directories ( ${PROJECT_NAME}

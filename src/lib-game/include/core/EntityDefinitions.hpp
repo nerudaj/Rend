@@ -288,6 +288,7 @@ const static inline auto ENTITY_PROPERTIES =
                 .radius = 0_px,
                 .ammoType = AmmoType::Rockets,
                 .ammoAmount = 30,
+                .minAmmoNeededToFire = 1,
                 .initialSpriteIndex = HUD_FlaregunA,
                 .states = { { AnimationStateId::Idle,
                               AnimationState {
@@ -331,6 +332,7 @@ const static inline auto ENTITY_PROPERTIES =
                 .radius = 0_px,
                 .ammoType = AmmoType::Shells,
                 .ammoAmount = 20,
+                .minAmmoNeededToFire = 1,
                 .initialSpriteIndex = HUD_ShotgunA,
                 .states = { { AnimationStateId::Idle,
                               AnimationState {
@@ -384,6 +386,7 @@ const static inline auto ENTITY_PROPERTIES =
                 .radius = 0_px,
                 .ammoType = AmmoType::Bullets,
                 .ammoAmount = 50,
+                .minAmmoNeededToFire = 3,
                 .initialSpriteIndex = HUD_TrishotA,
                 .states = { { AnimationStateId::Idle,
                               AnimationState {
@@ -438,6 +441,7 @@ const static inline auto ENTITY_PROPERTIES =
                 .radius = 0_px,
                 .ammoType = AmmoType::Energy,
                 .ammoAmount = 10,
+                .minAmmoNeededToFire = 1,
                 .initialSpriteIndex = HUD_CrossbowA,
                 .states = { { AnimationStateId::Idle,
                               AnimationState {
@@ -481,6 +485,7 @@ const static inline auto ENTITY_PROPERTIES =
                 .radius = 0_px,
                 .ammoType = AmmoType::Rockets,
                 .ammoAmount = 10,
+                .minAmmoNeededToFire = 1,
                 .initialSpriteIndex = HUD_LauncherA,
                 .states = { { AnimationStateId::Idle,
                               AnimationState {
@@ -523,6 +528,7 @@ const static inline auto ENTITY_PROPERTIES =
                 .radius = 0_px,
                 .ammoType = AmmoType::Energy,
                 .ammoAmount = 20,
+                .minAmmoNeededToFire = 2,
                 .initialSpriteIndex = HUD_BallistaA,
                 .states = { { AnimationStateId::Idle,
                               AnimationState {

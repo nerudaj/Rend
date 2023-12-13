@@ -55,7 +55,8 @@ private:
         Entity pickup,
         std::size_t pickupId);
 
-    [[nodiscard]] bool canFireActiveWeapon(PlayerInventory& inventory) noexcept;
+    [[nodiscard]] bool
+    canFireActiveWeapon(PlayerInventory& inventory) const noexcept;
 
     void selectPreviousWeapon(PlayerInventory& inventory);
 
@@ -68,6 +69,12 @@ private:
     /// <returns>True if thing was succesfully given</returns>
     [[nodiscard]] bool
     give(Entity& entity, PlayerInventory& inventory, EntityType pickupId);
+
+    [[nodiscard]] int computeProjectileDamage(
+        const int baseDamage,
+        const bool isExplosive,
+        const dgm::Circle& entityHitbox,
+        const dgm::Circle& explosionHitbox) noexcept;
 
     void damage(
         Entity& thing,

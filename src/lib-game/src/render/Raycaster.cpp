@@ -59,10 +59,9 @@ Raycaster::computeVertexCoordsFromTileCoord(
     {
         return { { tile.x, tile.y + 1.f }, { tile.x + 1.f, tile.y + 1.f } };
     }
-    else if (realSide == 3) // looking from east to west
-    {
-        return { tile, { tile.x, tile.y + 1.f } };
-    }
+
+    assert(realSide == 3); // looking from east to west
+    return { tile, { tile.x, tile.y + 1.f } };
 }
 
 void Raycaster::addFloorFlatAndThings(

@@ -1,5 +1,6 @@
 #include <core/EntityDefinitions.hpp>
 #include <engine/AiEngine.hpp>
+#include <utils/MathHelpers.hpp>
 
 const std::map<AiTopState, std::string> TOP_STATES_TO_STRING = {
     { AiTopState::BootstrapAlive, "BootstrapAlive" },

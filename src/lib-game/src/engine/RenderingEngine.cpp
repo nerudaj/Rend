@@ -2,9 +2,10 @@
 #include "builder/VertexArrayBuilder.hpp"
 #include <Configs/Strings.hpp>
 #include <builder/RenderContextBuilder.hpp>
+#include <core/EntityDefinitions.hpp>
 #include <numbers>
 #include <ranges>
-#include <utils/GameLogicHelpers.hpp>
+#include <utils/MathHelpers.hpp>
 
 [[nodiscard]] static std::pair<std::uint8_t, bool> getRotatedSpriteClipId(
     const sf::Vector2f& cameraDir,
@@ -83,15 +84,16 @@ RenderingEngine::RenderingEngine(
 void RenderingEngine::update(const float deltaTime)
 {
     fpsCounter.update(deltaTime);
-    scene.redOverlayIntensity = std::clamp(
-        scene.redOverlayIntensity - OVERLAY_INTENSITY_DECAY_RATE * deltaTime,
+    scene.camera.redOverlayIntensity = std::clamp(
+        scene.camera.redOverlayIntensity
+            - OVERLAY_INTENSITY_DECAY_RATE * deltaTime,
         0.f,
         255.f);
 }
 
 void RenderingEngine::renderTo(dgm::Window& window)
 {
-    auto&& pov = scene.things[scene.cameraAnchorIdx];
+    auto&& pov = scene.things[scene.camera.anchorIdx];
 
     renderSkybox(window, dgm::Math::cartesianToPolar(pov.direction).angle);
     renderWorld(window);
@@ -131,7 +133,7 @@ void RenderingEngine::renderSkybox(dgm::Window& window, const float angle)
 void RenderingEngine::renderWorld(dgm::Window& window)
 {
     const auto W = float(scene.level.bottomMesh.getVoxelSize().x);
-    const auto& player = scene.things[scene.cameraAnchorIdx];
+    const auto& player = scene.things[scene.camera.anchorIdx];
     const auto pos = player.hitbox.getPosition() / W;
     const auto plane = getPerpendicular(player.direction) * settings.fov;
 
@@ -302,7 +304,7 @@ void RenderingEngine::renderHudForAmmo(
         spriteIdToIndex(SpriteId::HUD_BulletAmmo) + ammoIndex));
     window.draw(hud.sprite);
 
-    text.setString(std::to_string(getAmmoCountForActiveWeapon(inventory)));
+    text.setString(std::to_string(inventory.ammo[ammoIndex]));
     const auto textBounds = text.getGlobalBounds();
     text.setPosition(
         hud.sprite.getPosition().x - 10.f - textBounds.width,
@@ -341,7 +343,7 @@ void RenderingEngine::renderHurtOverlay(dgm::Window& window)
 {
     auto redOverlay = sf::RectangleShape(sf::Vector2f(window.getSize()));
     redOverlay.setFillColor(
-        sf::Color(255, 0, 0, sf::Int8(scene.redOverlayIntensity)));
+        sf::Color(255, 0, 0, sf::Int8(scene.camera.redOverlayIntensity)));
     window.draw(redOverlay);
 }
 
@@ -514,7 +516,7 @@ RenderingEngine::getFilteredAndOrderedThingsToRender(
     for (auto&& id : candidateIds)
     {
         // Happens only once per array
-        if (id == scene.cameraAnchorIdx) [[unlikely]]
+        if (id == scene.camera.anchorIdx) [[unlikely]]
             continue;
 
         auto&& thing = scene.things[id];
