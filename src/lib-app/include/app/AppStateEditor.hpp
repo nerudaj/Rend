@@ -128,4 +128,9 @@ public:
     {
         return false;
     }
+
+    virtual void restoreFocus()
+    {
+        jukebox->stop();
+    }
 };

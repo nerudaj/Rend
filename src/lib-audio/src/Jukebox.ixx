@@ -36,6 +36,11 @@ public:
     void playIngameSong();
     void playInterludeSong();
 
+    void stop()
+    {
+        player.stop();
+    }
+
 private:
     void playGeneric(PlaybackMode mode, const std::vector<std::string>& songs);
     std::string getRandomSongName(const std::vector<std::string>& songs) const;

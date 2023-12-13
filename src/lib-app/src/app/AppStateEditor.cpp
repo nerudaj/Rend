@@ -40,6 +40,8 @@ AppStateEditor::AppStateEditor(
     , dialogSaveLevel(gui)
     , dialogUpdateConfigPath(gui, fileApi)
 {
+    jukebox->stop();
+
     try
     {
         gui->theme.load(
