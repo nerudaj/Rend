@@ -3,8 +3,8 @@
         "texture": {
             "path": "./graphics/tileset.png",
             "tileDimensions": [16, 16],
-            "tileSpacing": [0, 0],
-            "boundaries": [0, 0, 64, 64]
+            "tileSpacing": [2, 2],
+            "boundaries": [0, 0, 70, 70]
         },
         "defaultProperties": {
             "count": 16,
