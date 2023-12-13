@@ -1,5 +1,6 @@
 #include "app/AppStateMenuOptions.hpp"
 #include "app/GuiBuilder.hpp"
+#include "builder/WidgetBuilder.hpp"
 #include <Configs/Sizers.hpp>
 #include <Configs/Strings.hpp>
 #include <ranges>
@@ -75,12 +76,12 @@ void AppStateMenuOptions::buildDisplayOptionsLayout(GuiOptionsBuilder2& builder)
         builder
             .addOption(
                 Strings::AppState::Options::FULLSCREEN,
-                WidgetCreator2::createCheckbox(
+                WidgetBuilder::createCheckbox(
                     app.window.isFullscreen(),
                     [this](bool) { app.window.toggleFullscreen(); }))
             .addOption(
                 Strings::AppState::Options::SET_RESOLUTION,
-                WidgetCreator2::createDropdown(
+                WidgetBuilder::createDropdown(
                     STRING_RESOLUTIONS,
                     getWindowResolutionAsString(app.window),
                     [this](std::size_t idx)
@@ -95,7 +96,7 @@ void AppStateMenuOptions::buildDisplayOptionsLayout(GuiOptionsBuilder2& builder)
                     }))
             .addOption(
                 Strings::AppState::Options::USE_DITHERED_SHADES,
-                WidgetCreator2::createCheckbox(
+                WidgetBuilder::createCheckbox(
                     settings->display.useDitheredShadows,
                     [this](bool)
                     {
@@ -104,18 +105,16 @@ void AppStateMenuOptions::buildDisplayOptionsLayout(GuiOptionsBuilder2& builder)
                     }))
             .addOption(
                 Strings::AppState::Options::SHOW_FPS,
-                WidgetCreator2::createCheckbox(
+                WidgetBuilder::createCheckbox(
                     settings->display.showFps,
                     [this](bool) {
                         settings->display.showFps = !settings->display.showFps;
                     }))
             .addOption(
                 Strings::AppState::Options::FOV,
-                WidgetCreator2::createSlider(
+                WidgetBuilder::createSlider(
                     settings->display.fov,
                     [this](float value) { settings->display.fov = value; },
-                    Sizers::GetMenuBarTextHeight(),
-                    "SliderFOV",
                     gui,
                     fovFormatter,
                     0.6f,
@@ -132,7 +131,7 @@ void AppStateMenuOptions::buildAudioOptionsLayout(GuiOptionsBuilder2& builder)
         builder
             .addOption(
                 Strings::AppState::Options::SOUND_VOLUME,
-                WidgetCreator2::createSlider(
+                WidgetBuilder::createSlider(
                     settings->audio.soundVolume,
                     [this](float value)
                     {
@@ -140,21 +139,17 @@ void AppStateMenuOptions::buildAudioOptionsLayout(GuiOptionsBuilder2& builder)
                         audioPlayer->setSoundVolume(
                             settings->audio.soundVolume);
                     },
-                    Sizers::GetMenuBarTextHeight(),
-                    "SliderSoundVolume",
                     gui,
                     volumeFormatter))
             .addOption(
                 Strings::AppState::Options::MUSIC_VOLUME,
-                WidgetCreator2::createSlider(
+                WidgetBuilder::createSlider(
                     settings->audio.musicVolume,
                     [this](float value)
                     {
                         settings->audio.musicVolume = value;
                         jukebox->setVolume(settings->audio.musicVolume);
                     },
-                    Sizers::GetMenuBarTextHeight(),
-                    "SliderMusicVolume",
                     gui,
                     volumeFormatter));
 }
@@ -166,11 +161,9 @@ void AppStateMenuOptions::buildInputOptionsLayout(GuiOptionsBuilder2& builder)
 
     std::ignore = builder.addOption(
         Strings::AppState::Options::MOUSE_SENSITIVITY,
-        WidgetCreator2::createSlider(
+        WidgetBuilder::createSlider(
             settings->input.mouseSensitivity,
             [this](float value) { settings->input.mouseSensitivity = value; },
-            Sizers::GetMenuBarTextHeight(),
-            "SliderSensitivityVolume",
             gui,
             sensitivityFormatter,
             1.f,

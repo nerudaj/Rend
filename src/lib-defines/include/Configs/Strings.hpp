@@ -43,6 +43,14 @@ namespace Strings
             RAWSTRING MUSIC_VOLUME = "music volume";
             RAWSTRING MOUSE_SENSITIVITY = "mouse sensitivity";
         } // namespace Options
+
+        namespace GameSetup
+        {
+            RAWSTRING PLAYER_COUNT = "player count";
+            RAWSTRING SELECT_MAP = "select map";
+            RAWSTRING FRAGLIMIT = "frag limit";
+            RAWSTRING START_GAME = "start game";
+        } // namespace GameSetup
     }     // namespace AppState
 
     namespace Dialog

@@ -1,6 +1,8 @@
+#include <Configs/Strings.hpp>
 #include <LevelD.hpp>
 #include <app/AppStateGameSetup.hpp>
 #include <app/AppStateIngame.hpp>
+#include <builder/WidgetBuilder.hpp>
 
 import Resources;
 
@@ -54,41 +56,34 @@ void AppStateGameSetup::buildLayoutImpl()
 
     if (mapname.empty()) mapname = mapnames.front();
 
-    getCommonLayoutBuilder(3)
+    auto panel = tgui::Panel::create({ "60%", "50%" });
+    panel->setPosition("20%", "35%");
+    gui->add(panel);
+
+    GuiOptionsBuilder2(panel)
         .addOption(
-            "player count",
-            "PlayerCount",
-            WidgetCreator::createDropdown(
+            Strings::AppState::GameSetup::PLAYER_COUNT,
+            WidgetBuilder::createDropdown(
                 { "1", "2", "3", "4" },
                 std::to_string(playerCount),
-                [this]
-                {
-                    auto dropdown = gui->get<tgui::ComboBox>("PlayerCount");
-                    playerCount =
-                        std::stoul(std::string(dropdown->getSelectedItem()));
-                }))
+                [this](std::size_t idx) { playerCount = idx + 1; }))
         .addOption(
-            "select map",
-            "MapnameDropdown",
-            WidgetCreator::createDropdown(
+            Strings::AppState::GameSetup::SELECT_MAP,
+            WidgetBuilder::createDropdown(
                 mapnames,
                 mapname,
-                [this]
-                {
-                    auto dropdown = gui->get<tgui::ComboBox>("MapnameDropdown");
-                    mapname = dropdown->getSelectedItem().toStdString();
-                }))
+                [this, &mapnames](std::size_t idx)
+                { mapname = mapnames[idx]; }))
         .addOption(
-            "fraglimit",
-            "FraglimitInput",
-            WidgetCreator::createTextInput(
+            Strings::AppState::GameSetup::FRAGLIMIT,
+            WidgetBuilder::createTextInput(
+                std::to_string(fraglimit),
                 [this](const tgui::String& newValue)
                 {
                     if (newValue.empty()) return;
                     fraglimit = std::stoi(std::string(newValue));
                 },
-                std::to_string(fraglimit),
-                WidgetCreator::getNumericValidator()))
+                WidgetBuilder::getNumericValidator()))
         .build();
 
     gui->add(createButton(
@@ -119,14 +114,14 @@ void AppStateGameSetup::startGame()
 
 std::vector<PlayerOptions> AppStateGameSetup::createPlayerSettings() const
 {
-    std::vector<PlayerOptions> result;
-
-    for (unsigned i = 0; i < playerCount; i++)
-    {
-        result.push_back(PlayerOptions { .kind = i == 0 ? PlayerKind::LocalHuman
-                                                        : PlayerKind::LocalNpc,
-                                         .bindCamera = i == 0 });
-    }
-
-    return result;
+    return std::views::iota(0u, playerCount)
+           | std::views::transform(
+               [](auto idx)
+               {
+                   return PlayerOptions { .kind = idx == 0
+                                                      ? PlayerKind::LocalHuman
+                                                      : PlayerKind::LocalNpc,
+                                          .bindCamera = idx == 0 };
+               })
+           | std::ranges::to<std::vector<PlayerOptions>>();
 }

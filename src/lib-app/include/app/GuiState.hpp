@@ -43,13 +43,6 @@ protected:
         return { "20%", "35%" };
     }
 
-    [[nodiscard]] GuiOptionsBuilder
-    getCommonLayoutBuilder(unsigned rowCount) const
-    {
-        return GuiOptionsBuilder(
-            gui, getCommonLayoutPosition(), getCommonLayoutSize(rowCount));
-    }
-
     // Creates a button that can be later retrieved from gui using id
     // std::string("Button" + label)
     [[nodiscard]] tgui::Button::Ptr createButton(
