@@ -1,3 +1,4 @@
+#include "TestHelpers/SceneBuilder.hpp"
 #include <GameLoop.hpp>
 #include <builder/SceneBuilder.hpp>
 #include <catch.hpp>
@@ -24,14 +25,8 @@ import Memory;
 
 TEST_CASE("[GameRuleEngine]")
 {
-    auto&& meshSize = sf::Vector2u(3u, 3u);
-    auto&& voxelSize = sf::Vector2u(16u, 16u);
-    auto&& mesh = dgm::Mesh(
-        std::vector<int> { 1, 1, 1, 1, 0, 1, 1, 1, 1 }, meshSize, voxelSize);
-    Scene scene = { .spatialIndex = dgm::SpatialIndex<EntityIndexType>(
-                        dgm::Rect(0.f, 0.f, 48.f, 48.f), 16),
-                    .distanceIndex = DistanceIndex(mesh),
-                    .navmesh = dgm::WorldNavMesh(mesh) };
+    auto&& mesh = createDummyMesh();
+    Scene scene = createDummyScene(mesh);
 
     auto&& eventQueue = mem::Rc<EventQueue>();
     auto&& gameRulesEngine = GameRulesEngine(scene, eventQueue);
