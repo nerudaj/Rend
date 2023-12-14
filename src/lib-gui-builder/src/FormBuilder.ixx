@@ -1,15 +1,20 @@
-#pragma once
+module;
 
 #include <TGUI/Backend/SFML-Graphics.hpp>
 #include <TGUI/TGUI.hpp>
+#include <string>
+#include <tuple>
+#include <vector>
 
-class [[nodiscard]] GuiOptionsBuilder2 final
+export module FormBuilder;
+
+export class [[nodiscard]] FormBuilder final
 {
 public:
-    GuiOptionsBuilder2(tgui::Panel::Ptr panel) : panel(panel) {}
+    FormBuilder(tgui::Panel::Ptr panel) : panel(panel) {}
 
 public:
-    [[nodiscard]] GuiOptionsBuilder2&
+    [[nodiscard]] FormBuilder&
     addOption(const std::string& labelText, tgui::Widget::Ptr widget)
     {
         rowsToBuild.push_back({ labelText, widget });

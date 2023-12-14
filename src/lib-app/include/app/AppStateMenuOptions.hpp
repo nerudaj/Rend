@@ -4,6 +4,7 @@
 
 import Options;
 import Audio;
+import FormBuilder;
 
 class AppStateMenuOptions final
     : public dgm::AppState
@@ -51,9 +52,9 @@ public:
 
 private:
     void buildLayoutImpl() override;
-    void buildDisplayOptionsLayout(GuiOptionsBuilder2& builder);
-    void buildAudioOptionsLayout(GuiOptionsBuilder2& builder);
-    void buildInputOptionsLayout(GuiOptionsBuilder2& builder);
+    void buildDisplayOptionsLayout(FormBuilder& builder);
+    void buildAudioOptionsLayout(FormBuilder& builder);
+    void buildInputOptionsLayout(FormBuilder& builder);
 
 private:
     mem::Rc<Jukebox> jukebox;

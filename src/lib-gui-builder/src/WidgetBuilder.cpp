@@ -1,13 +1,19 @@
-#include "builder/WidgetBuilder.hpp"
+import WidgetBuilder;
+
 #include <Configs/Sizers.hpp>
+#include <TGUI/Backend/SFML-Graphics.hpp>
+#include <TGUI/TGUI.hpp>
+#include <functional>
 #include <ranges>
+#include <string>
+#include <vector>
 
 [[nodiscard]] std::string randomString(std::size_t len)
 {
     constexpr const char* CHARS =
         "abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
     return std::views::iota(0u, len)
-           | std::views::transform([CHARS](std::size_t i)
+           | std::views::transform([CHARS](std::size_t)
                                    { return CHARS[rand() % std::size(CHARS)]; })
            | std::ranges::to<std::string>();
 }

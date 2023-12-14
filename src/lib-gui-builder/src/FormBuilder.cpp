@@ -1,7 +1,13 @@
-#include "app/GuiBuilder.hpp"
-#include "builder/WidgetBuilder.hpp"
+import FormBuilder;
+import WidgetBuilder;
 
-void GuiOptionsBuilder2::build()
+#include <TGUI/Backend/SFML-Graphics.hpp>
+#include <TGUI/TGUI.hpp>
+#include <string>
+#include <tuple>
+#include <vector>
+
+void FormBuilder::build()
 {
     unsigned rowIdx = 0;
 

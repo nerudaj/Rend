@@ -2,9 +2,10 @@
 #include <LevelD.hpp>
 #include <app/AppStateGameSetup.hpp>
 #include <app/AppStateIngame.hpp>
-#include <builder/WidgetBuilder.hpp>
 
 import Resources;
+import FormBuilder;
+import WidgetBuilder;
 
 AppStateGameSetup::AppStateGameSetup(
     dgm::App& app,
@@ -60,7 +61,7 @@ void AppStateGameSetup::buildLayoutImpl()
     panel->setPosition("20%", "35%");
     gui->add(panel);
 
-    GuiOptionsBuilder2(panel)
+    FormBuilder(panel)
         .addOption(
             Strings::AppState::GameSetup::PLAYER_COUNT,
             WidgetBuilder::createDropdown(

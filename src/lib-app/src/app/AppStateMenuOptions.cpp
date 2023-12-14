@@ -1,9 +1,9 @@
 #include "app/AppStateMenuOptions.hpp"
-#include "app/GuiBuilder.hpp"
-#include "builder/WidgetBuilder.hpp"
 #include <Configs/Sizers.hpp>
 #include <Configs/Strings.hpp>
 #include <ranges>
+
+import WidgetBuilder;
 
 static const std::vector<std::string> STRING_RESOLUTIONS = {
     "640x480",  "800x600",   "1024x768",  "1280x720", "1366x768",
@@ -44,19 +44,19 @@ void AppStateMenuOptions::buildLayoutImpl()
 
             if (tabname == Strings::AppState::Options::DISPLAY)
             {
-                auto&& builder = GuiOptionsBuilder2(panel);
+                auto&& builder = FormBuilder(panel);
                 buildDisplayOptionsLayout(builder);
                 builder.build();
             }
             else if (tabname == Strings::AppState::Options::AUDIO)
             {
-                auto&& builder = GuiOptionsBuilder2(panel);
+                auto&& builder = FormBuilder(panel);
                 buildAudioOptionsLayout(builder);
                 builder.build();
             }
             else if (tabname == Strings::AppState::Options::INPUT)
             {
-                auto&& builder = GuiOptionsBuilder2(panel);
+                auto&& builder = FormBuilder(panel);
                 buildInputOptionsLayout(builder);
                 builder.build();
             }
@@ -67,7 +67,7 @@ void AppStateMenuOptions::buildLayoutImpl()
     gui->add(createBackButton([this] { app.popState(); }));
 }
 
-void AppStateMenuOptions::buildDisplayOptionsLayout(GuiOptionsBuilder2& builder)
+void AppStateMenuOptions::buildDisplayOptionsLayout(FormBuilder& builder)
 {
     auto fovFormatter = [](float fov)
     { return std::to_string(static_cast<int>(fov * 100)); };
@@ -122,7 +122,7 @@ void AppStateMenuOptions::buildDisplayOptionsLayout(GuiOptionsBuilder2& builder)
                     0.01f));
 }
 
-void AppStateMenuOptions::buildAudioOptionsLayout(GuiOptionsBuilder2& builder)
+void AppStateMenuOptions::buildAudioOptionsLayout(FormBuilder& builder)
 {
     auto volumeFormatter = [](float vol)
     { return std::to_string(static_cast<int>(vol)); };
@@ -154,7 +154,7 @@ void AppStateMenuOptions::buildAudioOptionsLayout(GuiOptionsBuilder2& builder)
                     volumeFormatter));
 }
 
-void AppStateMenuOptions::buildInputOptionsLayout(GuiOptionsBuilder2& builder)
+void AppStateMenuOptions::buildInputOptionsLayout(FormBuilder& builder)
 {
     auto sensitivityFormatter = [](float val)
     { return std::to_string(static_cast<int>(val)); };

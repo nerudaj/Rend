@@ -1,4 +1,4 @@
-#pragma once
+module;
 
 #include <TGUI/Backend/SFML-Graphics.hpp>
 #include <TGUI/TGUI.hpp>
@@ -6,9 +6,11 @@
 #include <string>
 #include <vector>
 
+export module WidgetBuilder;
+
 import Memory;
 
-class WidgetBuilder final
+export class WidgetBuilder final
 {
 public:
     static [[nodiscard]] tgui::Panel::Ptr

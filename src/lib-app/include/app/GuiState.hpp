@@ -1,6 +1,5 @@
 #pragma once
 
-#include "GuiBuilder.hpp"
 #include <DGM/dgm.hpp>
 #include <TGUI/Backend/SFML-Graphics.hpp>
 #include <TGUI/TGUI.hpp>
