@@ -21,7 +21,10 @@ void AudioEngine::operator()(const SoundTriggeredAudioEvent& e)
     }();
 
     audioPlayer->playSoundOnChannel(
-        e.sound, channelIdx, true, getRelativePosition(e.stateIdx, e.position));
+        e.sound,
+        channelIdx,
+        true,
+        getRelativePosition(e.sourceType == SoundSourceType::Pov, e.position));
 }
 
 void AudioEngine::update(const float) {}
@@ -38,9 +41,9 @@ AudioEngine::getRelativePosition(const sf::Vector2f& position) const
 }
 
 std::optional<sf::Vector2f> AudioEngine::getRelativePosition(
-    PlayerStateIndexType stateIdx, const sf::Vector2f& position) const
+    bool confirmedPov, const sf::Vector2f& position) const
 {
-    if (isPovStateIndex(stateIdx)) return std::nullopt;
+    if (confirmedPov) return std::nullopt;
     return getRelativePosition(position);
 }
 

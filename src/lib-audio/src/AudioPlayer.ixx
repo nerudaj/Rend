@@ -12,7 +12,20 @@ import Memory;
 
 export constexpr const unsigned CHANNEL_COUNT = 10;
 
-export class [[nodiscard]] AudioPlayer
+export class [[nodiscard]] AudioPlayerInterface
+{
+public:
+    virtual ~AudioPlayerInterface() = default;
+
+public:
+    virtual void playSoundOnChannel(
+        const std::string& soundName,
+        const std::size_t channel,
+        const bool force = false,
+        std::optional<sf::Vector2f> position = std::nullopt) = 0;
+};
+
+export class [[nodiscard]] AudioPlayer final : public AudioPlayerInterface
 {
 public:
     AudioPlayer(
@@ -29,7 +42,7 @@ public:
         const std::string& soundName,
         const std::size_t channel,
         const bool force = false,
-        std::optional<sf::Vector2f> position = std::nullopt);
+        std::optional<sf::Vector2f> position = std::nullopt) override;
 
     void stopChannel(const std::size_t channel);
 

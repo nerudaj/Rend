@@ -11,10 +11,8 @@ class AudioEngine final
 {
 public:
     [[nodiscard]] AudioEngine(
-        mem::Rc<const dgm::ResourceManager> resmgr,
-        mem::Rc<AudioPlayer> audioPlayer,
-        Scene& scene) noexcept
-        : resmgr(resmgr), audioPlayer(audioPlayer), scene(scene)
+        mem::Rc<AudioPlayerInterface> audioPlayer, Scene& scene) noexcept
+        : audioPlayer(audioPlayer), scene(scene)
     {
     }
 
@@ -31,8 +29,8 @@ private:
     [[nodiscard]] sf::Vector2f
     getRelativePosition(const sf::Vector2f& position) const;
 
-    [[nodiscard]] std::optional<sf::Vector2f> getRelativePosition(
-        PlayerStateIndexType stateIdx, const sf::Vector2f& position) const;
+    [[nodiscard]] std::optional<sf::Vector2f>
+    getRelativePosition(bool confirmedPov, const sf::Vector2f& position) const;
 
     [[nodiscard]] bool isPovStateIndex(PlayerStateIndexType stateIdx) const;
 
@@ -41,8 +39,7 @@ private:
     size_t getPovChannelIndex();
 
 private:
-    mem::Rc<const dgm::ResourceManager> resmgr;
-    mem::Rc<AudioPlayer> audioPlayer;
+    mem::Rc<AudioPlayerInterface> audioPlayer;
     Scene& scene;
     int povChannelIndex = 0;
     int ambientChannelIndex = 0;

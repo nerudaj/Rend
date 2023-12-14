@@ -12,7 +12,7 @@
 
 import Memory;
 import Options;
-import Audio;
+import AudioPlayer;
 
 class [[nodiscard]] GameLoop final
 {
@@ -27,7 +27,7 @@ public:
         , eventQueue(eventQueue)
         , aiEngine(scene)
         , animationEngine(scene, eventQueue)
-        , audioEngine(resmgr, audioPlayer, scene)
+        , audioEngine(audioPlayer, scene)
         , gameRulesEngine(scene, eventQueue)
         , physicsEngine(scene, eventQueue)
         , renderingEngine(renderSettings, *resmgr, scene)
