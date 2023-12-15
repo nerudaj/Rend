@@ -28,6 +28,11 @@ public:
         return theme;
     }
 
+    [[nodiscard]] constexpr std::string getAuthorName() const noexcept
+    {
+        return author;
+    }
+
 protected:
     void buildLayoutImpl(tgui::Panel::Ptr panel) override;
 
@@ -36,4 +41,5 @@ protected:
     unsigned width = 16;
     unsigned height = 16;
     LevelTheme theme = LevelTheme::Countryside;
+    std::string author = "none";
 };

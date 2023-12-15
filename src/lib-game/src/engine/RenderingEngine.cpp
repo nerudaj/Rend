@@ -79,6 +79,8 @@ RenderingEngine::RenderingEngine(
         "resolution",
         sf::Glsl::Vec2(settings.resolution.width, settings.resolution.height));
     shader.setUniform("ditherShadows", settings.useDitheredShadows);
+    skybox.sprite.setTextureRect(skybox.clipping.getFrame(
+        static_cast<std::underlying_type_t<LevelTheme>>(scene.level.theme)));
 }
 
 void RenderingEngine::update(const float deltaTime)
@@ -112,7 +114,6 @@ void RenderingEngine::renderTo(dgm::Window& window)
 
 void RenderingEngine::renderSkybox(dgm::Window& window, const float angle)
 {
-    skybox.sprite.setTextureRect(skybox.clipping.getFrame(0));
     const auto w2 = 2 * settings.resolution.width;
     const auto renderPositionX = -angle * w2 / 180.f;
     skybox.sprite.setPosition(renderPositionX, 0.f);

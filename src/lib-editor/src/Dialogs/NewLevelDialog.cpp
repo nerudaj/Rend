@@ -34,5 +34,10 @@ void ModernNewLevelDialog::buildLayoutImpl(tgui::Panel::Ptr panel)
                 LevelThemeUtils::toString(theme),
                 [this](std::size_t idx)
                 { theme = static_cast<LevelTheme>(idx); }))
+        .addOption(
+            Strings::Editor::NewLevel::AUTHOR,
+            WidgetBuilder::createTextInput(
+                author,
+                [this](tgui::String str) { author = str.toStdString(); }))
         .build();
 }

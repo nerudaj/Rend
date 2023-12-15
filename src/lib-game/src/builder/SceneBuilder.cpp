@@ -169,7 +169,8 @@ Scene SceneBuilder::buildScene(const LevelD& level, unsigned maxPlayerCount)
         .level = { .width = level.mesh.layerWidth,
                    .height = level.mesh.layerHeight,
                    .bottomMesh = bottomMesh,
-                   .upperMesh = MeshBuilder::buildMeshFromLvd(level, 1) },
+                   .upperMesh = MeshBuilder::buildMeshFromLvd(level, 1),
+                   .theme = LevelThemeUtils::fromString(level.metadata.id) },
         .drawableLevel = { .bottomTextures = bottomTextureMesh,
                            .upperTextures = upperTextureMesh,
                            .lightmap = LightmapBuilder::buildLightmap(

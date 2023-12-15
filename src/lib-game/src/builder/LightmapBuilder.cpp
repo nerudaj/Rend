@@ -97,6 +97,10 @@ void LightmapBuilder::processLightPointQueue(
         auto front = queue.front();
         queue.pop();
 
+        if (front.y > bottom.getDataSize().y
+            || front.x > bottom.getDataSize().x)
+            continue;
+
         const auto index = front.y * bottom.getDataSize().x + front.x;
 
         auto currentLevel = data.at(index);

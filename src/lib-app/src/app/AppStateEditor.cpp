@@ -6,6 +6,7 @@
 #include "Utilities/Literals.hpp"
 #include "Utilities/ProcessCreator.hpp"
 #include "app/AppStateIngame.hpp"
+#include <LevelMetadata.hpp>
 #include <cmath>
 
 import Resources;
@@ -252,7 +253,8 @@ void AppStateEditor::newLevelDialogCallback()
     // Get settings from modal
     unsigned levelWidth = dialogNewLevel.getLevelWidth();
     unsigned levelHeight = dialogNewLevel.getLevelHeight();
-    auto levelTheme = dialogNewLevel.getLevelTheme();
+    levelMetadata = LevelMetadata { .theme = dialogNewLevel.getLevelTheme(),
+                                    .author = dialogNewLevel.getAuthorName() };
 
     editor->init(
         levelWidth,
@@ -303,6 +305,8 @@ void AppStateEditor::loadLevel(
         savePath = pathToLevel;
 
         editor->loadFrom(lvd, configPathFS);
+        levelMetadata.author = lvd.metadata.author;
+        levelMetadata.theme = LevelThemeUtils::fromString(lvd.metadata.id);
         unsavedChanges = false;
         updateWindowTitle();
     }
@@ -338,6 +342,8 @@ void AppStateEditor::saveLevel()
     {
         unsavedChanges = false;
         auto&& lvd = editor->save();
+        lvd.metadata.author = levelMetadata.author;
+        lvd.metadata.id = LevelThemeUtils::toString(levelMetadata.theme);
         lvd.saveToFile(savePath);
         updateWindowTitle();
     }

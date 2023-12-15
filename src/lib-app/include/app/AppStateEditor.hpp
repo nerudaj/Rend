@@ -15,6 +15,7 @@
 #include "Interfaces/ShortcutEngineInterface.hpp"
 #include "Utilities/ClickPreventer.hpp"
 #include <DGM/dgm.hpp>
+#include <LevelMetadata.hpp>
 #include <TGUI/Backend/SFML-Graphics.hpp>
 #include <TGUI/TGUI.hpp>
 #include <optional>
@@ -64,6 +65,7 @@ protected:
     SaveLevelDialog dialogSaveLevel;
     UpdateConfigPathDialog dialogUpdateConfigPath;
     ClickPreventer clickPreventer;
+    LevelMetadata levelMetadata;
 
 protected:
     void updateWindowTitle()

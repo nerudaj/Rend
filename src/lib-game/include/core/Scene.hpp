@@ -1,6 +1,7 @@
 #pragma once
 
 #include <DGM/dgm.hpp>
+#include <LevelTheme.hpp>
 #include <array>
 #include <bitset>
 #include <core/Constants.hpp>
@@ -95,6 +96,7 @@ struct Level
     unsigned height = 0;
     dgm::Mesh bottomMesh;
     dgm::Mesh upperMesh;
+    LevelTheme theme = LevelTheme::Countryside;
 };
 
 struct CameraContext

@@ -97,6 +97,7 @@ namespace Strings
             RAWSTRING WIDTH = "Level width";
             RAWSTRING HEIGHT = "Level height";
             RAWSTRING THEME = "Theme";
+            RAWSTRING AUTHOR = "Author name";
         } // namespace NewLevel
     }     // namespace Editor
 
