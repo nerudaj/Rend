@@ -1,35 +1,39 @@
 #pragma once
 
 #include "DialogBase.hpp"
-#include "Interfaces/FileApiInterface.hpp"
 #include <DGM/dgm.hpp>
+#include <LevelTheme.hpp>
 #include <optional>
 
 import Memory;
 
-/**
- *  \brief Modal window for creating new level
- *
- *  User should be able to define initial level width, height
- *  and he is also required to provide path to config file.
- *
- *  Programmer first has to open the modal window. If the selection is
- *  made and modal is confirmed, associated callback is fired. Then the
- *  getter functions can be used. Modal is closed automatically.
- */
-class NewLevelDialog final : public DialogInterface
+class [[nodiscard]] ModernNewLevelDialog final : public ModernDialogInterface
 {
 public:
-    NewLevelDialog(mem::Rc<Gui> gui, mem::Rc<FileApiInterface> fileApi);
+    ModernNewLevelDialog(mem::Rc<Gui> gui);
 
 public:
-    [[nodiscard]] unsigned getLevelWidth() const;
+    [[nodiscard]] constexpr unsigned getLevelWidth() const noexcept
+    {
+        return width;
+    }
 
-    [[nodiscard]] unsigned getLevelHeight() const;
+    [[nodiscard]] constexpr unsigned getLevelHeight() const noexcept
+    {
+        return height;
+    }
 
-private:
-    const std::optional<std::string>& configPath;
+    [[nodisard]] constexpr LevelTheme getLevelTheme() const noexcept
+    {
+        return theme;
+    }
 
-private:
-    virtual void customOpenCode() override;
+protected:
+    void buildLayoutImpl(tgui::Panel::Ptr panel) override;
+
+protected:
+    const std::vector<std::string> ALLOWED_LEVEL_SIZES = { "16", "24", "32" };
+    unsigned width = 16;
+    unsigned height = 16;
+    LevelTheme theme = LevelTheme::Countryside;
 };

@@ -1,37 +1,38 @@
 #include "Dialogs/NewLevelDialog.hpp"
 #include "Globals.hpp"
+#include <Configs/Strings.hpp>
 
-constexpr const char* INPUT_LEVEL_WIDTH_ID = "InputLevelWidth";
-constexpr const char* INPUT_LEVEL_HEIGHT_ID = "InputLevelHeight";
+import GuiBuilder;
 
-void NewLevelDialog::customOpenCode() {}
-
-unsigned NewLevelDialog::getLevelWidth() const
+ModernNewLevelDialog::ModernNewLevelDialog(mem::Rc<Gui> gui)
+    : ModernDialogInterface(
+        gui, "ModernNewLevelDialog", Strings::Editor::NewLevel::TITLE)
 {
-    return std::stoul(gui->get<tgui::ComboBox>(INPUT_LEVEL_WIDTH_ID)
-                          ->getSelectedItem()
-                          .toStdString());
 }
 
-unsigned NewLevelDialog::getLevelHeight() const
+void ModernNewLevelDialog::buildLayoutImpl(tgui::Panel::Ptr panel)
 {
-    return std::stoul(gui->get<tgui::ComboBox>(INPUT_LEVEL_HEIGHT_ID)
-                          ->getSelectedItem()
-                          .toStdString());
-}
-
-NewLevelDialog::NewLevelDialog(
-    mem::Rc<Gui> gui, mem::Rc<FileApiInterface> fileApi)
-    : DialogInterface(
-        gui,
-        "ModalNewLevel",
-        "New level",
-        std::vector<OptionLine> { {
-            OptionDropdown {
-                "Level width:", INPUT_LEVEL_WIDTH_ID, { "16", "32" } },
-            OptionDropdown {
-                "Level height:", INPUT_LEVEL_HEIGHT_ID, { "16", "32" } },
-        } })
-    , configPath(configPath)
-{
+    FormBuilder(panel)
+        .addOption(
+            Strings::Editor::NewLevel::WIDTH,
+            WidgetBuilder::createDropdown(
+                ALLOWED_LEVEL_SIZES,
+                std::to_string(width),
+                [this](std::size_t idx)
+                { width = std::stol(ALLOWED_LEVEL_SIZES[idx]); }))
+        .addOption(
+            Strings::Editor::NewLevel::HEIGHT,
+            WidgetBuilder::createDropdown(
+                ALLOWED_LEVEL_SIZES,
+                std::to_string(height),
+                [this](std::size_t idx)
+                { height = std::stol(ALLOWED_LEVEL_SIZES[idx]); }))
+        .addOption(
+            Strings::Editor::NewLevel::THEME,
+            WidgetBuilder::createDropdown(
+                LevelThemeUtils::getAllNames(),
+                LevelThemeUtils::toString(theme),
+                [this](std::size_t idx)
+                { theme = static_cast<LevelTheme>(idx); }))
+        .build();
 }

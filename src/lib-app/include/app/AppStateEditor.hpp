@@ -59,7 +59,7 @@ protected:
     mem::Rc<CommandHistory> commandHistory;
     mem::Rc<CommandQueue> commandQueue = mem::Rc<CommandQueue>(commandHistory);
     mem::Box<EditorInterface> editor;
-    NewLevelDialog dialogNewLevel;
+    ModernNewLevelDialog dialogNewLevel;
     LoadLevelDialog dialogLoadLevel;
     SaveLevelDialog dialogSaveLevel;
     UpdateConfigPathDialog dialogUpdateConfigPath;

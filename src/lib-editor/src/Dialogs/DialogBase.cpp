@@ -176,3 +176,56 @@ DialogInterface::DialogInterface(
     : gui(gui), DIALOG_ID(dialogId), DIALOG_TITLE(dialogTitle), OPTIONS(options)
 {
 }
+
+ModernDialogInterface::ModernDialogInterface(
+    mem::Rc<Gui> gui,
+    const std::string& dialogId,
+    const std::string& dialogTitle)
+    : gui(gui), DIALOG_ID(dialogId), DIALOG_TITLE(dialogTitle)
+{
+}
+
+void ModernDialogInterface::open(std::function<void()> confirmCallback)
+{
+    if (isOpen()) return;
+    buildLayout(confirmCallback);
+}
+
+void ModernDialogInterface::buildLayout(std::function<void()> confirmCallback)
+{
+    auto modal = gui->createNewChildWindow(DIALOG_TITLE);
+    modal->setSize("30%", "50%");
+    modal->setPosition("35%", "25%");
+    modal->onEscapeKeyPress([this](auto) { close(); });
+    modal->onClose([this] { close(); });
+    gui->addModal(modal, DIALOG_ID);
+
+    auto panel = tgui::Panel::create({ "90%", "85%" });
+    panel->setPosition({ "5%", "5%" });
+    panel->setRenderer(gui->theme.getRenderer("Panel"));
+    modal->add(panel);
+
+    buildBottomButtons(modal, confirmCallback);
+    buildLayoutImpl(panel);
+}
+
+void ModernDialogInterface::buildBottomButtons(
+    tgui::ChildWindow::Ptr modal, std::function<void()> confirmCallback)
+{
+    auto btn = tgui::Button::create("Ok");
+    btn->setSize("20%", "8%");
+    btn->setPosition("56%", "90%");
+    btn->onClick(
+        [this, confirmCallback]
+        {
+            confirmCallback();
+            close();
+        });
+    modal->add(btn);
+
+    btn = tgui::Button::create("Cancel");
+    btn->setSize("20%", "8%");
+    btn->setPosition("78%", "90%");
+    btn->onClick([this] { close(); });
+    modal->add(btn);
+}

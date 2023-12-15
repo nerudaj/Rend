@@ -93,6 +93,7 @@ namespace Strings
 
         namespace NewLevel
         {
+            RAWSTRING TITLE = "New level";
             RAWSTRING WIDTH = "Level width";
             RAWSTRING HEIGHT = "Level height";
             RAWSTRING THEME = "Theme";

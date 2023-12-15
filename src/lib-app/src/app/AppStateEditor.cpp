@@ -35,7 +35,7 @@ AppStateEditor::AppStateEditor(
     , dialogConfirmExit(dialogConfirmExit)
     , dialogErrorInfo(dialogErrorInfo)
     , editor(mem::Box<NullEditor>())
-    , dialogNewLevel(gui, fileApi)
+    , dialogNewLevel(gui)
     , dialogLoadLevel(gui, settings->cmdSettings.resourcesDir)
     , dialogSaveLevel(gui)
     , dialogUpdateConfigPath(gui, fileApi)
@@ -252,6 +252,7 @@ void AppStateEditor::newLevelDialogCallback()
     // Get settings from modal
     unsigned levelWidth = dialogNewLevel.getLevelWidth();
     unsigned levelHeight = dialogNewLevel.getLevelHeight();
+    auto levelTheme = dialogNewLevel.getLevelTheme();
 
     editor->init(
         levelWidth,

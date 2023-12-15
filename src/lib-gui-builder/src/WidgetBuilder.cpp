@@ -23,6 +23,7 @@ tgui::Panel::Ptr WidgetBuilder::createOptionRow(
 {
     auto row = tgui::Panel::create();
     row->setSize("100%", std::to_string(Sizers::GetMenuBarHeight()).c_str());
+    row->getRenderer()->setBackgroundColor(tgui::Color::Transparent);
 
     auto label = tgui::Label::create(labelText);
     label->setSize("60%", "100%");
@@ -33,6 +34,7 @@ tgui::Panel::Ptr WidgetBuilder::createOptionRow(
 
     auto widgetPanel = tgui::Panel::create({ "40%", "100%" });
     widgetPanel->setPosition("60%", "0%");
+    widgetPanel->getRenderer()->setBackgroundColor(tgui::Color::Transparent);
     row->add(widgetPanel);
     widgetPanel->add(widgetPtr);
 

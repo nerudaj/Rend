@@ -12,6 +12,7 @@ enum class [[nodiscard]] LevelTheme
 
 class LevelThemeUtils
 {
+public:
     static LevelTheme fromString(const std::string& str);
 
     static [[nodiscard]] std::string toString(LevelTheme theme);
