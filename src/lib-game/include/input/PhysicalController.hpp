@@ -24,6 +24,16 @@ public:
     PhysicalController(const sf::Window& window, float mouseSensitivity);
 
 public:
+    void update() override
+    {
+        input.update(dgm::Time {});
+    }
+
+    bool isGamepadConnected() const override
+    {
+        return input.isControllerConnected();
+    }
+
     bool isShooting() const override;
 
     bool shouldSwapToPreviousWeapon() const override;

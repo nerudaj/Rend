@@ -16,11 +16,25 @@ PhysicalController::PhysicalController(
     input.bindInput(InputCode::NextWeapon, sf::Keyboard::E);
     input.bindInput(InputCode::LastWeapon, sf::Keyboard::R);
     input.bindInput(InputCode::LastWeapon, sf::Mouse::Right);
+
+    input.setControllerIndex(0);
+    input.bindInput(InputCode::Forward, dgm::Xbox::Axis::LStickYneg);
+    input.bindInput(InputCode::Backward, dgm::Xbox::Axis::LStickYpos);
+    input.bindInput(InputCode::StrafeLeft, dgm::Xbox::Axis::LStickXneg);
+    input.bindInput(InputCode::StrafeRight, dgm::Xbox::Axis::LStickXpos);
+    input.bindInput(InputCode::TurnLeft, dgm::Xbox::Axis::RStickXneg);
+    input.bindInput(InputCode::TurnRight, dgm::Xbox::Axis::RStickXpos);
+    input.bindInput(InputCode::PreviousWeapon, dgm::Xbox::Button::LBumper);
+    input.bindInput(InputCode::NextWeapon, dgm::Xbox::Button::RBumper);
+    input.bindInput(InputCode::LastWeapon, dgm::Xbox::Axis::LTrigger);
+    input.bindInput(InputCode::LastWeapon, dgm::Xbox::Button::Y);
+    input.bindInput(InputCode::Shoot, dgm::Xbox::Axis::RTrigger);
+    input.bindInput(InputCode::Shoot, dgm::Xbox::Button::A);
 }
 
 bool PhysicalController::isShooting() const
 {
-    return input.isToggled(InputCode::Shoot);
+    return input.getValue(InputCode::Shoot) > 0.5f;
 }
 
 bool PhysicalController::shouldSwapToPreviousWeapon() const
@@ -39,20 +53,20 @@ bool PhysicalController::shouldSwapToNextWeapon() const
 
 bool PhysicalController::shouldSwapToLastWeapon() const
 {
-    const bool result = input.isToggled(InputCode::LastWeapon);
+    const bool result = input.getValue(InputCode::LastWeapon) > 0.5f;
     if (result) input.releaseKey(InputCode::LastWeapon);
     return result;
 }
 
 float PhysicalController::getThrust() const
 {
-    return input.getValue(InputCode::Forward)
+    return -input.getValue(InputCode::Forward)
            - input.getValue(InputCode::Backward);
 }
 
 float PhysicalController::getSidewardThrust() const
 {
-    return -input.getValue(InputCode::StrafeLeft)
+    return input.getValue(InputCode::StrafeLeft)
            + input.getValue(InputCode::StrafeRight);
 }
 
@@ -62,7 +76,7 @@ float PhysicalController::getSteer() const
     const auto position = sf::Mouse::getPosition(window);
     const auto xDiff = (position.x - windowWidthHalf);
 
-    return xDiff / mouseSensitivity - input.getValue(InputCode::TurnLeft)
+    return xDiff / mouseSensitivity + input.getValue(InputCode::TurnLeft)
            + input.getValue(InputCode::TurnRight);
 }
 

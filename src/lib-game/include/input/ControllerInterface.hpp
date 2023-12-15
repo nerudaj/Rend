@@ -21,6 +21,13 @@ public:
         };
     }
 
+    virtual void update() {}
+
+    virtual bool isGamepadConnected() const
+    {
+        return false;
+    }
+
     virtual bool isShooting() const = 0;
 
     virtual bool shouldSwapToPreviousWeapon() const = 0;

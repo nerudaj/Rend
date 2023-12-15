@@ -161,8 +161,11 @@ void AppStateIngame::snapshotInputs(FrameState& state)
 {
     state.inputs = inputs
                    | std::views::transform(
-                       [](const mem::Rc<ControllerInterface>& i) -> InputSchema
-                       { return i->getSnapshot(); })
+                       [](mem::Rc<ControllerInterface>& i) -> InputSchema
+                       {
+                           i->update();
+                           return i->getSnapshot();
+                       })
                    | std::ranges::to<decltype(state.inputs)>();
 
     if (settings->cmdSettings.playDemo)
