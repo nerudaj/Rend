@@ -90,12 +90,26 @@ namespace Strings
             RAWSTRING LAYER_UP = "Move to upper layer (Ctrl + Up)";
             RAWSTRING LAYER_DOWN = "Move to lower layer (Ctrl + Down)";
         } // namespace ContextMenu
+
+        namespace NewLevel
+        {
+            RAWSTRING WIDTH = "Level width";
+            RAWSTRING HEIGHT = "Level height";
+            RAWSTRING THEME = "Theme";
+        } // namespace NewLevel
     }     // namespace Editor
 
     namespace Game
     {
         RAWSTRING RESPAWN_PROMPT = "Press [Space] to respawn";
     }
+
+    namespace Level
+    {
+        RAWSTRING THEME_COUNTRY = "Countryside";
+        RAWSTRING THEME_DAWNTIME = "Dawntime";
+        RAWSTRING THEME_SPACE = "Space station";
+    } // namespace Level
 } // namespace Strings
 
 #undef RAWSTRING
