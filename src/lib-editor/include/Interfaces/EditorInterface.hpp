@@ -19,7 +19,7 @@ public:
     virtual void
     handleEvent(const sf::Event& event, const sf::Vector2i& mousePos) = 0;
 
-    [[nodiscard]] virtual LevelD save() const = 0;
+    [[nodiscard]] virtual LevelD save() = 0;
 
     virtual void loadFrom(
         const LevelD& lvd,

@@ -52,4 +52,9 @@ public:
     {
         return *statesToTools.at(currentState);
     }
+
+    [[nodiscard]] auto& getTool(this auto&& self, EditorState state) noexcept
+    {
+        return *self.statesToTools.at(state);
+    }
 };

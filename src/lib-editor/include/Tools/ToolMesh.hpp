@@ -117,6 +117,8 @@ public:
 
     void changeDrawingMode(DrawMode newMode);
 
+    void sanitizeBeforeSave();
+
 private:
     void toggleOverlay();
 

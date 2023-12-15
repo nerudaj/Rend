@@ -11,7 +11,7 @@ public:
 
     void handleEvent(const sf::Event&, const sf::Vector2i&) override {}
 
-    [[nodiscard]] LevelD save() const override
+    [[nodiscard]] LevelD save() override
     {
         return {};
     }

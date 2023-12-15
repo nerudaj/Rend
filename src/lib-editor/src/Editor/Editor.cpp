@@ -218,10 +218,12 @@ void Editor::switchTool(EditorState state)
     stateMgr.getActiveTool().buildCtxMenu(menu);
 }
 
-LevelD Editor::save() const
+LevelD Editor::save()
 {
     LevelD result;
 
+    dynamic_cast<ToolMesh&>(stateMgr.getTool(EditorState::Mesh))
+        .sanitizeBeforeSave();
     stateMgr.forallStates([&result](const ToolInterface& tool)
                           { tool.saveTo(result); });
 

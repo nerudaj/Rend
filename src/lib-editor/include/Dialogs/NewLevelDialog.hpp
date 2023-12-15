@@ -23,7 +23,7 @@ public:
         return height;
     }
 
-    [[nodisard]] constexpr LevelTheme getLevelTheme() const noexcept
+    [[nodiscard]] constexpr LevelTheme getLevelTheme() const noexcept
     {
         return theme;
     }

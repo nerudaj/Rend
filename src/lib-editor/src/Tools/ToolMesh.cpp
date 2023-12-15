@@ -6,6 +6,7 @@
 #include "JsonHelper.hpp"
 #include "Utilities/Utilities.hpp"
 #include <filesystem>
+#include <ranges>
 
 void ToolMesh::penClicked(const sf::Vector2i& position)
 {
@@ -379,6 +380,27 @@ void ToolMesh::changeDrawingMode(ToolMesh::DrawMode newMode)
     else if (mode == DrawMode::RectFill)
     {
         rectShape.setFillColor(sf::Color(128, 0, 0, 128));
+    }
+}
+
+void ToolMesh::sanitizeBeforeSave()
+{
+    for (auto&& map : maps)
+    {
+        for (unsigned y = 0; y < map.getMapDimensions().y; y++)
+        {
+            for (unsigned x = 0; x < map.getMapDimensions().x; x++)
+            {
+                // Skip non-border
+                if (!(y == 0 || x == 0 || y == (map.getMapDimensions().y - 1)
+                      || x == (map.getMapDimensions().x - 1)))
+                {
+                    continue;
+                }
+
+                map.setTileSolid({ x, y }, true);
+            }
+        }
     }
 }
 

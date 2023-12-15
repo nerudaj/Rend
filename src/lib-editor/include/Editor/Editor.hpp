@@ -94,7 +94,7 @@ public:
 
     virtual void switchTool(EditorState state) override;
 
-    [[nodiscard]] virtual LevelD save() const override;
+    [[nodiscard]] virtual LevelD save() override;
 
     virtual void loadFrom(
         const LevelD& lvd,
