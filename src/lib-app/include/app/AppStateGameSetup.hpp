@@ -64,4 +64,5 @@ private:
     int fraglimit;
     unsigned playerCount;
     std::string mapname;
+    std::vector<std::string> mapnames;
 };

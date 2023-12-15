@@ -52,7 +52,7 @@ void AppStateGameSetup::buildLayoutImpl()
 {
     gui->add(createH2Title("game setup"));
 
-    auto mapnames = Filesystem::getLevelNames(
+    mapnames = Filesystem::getLevelNames(
         Filesystem::getLevelsDir(settings->cmdSettings.resourcesDir));
 
     if (mapname.empty()) mapname = mapnames.front();
@@ -73,8 +73,7 @@ void AppStateGameSetup::buildLayoutImpl()
             WidgetBuilder::createDropdown(
                 mapnames,
                 mapname,
-                [this, &mapnames](std::size_t idx)
-                { mapname = mapnames[idx]; }))
+                [this](std::size_t idx) { mapname = mapnames[idx]; }))
         .addOption(
             Strings::AppState::GameSetup::FRAGLIMIT,
             WidgetBuilder::createTextInput(
