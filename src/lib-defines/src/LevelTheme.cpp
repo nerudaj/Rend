@@ -4,12 +4,13 @@
 
 LevelTheme LevelThemeUtils::fromString(const std::string& str)
 {
-    if (str == Strings::Level::THEME_COUNTRY)
-        return LevelTheme::Countryside;
-    else if (str == Strings::Level::THEME_DAWNTIME)
+    if (str == Strings::Level::THEME_DAWNTIME)
         return LevelTheme::Dawntime;
-    assert(str == Strings::Level::THEME_SPACE);
-    return LevelTheme::SpaceStation;
+    else if (str == Strings::Level::THEME_SPACE)
+        return LevelTheme::SpaceStation;
+
+    // Default to countryside if there is anything wrong
+    return LevelTheme::Countryside;
 }
 
 std::string LevelThemeUtils::toString(LevelTheme theme)
