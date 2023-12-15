@@ -39,6 +39,7 @@ public:
     void stop()
     {
         player.stop();
+        playbackMode = PlaybackMode::None;
     }
 
 private:
