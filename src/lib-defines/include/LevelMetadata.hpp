@@ -5,6 +5,7 @@
 
 struct LevelMetadata
 {
-    LevelTheme theme;
+    SkyboxTheme skyboxTheme;
+    TexturePack texturePack;
     std::string author;
 };

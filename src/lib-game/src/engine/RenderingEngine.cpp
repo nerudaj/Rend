@@ -80,7 +80,8 @@ RenderingEngine::RenderingEngine(
         sf::Glsl::Vec2(settings.resolution.width, settings.resolution.height));
     shader.setUniform("ditherShadows", settings.useDitheredShadows);
     skybox.sprite.setTextureRect(skybox.clipping.getFrame(
-        static_cast<std::underlying_type_t<LevelTheme>>(scene.level.theme)));
+        static_cast<std::underlying_type_t<SkyboxTheme>>(
+            scene.level.skyboxTheme)));
 }
 
 void RenderingEngine::update(const float deltaTime)

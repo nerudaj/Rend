@@ -164,13 +164,17 @@ Scene SceneBuilder::buildScene(const LevelD& level, unsigned maxPlayerCount)
     const auto upperTextureMesh =
         MeshBuilder::buildTextureMeshFromLvd(level, 1);
 
+    auto&& theme = LevelTheme::fromJson(level.metadata.description);
+
     return Scene {
         .things = std::move(things),
         .level = { .width = level.mesh.layerWidth,
                    .height = level.mesh.layerHeight,
                    .bottomMesh = bottomMesh,
                    .upperMesh = MeshBuilder::buildMeshFromLvd(level, 1),
-                   .theme = LevelThemeUtils::fromString(level.metadata.id) },
+                   .skyboxTheme = SkyboxThemeUtils::fromString(theme.skybox),
+                   .texturePack =
+                       TexturePackUtils::fromString(theme.textures) },
         .drawableLevel = { .bottomTextures = bottomTextureMesh,
                            .upperTextures = upperTextureMesh,
                            .lightmap = LightmapBuilder::buildLightmap(

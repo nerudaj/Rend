@@ -253,8 +253,10 @@ void AppStateEditor::newLevelDialogCallback()
     // Get settings from modal
     unsigned levelWidth = dialogNewLevel.getLevelWidth();
     unsigned levelHeight = dialogNewLevel.getLevelHeight();
-    levelMetadata = LevelMetadata { .theme = dialogNewLevel.getLevelTheme(),
-                                    .author = dialogNewLevel.getAuthorName() };
+    levelMetadata =
+        LevelMetadata { .skyboxTheme = dialogNewLevel.getSkyboxTheme(),
+                        .texturePack = dialogNewLevel.getTexturePack(),
+                        .author = dialogNewLevel.getAuthorName() };
 
     editor->init(
         levelWidth,
@@ -306,7 +308,9 @@ void AppStateEditor::loadLevel(
 
         editor->loadFrom(lvd, configPathFS);
         levelMetadata.author = lvd.metadata.author;
-        levelMetadata.theme = LevelThemeUtils::fromString(lvd.metadata.id);
+        auto theme = LevelTheme::fromJson(lvd.metadata.id);
+        levelMetadata.skyboxTheme = SkyboxThemeUtils::fromString(theme.skybox);
+        levelMetadata.texturePack = TexturePackUtils::fromString(theme.skybox);
         unsavedChanges = false;
         updateWindowTitle();
     }
@@ -343,7 +347,12 @@ void AppStateEditor::saveLevel()
         unsavedChanges = false;
         auto&& lvd = editor->save();
         lvd.metadata.author = levelMetadata.author;
-        lvd.metadata.id = LevelThemeUtils::toString(levelMetadata.theme);
+        lvd.metadata.description =
+            nlohmann::json(LevelTheme { .skybox = SkyboxThemeUtils::toString(
+                                            levelMetadata.skyboxTheme),
+                                        .textures = TexturePackUtils::toString(
+                                            levelMetadata.texturePack) })
+                .dump();
         lvd.saveToFile(savePath);
         updateWindowTitle();
     }

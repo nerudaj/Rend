@@ -193,7 +193,8 @@ void Editor::init(
     camera.resetPosition();
     camera.resetZoom();
     camera.move(
-        sf::Vector2f(levelWidth, levelHeight) * static_cast<float>(tileSize)
+        sf::Vector2f(sf::Vector2u(levelWidth, levelHeight))
+            * static_cast<float>(tileSize)
         - sf::Vector2f(canvas->getSize()) / 2.f);
 
     initialized = true;

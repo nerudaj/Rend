@@ -96,7 +96,8 @@ namespace Strings
             RAWSTRING TITLE = "New level";
             RAWSTRING WIDTH = "Level width";
             RAWSTRING HEIGHT = "Level height";
-            RAWSTRING THEME = "Theme";
+            RAWSTRING SKYBOX_THEME = "Skybox theme";
+            RAWSTRING TEXTURE_PACK = "Texture pack";
             RAWSTRING AUTHOR = "Author name";
         } // namespace NewLevel
     }     // namespace Editor
@@ -110,7 +111,8 @@ namespace Strings
     {
         RAWSTRING THEME_COUNTRY = "Countryside";
         RAWSTRING THEME_DAWNTIME = "Dawntime";
-        RAWSTRING THEME_SPACE = "Space station";
+        RAWSTRING THEME_SPACE = "Nightsky";
+        RAWSTRING THEME_ALPHA = "AlphaVersion";
     } // namespace Level
 } // namespace Strings
 

@@ -28,12 +28,19 @@ void ModernNewLevelDialog::buildLayoutImpl(tgui::Panel::Ptr panel)
                 [this](std::size_t idx)
                 { height = std::stol(ALLOWED_LEVEL_SIZES[idx]); }))
         .addOption(
-            Strings::Editor::NewLevel::THEME,
+            Strings::Editor::NewLevel::SKYBOX_THEME,
             WidgetBuilder::createDropdown(
-                LevelThemeUtils::getAllNames(),
-                LevelThemeUtils::toString(theme),
+                SkyboxThemeUtils::getAllNames(),
+                SkyboxThemeUtils::toString(skyboxTheme),
                 [this](std::size_t idx)
-                { theme = static_cast<LevelTheme>(idx); }))
+                { skyboxTheme = static_cast<SkyboxTheme>(idx); }))
+        .addOption(
+            Strings::Editor::NewLevel::TEXTURE_PACK,
+            WidgetBuilder::createDropdown(
+                TexturePackUtils::getAllNames(),
+                TexturePackUtils::toString(texturePack),
+                [this](std::size_t idx)
+                { skyboxTheme = static_cast<SkyboxTheme>(idx); }))
         .addOption(
             Strings::Editor::NewLevel::AUTHOR,
             WidgetBuilder::createTextInput(
