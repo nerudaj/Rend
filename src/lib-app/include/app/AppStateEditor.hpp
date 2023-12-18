@@ -65,7 +65,7 @@ protected:
     SaveLevelDialog dialogSaveLevel;
     UpdateConfigPathDialog dialogUpdateConfigPath;
     ClickPreventer clickPreventer;
-    LevelMetadata levelMetadata;
+    mem::Rc<LevelMetadata> levelMetadata;
 
 protected:
     void updateWindowTitle()

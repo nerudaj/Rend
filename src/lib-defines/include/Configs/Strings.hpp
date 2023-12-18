@@ -60,6 +60,8 @@ namespace Strings
             RAWSTRING WARNING = "Warning";
             RAWSTRING OPEN_LEVEL = "Open level";
             RAWSTRING SAVE_LEVEL = "Save level";
+            RAWSTRING EDIT_METADATA = "Edit level metadata";
+            RAWSTRING NEW_LEVEL = "New level";
         } // namespace Title
 
         namespace Message
@@ -87,13 +89,13 @@ namespace Strings
             RAWSTRING TRIG_MODE = "Trigger mode (T)";
             RAWSTRING RESIZE = "Resize level (R)";
             RAWSTRING SHRINK = "Shrink level to fit (S)";
+            RAWSTRING EDIT_METADATA = "Edit metadata";
             RAWSTRING LAYER_UP = "Move to upper layer (Ctrl + Up)";
             RAWSTRING LAYER_DOWN = "Move to lower layer (Ctrl + Down)";
         } // namespace ContextMenu
 
         namespace NewLevel
         {
-            RAWSTRING TITLE = "New level";
             RAWSTRING WIDTH = "Level width";
             RAWSTRING HEIGHT = "Level height";
             RAWSTRING SKYBOX_THEME = "Skybox theme";

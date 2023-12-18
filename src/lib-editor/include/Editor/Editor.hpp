@@ -2,6 +2,7 @@
 
 #include "Camera.hpp"
 #include "Commands/CommandQueue.hpp"
+#include "Dialogs/EditMetadataDialog.hpp"
 #include "Dialogs/EditPropertyDialog.hpp"
 #include "Dialogs/ResizeLevelDialog.hpp"
 #include "Editor/EditorState.hpp"
@@ -28,48 +29,10 @@ public:
         tgui::CanvasSFML::Ptr& canvas,
         std::function<void(void)> onStateChanged,
         mem::Rc<CommandQueue> commandQueue,
-        mem::Rc<ShortcutEngineInterface> shortcutEngine);
+        mem::Rc<ShortcutEngineInterface> shortcutEngine,
+        mem::Rc<LevelMetadata> metadata);
     Editor(Editor&&) = delete;
     Editor(const Editor&) = delete;
-
-private:
-    mem::Rc<Gui> gui;
-    tgui::CanvasSFML::Ptr& canvas;
-    ResizeDialog dialog = ResizeDialog(gui);
-    EditPropertyDialog editPropertyDialog = EditPropertyDialog(gui);
-    Camera camera = Camera(canvas);
-    EditorStateManager stateMgr;
-    sf::CircleShape mouseIndicator;
-    PhysicalPen physicalPen;
-    mem::Rc<LayerController> layerController;
-
-    bool initialized = false;
-
-private: // Dependencies
-    mem::Rc<CommandQueue> commandQueue;
-    mem::Rc<ShortcutEngineInterface> shortcutEngine;
-
-private:
-    [[nodiscard]] constexpr bool
-    isMouseWithinBoundaries(const sf::Vector2f& mousePos) const noexcept;
-
-    [[nodiscard]] bool canScroll() const
-    {
-        return !gui->isAnyModalOpened();
-    }
-
-    [[nodiscard]] bool canOpenPropertyDialog() const
-    {
-        // If property window is opened, do not open new one
-        return canScroll();
-    }
-
-protected:
-    void populateMenuBar();
-
-    void handleRmbClicked();
-
-    void drawTagHighlight();
 
 public:
     [[nodiscard]] bool isInitialized() const noexcept
@@ -107,4 +70,47 @@ public:
         unsigned width, unsigned height, bool isTranslationDisabled) override;
 
     virtual void shrinkToFit() override;
+
+private:
+    [[nodiscard]] constexpr bool
+    isMouseWithinBoundaries(const sf::Vector2f& mousePos) const noexcept;
+
+    [[nodiscard]] bool canScroll() const
+    {
+        return !gui->isAnyModalOpened();
+    }
+
+    [[nodiscard]] bool canOpenPropertyDialog() const
+    {
+        // If property window is opened, do not open new one
+        return canScroll();
+    }
+
+protected:
+    void populateMenuBar();
+
+    void handleRmbClicked();
+
+    void handleChangedMetadata();
+
+    void drawTagHighlight();
+
+private: // Dependencies
+    mem::Rc<Gui> gui;
+    tgui::CanvasSFML::Ptr& canvas;
+    mem::Rc<CommandQueue> commandQueue;
+    mem::Rc<ShortcutEngineInterface> shortcutEngine;
+    mem::Rc<LevelMetadata> levelMetadata;
+
+private:
+    ResizeDialog dialog = ResizeDialog(gui);
+    EditPropertyDialog editPropertyDialog = EditPropertyDialog(gui);
+    EditMetadataDialog editMetadataDialog = EditMetadataDialog(gui);
+    Camera camera = Camera(canvas);
+    EditorStateManager stateMgr;
+    sf::CircleShape mouseIndicator;
+    PhysicalPen physicalPen;
+    mem::Rc<LayerController> layerController;
+
+    bool initialized = false;
 };

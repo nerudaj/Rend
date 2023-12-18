@@ -13,6 +13,41 @@ const sf::Vector2f UP_VEC(0.f, -24.f);
 const sf::Vector2f DOWN_VEC(0.f, 24.f);
 const sf::Vector2f RIGHT_VEC(24.f, 0.f);
 
+Editor::Editor(
+    mem::Rc<Gui> gui,
+    tgui::CanvasSFML::Ptr& canvas,
+    std::function<void(void)> onStateChanged,
+    mem::Rc<CommandQueue> commandQueueRef,
+    mem::Rc<ShortcutEngineInterface> shortcutEngineRef,
+    mem::Rc<LevelMetadata> metadata)
+    : gui(gui)
+    , canvas(canvas)
+    , commandQueue(commandQueueRef)
+    , shortcutEngine(shortcutEngineRef)
+    , physicalPen(
+          [this]() -> PenUserInterface& { return stateMgr.getActiveTool(); })
+    , levelMetadata(metadata)
+{
+    stateMgr.addState<ToolMesh>(
+        EditorState::Mesh,
+        onStateChanged,
+        shortcutEngine,
+        layerController,
+        gui,
+        commandQueue);
+
+    stateMgr.addState<ToolItem>(
+        EditorState::Item,
+        onStateChanged,
+        shortcutEngine,
+        layerController,
+        gui,
+        commandQueue);
+
+    mouseIndicator.setRadius(8.f);
+    mouseIndicator.setFillColor(sf::Color::Green);
+}
+
 constexpr bool
 Editor::isMouseWithinBoundaries(const sf::Vector2f& mousePos) const noexcept
 {
@@ -29,16 +64,18 @@ void Editor::populateMenuBar()
     menu->removeMenu(MENU_NAME);
     shortcutEngine->unregisterShortcutGroup(MENU_NAME);
 
-    auto addEditorMenuItem = [&](const std::string& label,
-                                 std::function<void(void)> callback,
-                                 sf::Keyboard::Key shortcut,
-                                 bool ctrlRequired = false)
+    auto addEditorMenuItem =
+        [&](const std::string& label,
+            std::function<void(void)> callback,
+            sf::Keyboard::Key shortcut = sf::Keyboard::KeyCount,
+            bool ctrlRequired = false)
     {
         menu->addMenuItem(label);
         menu->connectMenuItem(MENU_NAME, label, callback);
 
-        shortcutEngine->registerShortcut(
-            MENU_NAME, { ctrlRequired, false, shortcut }, callback);
+        if (shortcut != sf::Keyboard::KeyCount)
+            shortcutEngine->registerShortcut(
+                MENU_NAME, { ctrlRequired, false, shortcut }, callback);
     };
 
     using namespace Strings::Editor::ContextMenu;
@@ -49,12 +86,20 @@ void Editor::populateMenuBar()
         MESH_MODE, [this] { switchTool(EditorState::Mesh); }, sf::Keyboard::M);
     addEditorMenuItem(
         ITEM_MODE, [this] { switchTool(EditorState::Item); }, sf::Keyboard::I);
-    addEditorMenuItem(
+    /*addEditorMenuItem(
         RESIZE, [this] { resizeDialog(); }, sf::Keyboard::R);
     addEditorMenuItem(
         SHRINK,
         [this] { commandQueue->push<ShrinkToFitCommand>(*this); },
-        sf::Keyboard::S);
+        sf::Keyboard::S);*/
+    addEditorMenuItem(
+        EDIT_METADATA,
+        [this]
+        {
+            editMetadataDialog.open(
+                *levelMetadata,
+                std::bind(&Editor::handleChangedMetadata, this));
+        });
     addEditorMenuItem(
         LAYER_UP,
         [this] { layerController->moveUp(); },
@@ -105,6 +150,15 @@ void Editor::handleRmbClicked()
     if (!canOpenPropertyDialog() || !prop.has_value()) return;
 
     editPropertyDialog.open(std::move(prop.value()), stateMgr.getActiveTool());
+}
+
+void Editor::handleChangedMetadata()
+{
+    levelMetadata->author = editMetadataDialog.getAuthorName();
+    levelMetadata->skyboxTheme = editMetadataDialog.getSkyboxTheme();
+    levelMetadata->texturePack = editMetadataDialog.getTexturePack();
+
+    // TODO: propagate change in textures
 }
 
 void Editor::drawTagHighlight()
@@ -283,37 +337,4 @@ void Editor::shrinkToFit()
         stateMgr.forallStates([&boundingBox](ToolInterface& t)
                               { t.shrinkTo(boundingBox.value()); });
     }
-}
-
-Editor::Editor(
-    mem::Rc<Gui> gui,
-    tgui::CanvasSFML::Ptr& canvas,
-    std::function<void(void)> onStateChanged,
-    mem::Rc<CommandQueue> commandQueueRef,
-    mem::Rc<ShortcutEngineInterface> shortcutEngineRef)
-    : gui(gui)
-    , canvas(canvas)
-    , commandQueue(commandQueueRef)
-    , shortcutEngine(shortcutEngineRef)
-    , physicalPen(
-          [this]() -> PenUserInterface& { return stateMgr.getActiveTool(); })
-{
-    stateMgr.addState<ToolMesh>(
-        EditorState::Mesh,
-        onStateChanged,
-        shortcutEngine,
-        layerController,
-        gui,
-        commandQueue);
-
-    stateMgr.addState<ToolItem>(
-        EditorState::Item,
-        onStateChanged,
-        shortcutEngine,
-        layerController,
-        gui,
-        commandQueue);
-
-    mouseIndicator.setRadius(8.f);
-    mouseIndicator.setFillColor(sf::Color::Green);
 }

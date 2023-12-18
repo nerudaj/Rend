@@ -24,23 +24,23 @@ target_link_libraries ( ${PROJECT_NAME}
 
 autoset_target_compile_options ( ${PROJECT_NAME} FALSE )
 
-target_precompile_headers ( ${PROJECT_NAME}
-	PRIVATE
-		<vector>
-		<format>
-		<map>
-		<unordered_map>
-		<array>
-		<optional>
-		<expected>
-		<fstream>
-		<filesystem>
-		<functional>
-		<concepts>
-		<memory>
-		<string>
-		<cstdint>
-		<DGM/dgm.hpp>
-		<TGUI/tgui.hpp>
-		<nlohmann/json.hpp>
-)
+# target_precompile_headers ( ${PROJECT_NAME}
+	# PRIVATE
+		# <vector>
+		# <format>
+		# <map>
+		# <unordered_map>
+		# <array>
+		# <optional>
+		# <expected>
+		# <fstream>
+		# <filesystem>
+		# <functional>
+		# <concepts>
+		# <memory>
+		# <string>
+		# <cstdint>
+		# <DGM/dgm.hpp>
+		# <TGUI/tgui.hpp>
+		# <nlohmann/json.hpp>
+# )

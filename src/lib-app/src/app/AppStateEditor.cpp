@@ -68,7 +68,12 @@ AppStateEditor::AppStateEditor(
     };
 
     editor = mem::Box<Editor>(
-        gui, canvas, onStateChanged, commandQueue, this->shortcutEngine);
+        gui,
+        canvas,
+        onStateChanged,
+        commandQueue,
+        this->shortcutEngine,
+        levelMetadata);
 
     updateWindowTitle();
 }
@@ -253,10 +258,9 @@ void AppStateEditor::newLevelDialogCallback()
     // Get settings from modal
     unsigned levelWidth = dialogNewLevel.getLevelWidth();
     unsigned levelHeight = dialogNewLevel.getLevelHeight();
-    levelMetadata =
-        LevelMetadata { .skyboxTheme = dialogNewLevel.getSkyboxTheme(),
-                        .texturePack = dialogNewLevel.getTexturePack(),
-                        .author = dialogNewLevel.getAuthorName() };
+    levelMetadata->author = dialogNewLevel.getAuthorName();
+    levelMetadata->skyboxTheme = dialogNewLevel.getSkyboxTheme();
+    levelMetadata->texturePack = dialogNewLevel.getTexturePack();
 
     editor->init(
         levelWidth,
@@ -307,10 +311,10 @@ void AppStateEditor::loadLevel(
         savePath = pathToLevel;
 
         editor->loadFrom(lvd, configPathFS);
-        levelMetadata.author = lvd.metadata.author;
+        levelMetadata->author = lvd.metadata.author;
         auto theme = LevelTheme::fromJson(lvd.metadata.id);
-        levelMetadata.skyboxTheme = SkyboxThemeUtils::fromString(theme.skybox);
-        levelMetadata.texturePack = TexturePackUtils::fromString(theme.skybox);
+        levelMetadata->skyboxTheme = SkyboxThemeUtils::fromString(theme.skybox);
+        levelMetadata->texturePack = TexturePackUtils::fromString(theme.skybox);
         unsavedChanges = false;
         updateWindowTitle();
     }
@@ -346,12 +350,12 @@ void AppStateEditor::saveLevel()
     {
         unsavedChanges = false;
         auto&& lvd = editor->save();
-        lvd.metadata.author = levelMetadata.author;
+        lvd.metadata.author = levelMetadata->author;
         lvd.metadata.description =
             nlohmann::json(LevelTheme { .skybox = SkyboxThemeUtils::toString(
-                                            levelMetadata.skyboxTheme),
+                                            levelMetadata->skyboxTheme),
                                         .textures = TexturePackUtils::toString(
-                                            levelMetadata.texturePack) })
+                                            levelMetadata->texturePack) })
                 .dump();
         lvd.saveToFile(savePath);
         updateWindowTitle();
