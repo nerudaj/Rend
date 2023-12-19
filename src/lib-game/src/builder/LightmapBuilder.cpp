@@ -33,10 +33,10 @@ std::queue<LightPoint> LightmapBuilder::getTileBasedLightSources(
     {
         for (MeshItrType x = 0; x < bottom.getDataSize().y; ++x, ++i)
         {
-            auto upperTileType = static_cast<TilesetMapping>(upper.at(x, y));
-            auto bottomTileType = static_cast<TilesetMapping>(bottom.at(x, y));
+            auto upperTileType = static_cast<LevelTileId>(upper.at(x, y));
+            auto bottomTileType = static_cast<LevelTileId>(bottom.at(x, y));
 
-            if (upperTileType == TilesetMapping::CeilSky)
+            if (upperTileType == LevelTileId::CeilSky)
             {
                 queue.emplace(
                     LightPoint { .x = x,
@@ -45,8 +45,8 @@ std::queue<LightPoint> LightmapBuilder::getTileBasedLightSources(
                                  .decayAmount = VERTICAL_LIGHT_DECAY_AMOUNT });
             }
             else if (
-                bottomTileType == TilesetMapping::FlatLight
-                || upperTileType == TilesetMapping::FlatLight)
+                bottomTileType == LevelTileId::FlatLight
+                || upperTileType == LevelTileId::FlatLight)
             {
                 queue.emplace(
                     LightPoint { .x = x,

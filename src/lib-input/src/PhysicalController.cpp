@@ -1,4 +1,6 @@
-#include <input/PhysicalController.hpp>
+import PhysicalController;
+
+#include <DGM/dgm.hpp>
 
 PhysicalController::PhysicalController(
     const sf::Window& window, float mouseSensitivity)

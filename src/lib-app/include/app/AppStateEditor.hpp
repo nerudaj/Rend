@@ -23,6 +23,7 @@
 import Memory;
 import Options;
 import Audio;
+import Input;
 
 class AppStateEditor : public dgm::AppState
 {
@@ -35,6 +36,7 @@ public:
         mem::Rc<AppOptions> settings,
         mem::Rc<AudioPlayer> audioPlayer,
         mem::Rc<Jukebox> jukebox,
+        mem::Rc<PhysicalController> controller,
         mem::Rc<FileApiInterface> fileApi,
         mem::Rc<ShortcutEngineInterface> shortcutEngine,
         mem::Rc<YesNoCancelDialogInterface> dialogConfirmExit,
@@ -48,6 +50,7 @@ protected:
     mem::Rc<AppOptions> settings;
     mem::Rc<AudioPlayer> audioPlayer;
     mem::Rc<Jukebox> jukebox;
+    mem::Rc<PhysicalController> controller;
     mem::Rc<ShortcutEngineInterface> shortcutEngine;
     mem::Rc<FileApiInterface> fileApi;
     mem::Rc<YesNoCancelDialogInterface> dialogConfirmExit;

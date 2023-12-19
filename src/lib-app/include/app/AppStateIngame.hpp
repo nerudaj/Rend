@@ -13,14 +13,13 @@
 #include <TGUI/TGUI.hpp>
 #include <core/Scene.hpp>
 #include <events/EventQueue.hpp>
-#include <input/ControllerInterface.hpp>
-#include <input/InputSchema.hpp>
 #include <utils/DemoFileHandler.hpp>
 #include <utils/RoundRobinBuffer.hpp>
 
 import Options;
 import Memory;
 import Audio;
+import Input;
 
 class AppStateIngame final : public dgm::AppState
 {
@@ -32,6 +31,7 @@ public:
         mem::Rc<AppOptions> settings,
         mem::Rc<AudioPlayer> audioPlayer,
         mem::Rc<Jukebox> jukebox,
+        mem::Rc<PhysicalController> controller,
         GameOptions gameSettings,
         const LevelD& level,
         bool launchedFromEditor = false);
@@ -93,6 +93,7 @@ protected:
     GameOptions gameSettings;
     mem::Rc<AudioPlayer> audioPlayer;
     mem::Rc<Jukebox> jukebox;
+    mem::Rc<PhysicalController> controller;
     mem::Rc<EventQueue> eventQueue;
     bool launchedFromEditor;
 

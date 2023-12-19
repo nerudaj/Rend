@@ -1,8 +1,8 @@
 #pragma once
 
 #include <DGM/dgm.hpp>
-#include <input/ControllerInterface.hpp>
-#include <input/InputSchema.hpp>
+
+import Input;
 
 class SimpleController : public ControllerInterface
 {

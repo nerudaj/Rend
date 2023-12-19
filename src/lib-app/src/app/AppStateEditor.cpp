@@ -20,6 +20,7 @@ AppStateEditor::AppStateEditor(
     mem::Rc<AppOptions> settings,
     mem::Rc<AudioPlayer> audioPlayer,
     mem::Rc<Jukebox> jukebox,
+    mem::Rc<PhysicalController> controller,
     mem::Rc<FileApiInterface> fileApi,
     mem::Rc<ShortcutEngineInterface> shortcutEngine,
     mem::Rc<YesNoCancelDialogInterface> dialogConfirmExit,
@@ -31,6 +32,7 @@ AppStateEditor::AppStateEditor(
     , settings(settings)
     , audioPlayer(audioPlayer)
     , jukebox(jukebox)
+    , controller(controller)
     , fileApi(fileApi)
     , shortcutEngine(shortcutEngine)
     , dialogConfirmExit(dialogConfirmExit)
@@ -389,6 +391,7 @@ void AppStateEditor::handlePlayLevel()
         settings,
         audioPlayer,
         jukebox,
+        controller,
         gameSettings,
         lvd,
         "launchedFromEditor"_true);

@@ -12,6 +12,8 @@ void AppStateScoreTable::input()
 
         gui->handleEvent(event);
     }
+
+    controller->update();
 }
 
 void AppStateScoreTable::buildLayoutImpl()

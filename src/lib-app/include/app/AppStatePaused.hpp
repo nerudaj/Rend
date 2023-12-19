@@ -3,6 +3,7 @@
 #include "GuiState.hpp"
 
 import Options;
+import Input;
 
 class [[nodiscard]] AppStatePaused final
     : public dgm::AppState
@@ -14,10 +15,12 @@ public:
         mem::Rc<tgui::Gui> gui,
         mem::Rc<AudioPlayer> audioPlayer,
         mem::Rc<Jukebox> jukebox,
+        mem::Rc<PhysicalController> controller,
         mem::Rc<AppOptions> settings)
         : dgm::AppState(app)
         , GuiState(gui, audioPlayer)
         , jukebox(jukebox)
+        , controller(controller)
         , settings(settings)
     {
         buildLayout();
@@ -48,5 +51,6 @@ private:
 
 private:
     mem::Rc<Jukebox> jukebox;
+    mem::Rc<PhysicalController> controller;
     mem::Rc<AppOptions> settings;
 };

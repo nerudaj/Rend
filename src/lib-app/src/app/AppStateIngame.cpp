@@ -3,13 +3,10 @@
 #include "app/AppStateWinnerAnnounced.hpp"
 #include <builder/SceneBuilder.hpp>
 #include <events/EventQueue.hpp>
-#include <input/NullController.hpp>
-#include <input/PhysicalController.hpp>
 
 [[nodiscard]] static std::vector<mem::Rc<ControllerInterface>> createInputs(
-    const sf::Window& window,
-    const GameOptions& gameSettings,
-    float mouseSensitivity)
+    mem::Rc<PhysicalController> physicalController,
+    const GameOptions& gameSettings)
 {
     std::vector<mem::Rc<ControllerInterface>> inputs;
     for (auto&& ps : gameSettings.players)
@@ -18,8 +15,7 @@
         {
             using enum PlayerKind;
         case LocalHuman:
-            inputs.push_back(
-                mem::Rc<PhysicalController>(window, mouseSensitivity));
+            inputs.push_back(physicalController);
             break;
         case LocalNpc:
             inputs.push_back(mem::Rc<AiController>());
@@ -39,6 +35,7 @@ AppStateIngame::AppStateIngame(
     mem::Rc<AppOptions> _settings,
     mem::Rc<AudioPlayer> _audioPlayer,
     mem::Rc<Jukebox> _jukebox,
+    mem::Rc<PhysicalController> _controller,
     GameOptions gameSettings,
     const LevelD& level,
     bool launchedFromEditor)
@@ -49,11 +46,9 @@ AppStateIngame::AppStateIngame(
     , gameSettings(gameSettings)
     , audioPlayer(_audioPlayer)
     , jukebox(_jukebox)
+    , controller(_controller)
     , launchedFromEditor(launchedFromEditor)
-    , inputs(createInputs(
-          _app.window.getWindowContext(),
-          gameSettings,
-          settings->input.mouseSensitivity))
+    , inputs(createInputs(_controller, gameSettings))
     , scene(SceneBuilder::buildScene(level, gameSettings.players.size()))
     , gameLoop(scene, eventQueue, resmgr, audioPlayer, settings->display)
     , demoFileHandler(
@@ -99,7 +94,7 @@ void AppStateIngame::input()
                 {
                     unlockMouse();
                     app.pushState<AppStatePaused>(
-                        gui, audioPlayer, jukebox, settings);
+                        gui, audioPlayer, jukebox, controller, settings);
                 }
             }
             else if (event.key.code == sf::Keyboard::P)
@@ -117,6 +112,8 @@ void AppStateIngame::input()
             }
         }
     }
+
+    controller->update();
 }
 
 void AppStateIngame::update()
@@ -218,6 +215,7 @@ void AppStateIngame::evaluateWinCondition()
             gui,
             audioPlayer,
             jukebox,
+            controller,
             gameSettings,
             scene.playerStates
                 | std::views::transform([](const PlayerState& state)
@@ -276,14 +274,7 @@ void AppStateIngame::propagateSettings()
             settings->display.resolution.width,
             settings->display.resolution.height)));
 
-    for (std::size_t idx = 0; idx < gameSettings.players.size(); idx++)
-    {
-        if (gameSettings.players[idx].kind == PlayerKind::LocalHuman)
-        {
-            inputs[idx].castTo<PhysicalController>()->setMouseSensitivity(
-                settings->input.mouseSensitivity);
-        }
-    }
+    controller->setMouseSensitivity(settings->input.mouseSensitivity);
 
     gameLoop = mem::Box<GameLoop>(
         scene, eventQueue, resmgr, audioPlayer, settings->display);

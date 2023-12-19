@@ -1,8 +1,8 @@
 #pragma once
 
-#include <input/ControllerInterface.hpp>
+import ControllerInterface;
 
-class AiController final : public ControllerInterface
+class [[nodiscard]] AiController final : public ControllerInterface
 {
 public:
     [[nodiscard]] constexpr bool isShooting() const noexcept override

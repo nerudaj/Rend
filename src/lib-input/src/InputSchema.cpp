@@ -1,4 +1,6 @@
-#include <input/InputSchema.hpp>
+import InputSchema;
+
+#include <nlohmann/json.hpp>
 
 void to_json(nlohmann::json& j, const InputSchema& schema)
 {

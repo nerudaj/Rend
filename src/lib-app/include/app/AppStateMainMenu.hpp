@@ -3,6 +3,7 @@
 import Memory;
 import Options;
 import Audio;
+import Input;
 
 #include "GuiState.hpp"
 #include <vector>
@@ -18,12 +19,14 @@ public:
         mem::Rc<tgui::Gui> gui,
         mem::Rc<AudioPlayer> audioPlayer,
         mem::Rc<Jukebox> jukebox,
-        mem::Rc<AppOptions> settings)
+        mem::Rc<AppOptions> settings,
+        mem::Rc<PhysicalController> controller)
         : dgm::AppState(app)
         , GuiState(gui, audioPlayer)
         , resmgr(resmgr)
         , jukebox(jukebox)
         , settings(settings)
+        , controller(controller)
     {
         buildLayout();
         jukebox->playTitleSong();
@@ -66,4 +69,5 @@ private:
     mem::Rc<const dgm::ResourceManager> resmgr;
     mem::Rc<Jukebox> jukebox;
     mem::Rc<AppOptions> settings;
+    mem::Rc<PhysicalController> controller;
 };

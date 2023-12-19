@@ -17,9 +17,10 @@ void AppStatePaused::buildLayoutImpl()
         { ButtonProps("resume", [&] { app.popState(); }),
           ButtonProps(
               "options",
-              [&] {
+              [&]
+              {
                   app.pushState<AppStateMenuOptions>(
-                      gui, audioPlayer, jukebox, settings);
+                      gui, audioPlayer, jukebox, settings, controller);
               }),
           ButtonProps(" main menu ", [&] { app.popState(2); }),
           ButtonProps("exit", [&] { app.exit(); }) },
@@ -45,4 +46,6 @@ void AppStatePaused::input()
 
         gui->handleEvent(event);
     }
+
+    controller->update();
 }

@@ -11,6 +11,8 @@ void AppStateWinnerAnnounced::input()
             app.exit();
         }
     }
+
+    controller->update();
 }
 
 void AppStateWinnerAnnounced::update()
@@ -19,7 +21,7 @@ void AppStateWinnerAnnounced::update()
     if (transitionTimeout <= 0.f)
     {
         app.pushState<AppStateScoreTable>(
-            gui, audioPlayer, jukebox, gameSettings, scores);
+            gui, audioPlayer, jukebox, controller, gameSettings, scores);
     }
 }
 

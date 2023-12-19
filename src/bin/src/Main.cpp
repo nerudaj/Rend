@@ -8,6 +8,7 @@
 import Memory;
 import Options;
 import Audio;
+import Input;
 
 CmdParameters processCmdParameters(int argc, char* argv[])
 {
@@ -108,8 +109,11 @@ int main(int argc, char* argv[])
     jukebox->setVolume(settings->audio.musicVolume);
     gui->setFont(resmgr->get<tgui::Font>("pico-8.ttf").value());
 
+    auto&& controller = mem::Rc<PhysicalController>(
+        window.getWindowContext(), settings->input.mouseSensitivity);
+
     app.pushState<AppStateMainMenu>(
-        resmgr, gui, audioPlayer, jukebox, settings);
+        resmgr, gui, audioPlayer, jukebox, settings, controller);
     app.run();
 
     auto outWindowSettings = window.close();

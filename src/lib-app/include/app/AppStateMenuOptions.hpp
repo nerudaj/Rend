@@ -5,6 +5,7 @@
 import Options;
 import Audio;
 import FormBuilder;
+import Input;
 
 class AppStateMenuOptions final
     : public dgm::AppState
@@ -16,11 +17,13 @@ public:
         mem::Rc<tgui::Gui> gui,
         mem::Rc<AudioPlayer> audioPlayer,
         mem::Rc<Jukebox> jukebox,
-        mem::Rc<AppOptions> settings)
+        mem::Rc<AppOptions> settings,
+        mem::Rc<PhysicalController> controller)
         : dgm::AppState(app)
         , GuiState(gui, audioPlayer)
         , jukebox(jukebox)
         , settings(settings)
+        , controller(controller)
     {
         buildLayout();
     }
@@ -59,4 +62,5 @@ private:
 private:
     mem::Rc<Jukebox> jukebox;
     mem::Rc<AppOptions> settings;
+    mem::Rc<PhysicalController> controller;
 };

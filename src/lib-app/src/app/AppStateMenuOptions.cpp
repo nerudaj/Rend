@@ -178,4 +178,6 @@ void AppStateMenuOptions::input()
     {
         gui->handleEvent(event);
     }
+
+    controller->update();
 }

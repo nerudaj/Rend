@@ -5,19 +5,6 @@
 #include <map>
 #include <string>
 
-enum class TilesetMapping
-{
-    Flat1,
-    Flat2,
-    CeilLow,
-    CeilSky,
-    FlatLight,
-    Crate1,
-    Crate2,
-    Wall1,
-    End = 16
-};
-
 enum class SpriteId : std::uint8_t
 {
     NoRender = 0,

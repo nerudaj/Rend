@@ -1,8 +1,10 @@
-#pragma once
+module;
 
-#include <input/InputSchema.hpp>
+export module ControllerInterface;
 
-class ControllerInterface
+import InputSchema;
+
+export class ControllerInterface
 {
 public:
     virtual ~ControllerInterface() = default;

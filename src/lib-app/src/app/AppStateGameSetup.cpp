@@ -13,7 +13,8 @@ AppStateGameSetup::AppStateGameSetup(
     mem::Rc<tgui::Gui> gui,
     mem::Rc<AppOptions> settings,
     mem::Rc<AudioPlayer> audioPlayer,
-    mem::Rc<Jukebox> jukebox) noexcept
+    mem::Rc<Jukebox> jukebox,
+    mem::Rc<PhysicalController> controller) noexcept
     : AppState(app)
     , GuiState(gui, audioPlayer)
     , resmgr(resmgr)
@@ -21,6 +22,7 @@ AppStateGameSetup::AppStateGameSetup(
     , settings(settings)
     , audioPlayer(audioPlayer)
     , jukebox(jukebox)
+    , controller(controller)
     , fraglimit(settings->cmdSettings.fraglimit)
     , playerCount(settings->cmdSettings.playerCount)
     , mapname(settings->cmdSettings.mapname)
@@ -46,6 +48,8 @@ void AppStateGameSetup::input()
 
         gui->handleEvent(event);
     }
+
+    controller->update();
 }
 
 void AppStateGameSetup::buildLayoutImpl()
@@ -107,6 +111,7 @@ void AppStateGameSetup::startGame()
         settings,
         audioPlayer,
         jukebox,
+        controller,
         GameOptions { .players = createPlayerSettings(),
                       .fraglimit = static_cast<unsigned>(fraglimit) },
         lvd);

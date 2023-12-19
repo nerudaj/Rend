@@ -1,6 +1,6 @@
 #pragma once
 
-#include <input/ControllerInterface.hpp>
+import Input;
 
 class NullController : public ControllerInterface
 {

@@ -3,6 +3,7 @@
 import Memory;
 import Options;
 import Audio;
+import Input;
 
 #include "GuiState.hpp"
 #include <TGUI/Backend/SFML-Graphics.hpp>
@@ -21,7 +22,8 @@ public:
         mem::Rc<tgui::Gui> gui,
         mem::Rc<AppOptions> settings,
         mem::Rc<AudioPlayer> audioPlayer,
-        mem::Rc<Jukebox> jukebox) noexcept;
+        mem::Rc<Jukebox> jukebox,
+        mem::Rc<PhysicalController> controller) noexcept;
 
 public:
     void input() override;
@@ -61,6 +63,7 @@ private:
     mem::Rc<AppOptions> settings;
     mem::Rc<AudioPlayer> audioPlayer;
     mem::Rc<Jukebox> jukebox;
+    mem::Rc<PhysicalController> controller;
     int fraglimit;
     unsigned playerCount;
     std::string mapname;

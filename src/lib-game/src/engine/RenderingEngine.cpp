@@ -243,7 +243,6 @@ void RenderingEngine::renderHudActiveWeapon(
     {
         const float slideFactor =
             isLowering ? lowerRaiseProgress : 1.f - lowerRaiseProgress;
-        const float maxSlideAmount = weapon.sprite.getSize().y;
         const float slideOffset = weapon.sprite.getSize().y * slideFactor;
         const float yPos = oldPos.y + slideOffset;
         weapon.sprite.setPosition(oldPos.x, yPos);
@@ -374,7 +373,7 @@ void RenderingEngine::renderLevelMesh(
             return scene.drawableLevel.bottomTextures[tileId];
         else if (heightHint > 1.f)
             return scene.drawableLevel.upperTextures[tileId];
-        return static_cast<int>(TilesetMapping::CeilLow);
+        return static_cast<int>(LevelTileId::CeilLow);
     };
 
     auto&& quads = sf::VertexArray(sf::Triangles); // mesh to render

@@ -1,9 +1,11 @@
-#pragma once
+module;
 
 #include <DGM/dgm.hpp>
-#include <input/ControllerInterface.hpp>
 
-class PhysicalController : public ControllerInterface
+import ControllerInterface;
+export module PhysicalController;
+
+export class [[nodiscard]] PhysicalController final : public ControllerInterface
 {
 public:
     enum InputCode
