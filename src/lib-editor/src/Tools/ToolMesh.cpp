@@ -5,6 +5,7 @@
 #include "Commands/SetTilePropertyCommand.hpp"
 #include "JsonHelper.hpp"
 #include "Utilities/Utilities.hpp"
+#include <LevelItemId.hpp>
 #include <filesystem>
 #include <ranges>
 
@@ -153,6 +154,20 @@ void ToolMesh::resize(
             width);
 
         map.build(tileValues, solidValues, { width, height });
+    }
+}
+
+void ToolMesh::build(unsigned width, unsigned height)
+{
+    for (unsigned i = 0; i < maps.size(); i++)
+    {
+        maps[i].build(
+            std::vector<int>(
+                width * height,
+                static_cast<int>(
+                    i == 0 ? LevelTileId::Flat1 : LevelTileId::CeilSky)),
+            std::vector<int>(width * height, 0),
+            { width, height });
     }
 }
 

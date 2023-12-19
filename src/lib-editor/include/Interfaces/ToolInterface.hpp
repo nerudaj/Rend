@@ -51,6 +51,8 @@ public: // Public virtual interface
     virtual void
     resize(unsigned width, unsigned height, bool isTranslationDisabled) = 0;
 
+    virtual void build(unsigned width, unsigned height) = 0;
+
     virtual void shrinkTo(const TileRect& boundingBox) = 0;
 
     virtual void saveTo(LevelD& lvd) const = 0;

@@ -140,6 +140,13 @@ void ToolItem::resize(
     }
 }
 
+void ToolItem::build(unsigned width, unsigned height)
+{
+    auto&& tileSize = coordConverter.getTileSize();
+    levelSize.x = int(tileSize.x * width);
+    levelSize.y = int(tileSize.y * height);
+}
+
 void ToolItem::shrinkTo(const TileRect& boundingBox)
 {
     const auto coordBox = coordConverter.convertTileToCoordRect(boundingBox);

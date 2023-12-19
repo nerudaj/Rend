@@ -37,9 +37,10 @@ public: // ToolInterface
         const std::filesystem::path& texturePath,
         const dgm::Clip& clip);
 
-    // Note: this could be modified to specify topleft offset
     void resize(
         unsigned width, unsigned height, bool isTranslationDisabled) override;
+
+    void build(unsigned width, unsigned height) override;
 
     void shrinkTo(const TileRect& boundingBox) override;
 

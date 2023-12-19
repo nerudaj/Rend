@@ -41,3 +41,16 @@ enum class LevelItemId
     Unused19,
     Unused20,
 };
+
+enum class LevelTileId
+{
+    Flat1,
+    Flat2,
+    CeilLow,
+    CeilSky,
+    FlatLight,
+    Crate1,
+    Crate2,
+    Wall1,
+    End = 16
+};

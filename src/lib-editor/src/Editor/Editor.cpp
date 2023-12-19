@@ -234,10 +234,8 @@ void Editor::init(
     stateMgr.forallStates([&config](ToolInterface& tool)
                           { tool.configure(config); });
 
-    stateMgr.forallStates(
-        [levelWidth, levelHeight](ToolInterface& tool) {
-            tool.resize(levelWidth, levelHeight, "isTranslationDisabled"_false);
-        });
+    stateMgr.forallStates([levelWidth, levelHeight](ToolInterface& tool)
+                          { tool.build(levelWidth, levelHeight); });
 
     const auto tileSize =
         config["toolMesh"]["texture"]["tileDimensions"][0].get<float>();

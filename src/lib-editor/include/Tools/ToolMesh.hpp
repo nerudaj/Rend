@@ -56,6 +56,8 @@ public: // ToolInterface
     void resize(
         unsigned width, unsigned height, bool isTranslationDisabled) override;
 
+    void build(unsigned width, unsigned height) override;
+
     void shrinkTo(const TileRect& boundingBox) override;
 
     void saveTo(LevelD& lvd) const override;
