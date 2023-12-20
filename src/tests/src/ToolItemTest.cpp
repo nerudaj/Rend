@@ -22,8 +22,8 @@ TEST_CASE("[ToolItem]")
     auto&& shortcutEngine = mem::Rc<ShortcutEngine> { [] { return false; } };
     mem::Rc<CommandHistory> commandHistory;
     mem::Rc<CommandQueue> commandQueue(commandHistory);
-    mem::Rc<LayerController> layerController;
     mem::Rc<Gui> gui;
+    mem::Rc<LayerController> layerController(gui->gui);
 
     SECTION("On save validation")
     {

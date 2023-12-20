@@ -52,6 +52,8 @@ public:
 
     virtual void resize(unsigned, unsigned, bool) override {}
 
+    void build(unsigned, unsigned) override {}
+
     virtual void shrinkTo(const TileRect&) override {}
 
     virtual void saveTo(LevelD&) const override {}
@@ -94,7 +96,8 @@ private:
 TEST_CASE("[EditorStateManager]")
 {
     auto&& engine = mem::Rc<ShortcutEngine> { [] { return false; } };
-    auto&& layerController = mem::Rc<LayerController> {};
+    auto&& gui = mem::Rc<tgui::Gui>();
+    auto&& layerController = mem::Rc<LayerController>(*gui);
     auto&& invocations = std::vector<std::string> {};
     EditorStateManager manager;
 

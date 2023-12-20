@@ -20,8 +20,10 @@ TEST_CASE("[Editor]")
     CommandHistory commandHistory;
     mem::Rc<CommandQueue> commandQueue(commandHistory);
     auto&& shortcutEngine = mem::Rc<ShortcutEngine> { [] { return false; } };
+    mem::Rc<LevelMetadata> metadata;
 
-    Editor editor(gui, canvas, Null::Callback, commandQueue, shortcutEngine);
+    Editor editor(
+        gui, canvas, Null::Callback, commandQueue, shortcutEngine, metadata);
 
     SECTION("loadFrom")
     {
