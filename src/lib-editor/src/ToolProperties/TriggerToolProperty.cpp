@@ -38,7 +38,7 @@ void TriggerToolProperty::fillEditDialog(
         formValidatorToken,
         "Layer ID:",
         "ID of layer where trigger is located",
-        data.layerId,
+        data.layerIdx,
         row++,
         DISABLED);
     if (data.areaType == LevelD::Trigger::AreaType::Circle)

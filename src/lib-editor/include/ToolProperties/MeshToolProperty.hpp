@@ -10,14 +10,14 @@ public:
         tgui::Texture previewImage,
         uint32_t tileX,
         uint32_t tileY,
-        uint32_t layerId,
+        uint32_t layerIdx,
         uint16_t tileValue,
         bool blocking,
         bool defaultBlocking)
         : ToolPropertyWithImageInterface(previewImage)
         , tileX(tileX)
         , tileY(tileY)
-        , layerId(layerId)
+        , layerIdx(layerIdx)
         , tileValue(tileValue)
         , blocking(blocking)
         , defaultBlocking(defaultBlocking)
@@ -32,7 +32,7 @@ public:
 public:
     uint32_t tileX = 0;
     uint32_t tileY = 0;
-    uint32_t layerId = 0;
+    uint32_t layerIdx = 0;
     uint16_t tileValue = 0;
     bool blocking = false;
     bool defaultBlocking = false;

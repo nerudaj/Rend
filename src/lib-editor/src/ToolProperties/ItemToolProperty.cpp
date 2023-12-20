@@ -38,7 +38,7 @@ void ItemToolProperty::fillEditDialogInternal(
         formValidatorToken,
         "Layer ID:",
         "ID of layer where trigger is located",
-        data.layerId,
+        data.layerIdx,
         3,
         DISABLED);
     addOption(

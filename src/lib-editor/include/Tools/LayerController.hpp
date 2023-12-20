@@ -1,12 +1,22 @@
 #pragma once
 
 #include "Interfaces/CurrentLayerObserverInterface.hpp"
+#include <TGUI/Backend/SFML-Graphics.hpp>
+#include <TGUI/TGUI.hpp>
 #include <string>
 
-class LayerController final : public LayerObserverInterface
+class [[nodiscard]] LayerController final : public LayerObserverInterface
 {
+public:
+    LayerController(tgui::Gui& gui)
+    {
+        buildIconTextures();
+        buildLayoutForIcon(gui);
+        updateIcon();
+    }
+
 public: // LayerObserverInterface
-    std::size_t getCurrentLayerId() const noexcept override;
+    std::size_t getCurrentLayerIdx() const noexcept override;
 
     std::size_t getLayerCount() const noexcept override;
 
@@ -18,5 +28,12 @@ public:
     std::string toString() const;
 
 private:
-    std::size_t layerId = 0;
+    void updateIcon();
+    void buildIconTextures();
+    void buildLayoutForIcon(tgui::Gui& gui);
+
+private:
+    tgui::Panel::Ptr iconDisplay;
+    std::array<tgui::Texture, 2> layerIcons;
+    std::size_t layerIdx = 0;
 };

@@ -257,8 +257,11 @@ void ToolMesh::loadFrom(const LevelD& lvd)
 
 void ToolMesh::drawTo(tgui::CanvasSFML::Ptr& canvas, uint8_t)
 {
-    // TODO: display other maps?
-    getMap().drawTo(canvas, enableOverlay);
+    for (unsigned i = 0; i <= getCurrentLayerIdx(); i++)
+    {
+        // TODO: Need to make this darker/transparent for lower layers
+        maps[i].drawTo(canvas, enableOverlay);
+    }
 
     const bool areaDrawMode =
         mode == DrawMode::RectEdge || mode == DrawMode::RectFill;
@@ -280,7 +283,7 @@ ExpectedPropertyPtr ToolMesh::getProperty(const sf::Vector2i& penPos) const
         sidebarUser.getSpriteAsTexture(tileValue),
         tilePos.x,
         tilePos.y,
-        getCurrentLayerId(),
+        getCurrentLayerIdx(),
         tileValue,
         getMap().isTileSolid(tilePos),
         defaultBlocks[tileValue]);

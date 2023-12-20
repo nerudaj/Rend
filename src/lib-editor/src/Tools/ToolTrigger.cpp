@@ -252,7 +252,7 @@ void ToolTrigger::drawTo(tgui::CanvasSFML::Ptr& canvas, uint8_t opacity)
     for (std::size_t i = 0; i < triggers.size(); i++)
     {
         auto& trig = triggers[i];
-        if (trig.layerId != getCurrentLayerId()) continue;
+        if (trig.layerIdx != getCurrentLayerIdx()) continue;
 
         if (trig.areaType == LevelD::Trigger::AreaType::Circle)
         {
@@ -349,7 +349,7 @@ void ToolTrigger::penClicked(const sf::Vector2i& position)
             trigger.height = std::abs(position.y - drawStart.y);
         }
 
-        trigger.layerId = static_cast<uint32_t>(getCurrentLayerId());
+        trigger.layerIdx = static_cast<uint32_t>(getCurrentLayerIdx());
 
         commandQueue->push<CreateTriggerCommand>(triggers, trigger);
     }
@@ -373,7 +373,7 @@ ExpectedPropertyPtr ToolTrigger::getProperty(const sf::Vector2i& penPos) const
     auto trigId = getObjectIndexFromMousePos(penPos);
     if (!trigId.has_value()) return std::unexpected(BaseError());
 
-    if (triggers[*trigId].layerId != getCurrentLayerId())
+    if (triggers[*trigId].layerIdx != getCurrentLayerIdx())
         return std::unexpected(BaseError());
 
     auto&& result = mem::Box<TriggerToolProperty>(

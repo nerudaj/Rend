@@ -126,12 +126,12 @@ private:
 
     [[nodiscard]] DrawableLeveldMesh& getMap() noexcept
     {
-        return maps[getCurrentLayerId()];
+        return maps[getCurrentLayerIdx()];
     }
 
     [[nodiscard]] const DrawableLeveldMesh& getMap() const noexcept
     {
-        return maps[getCurrentLayerId()];
+        return maps[getCurrentLayerIdx()];
     }
 
     [[nodiscard]] sf::Vector2u

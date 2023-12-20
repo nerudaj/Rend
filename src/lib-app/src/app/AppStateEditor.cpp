@@ -170,10 +170,6 @@ void AppStateEditor::buildLayout()
     auto menuBar =
         buildMenuBarLayout(runToken, TOPBAR_HEIGHT, TOPBAR_FONT_HEIGHT);
     buildSidebarLayout(runToken, SIDEBAR_WIDTH, SIDEBAR_HEIGHT, TOPBAR_HEIGHT);
-
-    auto layerLabel = tgui::Label::create();
-    layerLabel->setPosition({ "1%", ("100% - " + TOPBAR_HEIGHT).c_str() });
-    gui->gui.add(layerLabel, "LayerLabel");
 }
 
 AppStateEditor::AllowExecutionToken AppStateEditor::buildCanvasLayout(

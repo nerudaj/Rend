@@ -32,7 +32,7 @@ void MeshToolProperty::fillEditDialogInternal(
         formValidatorToken,
         "Layer ID:",
         "In which layer is tile located",
-        layerId,
+        layerIdx,
         2,
         DISABLED);
     addOption(

@@ -24,9 +24,10 @@ Editor::Editor(
     , canvas(canvas)
     , commandQueue(commandQueueRef)
     , shortcutEngine(shortcutEngineRef)
+    , levelMetadata(metadata)
     , physicalPen(
           [this]() -> PenUserInterface& { return stateMgr.getActiveTool(); })
-    , levelMetadata(metadata)
+    , layerController(gui->gui)
 {
     stateMgr.addState<ToolMesh>(
         EditorState::Mesh,
@@ -214,11 +215,6 @@ void Editor::draw()
     // Primary render
     stateMgr.forallStates([this](ToolInterface& tool, bool active)
                           { tool.drawTo(canvas, active ? 255 : 128); });
-
-    gui->gui.get<tgui::Label>("LayerLabel")
-        ->setText(layerController->toString());
-
-    drawTagHighlight();
 
     canvas->draw(mouseIndicator);
 }

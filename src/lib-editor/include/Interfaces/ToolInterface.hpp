@@ -88,9 +88,9 @@ protected: // Protected non-virtual interface
         onStateChangedCallback();
     }
 
-    [[nodiscard]] inline std::size_t getCurrentLayerId() const noexcept
+    [[nodiscard]] inline std::size_t getCurrentLayerIdx() const noexcept
     {
-        return layerObserver->getCurrentLayerId();
+        return layerObserver->getCurrentLayerIdx();
     }
 
     [[nodiscard]] inline std::size_t getLayerCount() const noexcept
