@@ -17,6 +17,7 @@ PhysicalController::PhysicalController(const sf::Window& window)
     input.bindInput(InputCode::NextWeapon, sf::Keyboard::E);
     input.bindInput(InputCode::LastWeapon, sf::Keyboard::R);
     input.bindInput(InputCode::LastWeapon, sf::Mouse::Right);
+    input.bindInput(InputCode::Escape, sf::Keyboard::Escape);
 
     input.setGamepadIndex(0);
     input.bindInput(InputCode::Forward, dgm::Xbox::Axis::LStickYpos);
@@ -31,6 +32,7 @@ PhysicalController::PhysicalController(const sf::Window& window)
     input.bindInput(InputCode::LastWeapon, dgm::Xbox::Button::Y);
     input.bindInput(InputCode::Shoot, dgm::Xbox::Axis::RTrigger);
     input.bindInput(InputCode::Shoot, dgm::Xbox::Button::A);
+    input.bindInput(InputCode::Escape, dgm::Xbox::Button::Back);
 }
 
 bool PhysicalController::isShooting() const
@@ -56,6 +58,13 @@ bool PhysicalController::shouldSwapToLastWeapon() const
 {
     const bool result = input.isInputToggled(InputCode::LastWeapon);
     if (result) input.releaseInput(InputCode::LastWeapon);
+    return result;
+}
+
+bool PhysicalController::isEscapePressed() const
+{
+    const bool result = input.isInputToggled(InputCode::Escape);
+    if (result) input.releaseInput(InputCode::Escape);
     return result;
 }
 

@@ -86,18 +86,7 @@ void AppStateIngame::input()
         }
         else if (event.type == sf::Event::KeyPressed)
         {
-            if (event.key.code == sf::Keyboard::Escape)
-            {
-                if (launchedFromEditor)
-                    app.popState();
-                else
-                {
-                    unlockMouse();
-                    app.pushState<AppStatePaused>(
-                        gui, audioPlayer, jukebox, controller, settings);
-                }
-            }
-            else if (event.key.code == sf::Keyboard::P)
+            if (event.key.code == sf::Keyboard::P)
             {
                 for (auto&& thing : scene.things)
                 {
@@ -109,6 +98,17 @@ void AppStateIngame::input()
                         break;
                     }
                 }
+            }
+        }
+        else if (controller->isEscapePressed())
+        {
+            if (launchedFromEditor)
+                app.popState();
+            else
+            {
+                unlockMouse();
+                app.pushState<AppStatePaused>(
+                    gui, audioPlayer, jukebox, controller, settings);
             }
         }
     }

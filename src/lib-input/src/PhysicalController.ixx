@@ -22,6 +22,7 @@ public:
         PreviousWeapon,
         NextWeapon,
         LastWeapon,
+        Escape
     };
 
 public:
@@ -45,6 +46,8 @@ public:
     bool shouldSwapToNextWeapon() const override;
 
     bool shouldSwapToLastWeapon() const override;
+
+    bool isEscapePressed() const;
 
     float getThrust() const override;
 

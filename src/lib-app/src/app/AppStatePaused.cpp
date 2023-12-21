@@ -36,12 +36,9 @@ void AppStatePaused::input()
         {
             app.exit();
         }
-        else if (event.type == sf::Event::KeyPressed)
+        else if (controller->isEscapePressed())
         {
-            if (event.key.code == sf::Keyboard::Escape)
-            {
-                app.popState();
-            }
+            app.popState();
         }
 
         gui->handleEvent(event);
