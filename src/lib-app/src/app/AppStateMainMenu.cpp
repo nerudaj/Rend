@@ -3,25 +3,18 @@
 #include "Dialogs/ErrorInfoDialog.hpp"
 #include "Dialogs/YesNoCancelDialog.hpp"
 #include "Shortcuts/ShortcutEngine.hpp"
+#include "Utilities/TguiHelper.hpp"
 #include "app/AppStateEditor.hpp"
 #include "app/AppStateGameSetup.hpp"
 #include "app/AppStateIngame.hpp"
 #include "app/AppStateMenuOptions.hpp"
 #include "settings/GameTitle.hpp"
 
-[[nodiscard]] static tgui::Texture toTguiTexture(const sf::Texture& texture)
-{
-    auto result = tgui::Texture();
-    result.loadFromPixelData(
-        texture.getSize(), texture.copyToImage().getPixelsPtr());
-    return result;
-}
-
 void AppStateMainMenu::buildLayoutImpl()
 {
     auto panel = tgui::Panel::create();
-    panel->getRenderer()->setTextureBackground(
-        toTguiTexture(resmgr->get<sf::Texture>("titlebgr.png").value().get()));
+    panel->getRenderer()->setTextureBackground(TguiHelper::convertTexture(
+        resmgr->get<sf::Texture>("titlebgr.png").value().get()));
     gui->add(panel);
 
     gui->add(createH1Title("rend"));

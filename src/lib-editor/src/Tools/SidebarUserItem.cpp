@@ -1,4 +1,5 @@
 #include "Tools/SidebarUserItem.hpp"
+#include "Utilities/TguiHelper.hpp"
 
 void SidebarUserItem::configure(
     const std::vector<PathRectPair>& textureClipPairs)
@@ -27,10 +28,7 @@ void SidebarUserItem::configure(
 
         if (rd.clip.width == rd.clip.height)
         {
-            rd.guiTexture = tgui::Texture(
-                rd.texture,
-                tgui::UIntRect(
-                    rd.clip.left, rd.clip.top, rd.clip.width, rd.clip.height));
+            rd.guiTexture = TguiHelper::convertTexture(rd.texture, rd.clip);
         }
         else
         {
@@ -56,7 +54,7 @@ void SidebarUserItem::configure(
 
             sf::Texture texture;
             texture.loadFromImage(sqImg);
-            rd.guiTexture = tgui::Texture(texture);
+            rd.guiTexture = TguiHelper::convertTexture(texture);
         }
     }
 }

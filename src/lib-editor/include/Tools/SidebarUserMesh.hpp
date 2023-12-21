@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Tools/SidebarUserWithSprites.hpp"
+#include "Utilities/TguiHelper.hpp"
 #include <DGM/classes/Clip.hpp>
 #include <SFML/Graphics/Texture.hpp>
 #include <filesystem>
@@ -27,13 +28,7 @@ public:
     [[nodiscard]] tgui::Texture
     getSpriteAsTexture(unsigned spriteId) const override
     {
-        const auto rect = clip.getFrame(spriteId);
-        auto tguiTexture = tgui::Texture();
-        tguiTexture.loadFromPixelData(
-            texture.getSize(),
-            texture.copyToImage().getPixelsPtr(),
-            tgui::UIntRect(rect.left, rect.top, rect.width, rect.height));
-        return tguiTexture;
+        return TguiHelper::convertTexture(texture, clip.getFrame(spriteId));
     }
 
     [[nodiscard]] std::size_t getSpriteCount() const override
