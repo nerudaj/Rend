@@ -2,8 +2,9 @@ module;
 
 #include <DGM/dgm.hpp>
 
-import ControllerInterface;
 export module PhysicalController;
+
+import ControllerInterface;
 
 export class [[nodiscard]] PhysicalController final : public ControllerInterface
 {
@@ -28,7 +29,7 @@ public:
 public:
     void update() override
     {
-        input.update(dgm::Time {});
+        input.update();
     }
 
     bool isGamepadConnected() const override
@@ -51,6 +52,8 @@ public:
     float getSteer() const override;
 
     void setMouseSensitivity(float value);
+
+    void setGamepadDeadzone(float value);
 
 private:
     const sf::Window& window;

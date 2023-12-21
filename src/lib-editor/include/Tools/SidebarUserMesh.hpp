@@ -24,14 +24,16 @@ public:
     }
 
 public:
-    // FIXME: Texture provider as a dependency
     [[nodiscard]] tgui::Texture
     getSpriteAsTexture(unsigned spriteId) const override
     {
         const auto rect = clip.getFrame(spriteId);
-        return tgui::Texture(
-            texture,
+        auto tguiTexture = tgui::Texture();
+        tguiTexture.loadFromPixelData(
+            texture.getSize(),
+            texture.copyToImage().getPixelsPtr(),
             tgui::UIntRect(rect.left, rect.top, rect.width, rect.height));
+        return tguiTexture;
     }
 
     [[nodiscard]] std::size_t getSpriteCount() const override
