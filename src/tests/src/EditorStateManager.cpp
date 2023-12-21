@@ -60,7 +60,9 @@ public:
 
     virtual void loadFrom(const LevelD&) override {}
 
-    virtual void drawTo(tgui::CanvasSFML::Ptr&, uint8_t) override {}
+    virtual void drawTo(tgui::CanvasSFML::Ptr&, std::size_t, uint8_t) override
+    {
+    }
 
     virtual ExpectedPropertyPtr getProperty(const sf::Vector2i&) const override
     {

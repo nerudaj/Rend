@@ -92,6 +92,8 @@ protected:
 
     void handleChangedMetadata();
 
+    void handleSwitchLayerUp();
+
     void drawTagHighlight();
 
 private: // Dependencies

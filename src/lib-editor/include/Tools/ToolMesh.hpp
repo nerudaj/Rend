@@ -64,7 +64,10 @@ public: // ToolInterface
 
     void loadFrom(const LevelD& lvd) override;
 
-    void drawTo(tgui::CanvasSFML::Ptr& canvas, uint8_t opacity) override;
+    void drawTo(
+        tgui::CanvasSFML::Ptr& canvas,
+        std::size_t layerIdx,
+        uint8_t opacity) override;
 
     ExpectedPropertyPtr getProperty(const sf::Vector2i& penPos) const override;
 
@@ -124,14 +127,9 @@ public:
 private:
     void toggleOverlay();
 
-    [[nodiscard]] DrawableLeveldMesh& getMap() noexcept
+    [[nodiscard]] constexpr auto&& getMap(this auto&& self) noexcept
     {
-        return maps[getCurrentLayerIdx()];
-    }
-
-    [[nodiscard]] const DrawableLeveldMesh& getMap() const noexcept
-    {
-        return maps[getCurrentLayerIdx()];
+        return self.maps[self.getCurrentLayerIdx()];
     }
 
     [[nodiscard]] sf::Vector2u

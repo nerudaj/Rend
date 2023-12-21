@@ -25,6 +25,11 @@ public:
 
     void changeState(EditorState state);
 
+    [[nodiscard]] constexpr EditorState getCurrentState() const noexcept
+    {
+        return currentState;
+    }
+
     /**
      *  \brief Loop over all states in order in which they were added
      */

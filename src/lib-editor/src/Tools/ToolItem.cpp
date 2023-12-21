@@ -194,15 +194,16 @@ void ToolItem::loadFrom(const LevelD& lvd)
     }
 }
 
-void ToolItem::drawTo(tgui::CanvasSFML::Ptr& canvas, uint8_t opacity)
+void ToolItem::drawTo(
+    tgui::CanvasSFML::Ptr& canvas, std::size_t layerIdx, uint8_t opacity)
 {
+    if (layerIdx != getCurrentLayerIdx()) return;
+
     unsigned index = 0;
     sf::RectangleShape outline;
 
     for (auto& item : items)
     {
-        if (item.layerIdx != getCurrentLayerIdx()) continue;
-
         sidebarUser.drawSprite(
             canvas,
             item.id,

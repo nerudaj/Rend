@@ -50,7 +50,10 @@ public: // ToolInterface
 
     void loadFrom(const LevelD& lvd) override;
 
-    void drawTo(tgui::CanvasSFML::Ptr& canvas, uint8_t opacity) override;
+    void drawTo(
+        tgui::CanvasSFML::Ptr& canvas,
+        std::size_t layerIdx,
+        uint8_t opacity) override;
 
     ExpectedPropertyPtr getProperty(const sf::Vector2i& penPos) const override;
 

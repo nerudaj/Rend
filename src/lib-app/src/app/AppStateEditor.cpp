@@ -118,9 +118,16 @@ void AppStateEditor::input()
             clickPreventer.preventClickForNextNFrames(30);
         }
 
-        gui->gui.handleEvent(event);
-        editor->handleEvent(event, mousePos);
-        shortcutEngine->handleEvent(event);
+        try
+        {
+            gui->gui.handleEvent(event);
+            editor->handleEvent(event, mousePos);
+            shortcutEngine->handleEvent(event);
+        }
+        catch (std::exception& e)
+        {
+            dialogErrorInfo->open(e.what());
+        }
     }
 }
 

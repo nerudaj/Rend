@@ -58,7 +58,10 @@ public: // Public virtual interface
     virtual void saveTo(LevelD& lvd) const = 0;
     virtual void loadFrom(const LevelD& lvd) = 0;
 
-    virtual void drawTo(tgui::CanvasSFML::Ptr& canvas, uint8_t opacity) = 0;
+    virtual void drawTo(
+        tgui::CanvasSFML::Ptr& canvas,
+        std::size_t layerIdx,
+        uint8_t opacity) = 0;
 
     [[nodiscard]] virtual ExpectedPropertyPtr
     getProperty(const sf::Vector2i& penPos) const = 0;

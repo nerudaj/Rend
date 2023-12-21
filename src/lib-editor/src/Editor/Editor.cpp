@@ -86,13 +86,13 @@ void Editor::populateMenuBar()
     addEditorMenuItem(
         MESH_MODE, [this] { switchTool(EditorState::Mesh); }, sf::Keyboard::M);
     addEditorMenuItem(
-        ITEM_MODE, [this] { switchTool(EditorState::Item); }, sf::Keyboard::I);
-    /*addEditorMenuItem(
-        RESIZE, [this] { resizeDialog(); }, sf::Keyboard::R);
-    addEditorMenuItem(
-        SHRINK,
-        [this] { commandQueue->push<ShrinkToFitCommand>(*this); },
-        sf::Keyboard::S);*/
+        ITEM_MODE,
+        [this]
+        {
+            switchTool(EditorState::Item);
+            layerController->moveDown();
+        },
+        sf::Keyboard::I);
     addEditorMenuItem(
         EDIT_METADATA,
         [this]
@@ -102,10 +102,7 @@ void Editor::populateMenuBar()
                 std::bind(&Editor::handleChangedMetadata, this));
         });
     addEditorMenuItem(
-        LAYER_UP,
-        [this] { layerController->moveUp(); },
-        sf::Keyboard::Up,
-        true);
+        LAYER_UP, [this] { handleSwitchLayerUp(); }, sf::Keyboard::Up, true);
     addEditorMenuItem(
         LAYER_DOWN,
         [this] { layerController->moveDown(); },
@@ -162,6 +159,17 @@ void Editor::handleChangedMetadata()
     // TODO: propagate change in textures
 }
 
+void Editor::handleSwitchLayerUp()
+{
+    if (stateMgr.getCurrentState() == EditorState::Item)
+    {
+        // TODO: catch this
+        throw std::runtime_error("Cannot switch layers in item mode");
+    }
+
+    layerController->moveUp();
+}
+
 void Editor::drawTagHighlight()
 {
     auto&& object = stateMgr.getActiveTool().getHighlightedObject(
@@ -213,8 +221,13 @@ void Editor::draw()
     if (!isInitialized()) return;
 
     // Primary render
-    stateMgr.forallStates([this](ToolInterface& tool, bool active)
-                          { tool.drawTo(canvas, active ? 255 : 128); });
+    for (std::size_t idx = 0; idx <= layerController->getCurrentLayerIdx();
+         ++idx)
+    {
+        stateMgr.forallStates(
+            [&](ToolInterface& tool, bool active)
+            { tool.drawTo(canvas, idx, active ? 255 : 128); });
+    }
 
     canvas->draw(mouseIndicator);
 }
