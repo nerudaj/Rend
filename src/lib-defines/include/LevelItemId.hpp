@@ -44,7 +44,7 @@ enum class LevelItemId
 
 enum class LevelTileId
 {
-    Flat1,
+    Flat1 = 0,
     Flat2,
     CeilLow,
     CeilSky,
@@ -52,5 +52,13 @@ enum class LevelTileId
     Crate1,
     Crate2,
     Wall1,
+    Wall2,
+    Wall3,
+    Wall4,
+    Wall5,
+    WallWindow,
+    WallLight,
+    WallFlagBlue,
+    WallFlagRed,
     End = 16
 };
