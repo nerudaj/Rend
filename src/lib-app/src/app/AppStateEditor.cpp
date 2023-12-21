@@ -4,7 +4,6 @@
 #include "Editor/Editor.hpp"
 #include "Editor/NullEditor.hpp"
 #include "Utilities/Literals.hpp"
-#include "Utilities/ProcessCreator.hpp"
 #include "app/AppStateIngame.hpp"
 #include <LevelMetadata.hpp>
 #include <cmath>
@@ -21,7 +20,6 @@ AppStateEditor::AppStateEditor(
     mem::Rc<AudioPlayer> audioPlayer,
     mem::Rc<Jukebox> jukebox,
     mem::Rc<PhysicalController> controller,
-    mem::Rc<FileApiInterface> fileApi,
     mem::Rc<ShortcutEngineInterface> shortcutEngine,
     mem::Rc<YesNoCancelDialogInterface> dialogConfirmExit,
     mem::Rc<ErrorInfoDialogInterface> dialogErrorInfo)
@@ -33,7 +31,6 @@ AppStateEditor::AppStateEditor(
     , audioPlayer(audioPlayer)
     , jukebox(jukebox)
     , controller(controller)
-    , fileApi(fileApi)
     , shortcutEngine(shortcutEngine)
     , dialogConfirmExit(dialogConfirmExit)
     , dialogErrorInfo(dialogErrorInfo)
@@ -41,7 +38,6 @@ AppStateEditor::AppStateEditor(
     , dialogNewLevel(gui)
     , dialogLoadLevel(gui, settings->cmdSettings.resourcesDir)
     , dialogSaveLevel(gui)
-    , dialogUpdateConfigPath(gui, fileApi)
 {
     jukebox->stop();
 
@@ -296,13 +292,7 @@ void AppStateEditor::loadLevel(
             Filesystem::getEditorConfigPath(settings->cmdSettings.resourcesDir);
         if (!std::filesystem::exists(configPathFS))
         {
-            dialogUpdateConfigPath.open(
-                [&, pathToLevel] {
-                    loadLevel(
-                        pathToLevel, dialogUpdateConfigPath.getConfigPath());
-                });
-            dialogErrorInfo->open(
-                "Path to config is invalid, provide a valid one");
+            dialogErrorInfo->open("Editor config file does not exist!");
             return; // abort this load, another one will trigger
         }
 

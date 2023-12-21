@@ -3,7 +3,6 @@
 #include "Dialogs/ErrorInfoDialog.hpp"
 #include "Dialogs/YesNoCancelDialog.hpp"
 #include "Shortcuts/ShortcutEngine.hpp"
-#include "Utilities/FileApi.hpp"
 #include "app/AppStateEditor.hpp"
 #include "app/AppStateGameSetup.hpp"
 #include "app/AppStateIngame.hpp"
@@ -40,7 +39,6 @@ void AppStateMainMenu::buildLayoutImpl()
                       audioPlayer,
                       jukebox,
                       controller,
-                      mem::Rc<FileApi>(),
                       mem::Rc<ShortcutEngine>(
                           [_gui] { return _gui->isAnyModalOpened(); }),
                       mem::Rc<YesNoCancelDialog>(_gui),

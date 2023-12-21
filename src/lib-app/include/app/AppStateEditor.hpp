@@ -6,11 +6,9 @@
 #include "Dialogs/LoadLevelDialog.hpp"
 #include "Dialogs/NewLevelDialog.hpp"
 #include "Dialogs/SaveLevelDialog.hpp"
-#include "Dialogs/UpdateConfigPathDialog.hpp"
 #include "Gui.hpp"
 #include "Interfaces/DialogInterfaces.hpp"
 #include "Interfaces/EditorInterface.hpp"
-#include "Interfaces/FileApiInterface.hpp"
 #include "Interfaces/PlaytestLauncherInterface.hpp"
 #include "Interfaces/ShortcutEngineInterface.hpp"
 #include "Utilities/ClickPreventer.hpp"
@@ -37,7 +35,6 @@ public:
         mem::Rc<AudioPlayer> audioPlayer,
         mem::Rc<Jukebox> jukebox,
         mem::Rc<PhysicalController> controller,
-        mem::Rc<FileApiInterface> fileApi,
         mem::Rc<ShortcutEngineInterface> shortcutEngine,
         mem::Rc<YesNoCancelDialogInterface> dialogConfirmExit,
         mem::Rc<ErrorInfoDialogInterface> dialogErrorInfo);
@@ -52,7 +49,6 @@ protected:
     mem::Rc<Jukebox> jukebox;
     mem::Rc<PhysicalController> controller;
     mem::Rc<ShortcutEngineInterface> shortcutEngine;
-    mem::Rc<FileApiInterface> fileApi;
     mem::Rc<YesNoCancelDialogInterface> dialogConfirmExit;
     mem::Rc<ErrorInfoDialogInterface> dialogErrorInfo;
 
@@ -66,7 +62,6 @@ protected:
     ModernNewLevelDialog dialogNewLevel;
     LoadLevelDialog dialogLoadLevel;
     SaveLevelDialog dialogSaveLevel;
-    UpdateConfigPathDialog dialogUpdateConfigPath;
     ClickPreventer clickPreventer;
     mem::Rc<LevelMetadata> levelMetadata;
 

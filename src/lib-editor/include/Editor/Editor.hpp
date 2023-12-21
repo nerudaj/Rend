@@ -14,7 +14,6 @@
 #include "Tools/PhysicalPen.hpp"
 #include "Tools/ToolItem.hpp"
 #include "Tools/ToolMesh.hpp"
-#include "Tools/ToolTrigger.hpp"
 #include <DGM/dgm.hpp>
 #include <TGUI/Backend/SFML-Graphics.hpp>
 #include <TGUI/TGUI.hpp>
