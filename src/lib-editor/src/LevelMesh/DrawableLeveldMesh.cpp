@@ -1,11 +1,25 @@
 #include "LevelMesh/DrawableLeveldMesh.hpp"
 
+DrawableLeveldMesh::DrawableLeveldMesh(sf::Texture& texture, dgm::Clip clip)
+    : map(texture, clip)
+{
+}
+
 void DrawableLeveldMesh::drawTo(
-    tgui::CanvasSFML::Ptr canvas, bool renderCollisionMesh)
+    tgui::CanvasSFML::Ptr canvas, bool renderCollisionMesh, bool isTopLevel)
 {
     canvas->draw(map);
-    if (renderCollisionMesh) mesh.drawTo(canvas);
-    grid.drawTo(canvas);
+
+    if (!isTopLevel)
+    {
+        canvas->draw(darkOverlay);
+    }
+
+    if (isTopLevel)
+    {
+        if (renderCollisionMesh) mesh.drawTo(canvas);
+        grid.drawTo(canvas);
+    }
 }
 
 void DrawableLeveldMesh::build(
@@ -17,4 +31,7 @@ void DrawableLeveldMesh::build(
     map.build(tileSize, tiles, dataSize);
     mesh.build(blocks, dataSize, tileSize);
     grid.build(dataSize, tileSize);
+    darkOverlay.setSize(
+        sf::Vector2f(tileSize.x * dataSize.x, tileSize.y * dataSize.y));
+    darkOverlay.setFillColor(sf::Color(0, 0, 0, 128));
 }

@@ -13,14 +13,12 @@ protected:
     DrawableGrid grid;
     DrawableDgmMesh mesh;
     PollableTileMap map;
+    sf::RectangleShape darkOverlay;
 
 public:
     DrawableLeveldMesh() = default;
 
-    DrawableLeveldMesh(sf::Texture& texture, dgm::Clip clip)
-        : map(texture, clip)
-    {
-    }
+    DrawableLeveldMesh(sf::Texture& texture, dgm::Clip clip);
 
     DrawableLeveldMesh(DrawableLeveldMesh&& other) noexcept : map(other.map) {}
 
@@ -33,7 +31,10 @@ public:
     }
 
 public:
-    void drawTo(tgui::CanvasSFML::Ptr canvas, bool renderCollisionMesh);
+    void drawTo(
+        tgui::CanvasSFML::Ptr canvas,
+        bool renderCollisionMesh,
+        bool isTopLevel);
 
     void build(
         const std::vector<int>& tiles,

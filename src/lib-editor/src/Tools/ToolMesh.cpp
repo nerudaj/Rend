@@ -259,8 +259,7 @@ void ToolMesh::drawTo(tgui::CanvasSFML::Ptr& canvas, uint8_t)
 {
     for (unsigned i = 0; i <= getCurrentLayerIdx(); i++)
     {
-        // TODO: Need to make this darker/transparent for lower layers
-        maps[i].drawTo(canvas, enableOverlay);
+        maps[i].drawTo(canvas, enableOverlay, i == getCurrentLayerIdx());
     }
 
     const bool areaDrawMode =
