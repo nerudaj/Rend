@@ -9,11 +9,19 @@
 #include "app/AppStateMenuOptions.hpp"
 #include "settings/GameTitle.hpp"
 
+[[nodiscard]] static tgui::Texture toTguiTexture(const sf::Texture& texture)
+{
+    auto result = tgui::Texture();
+    result.loadFromPixelData(
+        texture.getSize(), texture.copyToImage().getPixelsPtr());
+    return result;
+}
+
 void AppStateMainMenu::buildLayoutImpl()
 {
     auto panel = tgui::Panel::create();
     panel->getRenderer()->setTextureBackground(
-        resmgr->get<sf::Texture>("titlebgr.png").value().get());
+        toTguiTexture(resmgr->get<sf::Texture>("titlebgr.png").value().get()));
     gui->add(panel);
 
     gui->add(createH1Title("rend"));

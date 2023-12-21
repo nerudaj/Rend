@@ -21,7 +21,7 @@ void AppStateScoreTable::buildLayoutImpl()
     gui->add(createH2Title("results"));
 
     auto table = tgui::Grid::create();
-    table->setSize(getCommonLayoutSize(1u + scores.size()));
+    table->setSize(getCommonLayoutSize(scores.size() + 1));
     table->setPosition(getCommonLayoutPosition());
 
     // Add heading

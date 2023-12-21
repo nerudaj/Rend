@@ -5,6 +5,7 @@ module;
 export module PhysicalController;
 
 import ControllerInterface;
+import InputOptions;
 
 export class [[nodiscard]] PhysicalController final : public ControllerInterface
 {
@@ -24,7 +25,7 @@ public:
     };
 
 public:
-    PhysicalController(const sf::Window& window, float mouseSensitivity);
+    PhysicalController(const sf::Window& window);
 
 public:
     void update() override
@@ -51,13 +52,19 @@ public:
 
     float getSteer() const override;
 
-    void setMouseSensitivity(float value);
+    void updateSettings(const InputOptions& options);
 
-    void setGamepadDeadzone(float value);
+private: // Setters
+    void setMouseSensitivity(float value)
+    {
+        // Value needs to be inverted
+        mouseSensitivity = 50.f - value;
+    }
 
 private:
     const sf::Window& window;
     mutable dgm::Controller input;
     mutable sf::Vector2i lastMousePos;
     float mouseSensitivity = 25.f;
+    float turnSpeed = 1.f;
 };

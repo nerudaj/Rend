@@ -1,6 +1,7 @@
 #include "app/AppStateMenuOptions.hpp"
 #include <Configs/Sizers.hpp>
 #include <Configs/Strings.hpp>
+#include <format>
 #include <ranges>
 
 import WidgetBuilder;
@@ -158,17 +159,45 @@ void AppStateMenuOptions::buildInputOptionsLayout(FormBuilder& builder)
 {
     auto sensitivityFormatter = [](float val)
     { return std::to_string(static_cast<int>(val)); };
+    auto turnSpeedFormatter = [](float val)
+    { return std::format("{:.1f}", val); };
+    auto deadzoneFormatter = [](float val)
+    { return std::format("{:.2f}", val); };
 
-    std::ignore = builder.addOption(
-        Strings::AppState::Options::MOUSE_SENSITIVITY,
-        WidgetBuilder::createSlider(
-            settings->input.mouseSensitivity,
-            [this](float value) { settings->input.mouseSensitivity = value; },
-            gui,
-            sensitivityFormatter,
-            1.f,
-            50.f,
-            1.f));
+    std::ignore =
+        builder
+            .addOption(
+                Strings::AppState::Options::MOUSE_SENSITIVITY,
+                WidgetBuilder::createSlider(
+                    settings->input.mouseSensitivity,
+                    [this](float value)
+                    { settings->input.mouseSensitivity = value; },
+                    gui,
+                    sensitivityFormatter,
+                    1.f,
+                    50.f,
+                    1.f))
+            .addOption(
+                Strings::AppState::Options::TURN_SENSITIVITY,
+                WidgetBuilder::createSlider(
+                    settings->input.turnSpeed,
+                    [this](float value) { settings->input.turnSpeed = value; },
+                    gui,
+                    turnSpeedFormatter,
+                    0.1f,
+                    5.f,
+                    0.1f))
+            .addOption(
+                Strings::AppState::Options::GAMEPAD_DEADZONE,
+                WidgetBuilder::createSlider(
+                    settings->input.gamepadDeadzone,
+                    [this](float value)
+                    { settings->input.gamepadDeadzone = value; },
+                    gui,
+                    deadzoneFormatter,
+                    0.f,
+                    1.f,
+                    0.01f));
 }
 
 void AppStateMenuOptions::input()

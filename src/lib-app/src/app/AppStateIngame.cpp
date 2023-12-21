@@ -274,7 +274,7 @@ void AppStateIngame::propagateSettings()
             settings->display.resolution.width,
             settings->display.resolution.height)));
 
-    controller->setMouseSensitivity(settings->input.mouseSensitivity);
+    controller->updateSettings(settings->input);
 
     gameLoop = mem::Box<GameLoop>(
         scene, eventQueue, resmgr, audioPlayer, settings->display);

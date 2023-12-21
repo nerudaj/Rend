@@ -42,6 +42,8 @@ namespace Strings
             RAWSTRING SOUND_VOLUME = "sound volume";
             RAWSTRING MUSIC_VOLUME = "music volume";
             RAWSTRING MOUSE_SENSITIVITY = "mouse sensitivity";
+            RAWSTRING TURN_SENSITIVITY = "turn sensitivity";
+            RAWSTRING GAMEPAD_DEADZONE = "gamepad deadzone";
         } // namespace Options
 
         namespace GameSetup

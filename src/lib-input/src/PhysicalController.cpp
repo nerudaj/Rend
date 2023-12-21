@@ -2,9 +2,8 @@ import PhysicalController;
 
 #include <DGM/dgm.hpp>
 
-PhysicalController::PhysicalController(
-    const sf::Window& window, float mouseSensitivity)
-    : window(window), mouseSensitivity(mouseSensitivity)
+PhysicalController::PhysicalController(const sf::Window& window)
+    : window(window)
 {
     input.bindInput(InputCode::Forward, sf::Keyboard::W);
     input.bindInput(InputCode::Backward, sf::Keyboard::S);
@@ -20,9 +19,8 @@ PhysicalController::PhysicalController(
     input.bindInput(InputCode::LastWeapon, sf::Mouse::Right);
 
     input.setGamepadIndex(0);
-    input.setControllerDeadzone(0.05f);
-    input.bindInput(InputCode::Forward, dgm::Xbox::Axis::LStickYneg);
-    input.bindInput(InputCode::Backward, dgm::Xbox::Axis::LStickYpos);
+    input.bindInput(InputCode::Forward, dgm::Xbox::Axis::LStickYpos);
+    input.bindInput(InputCode::Backward, dgm::Xbox::Axis::LStickYneg);
     input.bindInput(InputCode::StrafeLeft, dgm::Xbox::Axis::LStickXneg);
     input.bindInput(InputCode::StrafeRight, dgm::Xbox::Axis::LStickXpos);
     input.bindInput(InputCode::TurnLeft, dgm::Xbox::Axis::RStickXneg);
@@ -63,8 +61,8 @@ bool PhysicalController::shouldSwapToLastWeapon() const
 
 float PhysicalController::getThrust() const
 {
-    return -input.getInputValue(InputCode::Forward)
-           - input.getInputValue(InputCode::Backward);
+    return input.getInputValue(InputCode::Forward)
+           + input.getInputValue(InputCode::Backward);
 }
 
 float PhysicalController::getSidewardThrust() const
@@ -79,17 +77,15 @@ float PhysicalController::getSteer() const
     const auto position = sf::Mouse::getPosition(window);
     const auto xDiff = (position.x - windowWidthHalf);
 
-    return xDiff / mouseSensitivity + input.getInputValue(InputCode::TurnLeft)
-           + input.getInputValue(InputCode::TurnRight);
+    return xDiff / mouseSensitivity
+           + (input.getInputValue(InputCode::TurnLeft)
+              + input.getInputValue(InputCode::TurnRight))
+                 * turnSpeed;
 }
 
-void PhysicalController::setMouseSensitivity(float value)
+void PhysicalController::updateSettings(const InputOptions& options)
 {
-    // Value needs to be inverted
-    mouseSensitivity = 50.f - value;
-}
-
-void PhysicalController::setGamepadDeadzone(float value)
-{
-    input.setControllerDeadzone(value);
+    setMouseSensitivity(options.mouseSensitivity);
+    turnSpeed = options.turnSpeed;
+    input.setControllerDeadzone(options.gamepadDeadzone);
 }

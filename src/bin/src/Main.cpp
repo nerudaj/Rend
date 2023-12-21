@@ -109,8 +109,8 @@ int main(int argc, char* argv[])
     jukebox->setVolume(settings->audio.musicVolume);
     gui->setFont(resmgr->get<tgui::Font>("pico-8.ttf").value());
 
-    auto&& controller = mem::Rc<PhysicalController>(
-        window.getWindowContext(), settings->input.mouseSensitivity);
+    auto&& controller = mem::Rc<PhysicalController>(window.getWindowContext());
+    controller->updateSettings(settings->input);
 
     app.pushState<AppStateMainMenu>(
         resmgr, gui, audioPlayer, jukebox, settings, controller);
