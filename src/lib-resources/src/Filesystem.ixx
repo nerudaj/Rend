@@ -1,7 +1,7 @@
 module;
 
-#include <string>
 #include <filesystem>
+#include <string>
 #include <vector>
 
 export module Resources;
@@ -20,4 +20,7 @@ public:
 
     static [[nodiscard]] std::filesystem::path
     getEditorConfigPath(const std::filesystem::path& rootDir);
+
+    static [[nodiscard]] std::filesystem::path
+    getResourcesDir(const std::filesystem::path& rootDir);
 };

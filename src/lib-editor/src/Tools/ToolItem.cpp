@@ -68,27 +68,6 @@ void ToolItem::createDeleteCommand()
 }
 
 /* Rest of ToolItem */
-void ToolItem::configure(nlohmann::json& config)
-{
-    const std::string TOOL_STR = "toolItem";
-    const auto rootPath =
-        std::filesystem::path(config["configFolder"].get<std::string>());
-
-    auto texturePath = std::filesystem::path(
-        config[TOOL_STR]["texturePath"].get<std::string>());
-    if (texturePath.is_relative()) texturePath = rootPath / texturePath;
-    auto clipPath =
-        std::filesystem::path(config[TOOL_STR]["clipPath"].get<std::string>());
-    if (clipPath.is_relative()) clipPath = rootPath / clipPath;
-    const auto clip = dgm::JsonLoader {}.loadClipFromFile(clipPath);
-
-    configure(
-        JsonHelper::arrayToVector2u(
-            config["toolMesh"]["texture"]["tileDimensions"]),
-        texturePath,
-        clip);
-}
-
 void ToolItem::configure(
     const sf::Vector2u& tileDimensions,
     const std::filesystem::path& texturePath,
@@ -138,13 +117,6 @@ void ToolItem::resize(
         item.x += offset.x;
         item.y += offset.y;
     }
-}
-
-void ToolItem::build(unsigned width, unsigned height)
-{
-    auto&& tileSize = coordConverter.getTileSize();
-    levelSize.x = int(tileSize.x * width);
-    levelSize.y = int(tileSize.y * height);
 }
 
 void ToolItem::shrinkTo(const TileRect& boundingBox)

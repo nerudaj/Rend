@@ -16,7 +16,8 @@ public:
 public:
     void exec() override
     {
-        editor.loadFrom(snapshot, snapshot.metadata.description, true);
+        /* FIXME:
+        editor.loadFrom(snapshot, snapshot.metadata.description, true);*/
     }
 
 protected:

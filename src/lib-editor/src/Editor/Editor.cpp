@@ -13,29 +13,51 @@ const sf::Vector2f UP_VEC(0.f, -24.f);
 const sf::Vector2f DOWN_VEC(0.f, 24.f);
 const sf::Vector2f RIGHT_VEC(24.f, 0.f);
 
+const std::vector<bool> DEFAULT_BLOCKS = { false, false, false, false,
+                                           false, true,  true,  true,
+                                           true,  true,  true,  true,
+                                           true,  true,  true,  true };
+
+import TexturePath;
+import Resources;
+
 Editor::Editor(
     mem::Rc<Gui> gui,
     tgui::CanvasSFML::Ptr& canvas,
     std::function<void(void)> onStateChanged,
-    mem::Rc<CommandQueue> commandQueueRef,
-    mem::Rc<ShortcutEngineInterface> shortcutEngineRef,
-    mem::Rc<LevelMetadata> metadata)
+    mem::Rc<CommandQueue> _commandQueue,
+    mem::Rc<ShortcutEngineInterface> _shortcutEngine,
+    mem::Rc<LevelMetadata> metadata,
+    const LevelD& level,
+    const std::filesystem::path& graphicsDir)
     : gui(gui)
     , canvas(canvas)
-    , commandQueue(commandQueueRef)
-    , shortcutEngine(shortcutEngineRef)
+    , commandQueue(_commandQueue)
+    , shortcutEngine(_shortcutEngine)
     , levelMetadata(metadata)
     , physicalPen(
           [this]() -> PenUserInterface& { return stateMgr.getActiveTool(); })
     , layerController(gui->gui)
 {
-    stateMgr.addState<ToolMesh>(
-        EditorState::Mesh,
-        onStateChanged,
-        shortcutEngine,
-        layerController,
-        gui,
-        commandQueue);
+    configureCamera(
+        level.mesh.layerWidth, level.mesh.layerHeight, level.mesh.tileWidth);
+    configureMouseIndicator();
+    configureMeshTool(graphicsDir, onStateChanged, gui, level);
+    switchTool(EditorState::Mesh);
+    configureItemTool(graphicsDir, onStateChanged, gui, level);
+    populateMenuBar();
+    configureCanvasCallbacks();
+}
+
+void Editor::configureItemTool(
+    const std::filesystem::path& graphicsDir,
+    std::function<void()>& onStateChanged,
+    mem::Rc<Gui>& gui,
+    const LevelD& level)
+{
+    auto spritesheetPath = graphicsDir / "editor-items.png";
+    auto clip =
+        dgm::JsonLoader().loadClipFromFile(spritesheetPath.string() + ".clip");
 
     stateMgr.addState<ToolItem>(
         EditorState::Item,
@@ -43,10 +65,41 @@ Editor::Editor(
         shortcutEngine,
         layerController,
         gui,
-        commandQueue);
+        commandQueue,
+        spritesheetPath,
+        clip,
+        level);
+}
 
-    mouseIndicator.setRadius(8.f);
-    mouseIndicator.setFillColor(sf::Color::Green);
+void Editor::configureCanvasCallbacks()
+{
+    canvas->onRightMouseRelease([this] { handleRmbClicked(); });
+    canvas->onMousePress([this] { physicalPen.penDown(); });
+    canvas->onMouseRelease([this] { physicalPen.penUp(); });
+}
+
+void Editor::configureMeshTool(
+    const std::filesystem::path& graphicsDir,
+    std::function<void()>& onStateChanged,
+    mem::Rc<Gui>& gui,
+    const LevelD& level)
+{
+    auto tilesetPath =
+        graphicsDir / TexturePath::getTilesetName(levelMetadata->texturePack);
+    auto clip =
+        dgm::JsonLoader().loadClipFromFile(tilesetPath.string() + ".clip");
+
+    stateMgr.addState<ToolMesh>(
+        EditorState::Mesh,
+        onStateChanged,
+        shortcutEngine,
+        layerController,
+        gui,
+        commandQueue,
+        tilesetPath,
+        clip,
+        DEFAULT_BLOCKS,
+        level);
 }
 
 constexpr bool
@@ -193,8 +246,6 @@ void Editor::drawTagHighlight()
 
 void Editor::handleEvent(const sf::Event& event, const sf::Vector2i& mousePos)
 {
-    if (!isInitialized()) return;
-
     // Update mouse position for both indicator and current tool
     auto realMousePos = camera.getWorldCoordinates(sf::Vector2f(mousePos));
     mouseIndicator.setPosition(realMousePos);
@@ -218,8 +269,6 @@ void Editor::handleEvent(const sf::Event& event, const sf::Vector2i& mousePos)
 
 void Editor::draw()
 {
-    if (!isInitialized()) return;
-
     // Primary render
     for (std::size_t idx = 0; idx <= layerController->getCurrentLayerIdx();
          ++idx)
@@ -230,45 +279,6 @@ void Editor::draw()
     }
 
     canvas->draw(mouseIndicator);
-}
-
-void Editor::init(
-    unsigned levelWidth,
-    unsigned levelHeight,
-    const std::filesystem::path& configPath)
-{
-    auto config = JsonHelper::loadFromFile(configPath.string());
-    config["configFolder"] = configPath.parent_path().string();
-
-    stateMgr.forallStates([&config](ToolInterface& tool)
-                          { tool.configure(config); });
-
-    stateMgr.forallStates([levelWidth, levelHeight](ToolInterface& tool)
-                          { tool.build(levelWidth, levelHeight); });
-
-    const auto tileSize =
-        config["toolMesh"]["texture"]["tileDimensions"][0].get<float>();
-
-    // Configure camera
-    camera.init();
-    camera.resetPosition();
-    camera.resetZoom();
-    camera.move(
-        sf::Vector2f(sf::Vector2u(levelWidth, levelHeight))
-            * static_cast<float>(tileSize)
-        - sf::Vector2f(canvas->getSize()) / 2.f);
-
-    initialized = true;
-
-    populateMenuBar();
-
-    // By default selecting mesh tool
-    switchTool(EditorState::Mesh);
-
-    // Configure canvas callbacks
-    canvas->onRightMouseRelease([this] { handleRmbClicked(); });
-    canvas->onMousePress([this] { physicalPen.penDown(); });
-    canvas->onMouseRelease([this] { physicalPen.penUp(); });
 }
 
 void Editor::switchTool(EditorState state)
@@ -290,26 +300,6 @@ LevelD Editor::save()
                           { tool.saveTo(result); });
 
     return result;
-}
-
-void Editor::loadFrom(
-    const LevelD& lvd,
-    const std::filesystem::path& pathToJsonConfig,
-    bool skipInit)
-{
-    if (not skipInit)
-        // Currently using this to be able to load the config
-        init(1, 1, pathToJsonConfig);
-
-    stateMgr.forallStates([&lvd](ToolInterface& tool) { tool.loadFrom(lvd); });
-
-    camera.resetPosition();
-    camera.move(
-        sf::Vector2f(
-            static_cast<float>(lvd.mesh.layerWidth),
-            static_cast<float>(lvd.mesh.layerHeight))
-            * static_cast<float>(lvd.mesh.tileWidth)
-        - sf::Vector2f(canvas->getSize()) / 2.f);
 }
 
 void Editor::resizeDialog()

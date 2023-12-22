@@ -46,17 +46,12 @@ public: // Non virtual interface
 public: // Public virtual interface
     virtual void buildSidebar() = 0;
 
-    virtual void configure(nlohmann::json& config) = 0;
-
     virtual void
     resize(unsigned width, unsigned height, bool isTranslationDisabled) = 0;
-
-    virtual void build(unsigned width, unsigned height) = 0;
 
     virtual void shrinkTo(const TileRect& boundingBox) = 0;
 
     virtual void saveTo(LevelD& lvd) const = 0;
-    virtual void loadFrom(const LevelD& lvd) = 0;
 
     virtual void drawTo(
         tgui::CanvasSFML::Ptr& canvas,

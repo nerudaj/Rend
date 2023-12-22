@@ -6,6 +6,7 @@
 #include "Dialogs/LoadLevelDialog.hpp"
 #include "Dialogs/NewLevelDialog.hpp"
 #include "Dialogs/SaveLevelDialog.hpp"
+#include "Editor/Editor.hpp"
 #include "Gui.hpp"
 #include "Interfaces/DialogInterfaces.hpp"
 #include "Interfaces/EditorInterface.hpp"
@@ -40,30 +41,21 @@ public:
         mem::Rc<ErrorInfoDialogInterface> dialogErrorInfo);
     ~AppStateEditor();
 
-protected:
-    mem::Rc<tgui::Gui> nativeGui;
-    mem::Rc<Gui> gui;
-    mem::Rc<const dgm::ResourceManager> resmgr;
-    mem::Rc<AppOptions> settings;
-    mem::Rc<AudioPlayer> audioPlayer;
-    mem::Rc<Jukebox> jukebox;
-    mem::Rc<PhysicalController> controller;
-    mem::Rc<ShortcutEngineInterface> shortcutEngine;
-    mem::Rc<YesNoCancelDialogInterface> dialogConfirmExit;
-    mem::Rc<ErrorInfoDialogInterface> dialogErrorInfo;
+public:
+    // Inherited via AppState
+    virtual void input() override;
+    virtual void update() override;
+    virtual void draw() override;
 
-    // Attributes
-    std::string savePath;
-    bool unsavedChanges = false;
-    tgui::CanvasSFML::Ptr canvas;
-    mem::Rc<CommandHistory> commandHistory;
-    mem::Rc<CommandQueue> commandQueue = mem::Rc<CommandQueue>(commandHistory);
-    mem::Box<EditorInterface> editor;
-    ModernNewLevelDialog dialogNewLevel;
-    LoadLevelDialog dialogLoadLevel;
-    SaveLevelDialog dialogSaveLevel;
-    ClickPreventer clickPreventer;
-    mem::Rc<LevelMetadata> levelMetadata;
+    virtual [[nodiscard]] bool isTransparent() const noexcept override
+    {
+        return false;
+    }
+
+    virtual void restoreFocus()
+    {
+        jukebox->stop();
+    }
 
 protected:
     void updateWindowTitle()
@@ -118,19 +110,50 @@ protected: // Callback handlers
 protected:
     void setupFont();
 
-public:
-    // Inherited via AppState
-    virtual void input() override;
-    virtual void update() override;
-    virtual void draw() override;
+    [[nodiscard]] mem::Box<Editor>
+    startEditor(unsigned levelWidth, unsigned levelHeight);
 
-    virtual [[nodiscard]] bool isTransparent() const noexcept override
+    [[nodiscard]] mem::Box<Editor> startEditor(const LevelD& level)
     {
-        return false;
+        return mem::Box<Editor>(
+            gui,
+            canvas,
+            onStateChanged,
+            commandQueue,
+            shortcutEngine,
+            levelMetadata,
+            level,
+            settings->cmdSettings.resourcesDir / "graphics");
     }
 
-    virtual void restoreFocus()
+protected:
+    mem::Rc<tgui::Gui> nativeGui;
+    mem::Rc<Gui> gui;
+    mem::Rc<const dgm::ResourceManager> resmgr;
+    mem::Rc<AppOptions> settings;
+    mem::Rc<AudioPlayer> audioPlayer;
+    mem::Rc<Jukebox> jukebox;
+    mem::Rc<PhysicalController> controller;
+    mem::Rc<ShortcutEngineInterface> shortcutEngine;
+    mem::Rc<YesNoCancelDialogInterface> dialogConfirmExit;
+    mem::Rc<ErrorInfoDialogInterface> dialogErrorInfo;
+
+    // Attributes
+    std::string savePath;
+    bool unsavedChanges = false;
+    tgui::CanvasSFML::Ptr canvas;
+    mem::Rc<CommandHistory> commandHistory;
+    mem::Rc<CommandQueue> commandQueue = mem::Rc<CommandQueue>(commandHistory);
+    mem::Box<EditorInterface> editor;
+    ModernNewLevelDialog dialogNewLevel;
+    LoadLevelDialog dialogLoadLevel;
+    SaveLevelDialog dialogSaveLevel;
+    ClickPreventer clickPreventer;
+    mem::Rc<LevelMetadata> levelMetadata;
+
+    std::function<void(void)> onStateChanged = [this]
     {
-        jukebox->stop();
-    }
+        unsavedChanges = true;
+        updateWindowTitle();
+    };
 };

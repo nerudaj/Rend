@@ -6,7 +6,7 @@
 #include "ToolProperties/MeshToolProperty.hpp"
 #include "Tools/SidebarUserMesh.hpp"
 
-class ToolMesh final : public ToolInterface
+class [[nodiscard]] ToolMesh final : public ToolInterface
 {
 public:
     enum class DrawMode
@@ -18,16 +18,22 @@ public:
     };
 
 public:
-    [[nodiscard]] ToolMesh(
+    ToolMesh(
         std::function<void(void)> onStateChanged,
         mem::Rc<ShortcutEngineInterface> shortcutEngine,
         mem::Rc<LayerObserverInterface> layerObserver,
         mem::Rc<Gui> gui,
-        mem::Rc<CommandQueue> commandQueue) noexcept
+        mem::Rc<CommandQueue> commandQueue,
+        const std::filesystem::path& texturePath,
+        const dgm::Clip& textureClip,
+        std::vector<bool> defaultBlocks,
+        const LevelD& level)
         : ToolInterface(onStateChanged, shortcutEngine, layerObserver)
         , sidebarUser(gui)
         , commandQueue(commandQueue)
     {
+        configure(texturePath, textureClip, defaultBlocks);
+        loadFrom(level);
     }
 
 public: // PenUserInterface
@@ -51,18 +57,12 @@ public: // ToolInterface
         sidebarUser.buildSidebar();
     }
 
-    void configure(nlohmann::json& config) override;
-
     void resize(
         unsigned width, unsigned height, bool isTranslationDisabled) override;
-
-    void build(unsigned width, unsigned height) override;
 
     void shrinkTo(const TileRect& boundingBox) override;
 
     void saveTo(LevelD& lvd) const override;
-
-    void loadFrom(const LevelD& lvd) override;
 
     void drawTo(
         tgui::CanvasSFML::Ptr& canvas,
@@ -94,9 +94,7 @@ public: // ToolInterface
 public:
     void configure(
         const std::filesystem::path& texturePath,
-        const sf::Vector2u& frameSize,
-        const sf::Vector2u& frameSpacing,
-        const sf::IntRect& textureBounds,
+        const dgm::Clip& textureClip,
         const std::vector<bool>& defaultBlockSetting);
 
     /**
@@ -125,6 +123,8 @@ public:
     void sanitizeBeforeSave();
 
 private:
+    void loadFrom(const LevelD& lvd);
+
     void toggleOverlay();
 
     [[nodiscard]] constexpr auto&& getMap(this auto&& self) noexcept

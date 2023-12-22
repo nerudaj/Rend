@@ -14,11 +14,19 @@ public:
         mem::Rc<ShortcutEngineInterface> shortcutEngine,
         mem::Rc<LayerObserverInterface> layerObserver,
         mem::Rc<Gui> gui,
-        mem::Rc<CommandQueue> commandQueue) noexcept
+        const mem::Rc<CommandQueue> commandQueue,
+        const std::filesystem::path& spritesheetPath,
+        const dgm::Clip& spritesheetClip,
+        const LevelD& level) noexcept
         : ToolWithDragAndSelect(onStateChanged, shortcutEngine, layerObserver)
         , sidebarUser(gui)
         , commandQueue(commandQueue)
     {
+        configure(
+            sf::Vector2u(level.mesh.tileWidth, level.mesh.tileHeight),
+            spritesheetPath,
+            spritesheetClip);
+        loadFrom(level);
     }
 
 public: // PenUserInterface
@@ -30,25 +38,14 @@ public: // ToolInterface
         sidebarUser.buildSidebar();
     }
 
-    void configure(nlohmann::json& config) override;
-
-    void configure(
-        const sf::Vector2u& tileDimensions,
-        const std::filesystem::path& texturePath,
-        const dgm::Clip& clip);
-
     void resize(
         unsigned width, unsigned height, bool isTranslationDisabled) override;
-
-    void build(unsigned width, unsigned height) override;
 
     void shrinkTo(const TileRect& boundingBox) override;
 
     void saveTo(LevelD& lvd) const override;
 
     void validateBeforeSave() const;
-
-    void loadFrom(const LevelD& lvd) override;
 
     void drawTo(
         tgui::CanvasSFML::Ptr& canvas,
@@ -91,6 +88,13 @@ protected:
             pos.x < 0 || pos.y < 0 || pos.x >= levelSize.x
             || pos.y >= levelSize.y);
     }
+
+    void configure(
+        const sf::Vector2u& tileDimensions,
+        const std::filesystem::path& texturePath,
+        const dgm::Clip& clip);
+
+    void loadFrom(const LevelD& lvd);
 
 private:
     std::vector<LevelD::Thing> items;
