@@ -113,10 +113,13 @@ namespace Strings
 
     namespace Level
     {
-        RAWSTRING THEME_COUNTRY = "Countryside";
-        RAWSTRING THEME_DAWNTIME = "Dawntime";
-        RAWSTRING THEME_SPACE = "Nightsky";
-        RAWSTRING THEME_ALPHA = "AlphaVersion";
+        RAWSTRING SKYBOX_COUNTRY = "Countryside";
+        RAWSTRING SKYBOX_DAWNTIME = "Dawntime";
+        RAWSTRING SKYBOX_SPACE = "Nightsky";
+        RAWSTRING TEXTURES_ALPHA = "AlphaVersion";
+        RAWSTRING TEXTURES_SPACE = "Space station";
+        RAWSTRING TEXTURES_COUNTRY = "Countryside";
+        RAWSTRING TEXTURES_NEON = "Neon";
     } // namespace Level
 } // namespace Strings
 

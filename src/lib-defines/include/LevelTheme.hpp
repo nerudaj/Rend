@@ -23,7 +23,10 @@ public:
 
 enum class [[nodiscard]] TexturePack
 {
-    AlphaVersion
+    AlphaVersion,
+    SpaceStation,
+    CountrySide,
+    Neon
 };
 
 class TexturePackUtils

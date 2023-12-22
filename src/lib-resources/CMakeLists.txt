@@ -11,4 +11,6 @@ glob_modules ( SRCS )
 
 add_library ( ${PROJECT_NAME} ${SRCS} )
 
+target_link_libraries ( ${PROJECT_NAME} lib-defines )
+
 autoset_target_compile_options ( ${PROJECT_NAME} FALSE )

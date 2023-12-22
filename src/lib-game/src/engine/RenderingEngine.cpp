@@ -7,6 +7,8 @@
 #include <ranges>
 #include <utils/MathHelpers.hpp>
 
+import TexturePath;
+
 [[nodiscard]] static std::pair<std::uint8_t, bool> getRotatedSpriteClipId(
     const sf::Vector2f& cameraDir,
     const sf::Vector2f& thingDir,
@@ -40,7 +42,11 @@ RenderingEngine::RenderingEngine(
     Scene& scene)
     : settings(settings)
     , scene(scene)
-    , tileset { .texture = resmgr.get<sf::Texture>("tileset.png").value().get(),
+    , tileset { .texture = resmgr
+                               .get<sf::Texture>(TexturePath::getTilesetName(
+                                   scene.level.texturePack))
+                               .value()
+                               .get(),
                 .clipping =
                     resmgr.get<dgm::Clip>("tileset.png.clip").value().get() }
     , spritesheet { .texture =

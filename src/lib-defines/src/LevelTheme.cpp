@@ -4,9 +4,9 @@
 
 SkyboxTheme SkyboxThemeUtils::fromString(const std::string& str)
 {
-    if (str == Strings::Level::THEME_DAWNTIME)
+    if (str == Strings::Level::SKYBOX_DAWNTIME)
         return SkyboxTheme::Dawntime;
-    else if (str == Strings::Level::THEME_SPACE)
+    else if (str == Strings::Level::SKYBOX_SPACE)
         return SkyboxTheme::Nightsky;
 
     // Default to countryside if there is anything wrong
@@ -19,11 +19,11 @@ std::string SkyboxThemeUtils::toString(SkyboxTheme skyboxTheme)
     {
         using enum SkyboxTheme;
     case Countryside:
-        return Strings::Level::THEME_COUNTRY;
+        return Strings::Level::SKYBOX_COUNTRY;
     case Dawntime:
-        return Strings::Level::THEME_DAWNTIME;
+        return Strings::Level::SKYBOX_DAWNTIME;
     case Nightsky:
-        return Strings::Level::THEME_SPACE;
+        return Strings::Level::SKYBOX_SPACE;
     }
 }
 
@@ -34,8 +34,15 @@ std::vector<std::string> SkyboxThemeUtils::getAllNames()
                                       toString(SkyboxTheme::Nightsky) };
 }
 
-TexturePack TexturePackUtils::fromString(const std::string&)
+TexturePack TexturePackUtils::fromString(const std::string& str)
 {
+    if (str == Strings::Level::TEXTURES_SPACE)
+        return TexturePack::SpaceStation;
+    else if (str == Strings::Level::TEXTURES_COUNTRY)
+        return TexturePack::CountrySide;
+    else if (str == Strings::Level::TEXTURES_NEON)
+        return TexturePack::Neon;
+
     // Default to alpha if there is anything wrong
     return TexturePack::AlphaVersion;
 }
@@ -46,11 +53,20 @@ std::string TexturePackUtils::toString(TexturePack levelTheme)
     {
         using enum TexturePack;
     case AlphaVersion:
-        return Strings::Level::THEME_ALPHA;
+        return Strings::Level::TEXTURES_ALPHA;
+    case SpaceStation:
+        return Strings::Level::TEXTURES_SPACE;
+    case CountrySide:
+        return Strings::Level::TEXTURES_COUNTRY;
+    case Neon:
+        return Strings::Level::TEXTURES_NEON;
     }
 }
 
 std::vector<std::string> TexturePackUtils::getAllNames()
 {
-    return std::vector<std::string> { toString(TexturePack::AlphaVersion) };
+    return std::vector<std::string> { toString(TexturePack::AlphaVersion),
+                                      toString(TexturePack::SpaceStation),
+                                      toString(TexturePack::CountrySide),
+                                      toString(TexturePack::Neon) };
 }
