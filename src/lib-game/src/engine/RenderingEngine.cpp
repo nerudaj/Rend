@@ -77,7 +77,9 @@ RenderingEngine::RenderingEngine(
     shader.setUniform("shadeColor", sf::Glsl::Vec4(sf::Color(0, 0, 0)));
     shader.setUniform(
         "resolution",
-        sf::Glsl::Vec2(settings.resolution.width, settings.resolution.height));
+        sf::Glsl::Vec2(
+            static_cast<float>(settings.resolution.width),
+            static_cast<float>(settings.resolution.height)));
     shader.setUniform("ditherShadows", settings.useDitheredShadows);
     skybox.sprite.setTextureRect(skybox.clipping.getFrame(
         static_cast<std::underlying_type_t<SkyboxTheme>>(

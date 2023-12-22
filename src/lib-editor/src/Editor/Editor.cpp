@@ -305,7 +305,9 @@ void Editor::loadFrom(
 
     camera.resetPosition();
     camera.move(
-        sf::Vector2f(lvd.mesh.layerWidth, lvd.mesh.layerHeight)
+        sf::Vector2f(
+            static_cast<float>(lvd.mesh.layerWidth),
+            static_cast<float>(lvd.mesh.layerHeight))
             * static_cast<float>(lvd.mesh.tileWidth)
         - sf::Vector2f(canvas->getSize()) / 2.f);
 }

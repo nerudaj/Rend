@@ -31,7 +31,7 @@ void DrawableLeveldMesh::build(
     map.build(tileSize, tiles, dataSize);
     mesh.build(blocks, dataSize, tileSize);
     grid.build(dataSize, tileSize);
-    darkOverlay.setSize(
-        sf::Vector2f(tileSize.x * dataSize.x, tileSize.y * dataSize.y));
+    darkOverlay.setSize(sf::Vector2f(
+        sf::Vector2u(tileSize.x * dataSize.x, tileSize.y * dataSize.y)));
     darkOverlay.setFillColor(sf::Color(0, 0, 0, 128));
 }

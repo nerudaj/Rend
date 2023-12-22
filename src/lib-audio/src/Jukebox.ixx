@@ -1,7 +1,9 @@
 module;
 
 #include <DGM/dgm.hpp>
+#pragma warning(push, 0)
 #include <SFML/Audio.hpp>
+#pragma warning(pop)
 
 export module Jukebox;
 

@@ -36,14 +36,6 @@ void ItemToolProperty::fillEditDialogInternal(
     addOption(
         dst,
         formValidatorToken,
-        "Layer ID:",
-        "ID of layer where trigger is located",
-        data.layerIdx,
-        3,
-        DISABLED);
-    addOption(
-        dst,
-        formValidatorToken,
         "Tag:",
         "Value used to group related objects",
         data.tag,

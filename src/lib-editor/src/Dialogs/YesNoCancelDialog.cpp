@@ -38,9 +38,9 @@ void YesNoCancelDialog::open(
     };
     float xOffset = 2.25f;
 
-    for (auto&& [label, choice] : BUTTONS)
+    for (auto&& [labelText, choice] : BUTTONS)
     {
-        auto btn = tgui::Button::create(label);
+        auto btn = tgui::Button::create(labelText);
         btn->setSize(BUTTON_SIZE);
         btn->setPosition(
             (std::to_string(xOffset) + "%").c_str(), BUTTON_Y_OFFSET.c_str());

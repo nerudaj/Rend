@@ -26,7 +26,7 @@ namespace std
     string to_string(const sf::Keyboard::Key key)
     {
         if (sf::Keyboard::A <= key && key <= sf::Keyboard::Z)
-            return string(1, 'A' + key);
+            return string(1, 'A' + static_cast<char>(key));
         else
             return "key" + to_string(static_cast<int>(key));
     }

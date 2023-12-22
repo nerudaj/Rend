@@ -247,7 +247,7 @@ void ToolItem::penClicked(const sf::Vector2i& position)
                         .tag = 0,
                         .x = static_cast<uint32_t>(tilePos.x),
                         .y = static_cast<uint32_t>(tilePos.y),
-                        .layerIdx = static_cast<uint32_t>(getCurrentLayerIdx()),
+                        .layerId = static_cast<uint32_t>(getCurrentLayerIdx()),
                         .flags = 0,
                         .metadata = "" };
 
@@ -261,7 +261,7 @@ ExpectedPropertyPtr ToolItem::getProperty(const sf::Vector2i& penPos) const
     const auto itemId = getObjectIndexFromMousePos(penPos);
     if (!itemId) return std::unexpected(BaseError());
 
-    if (items[*itemId].layerIdx != getCurrentLayerIdx())
+    if (items[*itemId].layerId != getCurrentLayerIdx())
         return std::unexpected(BaseError());
 
     auto&& result = mem::Box<ItemToolProperty>(

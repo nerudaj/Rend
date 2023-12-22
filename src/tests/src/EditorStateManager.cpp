@@ -25,65 +25,57 @@ public:
     }
 
 public:
-    virtual void penClicked(const sf::Vector2i& position) override {}
+    void penClicked(const sf::Vector2i&) override {}
 
-    virtual void penDragStarted(const sf::Vector2i& start) override {}
+    void penDragStarted(const sf::Vector2i&) override {}
 
-    virtual void
-    penDragUpdate(const sf::Vector2i& start, const sf::Vector2i& end) override
-    {
-    }
+    void penDragUpdate(const sf::Vector2i&, const sf::Vector2i&) override {}
 
-    virtual void
-    penDragEnded(const sf::Vector2i& start, const sf::Vector2i& end) override
-    {
-    }
+    void penDragEnded(const sf::Vector2i&, const sf::Vector2i&) override {}
 
-    virtual void penDragCancel(const sf::Vector2i& origin) override {}
+    void penDragCancel(const sf::Vector2i&) override {}
 
-    virtual void penDelete() override {}
+    void penDelete() override {}
 
-    virtual void buildSidebar() override
+    void buildSidebar() override
     {
         invocations.push_back(name + ":buildSidebar");
     }
 
-    virtual void configure(nlohmann::json&) override {}
+    void configure(nlohmann::json&) override {}
 
-    virtual void resize(unsigned, unsigned, bool) override {}
+    void resize(unsigned, unsigned, bool) override {}
 
     void build(unsigned, unsigned) override {}
 
-    virtual void shrinkTo(const TileRect&) override {}
+    void shrinkTo(const TileRect&) override {}
 
-    virtual void saveTo(LevelD&) const override {}
+    void saveTo(LevelD&) const override {}
 
-    virtual void loadFrom(const LevelD&) override {}
+    void loadFrom(const LevelD&) override {}
 
-    virtual void drawTo(tgui::CanvasSFML::Ptr&, std::size_t, uint8_t) override
-    {
-    }
+    void drawTo(tgui::CanvasSFML::Ptr&, std::size_t, uint8_t) override {}
 
-    virtual ExpectedPropertyPtr getProperty(const sf::Vector2i&) const override
+    ExpectedPropertyPtr getProperty(const sf::Vector2i&) const override
     {
         return std::unexpected(BaseError());
     }
 
-    virtual void setProperty(const ToolPropertyInterface&) override {}
+    void setProperty(const ToolPropertyInterface&) override {}
 
-    virtual std::optional<GenericObject>
+    std::optional<GenericObject>
     getHighlightedObject(const sf::Vector2i&) const override
     {
         return {};
     }
 
-    virtual std::vector<sf::Vector2u>
+    std::vector<sf::Vector2u>
     getPositionsOfObjectsWithTag(unsigned) const override
     {
         return {};
     }
 
-    virtual void buildCtxMenuInternal(tgui::MenuBar::Ptr&) override {}
+    void buildCtxMenuInternal(tgui::MenuBar::Ptr&) override {}
 
     std::optional<TileRect> getBoundingBox() const noexcept override
     {
