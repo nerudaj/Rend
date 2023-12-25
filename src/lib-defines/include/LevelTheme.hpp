@@ -1,5 +1,7 @@
 #pragma once
 
+#include <format>
+#include <iostream>
 #include <nlohmann/json.hpp>
 #include <string>
 #include <vector>
@@ -45,17 +47,7 @@ struct LevelTheme
     std::string textures =
         TexturePackUtils::toString(TexturePack::AlphaVersion);
 
-    static LevelTheme fromJson(const std::string& str) noexcept
-    {
-        try
-        {
-            return LevelTheme { nlohmann::json::parse(str) };
-        }
-        catch (...)
-        {
-            return LevelTheme {};
-        }
-    }
+    static LevelTheme fromJson(const std::string& str) noexcept;
 };
 
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(LevelTheme, skybox, textures);

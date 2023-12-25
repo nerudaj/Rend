@@ -1,0 +1,79 @@
+For past three years, every December I used to install Skyrim on my Switch, start a new character and spend some time in a fantasy land, exploring the beautiful landscape and completing some quest line I haven't touched so far. This year I discovered that it is possible to play Morrowind on an Android phone and as a big afficianado of Android (hardcore) gaming, I had to give it a try. And here I am, writing a retrospective about my experience in Vvanderfell.
+
+---
+
+I have an odd relationship with Bethesda's RPGs. They are like junk comford food. I know they're not good, that they're only shallow experiences, but they have this special flair, some kind of umami, that brings me back from time to time to experience them again. After I get full, I put them away so I can play some better games instead.
+
+And I never really played Morrowind. I remember trying it out a long time ago. I went out (jumped out) from the starting village of Seyda Neen, found a guy falling from the sky and then a jumping worm killed me because I was unable to hit it.
+
+This time, I was prepared. After I acquired a working APK of OpenMW and copied Morrowind's files to my phone's SD card, I downloaded quite a lot of mods to make the experience worthwhile. A ton of mods didn't work, but two really important ones did. A combat rebalance that makes sure that every melee hit lands and a fast travel that lets you click a signpost and teleport to that destination.
+
+Morrowind really lets you appreciate how far did the Skyrim go to make the basic gameplay fun. It is not only about making every hit land. It is about speed of casting spells. It is about casting not failing all of the time. Dual-wield system is a godsend when compared to switching between weapon and magic modes in MW. Or such basic thing as autoequipping ammo for ranged weapons.
+
+But this works the other way as well. Morrowind has directional melee attacks. You can slash or you can thrust. Weapons might deal different damage based on the attack direction. You can forge custom spells. You have a conversation system that turns persuation into something more than just a plain skill check.
+
+# Seyda Neen
+
+I've spent majority of my playthrough in Seyda Neen. The starting village. The first place the player will experience. I suspect it is also the best designed place in the whole game. I would argue this place is better than anything in Skyrim.
+
+First, the opening. Yes, you are a prisoner as in every TES game, but the start is calm. No emperor is murdered, no dragons appear, there is no dungeon to escape. You are nobody. You have nothing. You need to make friends.
+
+While going through the process of release from custody, you'll likely to find an enchanted healing ring. Neat! Once you exit the building, a guy called Fargoth will ask you if you haven't seen such ring. Minutes into the game and you have the opportunity to role-play. Will you be a good guy and give the ring? Or will you keep it for yourself, because healing effect is tempting?
+
+If you give Fargoth the ring, he'll talk to the local trader so he likes you better and give you better prices. Chances are that while at trader's, you will chat with NPCs around. One of them will have a suspicion that Fargoth is stealing money from the same office that released you from the custody. He instructs you to go to the top of the lighthouse and spy on Fargoth at night to find his stash. So you do, you raid the stash and find money and the ring. Now you have another decision. Will you report back to the quest giver, who will take the most of the found gold away from you or will you keep it? That is up to you.
+
+When talking to another NPCs, they might tell you about slavers hiding somewhere in the cave and about a tax collector who went missing. If you explore outskirts of the village, you might indeed stumble upon a cave full of hostile bandits. If you kill them, you can free the slaves and you'll find a ton of loot. Or you might be like me and die an awful lot. Because I chose a race with a weakness to fire and the cave hosts a firemage who IK'd me a bunch of times before I managed to jump over him, distact him with an ancestral ghost summon and kill him with a sword with a spark effect.
+
+Going in the other direction, you might find a dead body near the road. It's the tax collector. You report back to the office and are tasked with finding the killer. While asking around, people might point you towards the lighthouse. Lady who lives there was close to the dead guy. She tells you about a local guy in a nearby shack who argued with the dead guy. He indeed confesses to the murder, claiming that the tax collector was stealing from the people and keeping the money for himself.
+
+Murder in Morrowind is punishable by murder, disregarding the reason. Will you kill the murderer? You might spare him. But if you kill him, there will be an empty house. So you can as well start living there. For free.
+
+With newly acquired accomodation, you start exploring the swamps around Seyda. You'll pick up a ton of ingredients you have no idea what to do with. You will raid ancestral tombs with bunch of angry ghost. You will likely encounter a mage falling from the sky to his death. He will have some levitation scrolls with him. Interesting. There is a second building to the tax collection office, but it has a strong lock and the door are heavily guarded. But you have noticed there is a balcony on the side facing to the sea. If only you could get there, you will be able to get in. And the scrolls are the exactly the thing you needed...
+
+I love this opening. I might make a new character just to fully explore every single locked house in Seyda and perhaps stumbling upon another quest. I never felt as home in Skyrim as I did in Seyda.
+
+# The bad
+
+It was so disappointing to see this excitement vanish as I stepped beyond. On my travels to and around Vivec, I found three escort quests. One of them even stated that the roads are dangerous and thus they need a bodyguard. We never encountered any enemy.
+
+I've enrolled in Mages guild. My first quest was to fetch mushrooms around Seyda. Fair enough. Second one was to fetch flowers elsewhere. Duh.
+
+The main quest was literally to go around Balmora asking bunch of NPCs where Caius Cassius is and when I found him, he was like - hey, only talk to me when you're stronger, bye!
+
+The south part of the island is genuinely nice, but then you step a few steps to the north into the Ashlands and its boring grey everywhere. The situation was worse by me playing on a relatively low-end Nokia 6 phone, so I had to keep the render distance to the barest minimum, so I was constantly wandering in a fog like I was in a goddamn Silent Hill.
+
+I didn't mind the running speed of a snail after heartstroke that much as the place is littered with dungeons and it was clearly the developers intention to fool the player into thinking that the world is larger than it really is. What I did mind though were the abyssmal controls. For context, I played on a controller. The game released on a PC and OG XBOX. So you would think it would have a controller friendly UI. It hasn't. Quite the opposite in fact. Luckily, I had touchscreen. Less luckily, all the UI is so small that it is challenging to click on those tiny scroll bars and tiny icons with your fingers.
+
+Generally, the fact the game as icons for items instead of just listed names is the worst UX thing the developers could do.
+
+And yes, part of my rambling is due to the platform I decided to experience the game on. And I don't want to shit on the game because I used the controller. But it did expose problems the game has in it UI that were subsequently fixed by Skyrim and nobody can deny that. The fact that you need to remember which ingredients do what or you will spend absurd amount of time inspecting properties of each ingredient to find out which of them has Restore health effect.
+
+The joke of a system called encumberance and the impossibility to move when you're over-encumbered doesn't need to be talked about more as I would be kicking a very dead, very rotting horse. But it is related to alchemy as instead of Skyrim's alchemy tables, you need at least one item in your inventory to do alchemy, plus three extra items if you want your potions to be powerful. Same goes for weapon durability. Don't want your stuff breaking while exploring? Well too bad, you need to carry heavy repair hammers with you!
+
+# The good
+
+To be honest, there are also many things MW does better than Skyrim. I love the fact that charges in enchanted items recharge by themselves as I hate the soultrapping mechanic - you need to acquire soul gems of appropriate size, then find appropriately sized enemy and then cast soul trap on your weapon and kill the beast before the effect wears off.
+
+Also I like the fact that the alchemy is mainly driven by the Intelligence stat that also affects how much mana you have (and I guess many other statistics related to magic). This means that you can have enchanted mage gear that boosts your combat magicka AND quality of your potions at the same time. In Skyrim, you have enchants that boost just alchemy which always made me keep two sets of gear - one for combat and one for potion brewing and I usually forgot to change.
+
+It is also sad we no longer have levitate effects in Skyrim. As I described in the Seyda Neen section, it is great for reaching remote places where you can possibly safely get somewhere you otherwise would risk jail. Daggerfall had a weaker version of this effect - wall climbing, but it served the same purpose. Skyrim, sadly, has nothing alike.
+
+It is sad to see this as each game has some mechanic that contributes to this "immersive sim" feeling. Approaching problems from uncommon angles, such as with levitate is one of those mechanics. Another such mechanic is in Skyrim where you can put a bucket on a head of an NPC and rob it while it cannot see you. This is impossible in MW as you cannot move items around (or is it possible with telekinesis?).
+
+Another thing I am really sad about is that MW has way more weapon types than Skyrim, like halberds and spears. And the weapons have directional attacks with different damage numbers. Why was it dropped?
+
+# The hope
+
+I am not done with Morrowind yet. I've discovered a fork of OpenMW called MorroUI and from what I can tell from the screenshots, it could alleviate some of my UI problems. If only their Android build was currently passing CI. I would also want to get OpenHUD workind on Android for some nicer and cleaner HUD (it took me a couple hours to figure out that the yellow bar is enemy health and not some poison stat on my char).
+
+I need to start a new character though as playing a ranged alchemist with weakness to fire is the worst thing imaginable on a controller. Melee tank would be likely more appropriate, as would be the Fighter's guild. Some extra mods rebalancing encumberance and movement speed could be nice.
+
+I got the working APK from here (note that you need your own copy of Morrowind. GoG's GOTY version is confirmed to work, Steam should too):
+* https://github.com/xyzz/openmw-android
+
+If you're interested in mods I've used, these worked for me:
+
+ * Better Balanced Combat - https://www.nexusmods.com/morrowind/mods/46596
+ * Andromeda's Fast Travel - https://www.nexusmods.com/morrowind/mods/41542
+ * Active Wait - https://www.nexusmods.com/morrowind/mods/48492?tab=posts
+ * Lower First Person Sneak - https://www.nexusmods.com/morrowind/mods/43108/

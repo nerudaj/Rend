@@ -304,11 +304,13 @@ void AppStateEditor::loadLevel(
 
         savePath = pathToLevel;
 
-        editor = startEditor(lvd);
         levelMetadata->author = lvd.metadata.author;
-        auto theme = LevelTheme::fromJson(lvd.metadata.id);
+        auto theme = LevelTheme::fromJson(lvd.metadata.description);
         levelMetadata->skyboxTheme = SkyboxThemeUtils::fromString(theme.skybox);
-        levelMetadata->texturePack = TexturePackUtils::fromString(theme.skybox);
+        levelMetadata->texturePack =
+            TexturePackUtils::fromString(theme.textures);
+
+        editor = startEditor(lvd);
         unsavedChanges = false;
         updateWindowTitle();
     }

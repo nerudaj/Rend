@@ -33,12 +33,6 @@ public:
         const LevelD& level,
         const std::filesystem::path& graphicsDir);
 
-    void configureItemTool(
-        const std::filesystem::path& graphicsDir,
-        std::function<void()>& onStateChanged,
-        mem::Rc<Gui>& gui,
-        const LevelD& level);
-
     Editor(Editor&&) = delete;
     Editor(const Editor&) = default;
 
@@ -108,6 +102,12 @@ private: // Initialization
     void configureCanvasCallbacks();
 
     void configureMeshTool(
+        const std::filesystem::path& graphicsDir,
+        std::function<void()>& onStateChanged,
+        mem::Rc<Gui>& gui,
+        const LevelD& level);
+
+    void configureItemTool(
         const std::filesystem::path& graphicsDir,
         std::function<void()>& onStateChanged,
         mem::Rc<Gui>& gui,
