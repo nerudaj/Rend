@@ -15,7 +15,7 @@ void YesNoCancelDialog::open(
     };
 
     auto modal = gui->createNewChildWindow(title);
-    modal->setSize("20%", "10%");
+    modal->setSize("20%", "20%");
     modal->setPosition("40%", "40%");
     modal->setPositionLocked(true);
     modal->onEscapeKeyPress(cancelDialog);
