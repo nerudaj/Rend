@@ -14,6 +14,8 @@ public:
         return {};
     }
 
+    void restoreFromSnapshot(const LevelD&) override {}
+
     void switchTool(EditorState) override {}
 
     void resizeDialog() override {}

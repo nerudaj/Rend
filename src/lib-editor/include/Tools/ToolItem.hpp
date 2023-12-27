@@ -45,6 +45,11 @@ public: // ToolInterface
 
     void saveTo(LevelD& lvd) const override;
 
+    void restoreFrom(const LevelD& snapshot) override
+    {
+        loadFrom(snapshot);
+    }
+
     void validateBeforeSave() const;
 
     void drawTo(
@@ -89,12 +94,12 @@ protected:
             || pos.y >= levelSize.y);
     }
 
+    void loadFrom(const LevelD& lvd);
+
     void configure(
         const sf::Vector2u& tileDimensions,
         const std::filesystem::path& texturePath,
         const dgm::Clip& clip);
-
-    void loadFrom(const LevelD& lvd);
 
 private:
     std::vector<LevelD::Thing> items;

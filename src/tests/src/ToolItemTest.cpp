@@ -25,23 +25,33 @@ TEST_CASE("[ToolItem]")
     mem::Rc<Gui> gui;
     mem::Rc<LayerController> layerController(gui->gui);
 
+    auto makeLevel = [&](const LevelD& level)
+    {
+        return ToolItem(
+            Null::Callback,
+            shortcutEngine,
+            layerController,
+            gui,
+            commandQueue,
+            Mesh::MESH_TEXTURE_PATH,
+            Item::ITEM_CLIP,
+            level);
+    };
+
     SECTION("On save validation")
     {
-        auto&& tool = ToolItem(
-            Null::Callback, shortcutEngine, layerController, gui, commandQueue);
-        tool.configure(
-            Item::TILE_SIZE, Mesh::MESH_TEXTURE_PATH, Item::ITEM_CLIP);
-
         SECTION("Throws when there are no spawns")
         {
+            auto&& tool = makeLevel(LevelD {});
             REQUIRE_THROWS([&] { tool.validateBeforeSave(); }());
         }
 
         SECTION("Throws when there are less than four spawns")
         {
+
             for (unsigned i = 1; i <= 3; ++i)
             {
-                tool.loadFrom(createLevelWithSpawns(i));
+                auto&& tool = makeLevel(createLevelWithSpawns(i));
                 REQUIRE_THROWS([&] { tool.validateBeforeSave(); }());
             }
         }
@@ -50,7 +60,7 @@ TEST_CASE("[ToolItem]")
         {
             for (unsigned i = 4; i <= 6; ++i)
             {
-                tool.loadFrom(createLevelWithSpawns(i));
+                auto&& tool = makeLevel(createLevelWithSpawns(i));
                 REQUIRE_NOTHROW([&] { tool.validateBeforeSave(); }());
             }
         }

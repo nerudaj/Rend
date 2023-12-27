@@ -64,6 +64,11 @@ public: // ToolInterface
 
     void saveTo(LevelD& lvd) const override;
 
+    void restoreFrom(const LevelD& snapshot) override
+    {
+        loadFrom(snapshot);
+    }
+
     void drawTo(
         tgui::CanvasSFML::Ptr& canvas,
         std::size_t layerIdx,

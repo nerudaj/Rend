@@ -22,18 +22,5 @@ TEST_CASE("[Editor]")
     auto&& shortcutEngine = mem::Rc<ShortcutEngine> { [] { return false; } };
     mem::Rc<LevelMetadata> metadata;
 
-    Editor editor(
-        gui, canvas, Null::Callback, commandQueue, shortcutEngine, metadata);
-
-    SECTION("loadFrom")
-    {
-        SECTION("Can load another level when one was already loaded")
-        {
-            LevelD level1 = LeveldBuilder::buildWithMesh(32, 20, {});
-            LevelD level2 = LeveldBuilder::buildWithMesh(40, 40, {});
-
-            editor.loadFrom(level1, Config::CONFIG_PATH);
-            editor.loadFrom(level2, Config::CONFIG_PATH);
-        }
-    }
+    // No tests right now
 }

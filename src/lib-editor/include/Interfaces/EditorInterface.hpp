@@ -25,5 +25,7 @@ public:
 
     virtual void shrinkToFit() = 0;
 
+    virtual void restoreFromSnapshot(const LevelD& snapshot) = 0;
+
     virtual ~EditorInterface() = default;
 };

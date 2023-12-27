@@ -42,17 +42,13 @@ public:
         invocations.push_back(name + ":buildSidebar");
     }
 
-    void configure(nlohmann::json&) override {}
-
     void resize(unsigned, unsigned, bool) override {}
-
-    void build(unsigned, unsigned) override {}
 
     void shrinkTo(const TileRect&) override {}
 
     void saveTo(LevelD&) const override {}
 
-    void loadFrom(const LevelD&) override {}
+    void restoreFrom(const LevelD&) override {}
 
     void drawTo(tgui::CanvasSFML::Ptr&, std::size_t, uint8_t) override {}
 

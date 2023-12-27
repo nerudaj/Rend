@@ -16,21 +16,25 @@ TEST_CASE("[ToolMesh]")
     mem::Rc<Gui> gui;
     mem::Rc<LayerController> layerController(gui->gui);
 
-    ToolMesh mesh(
-        Null::Callback, shortcutEngine, layerController, gui, commandQueue);
-
-    mesh.configure(
-        Mesh::MESH_TEXTURE_PATH,
-        Mesh::FRAME_SIZE,
-        Mesh::FRAME_SPACING,
-        Mesh::TEXTURE_BOUNDS,
-        { false, true, false, true });
+    auto makeMesh = [&](const LevelD& level)
+    {
+        return ToolMesh(
+            Null::Callback,
+            shortcutEngine,
+            layerController,
+            gui,
+            commandQueue,
+            Mesh::MESH_TEXTURE_PATH,
+            dgm::Clip(Mesh::FRAME_SIZE, Mesh::TEXTURE_BOUNDS),
+            { false, true, false, true },
+            level);
+    };
 
     SECTION(
         "Adds extra layers if source object doesn't have the correct amount")
     {
         LevelD level = LeveldBuilder::buildWithMesh(20, 20, {});
-        mesh.loadFrom(level);
+        auto&& mesh = makeMesh(level);
 
         LevelD exported;
         mesh.saveTo(exported);
@@ -43,7 +47,7 @@ TEST_CASE("[ToolMesh]")
         SECTION("returns empty box, when all tiles are empty")
         {
             LevelD level = LeveldBuilder::buildWithMesh(20, 20, {});
-            mesh.loadFrom(level);
+            auto&& mesh = makeMesh(level);
             REQUIRE(!mesh.getBoundingBox().has_value());
         }
 
@@ -51,8 +55,7 @@ TEST_CASE("[ToolMesh]")
         {
             LevelD level = LeveldBuilder::buildWithMesh(
                 20, 20, { { 5, 5, 1, 1 }, { 10, 10, 2, 0 } });
-
-            mesh.loadFrom(level);
+            auto&& mesh = makeMesh(level);
 
             auto box = mesh.getBoundingBox();
 
@@ -70,8 +73,7 @@ TEST_CASE("[ToolMesh]")
         {
             LevelD level = LeveldBuilder::buildWithMesh(
                 20, 20, { { 5, 5, 1, 1 }, { 10, 10, 2, 0 } });
-
-            mesh.loadFrom(level);
+            auto&& mesh = makeMesh(level);
 
             auto box = TileRect(5u, 5u, 10u, 10u);
             const unsigned width = 10u - 5u + 1u;
@@ -82,10 +84,10 @@ TEST_CASE("[ToolMesh]")
             LevelD exported;
             mesh.saveTo(exported);
 
-            auto&& mesh = exported.mesh;
-            REQUIRE_FALSE(mesh.layers.empty());
+            auto&& expmesh = exported.mesh;
+            REQUIRE_FALSE(expmesh.layers.empty());
 
-            auto&& layer = mesh.layers[0];
+            auto&& layer = expmesh.layers[0];
             REQUIRE(layer.tiles.size() == width * height);
             REQUIRE(layer.tiles.front() == 1u);
             REQUIRE(layer.blocks.front() == true);
@@ -99,8 +101,7 @@ TEST_CASE("[ToolMesh]")
     {
         LevelD level = LeveldBuilder::buildWithMesh(
             20, 20, { { 5, 5, 1, 1 }, { 10, 10, 2, 0 } });
-
-        mesh.loadFrom(level);
+        auto&& mesh = makeMesh(level);
         mesh.changeDrawingMode(ToolMesh::DrawMode::RectEdge);
         mesh.penDragStarted({ 0, 0 });
         mesh.penDragCancel({ 0, 0 });

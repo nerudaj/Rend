@@ -53,6 +53,8 @@ public: // Public virtual interface
 
     virtual void saveTo(LevelD& lvd) const = 0;
 
+    virtual void restoreFrom(const LevelD& snapshot) = 0;
+
     virtual void drawTo(
         tgui::CanvasSFML::Ptr& canvas,
         std::size_t layerIdx,

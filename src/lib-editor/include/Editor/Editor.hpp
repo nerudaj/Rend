@@ -53,6 +53,12 @@ public:
 
     virtual void shrinkToFit() override;
 
+    void restoreFromSnapshot(const LevelD& snapshot) override
+    {
+        stateMgr.forallStates([&snapshot](ToolInterface& tool, bool)
+                              { tool.restoreFrom(snapshot); });
+    }
+
 private:
     [[nodiscard]] constexpr bool
     isMouseWithinBoundaries(const sf::Vector2f& mousePos) const noexcept;
