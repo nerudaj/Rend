@@ -20,7 +20,7 @@ void MetadataDialogBase::addAttributesToFormular(FormBuilder& builder)
                     TexturePackUtils::getAllNames(),
                     TexturePackUtils::toString(texturePack),
                     [this](std::size_t idx)
-                    { skyboxTheme = static_cast<SkyboxTheme>(idx); }))
+                    { texturePack = static_cast<TexturePack>(idx); }))
             .addOption(
                 Strings::Editor::NewLevel::AUTHOR,
                 WidgetBuilder::createTextInput(

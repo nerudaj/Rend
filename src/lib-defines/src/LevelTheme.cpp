@@ -70,3 +70,19 @@ std::vector<std::string> TexturePackUtils::getAllNames()
                                       toString(TexturePack::CountrySide),
                                       toString(TexturePack::Neon) };
 }
+
+LevelTheme LevelTheme::fromJson(const std::string& str) noexcept
+{
+    try
+    {
+        auto json = nlohmann::json::parse(str);
+        LevelTheme theme = json;
+        return theme;
+    }
+    catch (std::exception& e)
+    {
+        std::cerr << std::format(
+            "Error parsing JSON string '{}' with reason: {}\n", str, e.what());
+        return LevelTheme {};
+    }
+}

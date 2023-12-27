@@ -16,7 +16,7 @@ public:
 public:
     void exec() override
     {
-        editor.loadFrom(snapshot, snapshot.metadata.description, true);
+        editor.restoreFromSnapshot(snapshot);
     }
 
 protected:

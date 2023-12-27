@@ -353,17 +353,13 @@ const static inline auto ENTITY_PROPERTIES =
                             { AnimationStateId::Recovery,
                               AnimationState {
                                   .clip = { { HUD_ShotgunRA,
-                                              10,
+                                              15,
                                               playSound(
-                                                  "ssg_reload2.wav",
+                                                  "ssg_reload3.wav",
                                                   SoundSourceType::Pov) },
-                                            { HUD_ShotgunRB, 10 },
-                                            { HUD_ShotgunRC, 10 } },
+                                            { HUD_ShotgunRB, 15 },
+                                            { HUD_ShotgunRC, 15 } },
                                   .transition = AnimationStateId::Idle } },
-                            { AnimationStateId::Recovery,
-                              AnimationState { .clip = { { HUD_ShotgunA, 10 } },
-                                               .transition =
-                                                   AnimationStateId::Idle } },
                             { AnimationStateId::Lower,
                               AnimationState {
                                   .clip = { { HUD_ShotgunA, LOWER_TIME } },

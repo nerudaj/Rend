@@ -59,26 +59,36 @@ AppStateEditor::AppStateEditor(
 
     buildLayout();
 
-    auto onStateChanged = [this]
-    {
-        unsavedChanges = true;
-        updateWindowTitle();
-    };
-
-    editor = mem::Box<Editor>(
-        gui,
-        canvas,
-        onStateChanged,
-        commandQueue,
-        this->shortcutEngine,
-        levelMetadata);
-
     updateWindowTitle();
 }
 
 void AppStateEditor::setupFont()
 {
     gui->gui.setFont(resmgr->get<tgui::Font>("cruft.ttf").value().get());
+}
+
+mem::Box<Editor>
+AppStateEditor::startEditor(unsigned levelWidth, unsigned levelHeight)
+{
+    {
+        auto level = LevelD();
+        level.mesh.layerWidth = levelWidth;
+        level.mesh.layerHeight = levelHeight;
+        level.mesh.tileWidth = 16u;
+        level.mesh.tileHeight = 16u;
+        level.mesh.layers.resize(2);
+        level.mesh.layers[0].blocks =
+            std::vector<bool>(levelWidth * levelHeight, false);
+        level.mesh.layers[0].tiles = std::vector<uint16_t>(
+            levelWidth * levelHeight,
+            static_cast<uint16_t>(LevelTileId::Flat1));
+        level.mesh.layers[1].blocks =
+            std::vector<bool>(levelWidth * levelHeight, false);
+        level.mesh.layers[1].tiles = std::vector<uint16_t>(
+            levelWidth * levelHeight,
+            static_cast<uint16_t>(LevelTileId::CeilSky));
+        return startEditor(level);
+    }
 }
 
 void AppStateEditor::input()
@@ -263,10 +273,7 @@ void AppStateEditor::newLevelDialogCallback()
     levelMetadata->skyboxTheme = dialogNewLevel.getSkyboxTheme();
     levelMetadata->texturePack = dialogNewLevel.getTexturePack();
 
-    editor->init(
-        levelWidth,
-        levelHeight,
-        Filesystem::getEditorConfigPath(settings->cmdSettings.resourcesDir));
+    editor = startEditor(levelWidth, levelHeight);
 }
 
 void AppStateEditor::handleNewLevel()
@@ -295,21 +302,15 @@ void AppStateEditor::loadLevel(
         LevelD lvd;
         lvd.loadFromFile(pathToLevel);
 
-        auto configPathFS =
-            Filesystem::getEditorConfigPath(settings->cmdSettings.resourcesDir);
-        if (!std::filesystem::exists(configPathFS))
-        {
-            dialogErrorInfo->open("Editor config file does not exist!");
-            return; // abort this load, another one will trigger
-        }
-
         savePath = pathToLevel;
 
-        editor->loadFrom(lvd, configPathFS);
         levelMetadata->author = lvd.metadata.author;
-        auto theme = LevelTheme::fromJson(lvd.metadata.id);
+        auto theme = LevelTheme::fromJson(lvd.metadata.description);
         levelMetadata->skyboxTheme = SkyboxThemeUtils::fromString(theme.skybox);
-        levelMetadata->texturePack = TexturePackUtils::fromString(theme.skybox);
+        levelMetadata->texturePack =
+            TexturePackUtils::fromString(theme.textures);
+
+        editor = startEditor(lvd);
         unsavedChanges = false;
         updateWindowTitle();
     }

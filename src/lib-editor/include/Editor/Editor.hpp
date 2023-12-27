@@ -20,48 +20,31 @@
 
 import Memory;
 
-class Editor final : public EditorInterface
+class [[nodiscard]] Editor final : public EditorInterface
 {
 public:
-    [[nodiscard]] Editor(
+    Editor(
         mem::Rc<Gui> gui,
         tgui::CanvasSFML::Ptr& canvas,
         std::function<void(void)> onStateChanged,
         mem::Rc<CommandQueue> commandQueue,
         mem::Rc<ShortcutEngineInterface> shortcutEngine,
-        mem::Rc<LevelMetadata> metadata);
+        mem::Rc<LevelMetadata> metadata,
+        const LevelD& level,
+        const std::filesystem::path& graphicsDir);
+
     Editor(Editor&&) = delete;
-    Editor(const Editor&) = delete;
+    Editor(const Editor&) = default;
 
 public:
-    [[nodiscard]] bool isInitialized() const noexcept
-    {
-        return initialized;
-    }
-
     virtual void
     handleEvent(const sf::Event& event, const sf::Vector2i& mousePos) override;
 
     virtual void draw() override;
 
-    /**
-     *  Initialize Editor object with new level - it has some fixed width and
-     * height Also there is path to config json which should be loaded and given
-     * to each instantiated Tool.
-     */
-    virtual void init(
-        unsigned levelWidth,
-        unsigned levelHeight,
-        const std::filesystem::path& configPath) override;
-
     virtual void switchTool(EditorState state) override;
 
     [[nodiscard]] virtual LevelD save() override;
-
-    virtual void loadFrom(
-        const LevelD& lvd,
-        const std::filesystem::path& pathToJsonConfig,
-        bool skipInit = false) override;
 
     virtual void resizeDialog() override;
 
@@ -69,6 +52,12 @@ public:
         unsigned width, unsigned height, bool isTranslationDisabled) override;
 
     virtual void shrinkToFit() override;
+
+    void restoreFromSnapshot(const LevelD& snapshot) override
+    {
+        stateMgr.forallStates([&snapshot](ToolInterface& tool, bool)
+                              { tool.restoreFrom(snapshot); });
+    }
 
 private:
     [[nodiscard]] constexpr bool
@@ -96,6 +85,40 @@ protected:
 
     void drawTagHighlight();
 
+private: // Initialization
+    void
+    configureCamera(unsigned levelWidth, unsigned levelHeight, unsigned tileDim)
+    {
+        camera.init();
+        camera.resetPosition();
+        camera.resetZoom();
+        camera.move(
+            sf::Vector2f(
+                static_cast<float>(levelWidth), static_cast<float>(levelHeight))
+                * static_cast<float>(tileDim) / 2.f
+            - sf::Vector2f(canvas->getSize()) / 2.f);
+    }
+
+    void configureMouseIndicator()
+    {
+        mouseIndicator.setRadius(8.f);
+        mouseIndicator.setFillColor(sf::Color::Green);
+    }
+
+    void configureCanvasCallbacks();
+
+    void configureMeshTool(
+        const std::filesystem::path& graphicsDir,
+        std::function<void()>& onStateChanged,
+        mem::Rc<Gui>& gui,
+        const LevelD& level);
+
+    void configureItemTool(
+        const std::filesystem::path& graphicsDir,
+        std::function<void()>& onStateChanged,
+        mem::Rc<Gui>& gui,
+        const LevelD& level);
+
 private: // Dependencies
     mem::Rc<Gui> gui;
     tgui::CanvasSFML::Ptr& canvas;
@@ -112,6 +135,4 @@ private:
     sf::CircleShape mouseIndicator;
     PhysicalPen physicalPen;
     mem::Rc<LayerController> layerController;
-
-    bool initialized = false;
 };

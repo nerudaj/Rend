@@ -72,7 +72,7 @@ void ToolMesh::penDragEnded(const sf::Vector2i& start, const sf::Vector2i& end)
     }
 }
 
-void ToolMesh::configure(nlohmann::json& config)
+/*void ToolMesh::configure(nlohmann::json& config)
 {
     const std::string TOOL_STR = "toolMesh";
     const auto rootPath =
@@ -99,7 +99,7 @@ void ToolMesh::configure(nlohmann::json& config)
     }
 
     configure(texturePath, tileDims, tileSpacing, bounds, blocks);
-}
+}*/
 
 void ToolMesh::copySourceRectToTarget(
     DrawableLeveldMesh& sourceMap,
@@ -154,20 +154,6 @@ void ToolMesh::resize(
             width);
 
         map.build(tileValues, solidValues, { width, height });
-    }
-}
-
-void ToolMesh::build(unsigned width, unsigned height)
-{
-    for (unsigned i = 0; i < maps.size(); i++)
-    {
-        maps[i].build(
-            std::vector<int>(
-                width * height,
-                static_cast<int>(
-                    i == 0 ? LevelTileId::Flat1 : LevelTileId::CeilSky)),
-            std::vector<int>(width * height, 0),
-            { width, height });
     }
 }
 
@@ -370,15 +356,12 @@ std::optional<TileRect> ToolMesh::getBoundingBox() const noexcept
 
 void ToolMesh::configure(
     const std::filesystem::path& texturePath,
-    const sf::Vector2u& frameSize,
-    const sf::Vector2u& frameSpacing,
-    const sf::IntRect& textureBounds,
+    const dgm::Clip& textureClip,
     const std::vector<bool>& defaultBlockSetting)
 {
     defaultBlocks = defaultBlockSetting;
 
-    sidebarUser.configure(
-        texturePath, dgm::Clip(frameSize, textureBounds, 0, frameSpacing));
+    sidebarUser.configure(texturePath, dgm::Clip(textureClip));
 
     maps.clear();
     maps.resize(getLayerCount());
