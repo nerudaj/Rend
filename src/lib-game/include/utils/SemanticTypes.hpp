@@ -44,3 +44,15 @@ operator""_seconds(unsigned long long value) noexcept
 {
     return static_cast<float>(value);
 }
+
+[[nodiscard]] consteval static bool
+operator""_true(const char*, std::size_t) noexcept
+{
+    return true;
+}
+
+[[nodiscard]] consteval static bool
+operator""_false(const char*, std::size_t) noexcept
+{
+    return false;
+}

@@ -116,14 +116,14 @@ void DialogInterface::open(std::function<void()> confirmCallback)
                 {
                     addLabel(input.base.label, row);
                     addEditBox(
-                        input.base.value, input.base.id, row, "narrow"_true);
+                        input.base.value, input.base.id, row, "narrow"_True);
                     addHelperButton(input.buttonCallback, row);
                 },
                 [&](const OptionDeferredInputWithButton& input)
                 {
                     addLabel(input.base.label, row);
                     addEditBox(
-                        input.base.value(), input.base.id, row, "narrow"_true);
+                        input.base.value(), input.base.id, row, "narrow"_True);
                     addHelperButton(input.buttonCallback, row);
                 },
                 [&](const OptionCheckbox& input)

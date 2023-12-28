@@ -1,11 +1,11 @@
 #pragma once
 
-[[nodiscard]] consteval bool operator""_true(const char*, std::size_t) noexcept
+[[nodiscard]] consteval bool operator""_True(const char*, std::size_t) noexcept
 {
     return true;
 }
 
-[[nodiscard]] consteval bool operator""_false(const char*, std::size_t) noexcept
+[[nodiscard]] consteval bool operator""_False(const char*, std::size_t) noexcept
 {
     return false;
 }

@@ -178,7 +178,8 @@ Scene SceneBuilder::buildScene(const LevelD& level, unsigned maxPlayerCount)
         .drawableLevel = { .bottomTextures = bottomTextureMesh,
                            .upperTextures = upperTextureMesh,
                            .lightmap = LightmapBuilder::buildLightmap(
-                               bottomTextureMesh, upperTextureMesh, level) },
+                               level,
+                               SkyboxThemeUtils::fromString(theme.skybox)) },
         .spatialIndex = createSpatialIndex(level),
         .distanceIndex = DistanceIndex(bottomMesh),
         .spawns = createSpawns(level),
