@@ -38,8 +38,4 @@ private:
         std::vector<LightType>& data,
         const sf::Vector2u& dataSize,
         const std::vector<bool>& blockingTiles);
-
-    static void mergeLightmaps(
-        const std::vector<LightType>& source,
-        std::vector<LightType>& destination);
 };
