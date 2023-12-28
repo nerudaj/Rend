@@ -5,6 +5,8 @@
 #include <SFML/System/Vector2.hpp>
 #include <SFML/Graphics/Rect.hpp>
 
+const std::filesystem::path GRAPHICS_DIR = "@CMAKE_SOURCE_DIR@/resources/graphics";
+
 namespace Mesh
 {
 

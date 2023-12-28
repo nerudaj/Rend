@@ -6,10 +6,12 @@
 #include <map>
 #include <vector>
 
+import Memory;
+
 class EditorStateManager
 {
 private:
-    std::map<EditorState, std::unique_ptr<ToolInterface>> statesToTools;
+    std::map<EditorState, mem::Box<ToolInterface>> statesToTools;
     EditorState currentState = EditorState();
     std::vector<EditorState> insertionOrder;
 
@@ -18,9 +20,19 @@ public:
         requires std::constructible_from<T, Args...>
     void addState(EditorState state, Args&&... args)
     {
-        assert(!statesToTools.contains(state));
-        statesToTools[state] = std::make_unique<T>(std::forward<Args>(args)...);
-        insertionOrder.push_back(state);
+        // overwrite is allowed
+        if (statesToTools.contains(state))
+        {
+            statesToTools.erase(state);
+        }
+        else
+        {
+            insertionOrder.push_back(state);
+        }
+
+        statesToTools.emplace(std::make_pair(
+            state,
+            mem::Box<ToolInterface>(mem::Box<T>(std::forward<Args>(args)...))));
     }
 
     void changeState(EditorState state);

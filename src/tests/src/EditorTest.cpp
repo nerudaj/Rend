@@ -5,8 +5,11 @@
 #include <TGUI/Backend/SFML-Graphics.hpp>
 #include <TGUI/TGUI.hpp>
 #include <catch.hpp>
+#include <fakeit.hpp>
 
 import Memory;
+
+using namespace fakeit;
 
 TEST_CASE("[Editor]")
 {
@@ -22,5 +25,34 @@ TEST_CASE("[Editor]")
     auto&& shortcutEngine = mem::Rc<ShortcutEngine> { [] { return false; } };
     mem::Rc<LevelMetadata> metadata;
 
-    // No tests right now
+    SECTION("onStateChanged")
+    {
+        bool stateChanged = false;
+        auto&& onStateChangedMock = [&stateChanged] { stateChanged = true; };
+
+        auto&& editor = Editor(
+            gui,
+            canvas,
+            onStateChangedMock,
+            commandQueue,
+            shortcutEngine,
+            metadata,
+            LevelD {},
+            GRAPHICS_DIR);
+
+        SECTION("When metadata are changed, callback is triggered")
+        {
+            // editMetadataDialog will contain default values that are different
+            // from these
+            metadata->author = "test";
+            editor.handleChangedMetadata();
+            REQUIRE(stateChanged);
+        }
+
+        SECTION("Callback is not triggered when metadata are not changed")
+        {
+            editor.handleChangedMetadata();
+            REQUIRE_FALSE(stateChanged);
+        }
+    }
 }

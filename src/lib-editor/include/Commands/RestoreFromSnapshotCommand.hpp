@@ -4,10 +4,10 @@
 #include "Interfaces/EditorInterface.hpp"
 #include <LevelD.hpp>
 
-class RestoreFromSnapshotCommand final : public CommandInterface
+class [[nodiscard]] RestoreFromSnapshotCommand final : public CommandInterface
 {
 public:
-    [[nodiscard]] RestoreFromSnapshotCommand(
+    RestoreFromSnapshotCommand(
         EditorInterface& editor, LevelD snapshot) noexcept
         : editor(editor), snapshot(snapshot)
     {

@@ -22,19 +22,21 @@ import TexturePath;
 import Resources;
 
 Editor::Editor(
-    mem::Rc<Gui> gui,
-    tgui::CanvasSFML::Ptr& canvas,
-    std::function<void(void)> onStateChanged,
+    mem::Rc<Gui> _gui,
+    tgui::CanvasSFML::Ptr& _canvas,
+    std::function<void(void)> _onStateChanged,
     mem::Rc<CommandQueue> _commandQueue,
     mem::Rc<ShortcutEngineInterface> _shortcutEngine,
     mem::Rc<LevelMetadata> metadata,
     const LevelD& level,
-    const std::filesystem::path& graphicsDir)
-    : gui(gui)
-    , canvas(canvas)
+    const std::filesystem::path& _graphicsDir)
+    : gui(_gui)
+    , canvas(_canvas)
+    , onStateChanged(_onStateChanged)
     , commandQueue(_commandQueue)
     , shortcutEngine(_shortcutEngine)
     , levelMetadata(metadata)
+    , graphicsDir(_graphicsDir)
     , physicalPen(
           [this]() -> PenUserInterface& { return stateMgr.getActiveTool(); })
     , layerController(gui->gui)
@@ -42,18 +44,14 @@ Editor::Editor(
     configureCamera(
         level.mesh.layerWidth, level.mesh.layerHeight, level.mesh.tileWidth);
     configureMouseIndicator();
-    configureMeshTool(graphicsDir, onStateChanged, gui, level);
+    configureMeshTool(level);
     switchTool(EditorState::Mesh);
-    configureItemTool(graphicsDir, onStateChanged, gui, level);
+    configureItemTool(level);
     populateMenuBar();
     configureCanvasCallbacks();
 }
 
-void Editor::configureItemTool(
-    const std::filesystem::path& graphicsDir,
-    std::function<void()>& onStateChanged,
-    mem::Rc<Gui>& gui,
-    const LevelD& level)
+void Editor::configureItemTool(const LevelD& level)
 {
     auto spritesheetPath = graphicsDir / "editor-items.png";
     auto clip =
@@ -78,11 +76,7 @@ void Editor::configureCanvasCallbacks()
     canvas->onMouseRelease([this] { physicalPen.penUp(); });
 }
 
-void Editor::configureMeshTool(
-    const std::filesystem::path& graphicsDir,
-    std::function<void()>& onStateChanged,
-    mem::Rc<Gui>& gui,
-    const LevelD& level)
+void Editor::configureMeshTool(const LevelD& level)
 {
     auto tilesetPath =
         graphicsDir / TexturePath::getTilesetName(levelMetadata->texturePack);
@@ -205,18 +199,29 @@ void Editor::handleRmbClicked()
 
 void Editor::handleChangedMetadata()
 {
+    bool somethingChanged =
+        levelMetadata->author != editMetadataDialog.getAuthorName()
+        || levelMetadata->skyboxTheme != editMetadataDialog.getSkyboxTheme()
+        || levelMetadata->texturePack != editMetadataDialog.getTexturePack();
+
+    if (!somethingChanged) return;
+
     levelMetadata->author = editMetadataDialog.getAuthorName();
     levelMetadata->skyboxTheme = editMetadataDialog.getSkyboxTheme();
     levelMetadata->texturePack = editMetadataDialog.getTexturePack();
 
-    // TODO: propagate change in textures
+    onStateChanged();
+
+    LevelD level;
+    stateMgr.getTool(EditorState::Mesh).saveTo(level);
+    configureMeshTool(level);
+    switchTool(EditorState::Mesh);
 }
 
 void Editor::handleSwitchLayerUp()
 {
     if (stateMgr.getCurrentState() == EditorState::Item)
     {
-        // TODO: catch this
         throw std::runtime_error("Cannot switch layers in item mode");
     }
 
@@ -263,7 +268,6 @@ void Editor::handleEvent(const sf::Event& event, const sf::Vector2i& mousePos)
         && sf::Keyboard::isKeyPressed(sf::Keyboard::LControl))
     {
         camera.zoom(event.mouseWheelScroll.delta * -0.25f);
-        std::cout << "Zoom: " << camera.getCurrentZoomLevel() << std::endl;
     }
 }
 

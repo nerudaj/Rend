@@ -31,5 +31,5 @@ protected:
 protected:
     SkyboxTheme skyboxTheme = SkyboxTheme::Countryside;
     TexturePack texturePack = TexturePack::AlphaVersion;
-    std::string author = "none";
+    std::string author = "";
 };

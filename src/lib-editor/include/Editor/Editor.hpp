@@ -59,6 +59,9 @@ public:
                               { tool.restoreFrom(snapshot); });
     }
 
+public: // public for unit tests
+    void handleChangedMetadata();
+
 private:
     [[nodiscard]] constexpr bool
     isMouseWithinBoundaries(const sf::Vector2f& mousePos) const noexcept;
@@ -74,18 +77,14 @@ private:
         return canScroll();
     }
 
-protected:
     void populateMenuBar();
 
     void handleRmbClicked();
-
-    void handleChangedMetadata();
 
     void handleSwitchLayerUp();
 
     void drawTagHighlight();
 
-private: // Initialization
     void
     configureCamera(unsigned levelWidth, unsigned levelHeight, unsigned tileDim)
     {
@@ -107,26 +106,19 @@ private: // Initialization
 
     void configureCanvasCallbacks();
 
-    void configureMeshTool(
-        const std::filesystem::path& graphicsDir,
-        std::function<void()>& onStateChanged,
-        mem::Rc<Gui>& gui,
-        const LevelD& level);
+    void configureMeshTool(const LevelD& level);
 
-    void configureItemTool(
-        const std::filesystem::path& graphicsDir,
-        std::function<void()>& onStateChanged,
-        mem::Rc<Gui>& gui,
-        const LevelD& level);
+    void configureItemTool(const LevelD& level);
 
 private: // Dependencies
     mem::Rc<Gui> gui;
     tgui::CanvasSFML::Ptr& canvas;
+    std::function<void(void)> onStateChanged;
     mem::Rc<CommandQueue> commandQueue;
     mem::Rc<ShortcutEngineInterface> shortcutEngine;
     mem::Rc<LevelMetadata> levelMetadata;
+    std::filesystem::path graphicsDir;
 
-private:
     ResizeDialog dialog = ResizeDialog(gui);
     EditPropertyDialog editPropertyDialog = EditPropertyDialog(gui);
     EditMetadataDialog editMetadataDialog = EditMetadataDialog(gui);
