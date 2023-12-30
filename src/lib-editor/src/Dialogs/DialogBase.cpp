@@ -217,8 +217,16 @@ void ModernDialogInterface::buildBottomButtons(
     btn->onClick(
         [this, confirmCallback]
         {
-            confirmCallback();
-            close();
+            auto validationResult = validateBeforeConfirmation();
+            if (!validationResult)
+            {
+                throw std::runtime_error(validationResult.error());
+            }
+            else
+            {
+                confirmCallback();
+                close();
+            }
         });
     modal->add(btn);
 

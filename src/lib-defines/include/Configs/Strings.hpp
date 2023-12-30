@@ -73,6 +73,8 @@ namespace Strings
                 "before exiting?";
             RAWSTRING CANNOT_PLAY_LEVEL =
                 "Cannot play level because no level is opened.";
+            RAWSTRING LEVEL_NAME_EMPTY = "Level name cannot be empty.";
+            RAWSTRING LEVEL_NAME_TAKEN = "Level name is already taken";
         } // namespace Message
 
         namespace Body

@@ -37,7 +37,8 @@ AppStateEditor::AppStateEditor(
     , editor(mem::Box<NullEditor>())
     , dialogNewLevel(gui)
     , dialogLoadLevel(gui, settings->cmdSettings.resourcesDir)
-    , dialogSaveLevel(gui)
+    , dialogSaveLevel(
+          gui, Filesystem::getLevelsDir(settings->cmdSettings.resourcesDir))
 {
     jukebox->stop();
 

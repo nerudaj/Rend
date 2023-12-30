@@ -147,7 +147,7 @@ protected:
     mem::Box<EditorInterface> editor;
     ModernNewLevelDialog dialogNewLevel;
     LoadLevelDialog dialogLoadLevel;
-    SaveLevelDialog dialogSaveLevel;
+    NewSaveLevelDialog dialogSaveLevel;
     ClickPreventer clickPreventer;
     mem::Rc<LevelMetadata> levelMetadata;
 

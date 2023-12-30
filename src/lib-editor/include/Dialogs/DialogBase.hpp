@@ -1,6 +1,8 @@
 #pragma once
 
 #include "Gui.hpp"
+#include "Utilities/Error.hpp"
+#include <expected>
 #include <functional>
 #include <variant>
 #include <vector>
@@ -127,6 +129,13 @@ protected:
     void buildLayout(std::function<void()> confirmCallback);
     void buildBottomButtons(
         tgui::ChildWindow::Ptr modal, std::function<void()> confirmCallback);
+
+    virtual std::expected<ReturnFlag, ErrorMessage>
+    validateBeforeConfirmation() const
+    {
+        return ReturnFlag::Success;
+    };
+
     virtual void buildLayoutImpl(tgui::Panel::Ptr target) = 0;
 
 protected:
