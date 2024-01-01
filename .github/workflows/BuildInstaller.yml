@@ -1,0 +1,58 @@
+name: BuildInstaller
+
+on:
+  workflow_dispatch:
+    branches: [ main ]
+
+env:
+  BUILD_DIR: ${{github.workspace}}/vsbuild
+
+jobs:
+  nightly:
+    runs-on: windows-2022
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - uses: repolevedavaj/install-nsis@v1.0.1
+      with:
+        nsis-version: 3.08
+
+    - name: Setup cmake
+      uses: jwlawson/actions-setup-cmake@v1.13
+      with:
+        cmake-version: '3.26.1'
+
+    - name: Use cmake
+      run: cmake --version
+    
+    - name: Configure CMake
+      run: |
+        mkdir "${{env.BUILD_DIR}}"
+        cd "${{env.BUILD_DIR}}"
+        cmake -DDISABLE_TESTING=ON -DMAKE_INSTALLER=ON .. 
+      shell: cmd
+
+    - name: Build
+      working-directory: ${{env.BUILD_DIR}}
+      run: |
+        cmake --build . --config Release
+      shell: cmd
+
+    - name: Test
+      working-directory: ${{env.BUILD_DIR}}
+      run: |
+        ctest -C Release
+      shell: cmd
+      
+    - name: Pack
+      working-directory: ${{env.BUILD_DIR}}
+      run: cpack
+
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v4.0.0
+      with:
+        name: Installer
+        path: ${{env.BUILD_DIR}}/Rend.exe
+        retention-days: 5
+              
