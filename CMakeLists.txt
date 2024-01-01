@@ -66,10 +66,9 @@ set ( CPACK_PACKAGE_VENDOR           "Jakub Neruda")
 set ( CPACK_PACKAGE_DESCRIPTION_FILE "${CMAKE_SOURCE_DIR}/nsis/description.txt" )
 set ( CPACK_PACKAGE_HOMEPAGE_URL     "https://nerudaj.itch.io/rend" )
 set ( CPACK_RESOURCE_FILE_LICENSE    "${CMAKE_SOURCE_DIR}/nsis/license.txt" )
-set ( CPACK_PACKAGE_ICON             "${CMAKE_SOURCE_DIR}/resources/graphics/appicon.ico" )
-set ( CPACK_PACKAGE_EXECUTABLES      "${SETTINGS_BINARY_NAME}" )
+set ( CPACK_PACKAGE_EXECUTABLES      "${SETTINGS_BINARY_NAME}" "${CMAKE_SOURCE_DIR}/resources/graphics/appicon.ico" )
 # CPACK_RESOURCE_FILE_WELCOME
-
+# CPACK_PACKAGE_ICON
 
 if ( ${MAKE_INSTALLER} )
 	include(InstallRequiredSystemLibraries)
