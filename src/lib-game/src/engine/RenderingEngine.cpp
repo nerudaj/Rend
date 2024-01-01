@@ -562,15 +562,26 @@ RenderingEngine::getFilteredAndOrderedThingsToRender(
 std::optional<std::pair<float, float>> RenderingEngine::cropSpriteIfObscured(
     int& leftColumn, int& rightColumn, float thingDistance)
 {
+    const int screenWidth = static_cast<int>(settings.resolution.width);
     const auto originalWidth = rightColumn - leftColumn + 1;
     int movedLeftColumnBy = 0;
     int movedRightColumnBy = 0;
 
-    if (leftColumn >= int(settings.resolution.width) || rightColumn < 0)
-        return std::nullopt;
+    if (leftColumn >= screenWidth || rightColumn < 0) return std::nullopt;
 
-    while (leftColumn < rightColumn
-           && leftColumn < int(settings.resolution.width)
+    if (leftColumn < 0)
+    {
+        movedLeftColumnBy = -leftColumn;
+        leftColumn = 0;
+    }
+
+    if (rightColumn >= screenWidth)
+    {
+        movedRightColumnBy = rightColumn - screenWidth;
+        rightColumn = screenWidth - 1;
+    }
+
+    while (leftColumn < rightColumn && leftColumn < screenWidth
            && (leftColumn < 0 || depthBuffer[leftColumn] < thingDistance))
     {
         ++leftColumn;
@@ -578,12 +589,11 @@ std::optional<std::pair<float, float>> RenderingEngine::cropSpriteIfObscured(
     }
 
     // Fully obscured or outside of view
-    if (leftColumn >= int(settings.resolution.width)
-        || leftColumn >= rightColumn)
+    if (leftColumn >= screenWidth || leftColumn >= rightColumn)
         return std::nullopt;
 
     while (leftColumn < rightColumn && rightColumn >= 0
-           && (rightColumn >= int(settings.resolution.width)
+           && (rightColumn >= screenWidth
                || depthBuffer[rightColumn] < thingDistance))
     {
         --rightColumn;
