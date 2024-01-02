@@ -64,6 +64,8 @@ convertLeveldItemIdToEntityType(LevelItemId id) noexcept
         return EntityType::Pillar;
     case FloorLamp:
         return EntityType::FloorLamp;
+    case CeilLamp:
+        return EntityType::CeilLamp;
     default:
         return EntityType::Error;
     }

@@ -152,6 +152,7 @@ std::queue<LightPoint> LightmapBuilder::getItemBasedLightSources(
         switch (static_cast<LevelItemId>(thing.id))
         {
         case FloorLamp:
+        case CeilLamp:
             queue.emplace(
                 thing.x / voxelSize.x,
                 thing.y / voxelSize.y,

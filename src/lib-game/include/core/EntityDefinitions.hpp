@@ -248,6 +248,9 @@ const static inline auto ENTITY_PROPERTIES =
           EntityProperties { .radius = 3_px,
                              .traits = Trait::Solid,
                              .initialSpriteIndex = FloorLampA } },
+        { EntityType::CeilLamp,
+          EntityProperties { .radius = 4_px,
+                             .initialSpriteIndex = CeilLampA } },
         { EntityType::ProjectileFlare,
           EntityProperties {
               .radius = 2_px,

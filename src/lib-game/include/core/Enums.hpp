@@ -27,6 +27,7 @@ enum class SpriteId : std::uint8_t
     HarpoonA,
     PillarA,
     FloorLampA,
+    CeilLampA,
     PlayerA0,
     PlayerA1,
     PlayerA2,
@@ -164,6 +165,7 @@ enum class EntityType
     StaticDecorationBegin,
     Pillar,
     FloorLamp,
+    CeilLamp,
     StaticDecorationEnd,
     Player,
 
