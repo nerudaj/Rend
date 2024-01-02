@@ -8,6 +8,8 @@ module;
 
 export module FormBuilder;
 
+import WidgetBuilder;
+
 export class [[nodiscard]] FormBuilder final
 {
 public:
@@ -21,7 +23,18 @@ public:
         return *this;
     }
 
-    void build();
+    void build()
+    {
+        unsigned rowIdx = 0;
+
+        for (auto&& [labelText, widgetPtr] : rowsToBuild)
+        {
+            auto row = WidgetBuilder::createOptionRow(labelText, widgetPtr);
+            row->setPosition("0%", row->getSize().y * rowIdx);
+            panel->add(row);
+            ++rowIdx;
+        }
+    }
 
 private:
     tgui::Panel::Ptr panel;

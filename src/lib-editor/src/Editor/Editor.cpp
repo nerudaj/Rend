@@ -3,7 +3,6 @@
 #include "Commands/ShrinkToFitCommand.hpp"
 #include "Configs/Strings.hpp"
 #include "JsonHelper.hpp"
-#include "Utilities/Literals.hpp"
 #include "Utilities/Utilities.hpp"
 #include <filesystem>
 #include <fstream>

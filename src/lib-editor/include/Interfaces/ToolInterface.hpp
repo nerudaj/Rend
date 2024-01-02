@@ -5,7 +5,6 @@
 #include "Interfaces/PenUserInterface.hpp"
 #include "Interfaces/ShortcutEngineInterface.hpp"
 #include "Interfaces/ToolPropertyInterface.hpp"
-#include "Utilities/Error.hpp"
 #include "Utilities/Rect.hpp"
 #include <DGM/dgm.hpp>
 #include <LevelD.hpp>
@@ -14,6 +13,8 @@
 #include <expected>
 #include <nlohmann/json.hpp>
 #include <optional>
+
+import Error;
 
 using ExpectedPropertyPtr =
     std::expected<mem::Box<ToolPropertyInterface>, BaseError>;

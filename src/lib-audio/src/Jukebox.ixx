@@ -33,10 +33,25 @@ public:
     Jukebox(Jukebox&&) = default;
 
 public:
-    void setVolume(float volume);
-    void playTitleSong();
-    void playIngameSong();
-    void playInterludeSong();
+    void setVolume(float volume)
+    {
+        player.setVolume(volume);
+    }
+
+    void playTitleSong()
+    {
+        playGeneric(PlaybackMode::Title, playlist.titleSongs);
+    }
+
+    void playIngameSong()
+    {
+        playGeneric(PlaybackMode::Ingame, playlist.ingameSongs);
+    }
+
+    void playInterludeSong()
+    {
+        playGeneric(PlaybackMode::Interlude, playlist.interludeSongs);
+    }
 
     void stop()
     {
@@ -45,9 +60,24 @@ public:
     }
 
 private:
-    void playGeneric(PlaybackMode mode, const std::vector<std::string>& songs);
-    std::string getRandomSongName(const std::vector<std::string>& songs) const;
-    std::string getSongPath(const std::string& songName) const;
+    void playGeneric(PlaybackMode mode, const std::vector<std::string>& songs)
+    {
+        if (playbackMode == mode) return;
+        playbackMode = mode;
+        player.openFromFile(getSongPath(getRandomSongName(songs)));
+        player.setLoop(true);
+        player.play();
+    }
+
+    std::string getRandomSongName(const std::vector<std::string>& songs) const
+    {
+        return songs[rand() % songs.size()];
+    }
+
+    std::string getSongPath(const std::string& songName) const
+    {
+        return (rootDir / "music" / songName).string();
+    }
 
 private:
     Playlist playlist;

@@ -8,6 +8,8 @@
 #include <numbers>
 #include <utils/SemanticTypes.hpp>
 
+import Literals;
+
 // Movement
 constinit const float PLAYER_RADIAL_SPEED = 88.f; // degrees per second
 constinit const float PROJECTILE_FORWARD_SPEED = 108.f;

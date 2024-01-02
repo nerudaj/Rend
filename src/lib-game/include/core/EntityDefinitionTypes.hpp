@@ -3,6 +3,8 @@
 #include <core/Enums.hpp>
 #include <core/Scene.hpp>
 
+import Literals;
+
 struct Script
 {
     ScriptId id = ScriptId::NoAction;

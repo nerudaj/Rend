@@ -15,7 +15,7 @@ target_include_directories ( ${PROJECT_NAME}
 )
 
 target_link_libraries ( ${PROJECT_NAME}
-	lib-memory lib-audio lib-options lib-defines lib-input lib-resources Dep_dgm Dep_dgm_fsm
+	lib-memory lib-audio lib-options lib-defines lib-input lib-resources lib-misc Dep_dgm Dep_dgm_fsm
 )
 
 autoset_target_compile_options ( ${PROJECT_NAME} FALSE )

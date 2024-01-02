@@ -154,7 +154,7 @@ createNavMesh(dgm::Mesh collisionMesh, dgm::DynamicBuffer<Entity>& things)
     return dgm::WorldNavMesh(collisionMesh);
 }
 
-Scene SceneBuilder::buildScene(const LevelD& level, unsigned maxPlayerCount)
+Scene SceneBuilder::buildScene(const LevelD& level, size_t maxPlayerCount)
 {
     auto things = createThingsBuffer(level, maxPlayerCount);
     const auto bottomMesh = MeshBuilder::buildMeshFromLvd(level, 0);

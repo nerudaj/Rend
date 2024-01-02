@@ -1,6 +1,5 @@
 #include "Dialogs/DialogBase.hpp"
 #include "Globals.hpp"
-#include "Utilities/Literals.hpp"
 
 template<class... Ts>
 struct overloaded : Ts...
@@ -116,14 +115,14 @@ void DialogInterface::open(std::function<void()> confirmCallback)
                 {
                     addLabel(input.base.label, row);
                     addEditBox(
-                        input.base.value, input.base.id, row, "narrow"_True);
+                        input.base.value, input.base.id, row, "narrow"_true);
                     addHelperButton(input.buttonCallback, row);
                 },
                 [&](const OptionDeferredInputWithButton& input)
                 {
                     addLabel(input.base.label, row);
                     addEditBox(
-                        input.base.value(), input.base.id, row, "narrow"_True);
+                        input.base.value(), input.base.id, row, "narrow"_true);
                     addHelperButton(input.buttonCallback, row);
                 },
                 [&](const OptionCheckbox& input)

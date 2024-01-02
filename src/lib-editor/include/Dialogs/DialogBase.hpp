@@ -1,13 +1,14 @@
 #pragma once
 
 #include "Gui.hpp"
-#include "Utilities/Error.hpp"
 #include <expected>
 #include <functional>
 #include <variant>
 #include <vector>
 
 import Memory;
+import Literals;
+import Error;
 
 struct OptionInput
 {

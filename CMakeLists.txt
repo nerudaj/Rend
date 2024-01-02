@@ -26,6 +26,7 @@ if ( NOT ${DISABLE_TESTING})
 endif()
 
 add_subdirectory ( "src/lib-memory" )
+add_subdirectory ( "src/lib-misc" )
 add_subdirectory ( "src/lib-defines" )
 add_subdirectory ( "src/lib-gui-builder" )
 add_subdirectory ( "src/lib-resources" )

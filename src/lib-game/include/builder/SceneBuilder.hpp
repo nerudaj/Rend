@@ -12,7 +12,7 @@ class SceneBuilder
 {
 public:
     [[nodiscard]] static Scene
-    buildScene(const LevelD& level, unsigned maxPlayerCount);
+    buildScene(const LevelD& level, size_t maxPlayerCount);
 
     [[nodiscard]] static Entity createPlayer(
         const Position& position,

@@ -3,7 +3,6 @@
 #include "Configs/Strings.hpp"
 #include "Editor/Editor.hpp"
 #include "Editor/NullEditor.hpp"
-#include "Utilities/Literals.hpp"
 #include "app/AppStateIngame.hpp"
 #include <LevelMetadata.hpp>
 #include <cmath>

@@ -35,18 +35,53 @@ public:
     {
     }
 
-    ~AudioPlayer();
+    ~AudioPlayer()
+    {
+        for (auto& channel : channels)
+            channel.stop();
+    }
 
 public:
     void playSoundOnChannel(
         const std::string& soundName,
         const std::size_t channel,
         const bool force = false,
-        std::optional<sf::Vector2f> position = std::nullopt) override;
+        std::optional<sf::Vector2f> position = std::nullopt) override
+    {
+        assert(channel < channels.size());
+        if (force || !isChannelActive(channel))
+        {
+            channels[channel].setBuffer(
+                resmgr->get<sf::SoundBuffer>(soundName).value());
 
-    void stopChannel(const std::size_t channel);
+            channels[channel].setRelativeToListener(position.has_value());
+            position.and_then(
+                [this, channel](
+                    const sf::Vector2f& position) -> std::optional<sf::Vector2f>
+                {
+                    channels[channel].setPosition(
+                        sf::Vector3f(position.x, position.y, 0.f));
+                    return position;
+                });
 
-    void setSoundVolume(const float volume);
+            channels[channel].play();
+        }
+    }
+
+    void stopChannel(const std::size_t channel)
+    {
+        assert(channel < channels.size());
+        channels[channel].stop();
+    }
+
+    void setSoundVolume(const float volume)
+    {
+        for (auto& channel : channels)
+        {
+            channel.setVolume(volume);
+            channel.setAttenuation(1.f);
+        }
+    }
 
 private:
     std::vector<sf::Sound> channels;
