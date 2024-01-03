@@ -26,7 +26,7 @@ public:
     };
 
 public:
-    PhysicalController(const sf::Window& window) : window(window);
+    PhysicalController(const sf::Window& window);
 
 public:
     void update() override;
@@ -62,9 +62,10 @@ private:
     float turnSpeed = 1.f;
 };
 
-module : private;
+module :private;
 
-PhysicalController::PhysicalController(const sf::Window& window) : window(window)
+PhysicalController::PhysicalController(const sf::Window& window)
+    : window(window)
 {
     input.bindInput(InputCode::Forward, sf::Keyboard::W);
     input.bindInput(InputCode::Backward, sf::Keyboard::S);
@@ -101,31 +102,31 @@ void PhysicalController::update()
     input.update();
 }
 
-bool PhysicalController::isGamepadConnected() const 
+bool PhysicalController::isGamepadConnected() const
 {
     return input.isControllerConnected();
 }
 
-bool PhysicalController::isShooting() const override
+bool PhysicalController::isShooting() const
 {
     return input.isInputToggled(InputCode::Shoot);
 }
 
-bool PhysicalController::shouldSwapToPreviousWeapon() const override
+bool PhysicalController::shouldSwapToPreviousWeapon() const
 {
     const bool result = input.isInputToggled(InputCode::PreviousWeapon);
     if (result) input.releaseInput(InputCode::PreviousWeapon);
     return result;
 }
 
-bool PhysicalController::shouldSwapToNextWeapon() const override
+bool PhysicalController::shouldSwapToNextWeapon() const
 {
     const bool result = input.isInputToggled(InputCode::NextWeapon);
     if (result) input.releaseInput(InputCode::NextWeapon);
     return result;
 }
 
-bool PhysicalController::shouldSwapToLastWeapon() const override
+bool PhysicalController::shouldSwapToLastWeapon() const
 {
     const bool result = input.isInputToggled(InputCode::LastWeapon);
     if (result) input.releaseInput(InputCode::LastWeapon);
@@ -139,19 +140,19 @@ bool PhysicalController::isEscapePressed() const
     return result;
 }
 
-float PhysicalController::getThrust() const override
+float PhysicalController::getThrust() const
 {
     return input.getInputValue(InputCode::Forward)
            + input.getInputValue(InputCode::Backward);
 }
 
-float PhysicalController::getSidewardThrust() const override
+float PhysicalController::getSidewardThrust() const
 {
     return input.getInputValue(InputCode::StrafeLeft)
            + input.getInputValue(InputCode::StrafeRight);
 }
 
-float PhysicalController::getSteer() const override
+float PhysicalController::getSteer() const
 {
     const auto windowWidthHalf = window.getSize().x / 2.f;
     const auto position = sf::Mouse::getPosition(window);
