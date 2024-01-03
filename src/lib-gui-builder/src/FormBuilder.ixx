@@ -17,27 +17,33 @@ public:
 
 public:
     [[nodiscard]] FormBuilder&
-    addOption(const std::string& labelText, tgui::Widget::Ptr widget)
-    {
-        rowsToBuild.push_back({ labelText, widget });
-        return *this;
-    }
+    addOption(const std::string& labelText, tgui::Widget::Ptr widget);
 
-    void build()
-    {
-        unsigned rowIdx = 0;
-
-        for (auto&& [labelText, widgetPtr] : rowsToBuild)
-        {
-            auto row = WidgetBuilder::createOptionRow(labelText, widgetPtr);
-            row->setPosition("0%", row->getSize().y * rowIdx);
-            panel->add(row);
-            ++rowIdx;
-        }
-    }
+    void build();
 
 private:
     tgui::Panel::Ptr panel;
     unsigned labelFontSize;
     std::vector<std::tuple<std::string, tgui::Widget::Ptr>> rowsToBuild;
 };
+
+module : private;
+
+FormBuilder& FormBuilder::addOption(const std::string& labelText, tgui::Widget::Ptr widget)
+{
+    rowsToBuild.push_back({ labelText, widget });
+    return *this;
+}
+
+void FormBuilder::build()
+{
+    unsigned rowIdx = 0;
+
+    for (auto&& [labelText, widgetPtr] : rowsToBuild)
+    {
+        auto row = WidgetBuilder::createOptionRow(labelText, widgetPtr);
+        row->setPosition("0%", row->getSize().y * rowIdx);
+        panel->add(row);
+        ++rowIdx;
+    }
+}
