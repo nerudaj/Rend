@@ -85,6 +85,20 @@ getLightIntensity(LevelTileId tile, SkyboxTheme skybox)
     }
 }
 
+static void performFloodStep(
+    std::queue<LightPoint>& queue,
+    MeshItrType x,
+    MeshItrType y,
+    LightType lightAmount,
+    LightType decayAmount,
+    bool skipOnBottomSolid)
+{
+    queue.emplace(x - 1, y, lightAmount, decayAmount, skipOnBottomSolid);
+    queue.emplace(x + 1, y, lightAmount, decayAmount, skipOnBottomSolid);
+    queue.emplace(x, y - 1, lightAmount, decayAmount, skipOnBottomSolid);
+    queue.emplace(x, y + 1, lightAmount, decayAmount, skipOnBottomSolid);
+}
+
 std::queue<LightPoint> LightmapBuilder::getTileBasedLightSources(
     const LevelD::TileLayer& layer,
     const sf::Vector2u layerSize,
@@ -106,27 +120,10 @@ std::queue<LightPoint> LightmapBuilder::getTileBasedLightSources(
 
             if (isBlocking)
             { // wall source
-                queue.emplace(
-                    x - 1,
-                    y - 1,
-                    lightAmount,
-                    HORIZONTAL_LIGHT_DECAY_AMOUNT,
-                    skipOnBottomSolid);
-                queue.emplace(
-                    x + 1,
-                    y - 1,
-                    lightAmount,
-                    HORIZONTAL_LIGHT_DECAY_AMOUNT,
-                    skipOnBottomSolid);
-                queue.emplace(
-                    x - 1,
-                    y + 1,
-                    lightAmount,
-                    HORIZONTAL_LIGHT_DECAY_AMOUNT,
-                    skipOnBottomSolid);
-                queue.emplace(
-                    x + 1,
-                    y + 1,
+                performFloodStep(
+                    queue,
+                    x,
+                    y,
                     lightAmount,
                     HORIZONTAL_LIGHT_DECAY_AMOUNT,
                     skipOnBottomSolid);
@@ -193,21 +190,12 @@ void LightmapBuilder::processLightPointQueue(
         const LightType decayedLight =
             front.lightLevel == 255 ? 224
                                     : front.lightLevel - front.decayAmount;
-        queue.push(LightPoint { .x = front.x - 1,
-                                .y = front.y,
-                                .lightLevel = decayedLight,
-                                .decayAmount = front.decayAmount });
-        queue.push(LightPoint { .x = front.x + 1,
-                                .y = front.y,
-                                .lightLevel = decayedLight,
-                                .decayAmount = front.decayAmount });
-        queue.push(LightPoint { .x = front.x,
-                                .y = front.y - 1,
-                                .lightLevel = decayedLight,
-                                .decayAmount = front.decayAmount });
-        queue.push(LightPoint { .x = front.x,
-                                .y = front.y + 1,
-                                .lightLevel = decayedLight,
-                                .decayAmount = front.decayAmount });
+        performFloodStep(
+            queue,
+            front.x,
+            front.y,
+            decayedLight,
+            front.decayAmount,
+            front.skipOnBottomSolid);
     }
 }
