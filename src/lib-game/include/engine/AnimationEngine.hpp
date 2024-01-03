@@ -21,7 +21,7 @@ public:
     AnimationEngine(const AnimationEngine&) = delete;
 
 public: // Must visit on all related events
-    void operator()(const SetStateAnimationEvent&);
+    void operator()(const PlayerIsRunningAnimationEvent&);
     void operator()(const PlayerFiredAnimationEvent&);
     void operator()(const WeaponSwappedAnimationEvent&);
 

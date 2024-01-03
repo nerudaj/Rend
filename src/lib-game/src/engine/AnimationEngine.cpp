@@ -4,7 +4,12 @@
 #include <events/EventQueue.hpp>
 #include <events/GameRuleEvents.hpp>
 
-void AnimationEngine::operator()(const SetStateAnimationEvent&) {}
+void AnimationEngine::operator()(const PlayerIsRunningAnimationEvent& e)
+{
+    if (scene.things[e.playerIdx].animationContext.animationStateId
+        == AnimationStateId::Idle)
+        setEntityAnimationState(e.playerIdx, AnimationStateId::Run);
+}
 
 void AnimationEngine::operator()(const PlayerFiredAnimationEvent& e)
 {
@@ -100,6 +105,7 @@ void AnimationEngine::setWeaponAnimationState(
     using enum AnimationStateId;
     if (state == Raise || state == FastRaise)
     {
+        // This should trigger some new game rule event, but to hell with it
         assert(inventory.activeWeaponType != inventory.lastWeaponType);
         std::swap(inventory.activeWeaponType, inventory.lastWeaponType);
     }

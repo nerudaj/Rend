@@ -4,10 +4,14 @@
 #include <cstdlib>
 #include <variant>
 
-struct [[nodiscard]] SetStateAnimationEvent
+struct [[nodiscard]] PlayerIsRunningAnimationEvent
 {
-    EntityIndexType thingsId;
-    int stateIdx;
+    EntityIndexType playerIdx;
+
+    PlayerIsRunningAnimationEvent(EntityIndexType playerIdx) noexcept
+        : playerIdx(playerIdx)
+    {
+    }
 };
 
 struct [[nodiscard]] PlayerFiredAnimationEvent
@@ -33,6 +37,6 @@ struct [[nodiscard]] WeaponSwappedAnimationEvent
 };
 
 using AnimationEvent = std::variant<
-    SetStateAnimationEvent,
+    PlayerIsRunningAnimationEvent,
     PlayerFiredAnimationEvent,
     WeaponSwappedAnimationEvent>;

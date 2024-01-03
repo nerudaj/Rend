@@ -23,6 +23,7 @@ private:
     void handlePlayer(
         const EntityProperties& properties,
         Entity& thing,
+        EntityIndexType idx,
         const float deltaTime);
 
     void handleProjectile(

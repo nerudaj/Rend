@@ -6,20 +6,23 @@
 
 void PhysicsEngine::update(const float deltaTime)
 {
-    for (auto&& [thing, id] : scene.things)
+    for (auto&& [thing, idx] : scene.things)
     {
         const auto& properties = ENTITY_PROPERTIES.at(thing.typeId);
-        scene.spatialIndex.removeFromLookup(id, thing.hitbox);
+        scene.spatialIndex.removeFromLookup(idx, thing.hitbox);
         if (thing.typeId == EntityType::Player)
-            handlePlayer(properties, thing, deltaTime);
+            handlePlayer(properties, thing, idx, deltaTime);
         else if (properties.traits & Trait::Projectile)
-            handleProjectile(properties, thing, id, deltaTime);
-        scene.spatialIndex.returnToLookup(id, thing.hitbox);
+            handleProjectile(properties, thing, idx, deltaTime);
+        scene.spatialIndex.returnToLookup(idx, thing.hitbox);
     }
 }
 
 void PhysicsEngine::handlePlayer(
-    const EntityProperties& properties, Entity& thing, const float deltaTime)
+    const EntityProperties& properties,
+    Entity& thing,
+    EntityIndexType idx,
+    const float deltaTime)
 {
     const auto& input = scene.playerStates[thing.stateIdx].input;
 
@@ -44,6 +47,9 @@ void PhysicsEngine::handlePlayer(
         if (dgm::Collision::basic(thing.hitbox, candidate.hitbox))
             thing.hitbox.move(-forward);
     }
+
+    if (forward.x != 0.f && forward.y != 0.f)
+        eventQueue->emplace<PlayerIsRunningAnimationEvent>(idx);
 }
 
 void PhysicsEngine::handleProjectile(
