@@ -22,7 +22,8 @@ public:
         PreviousWeapon,
         NextWeapon,
         LastWeapon,
-        Escape
+        Escape,
+        Printscreen
     };
 
 public:
@@ -42,6 +43,8 @@ public:
     bool shouldSwapToLastWeapon() const override;
 
     bool isEscapePressed() const;
+
+    bool shouldTakeScreenshot() const;
 
     float getThrust() const override;
 
@@ -80,6 +83,7 @@ PhysicalController::PhysicalController(const sf::Window& window)
     input.bindInput(InputCode::LastWeapon, sf::Keyboard::R);
     input.bindInput(InputCode::LastWeapon, sf::Mouse::Right);
     input.bindInput(InputCode::Escape, sf::Keyboard::Escape);
+    input.bindInput(InputCode::Printscreen, sf::Keyboard::P);
 
     input.setGamepadIndex(0);
     input.bindInput(InputCode::Forward, dgm::Xbox::Axis::LStickYpos);
@@ -137,6 +141,13 @@ bool PhysicalController::isEscapePressed() const
 {
     const bool result = input.isInputToggled(InputCode::Escape);
     if (result) input.releaseInput(InputCode::Escape);
+    return result;
+}
+
+bool PhysicalController::shouldTakeScreenshot() const
+{
+    const bool result = input.isInputToggled(InputCode::Printscreen);
+    if (result) input.releaseInput(InputCode::Printscreen);
     return result;
 }
 

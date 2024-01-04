@@ -84,22 +84,6 @@ void AppStateIngame::input()
         {
             lockMouse();
         }
-        else if (event.type == sf::Event::KeyPressed)
-        {
-            if (event.key.code == sf::Keyboard::P)
-            {
-                for (auto&& thing : scene.things)
-                {
-                    if (thing.first.typeId == EntityType::Player
-                        && scene.camera.anchorIdx != thing.second
-                        && thing.second > scene.camera.anchorIdx)
-                    {
-                        scene.camera.anchorIdx = thing.second;
-                        break;
-                    }
-                }
-            }
-        }
         else if (controller->isEscapePressed())
         {
             if (launchedFromEditor)
@@ -110,6 +94,12 @@ void AppStateIngame::input()
                 app.pushState<AppStatePaused>(
                     gui, audioPlayer, jukebox, controller, settings);
             }
+        }
+        else if (controller->shouldTakeScreenshot())
+        {
+            assert(app.window.getScreenshot().saveToFile(std::format(
+                "./Rend_screenshot_{0:%F}_{0:%H}-{0:%M}-{0:%S}.png",
+                std::chrono::system_clock::now())));
         }
     }
 
