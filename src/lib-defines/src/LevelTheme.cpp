@@ -73,6 +73,8 @@ std::vector<std::string> TexturePackUtils::getAllNames()
 
 LevelTheme LevelTheme::fromJson(const std::string& str) noexcept
 {
+    if (str.empty()) return LevelTheme {};
+
     try
     {
         auto json = nlohmann::json::parse(str);
