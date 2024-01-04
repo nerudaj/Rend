@@ -15,12 +15,14 @@ public:
     [[nodiscard]] AppStateMenuOptions(
         dgm::App& app,
         mem::Rc<tgui::Gui> gui,
+        mem::Rc<const dgm::ResourceManager> resmgr,
         mem::Rc<AudioPlayer> audioPlayer,
         mem::Rc<Jukebox> jukebox,
         mem::Rc<AppOptions> settings,
         mem::Rc<PhysicalController> controller)
         : dgm::AppState(app)
         , GuiState(gui, audioPlayer)
+        , resmgr(resmgr)
         , jukebox(jukebox)
         , settings(settings)
         , controller(controller)
@@ -60,6 +62,7 @@ private:
     void buildInputOptionsLayout(FormBuilder& builder);
 
 private:
+    mem::Rc<const dgm::ResourceManager> resmgr;
     mem::Rc<Jukebox> jukebox;
     mem::Rc<AppOptions> settings;
     mem::Rc<PhysicalController> controller;

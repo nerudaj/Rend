@@ -92,7 +92,7 @@ void AppStateIngame::input()
             {
                 unlockMouse();
                 app.pushState<AppStatePaused>(
-                    gui, audioPlayer, jukebox, controller, settings);
+                    gui, resmgr, audioPlayer, jukebox, controller, settings);
             }
         }
         else if (controller->shouldTakeScreenshot())

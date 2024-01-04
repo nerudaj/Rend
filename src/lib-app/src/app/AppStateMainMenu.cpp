@@ -14,7 +14,7 @@ void AppStateMainMenu::buildLayoutImpl()
 {
     auto panel = tgui::Panel::create();
     panel->getRenderer()->setTextureBackground(TguiHelper::convertTexture(
-        resmgr->get<sf::Texture>("titlebgr.png").value().get()));
+        resmgr->get<sf::Texture>("title1.png").value().get()));
     gui->add(panel);
 
     gui->add(createH1Title("rend"));
@@ -50,7 +50,7 @@ void AppStateMainMenu::buildLayoutImpl()
               [this]
               {
                   app.pushState<AppStateMenuOptions>(
-                      gui, audioPlayer, jukebox, settings, controller);
+                      gui, resmgr, audioPlayer, jukebox, settings, controller);
               }),
           ButtonProps(
               Strings::AppState::MainMenu::EXIT, [this] { app.exit(); }) },

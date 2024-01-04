@@ -13,12 +13,14 @@ public:
     AppStatePaused(
         dgm::App& app,
         mem::Rc<tgui::Gui> gui,
+        mem::Rc<const dgm::ResourceManager> resmgr,
         mem::Rc<AudioPlayer> audioPlayer,
         mem::Rc<Jukebox> jukebox,
         mem::Rc<PhysicalController> controller,
         mem::Rc<AppOptions> settings)
         : dgm::AppState(app)
         , GuiState(gui, audioPlayer)
+        , resmgr(resmgr)
         , jukebox(jukebox)
         , controller(controller)
         , settings(settings)
@@ -50,6 +52,7 @@ private:
     void buildLayoutImpl() override;
 
 private:
+    mem::Rc<const dgm::ResourceManager> resmgr;
     mem::Rc<Jukebox> jukebox;
     mem::Rc<PhysicalController> controller;
     mem::Rc<AppOptions> settings;
