@@ -1,6 +1,7 @@
 #pragma once
 
 #include <SFML/Config.hpp>
+#include <array>
 #include <bitset>
 #include <cstddef>
 #include <dgm/classes/Objects.hpp>
@@ -9,7 +10,8 @@ using EntityIndexType = std::size_t;
 using MarkerIndexType = std::size_t;
 using PlayerStateIndexType = std::size_t;
 using WeaponIndexType = std::size_t;
-using AcquitedWeaponsArray = std::bitset<8>;
+using AmmoArray = std::array<AmmoCounterType, 4>;
+using AcquiredWeaponsArray = std::bitset<8>;
 using AmmoCounterType = int;
 using LightType = sf::Uint8;
 using LightmapType = dgm::GenericMesh<LightType>;

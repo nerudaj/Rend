@@ -65,8 +65,8 @@ struct PlayerInventory
     EntityType activeWeaponType;
     EntityType lastWeaponType;
     AnimationContext animationContext;
-    std::array<AmmoCounterType, 4> ammo = { 0, 0, 0, PLAYER_INITIAL_ROCKETS };
-    AcquitedWeaponsArray acquiredWeapons;
+    AmmoArray ammo = { 0, 0, 0, PLAYER_INITIAL_ROCKETS };
+    AcquiredWeaponsArray acquiredWeapons;
     int score = 0;
     float selectionTimeout = 0.f;
     std::size_t selectionIdx = 0;
