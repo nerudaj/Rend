@@ -16,9 +16,9 @@ public:
         int armor,
         const AmmoArray& ammo,
         unsigned activeAmmoIndex,
-        const AcquiredWeaponsArray& weapons)
+        const AcquiredWeaponsArray& acquiredWeapons)
     {
-        const auto& def = ENTITY_PROPERTIES.at(type);
+        const auto& def = ENTITY_PROPERTIES.at(pickup);
 
         if (pickup == EntityType::PickupMegaHealth)
             return 15000;
@@ -41,7 +41,7 @@ public:
         }
         else if (def.traits & Trait::WeaponPickup)
         {
-            auto index = weaponPickupToIndex(type);
+            auto index = weaponPickupToIndex(pickup);
             if (acquiredWeapons[index])
                 return -1;
             else if (pickup == EntityType::PickupShotgun)
