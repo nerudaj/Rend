@@ -1,4 +1,5 @@
 #include "app/AppStateMenuOptions.hpp"
+#include "Utilities/TguiHelper.hpp"
 #include <Configs/Sizers.hpp>
 #include <Configs/Strings.hpp>
 #include <format>
@@ -26,7 +27,13 @@ void AppStateMenuOptions::buildLayoutImpl()
 {
     gui->add(createH2Title(Strings::AppState::Options::TITLE));
 
+    auto bgr = tgui::Panel::create();
+    bgr->getRenderer()->setTextureBackground(TguiHelper::convertTexture(
+        resmgr->get<sf::Texture>("title2.png").value().get()));
+    gui->add(bgr);
+
     auto panel = tgui::Panel::create();
+    panel->getRenderer()->setBackgroundColor(tgui::Color::Transparent);
     panel->setPosition("20%", "35%");
     panel->setSize("60%", "50%");
     gui->add(panel, "IdTabPanel");

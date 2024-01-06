@@ -295,28 +295,3 @@ enum class AnimationStateId
     MarkerDestroy,
     MarkerFreeze, // Candidate for deletion
 };
-
-enum class AiTopState
-{
-    BootstrapAlive,
-    Alive,
-    BootstrapDead,
-    Dead
-};
-
-enum class AiState
-{
-    Start,
-
-    PickNextJumpPoint,
-    TryToPickNewTarget,
-    ShootTarget,
-    SwapWeapon,
-    Delay,
-
-    Update,
-
-    WaitForRespawnRequest,
-    RequestRespawn,
-    WaitForRespawn
-};

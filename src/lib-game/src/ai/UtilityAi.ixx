@@ -10,7 +10,7 @@ export module UtilityAi;
 export class UtilityAi
 {
 public:
-    int getPickupScore(
+    [[nodiscard]] static int getPickupScore(
         EntityType pickup,
         int health,
         int armor,
@@ -50,13 +50,13 @@ public:
                 return 6000;
         }
         else if (pickup == EntityType::PickupArmor)
-            return 1000 / armor;
+            return 1000 / (armor + 1);
 
         return 0;
     }
 
 private:
-    bool isAmmoPickup(EntityType type)
+    [[nodiscard]] constexpr static bool isAmmoPickup(EntityType type)
     {
         return type == EntityType::PickupBullets
                || type == EntityType::PickupShells

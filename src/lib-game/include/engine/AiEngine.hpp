@@ -12,6 +12,14 @@ class AiEngine final
 public:
     [[nodiscard]] AiEngine(Scene& scene);
 
+public:
+    void update(const float deltaTime);
+
+private: // fsm updates
+    void runFsmAlive(AiBlackboard& blackboard);
+
+    void runFsmDead(AiBlackboard& blackboard);
+
 private:
     static dgm::fsm::Fsm<AiTopState, AiBlackboard> createTopFsm(AiEngine& self);
 
@@ -20,38 +28,8 @@ private:
 
     static dgm::fsm::Fsm<AiState, AiBlackboard> createDeadFsm(AiEngine& self);
 
-public:
-    void update(const float deltaTime);
-
-private:
-    struct WeaponLocation
-    {
-        WeaponIndexType weaponIndex;
-        sf::Vector2f position;
-    };
-
-    struct PowerItemLocation
-    {
-        EntityType type;
-        sf::Vector2f position;
-    };
-
-    struct PickupLocation
-    {
-        EntityType type;
-        sf::Vector2f position;
-    };
-
 private: // FSM predicates
-    [[nodiscard]] constexpr bool hasSeekTimerElapsed(
-        const AiBlackboard& blackboard,
-        const Entity&,
-        const PlayerInventory&) const noexcept
-    {
-        return blackboard.seekTimeout == 0.f;
-    }
-
-    [[nodiscard]] bool isJumpPointReached(
+    [[nodiscard]] bool isTargetLocationReached(
         const AiBlackboard&,
         const Entity&,
         const PlayerInventory&) const noexcept;
@@ -81,15 +59,8 @@ private: // FSM predicates
                == AnimationStateId::Idle;
     }
 
-    [[nodiscard]] bool shouldSwapWeapon(
-        const AiBlackboard& blackboard,
-        const Entity& player,
-        const PlayerInventory& inventory) const noexcept;
-
 private: // FSM actions
-    constexpr void doNothing(AiBlackboard&) const noexcept {}
-
-    void pickJumpPoint(
+    void pickGatherLocation(
         AiBlackboard& blackboard, Entity& player, PlayerInventory& inventory);
 
     void pickTargetEnemy(
@@ -97,7 +68,10 @@ private: // FSM actions
         Entity& player,
         PlayerInventory& inventory) noexcept;
 
-    void moveTowardsTarget(
+    void moveTowardTargetLocation(
+        AiBlackboard& blackboard, Entity& player, PlayerInventory& inventory);
+
+    void rotateTowardTargetLocation(
         AiBlackboard& blackboard, Entity& player, PlayerInventory& inventory);
 
     void
@@ -105,8 +79,6 @@ private: // FSM actions
     {
         blackboard.input->shoot();
     }
-
-    void resetBlackboard(AiBlackboard& blackboard) const noexcept;
 
     void rotateTowardsEnemy(
         AiBlackboard& blackboard,
@@ -130,7 +102,7 @@ private: // Utility predicates
     {
         assert(
             self.getInventory(blackboard).ownerIdx
-            != blackboard.trackedEnemyIdx);
+            != blackboard.targetEnemyIdx);
         return self.scene.things[self.getInventory(blackboard).ownerIdx];
     }
 
@@ -154,16 +126,6 @@ private: // Utility functions
         return dgm::Math::toUnit(
             scene.things[enemyIdx].hitbox.getPosition() - myPosition);
     }
-
-    [[nodiscard]] int getItemBaseScore(
-        EntityType type,
-        int myHealth,
-        const PlayerInventory& inventory) const noexcept;
-
-private: // fsm updates
-    void runFsmAlive(AiBlackboard& blackboard);
-
-    void runFsmDead(AiBlackboard& blackboard);
 
 private:
     Scene& scene;

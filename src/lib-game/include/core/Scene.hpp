@@ -14,6 +14,7 @@
 #include <utils/SemanticTypes.hpp>
 
 import Memory;
+import AiEnums;
 
 struct HitscanResult
 {
@@ -76,11 +77,11 @@ struct AiBlackboard
 {
     mem::Rc<AiController> input;
     AiTopState aiTopState = AiTopState::BootstrapDead;
-    AiState aiState = AiState::Start;
+    AiState aiState = AiState::ChoosingGatherLocation;
     PlayerStateIndexType playerStateIdx;
-    EntityIndexType trackedEnemyIdx = 0;
-    sf::Vector2f nextStop;
-    float seekTimeout = 0.f;
+    EntityIndexType targetEnemyIdx = 0;
+    WeaponIndexType targetWeaponIdx = 0;
+    sf::Vector2f targetLocation;
 };
 
 struct PlayerState
