@@ -116,9 +116,9 @@ namespace Strings
 
     namespace Level
     {
-        RAWSTRING SKYBOX_COUNTRY = "Countryside";
-        RAWSTRING SKYBOX_DAWNTIME = "Dawntime";
-        RAWSTRING SKYBOX_SPACE = "Nightsky";
+        RAWSTRING SKYBOX_COUNTRY = "Day";
+        RAWSTRING SKYBOX_DAWNTIME = "Dusk";
+        RAWSTRING SKYBOX_SPACE = "Night";
         RAWSTRING TEXTURES_ALPHA = "AlphaVersion";
         RAWSTRING TEXTURES_SPACE = "Space station";
         RAWSTRING TEXTURES_COUNTRY = "Countryside";
