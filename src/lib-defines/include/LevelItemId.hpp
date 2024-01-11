@@ -29,7 +29,7 @@ enum class LevelItemId
     Crossbow,
     Launcher,
     Ballista,
-    Harpoon,
+    Unused21, // harpoon
     Unused13,
     Unused14,
     Unused15,
