@@ -417,7 +417,7 @@ void AppStateEditor::handleExit(
         confirmExitDialog.open(
             Title::WARNING,
             Message::UNSAVED_CHANGES,
-            [&](UserChoice choice)
+            [this, exitApp, &confirmExitDialog](UserChoice choice)
             {
                 if (choice == UserChoice::Cancelled)
                     return;
