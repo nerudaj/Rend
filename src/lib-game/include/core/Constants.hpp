@@ -43,6 +43,8 @@ constinit const std::array<AmmoCounterType, 4> AMMO_LIMIT = {
 constinit const float SEEK_TIMEOUT = 0.2f;
 constinit const float AI_MAX_AIM_ERROR = std::numbers::pi_v<float> / 16;
 constinit const float AI_MAX_POSITION_ERROR = 2.f;
+constinit const float AI_TURN_SPEED_MULTIPLIER = 2.f;
+constinit const float AI_FOV = 90.f;
 
 // Inventory
 constinit const unsigned WEAPON_COUNT = 16;

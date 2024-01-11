@@ -58,7 +58,13 @@ struct MarkerItemRespawner
     sf::Vector2f position;
 };
 
-using Marker = std::variant<MarkerDeadPlayer, MarkerItemRespawner>;
+struct MarkerAiDestination
+{
+    dgm::Circle hitbox;
+};
+
+using Marker =
+    std::variant<MarkerDeadPlayer, MarkerItemRespawner, MarkerAiDestination>;
 
 struct PlayerInventory
 {
@@ -78,6 +84,7 @@ struct AiBlackboard
     mem::Rc<AiController> input;
     AiTopState aiTopState = AiTopState::BootstrapDead;
     AiState aiState = AiState::ChoosingGatherLocation;
+    AiState delayedTransitionState;
     PlayerStateIndexType playerStateIdx;
     EntityIndexType targetEnemyIdx = 0;
     WeaponIndexType targetWeaponIdx = 0;

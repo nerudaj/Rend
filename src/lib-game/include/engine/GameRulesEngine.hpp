@@ -27,7 +27,7 @@ public: // Must visit on all related events
     void operator()(const EffectSpawnedGameEvent&);
     void operator()(const PickupSpawnedGameEvent&);
     void operator()(const HitscanProjectileFiredGameEvent&);
-    void operator()(ScriptTriggeredGameEvent);
+    void operator()(const ScriptTriggeredGameEvent&);
 
 public:
     void update(const float deltaTime);

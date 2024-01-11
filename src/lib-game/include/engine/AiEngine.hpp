@@ -40,15 +40,34 @@ private: // FSM predicates
         return isPlayerAlive(getInventory(blackboard).ownerIdx);
     }
 
-    [[nodiscard]] bool isTrackedEnemyVisible(
+    [[nodiscard]] constexpr bool isTargetEnemyDead(
+        const AiBlackboard&,
+        const Entity&,
+        const PlayerInventory&) const noexcept;
+
+    [[nodiscard]] bool isTargetEnemyOutOfView(
         const AiBlackboard& blackboard,
         const Entity& player,
         const PlayerInventory& inventory) const noexcept;
 
-    [[nodiscard]] bool isTargetInReticle(
+    [[nodiscard]] bool isTargetEnemyInReticle(
         const AiBlackboard& blackboard,
         const Entity& player,
         const PlayerInventory& inventory) const noexcept;
+
+    [[nodiscard]] bool isAnyEnemyVisible(
+        const AiBlackboard& blackboard,
+        const Entity& player,
+        const PlayerInventory& inventory) const noexcept;
+
+    [[nodiscard]] bool hasEnteredWeaponRaise(
+        const AiBlackboard&,
+        const Entity&,
+        const PlayerInventory& inventory) const noexcept
+    {
+        return inventory.animationContext.animationStateId
+               == AnimationStateId::Raise;
+    }
 
     [[nodiscard]] bool canShoot(
         const AiBlackboard&,
@@ -72,7 +91,19 @@ private: // FSM actions
         AiBlackboard& blackboard, Entity& player, PlayerInventory& inventory);
 
     void rotateTowardTargetLocation(
-        AiBlackboard& blackboard, Entity& player, PlayerInventory& inventory);
+        AiBlackboard& blackboard, Entity& player, PlayerInventory&)
+    {
+        rotateTowardTarget(player, blackboard.input, blackboard.targetLocation);
+    }
+
+    void rotateTowardTargetEnemy(
+        AiBlackboard& blackboard, Entity& player, PlayerInventory&)
+    {
+        rotateTowardTarget(
+            player,
+            blackboard.input,
+            getEnemy(blackboard).hitbox.getPosition());
+    }
 
     void
     shoot(AiBlackboard& blackboard, Entity&, PlayerInventory&) const noexcept
@@ -80,17 +111,47 @@ private: // FSM actions
         blackboard.input->shoot();
     }
 
-    void rotateTowardsEnemy(
-        AiBlackboard& blackboard,
-        Entity& player,
-        PlayerInventory& inventory) noexcept;
-
-    void swapWeapon(
-        AiBlackboard& blackboard,
-        Entity& player,
-        PlayerInventory& inventory) noexcept;
+    void performComboSwap(
+        AiBlackboard& blackboard, Entity&, PlayerInventory&) const noexcept
+    {
+        blackboard.input->switchToLastWeapon();
+    }
 
 private: // Utility predicates
+    [[nodiscard]] constexpr bool
+    isPlayerAlive(EntityIndexType idx) const noexcept
+    {
+        return scene.things.isIndexValid(idx)
+               && scene.things[idx].typeId == EntityType::Player;
+    }
+
+    [[nodiscard]] constexpr bool
+    hasLongRangeWeapon(const PlayerInventory& inventory) const noexcept
+    {
+        return inventory.acquiredWeapons[weaponTypeToIndex(
+                   EntityType::WeaponTrishot)]
+               || inventory.acquiredWeapons[weaponTypeToIndex(
+                   EntityType::WeaponCrossbow)]
+               || inventory.acquiredWeapons[weaponTypeToIndex(
+                   EntityType::WeaponLauncher)]
+               || inventory.acquiredWeapons[weaponTypeToIndex(
+                   EntityType::WeaponBallista)];
+    }
+
+    [[nodiscard]] constexpr bool
+    hasShortRangeWeapon(const PlayerInventory& inventory) const noexcept
+    {
+        return inventory
+            .acquiredWeapons[weaponTypeToIndex(EntityType::WeaponShotgun)];
+    }
+
+    [[nodiscard]] bool isEnemyVisible(
+        const Entity& player,
+        EntityIndexType playerIdx,
+        EntityIndexType enemyIdx,
+        const sf::Vector2f& enemyPosition) const noexcept;
+
+private: // Utility functions
     [[nodiscard]] constexpr auto&&
     getInventory(this auto&& self, const AiBlackboard& blackboard) noexcept
     {
@@ -106,26 +167,23 @@ private: // Utility predicates
         return self.scene.things[self.getInventory(blackboard).ownerIdx];
     }
 
-    [[nodiscard]] constexpr bool
-    isPlayerAlive(EntityIndexType idx) const noexcept
+    [[nodiscard]] constexpr auto&&
+    getEnemy(this auto&& self, const AiBlackboard& blackboard) noexcept
     {
-        return scene.things.isIndexValid(idx)
-               && scene.things[idx].typeId == EntityType::Player;
+        return self.scene.things[blackboard.targetEnemyIdx];
     }
 
-    [[nodiscard]] bool isEnemyVisible(
-        EntityIndexType myIdx,
-        const sf::Vector2f& myPosition,
-        EntityIndexType enemyIdx,
-        const sf::Vector2f& enemyPosition) const noexcept;
-
-private: // Utility functions
     [[nodiscard]] sf::Vector2f getDirectionToEnemy(
         const sf::Vector2f& myPosition, EntityIndexType enemyIdx) const noexcept
     {
         return dgm::Math::toUnit(
             scene.things[enemyIdx].hitbox.getPosition() - myPosition);
     }
+
+    void rotateTowardTarget(
+        Entity& player,
+        mem::Rc<AiController>& input,
+        const sf::Vector2f& targetLocation);
 
 private:
     Scene& scene;

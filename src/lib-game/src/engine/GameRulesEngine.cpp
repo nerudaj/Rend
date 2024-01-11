@@ -120,7 +120,7 @@ void GameRulesEngine::operator()(const HitscanProjectileFiredGameEvent& e)
         e.originatorStateIdx);
 }
 
-void GameRulesEngine::operator()(ScriptTriggeredGameEvent e)
+void GameRulesEngine::operator()(const ScriptTriggeredGameEvent& e)
 {
 #ifdef DEBUG_REMOVALS
 
@@ -218,7 +218,8 @@ void GameRulesEngine::update(const float deltaTime)
             overloaded { [&](MarkerItemRespawner& marker)
                          { handleItemRespawner(marker, idx, deltaTime); },
                          [&](MarkerDeadPlayer& marker)
-                         { handleDeadPlayer(marker, idx); } },
+                         { handleDeadPlayer(marker, idx); },
+                         [&](MarkerAiDestination& marker) {} },
             thing);
     }
 }

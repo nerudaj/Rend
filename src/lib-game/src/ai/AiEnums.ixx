@@ -16,7 +16,12 @@ export enum class AiState {
     Shooting,
 
     RequestingRespawn,
-    WaitingForRespawn
+    WaitingForRespawn,
+
+    ComboSwapping,
+    WaitingForRaiseAnimation,
+
+    ExecutingDelayedTransition,
 };
 
 export const std::map<AiTopState, std::string> TOP_STATES_TO_STRING = {
@@ -34,4 +39,7 @@ export const std::map<AiState, std::string> AI_STATE_TO_STRING = {
     { AiState::Shooting, "Shooting" },
     { AiState::RequestingRespawn, "RequestingRespawn" },
     { AiState::WaitingForRespawn, "WaitingForRespawn" },
+    { AiState::ComboSwapping, "ComboSwapping" },
+    { AiState::WaitingForRaiseAnimation, "WaitingForRaiseAnimation" },
+    { AiState::ExecutingDelayedTransition, "ExecutingDelayedTransition" },
 };
