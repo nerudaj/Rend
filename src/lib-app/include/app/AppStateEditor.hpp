@@ -102,7 +102,7 @@ protected: // Callback handlers
         std::optional<std::string> pathToConfigOverride = {});
     void handleSaveLevel(bool forceNewPath = false) noexcept;
     void saveLevel();
-    void handlePlayLevel();
+    void handlePlayLevel(bool useBot);
     void handleUndo();
     void handleRedo();
     void handleExit(YesNoCancelDialogInterface& dialoConfirmExit, bool exitApp);

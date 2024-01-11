@@ -15,6 +15,7 @@ namespace Strings
             RAWSTRING SAVE = "Save (Ctrl+S)";
             RAWSTRING SAVE_AS = "Save as...";
             RAWSTRING PLAY = "Play (Ctrl+F5)";
+            RAWSTRING PLAY2P = "Play with bot";
             RAWSTRING UNDO = "Undo (Ctrl+Z)";
             RAWSTRING REDO = "Redo (Ctrl+Y)";
             RAWSTRING EXIT = "Back to menu";

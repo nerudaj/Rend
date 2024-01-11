@@ -235,7 +235,8 @@ tgui::MenuBar::Ptr AppStateEditor::buildMenuBarLayout(
         SAVE, [this] { handleSaveLevel(); }, sf::Keyboard::S);
     addFileMenuItem(SAVE_AS, [this] { handleSaveLevel(true); });
     addFileMenuItem(
-        PLAY, [this] { handlePlayLevel(); }, sf::Keyboard::F5);
+        PLAY, [this] { handlePlayLevel("useBot"_false); }, sf::Keyboard::F5);
+    addFileMenuItem(PLAY2P, [this] { handlePlayLevel("useBot"_true); });
     addFileMenuItem(
         UNDO, [this] { handleUndo(); }, sf::Keyboard::Z);
     addFileMenuItem(
@@ -362,7 +363,7 @@ void AppStateEditor::saveLevel()
     }
 }
 
-void AppStateEditor::handlePlayLevel()
+void AppStateEditor::handlePlayLevel(bool useBot)
 {
     if (savePath.empty())
     {
@@ -372,10 +373,15 @@ void AppStateEditor::handlePlayLevel()
 
     handleSaveLevel();
 
-    const auto gameSettings = GameOptions { .players = { PlayerOptions {
-                                                .kind = PlayerKind::LocalHuman,
-                                                .bindCamera = true } },
-                                            .fraglimit = 1 };
+    auto gameSettings = GameOptions { .players = { PlayerOptions {
+                                          .kind = PlayerKind::LocalHuman,
+                                          .bindCamera = true } },
+                                      .fraglimit = 99 };
+    if (useBot)
+    {
+        gameSettings.players.push_back(PlayerOptions {
+            .kind = PlayerKind::LocalNpc, .bindCamera = false });
+    }
 
     auto lvd = LevelD {};
     lvd.loadFromFile(savePath);
