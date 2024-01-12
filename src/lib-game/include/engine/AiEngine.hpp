@@ -3,6 +3,7 @@
 #include <DGM/fsm.hpp>
 #include <core/Enums.hpp>
 #include <core/Scene.hpp>
+#include <ranges>
 #include <utils/Hitscanner.hpp>
 
 import Memory;
@@ -60,7 +61,7 @@ private: // FSM predicates
         const Entity& player,
         const PlayerInventory& inventory) const noexcept;
 
-    [[nodiscard]] bool hasEnteredWeaponRaise(
+    [[nodiscard]] constexpr bool hasEnteredWeaponRaise(
         const AiBlackboard&,
         const Entity&,
         const PlayerInventory& inventory) const noexcept
@@ -69,13 +70,41 @@ private: // FSM predicates
                == AnimationStateId::Raise;
     }
 
-    [[nodiscard]] bool canShoot(
+    [[nodiscard]] constexpr bool canShoot(
         const AiBlackboard&,
         const Entity&,
         const PlayerInventory& inventory) const noexcept
     {
         return inventory.animationContext.animationStateId
                == AnimationStateId::Idle;
+    }
+
+    [[nodiscard]] bool shouldSwapToLongRangeWeapon(
+        const AiBlackboard&,
+        const Entity&,
+        const PlayerInventory& inventory) const;
+
+    [[nodiscard]] bool shouldSwapToShortRangeWeapon(
+        const AiBlackboard&,
+        const Entity&,
+        const PlayerInventory& inventory) const;
+
+    [[nodiscard]] constexpr bool isActiveWeaponFlaregunAndLastSomethingElse(
+        const AiBlackboard&,
+        const Entity&,
+        const PlayerInventory& inventory) const noexcept
+    {
+        return inventory.activeWeaponType == EntityType::WeaponFlaregun
+               && inventory.activeWeaponType != inventory.lastWeaponType;
+    }
+
+    [[nodiscard]] constexpr bool isTargetWeaponHighlightedInInventory(
+        const AiBlackboard& blackboard,
+        const Entity&,
+        const PlayerInventory& inventory) const noexcept
+    {
+        return inventory.selectionIdx
+               == weaponTypeToIndex(blackboard.targetWeaponToSwapTo);
     }
 
 private: // FSM actions
@@ -111,10 +140,46 @@ private: // FSM actions
         blackboard.input->shoot();
     }
 
+    void confirmWeaponSelection(
+        AiBlackboard& blackboard,
+        Entity& entity,
+        PlayerInventory& inventory) const
+    {
+        blackboard.delayedTransitionState = AiState::Gathering;
+        shoot(blackboard, entity, inventory);
+    }
+
     void performComboSwap(
         AiBlackboard& blackboard, Entity&, PlayerInventory&) const noexcept
     {
         blackboard.input->switchToLastWeapon();
+    }
+
+    void
+    selectNextWeapon(AiBlackboard& blackboard, Entity&, PlayerInventory&) const
+    {
+        blackboard.input->switchToNextWeapon();
+    }
+
+    constexpr void pickTargetShortRangeWeapon(
+        AiBlackboard& blackboard, Entity&, PlayerInventory&) const noexcept
+    {
+        blackboard.targetWeaponToSwapTo = EntityType::WeaponShotgun;
+    }
+
+    constexpr void pickTargetLongRangeWeapon(
+        AiBlackboard& blackboard,
+        Entity&,
+        PlayerInventory& inventory) const noexcept
+    {
+        for (auto&& type : getLongRangeWeaponTypes())
+        {
+            if (inventory.acquiredWeapons[weaponTypeToIndex(type)])
+            {
+                blackboard.targetWeaponToSwapTo = type;
+                return;
+            }
+        }
     }
 
 private: // Utility predicates
@@ -184,6 +249,20 @@ private: // Utility functions
         Entity& player,
         mem::Rc<AiController>& input,
         const sf::Vector2f& targetLocation);
+
+    [[nodiscard]] static constexpr std::array<EntityType, 4>
+    getLongRangeWeaponTypes()
+    {
+        return { EntityType::WeaponTrishot,
+                 EntityType::WeaponCrossbow,
+                 EntityType::WeaponLauncher,
+                 EntityType::WeaponLauncher };
+    }
+
+    [[nodiscard]] static constexpr bool isLongRangeWeaponType(EntityType type)
+    {
+        return std::ranges::contains(getLongRangeWeaponTypes(), type);
+    }
 
 private:
     Scene& scene;

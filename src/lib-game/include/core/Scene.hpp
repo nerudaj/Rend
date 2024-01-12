@@ -58,13 +58,7 @@ struct MarkerItemRespawner
     sf::Vector2f position;
 };
 
-struct MarkerAiDestination
-{
-    dgm::Circle hitbox;
-};
-
-using Marker =
-    std::variant<MarkerDeadPlayer, MarkerItemRespawner, MarkerAiDestination>;
+using Marker = std::variant<MarkerDeadPlayer, MarkerItemRespawner>;
 
 struct PlayerInventory
 {
@@ -89,6 +83,8 @@ struct AiBlackboard
     EntityIndexType targetEnemyIdx = 0;
     WeaponIndexType targetWeaponIdx = 0;
     sf::Vector2f targetLocation;
+    sf::Vector2f longTermTargetLocation;
+    EntityType targetWeaponToSwapTo = EntityType::WeaponFlaregun;
 };
 
 struct PlayerState
@@ -135,5 +131,6 @@ struct Scene
     dgm::SpatialIndex<EntityIndexType> spatialIndex;
     DistanceIndex distanceIndex;
     std::vector<sf::Vector2f> spawns = {};
+    std::vector<sf::Vector2f> dummyAiDestinations = {};
     dgm::WorldNavMesh navmesh;
 };

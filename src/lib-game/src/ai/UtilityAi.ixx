@@ -23,18 +23,23 @@ public:
         if (pickup == EntityType::PickupMegaHealth)
             return 15000;
         else if (pickup == EntityType::PickupHealth)
+        {
+            if (health >= 100) return -1;
             return 10000 / (health * health);
+        }
         else if (pickup == EntityType::PickupMegaArmor)
             return 9000;
         else if (isAmmoPickup(pickup))
         {
             auto index = ammoPickupToAmmoIndex(pickup);
-            if (ammo[index] == AMMO_LIMIT[index]) return -1;
-            // TODO: use a higher score if only starter weapon was acquired
+            if (ammo[index] >= AMMO_LIMIT[index])
+                return -1;
             else
             {
                 if (index == activeAmmoIndex)
                     return 5000;
+                else if (acquiredWeapons.to_ulong() == 1ul)
+                    return 2500; // if only starter weapon was acquired
                 else
                     return 1000;
             }
@@ -50,9 +55,16 @@ public:
                 return 6000;
         }
         else if (pickup == EntityType::PickupArmor)
-            return 1000 / (armor + 1);
+        {
+            if (armor >= 100)
+                return -1;
+            else if (armor == 0)
+                return 2000;
+            else
+                return 1000 / armor;
+        }
 
-        return 0;
+        return -1;
     }
 
 private:

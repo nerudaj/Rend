@@ -63,13 +63,6 @@ bool AiEngine::isTargetEnemyOutOfView(
 
     const auto& enemy = scene.things[blackboard.targetEnemyIdx];
 
-#ifdef DEBUG_REMOVALS
-    std::cout << std::format(
-        "AiEngine::isTargetEnemyOutOfView(me={}, him={})",
-        inventory.ownerIdx,
-        blackboard.targetEnemyIdx)
-              << std::endl;
-#endif
     assert(inventory.ownerIdx != blackboard.targetEnemyIdx);
 
     return isEnemyVisible(
@@ -95,7 +88,7 @@ bool AiEngine::isTargetEnemyInReticle(
 }
 
 bool AiEngine::isAnyEnemyVisible(
-    const AiBlackboard& blackboard,
+    const AiBlackboard&,
     const Entity& player,
     const PlayerInventory& inventory) const noexcept
 {
@@ -115,6 +108,22 @@ bool AiEngine::isAnyEnemyVisible(
     }
 
     return false;
+}
+
+bool AiEngine::shouldSwapToLongRangeWeapon(
+    const AiBlackboard&, const Entity&, const PlayerInventory& inventory) const
+{
+    return hasLongRangeWeapon(inventory)
+           && !isLongRangeWeaponType(inventory.activeWeaponType)
+           && !isLongRangeWeaponType(inventory.lastWeaponType);
+}
+
+bool AiEngine::shouldSwapToShortRangeWeapon(
+    const AiBlackboard&, const Entity&, const PlayerInventory& inventory) const
+{
+    return hasShortRangeWeapon(inventory)
+           && inventory.activeWeaponType != EntityType::WeaponShotgun
+           && inventory.lastWeaponType != EntityType::WeaponShotgun;
 }
 
 void AiEngine::pickGatherLocation(
@@ -147,20 +156,37 @@ void AiEngine::pickGatherLocation(
         }
     }
 
+    // If fallback locations lies too close, pick new
+    if (blackboard.longTermTargetLocation.x == 0.f
+        || dgm::Math::getSize(
+               player.hitbox.getPosition() - blackboard.longTermTargetLocation)
+               < 16.f)
+    {
+        blackboard.longTermTargetLocation =
+            scene.dummyAiDestinations
+                [scene.tick % scene.dummyAiDestinations.size()];
+    }
+
+    // Fallback if no destination was found
+    if (bestScore == 0 || std::isnan(bestScore) || std::isinf(bestScore))
+    {
+        bestPosition = blackboard.longTermTargetLocation;
+    }
+
     scene.navmesh.computePath(player.hitbox.getPosition(), bestPosition)
         .and_then(
             [&](auto path) -> std::optional<dgm::Path<dgm::WorldNavpoint>>
             {
-                if (path.isTraversed()) return path; // should not happen
+                // Might happen if fallback is too close, never mind, a new one
+                // will be picked after few frames
+                if (path.isTraversed()) return path;
                 blackboard.targetLocation = path.getCurrentPoint().coord;
                 return path;
             });
 }
 
 void AiEngine::pickTargetEnemy(
-    AiBlackboard& blackboard,
-    Entity& player,
-    PlayerInventory& inventory) noexcept
+    AiBlackboard&, Entity&, PlayerInventory&) noexcept
 { /*
  #ifdef DEBUG_REMOVALS
      std::cout << "AiEngine::pickTargetEnemy()" << std::endl;

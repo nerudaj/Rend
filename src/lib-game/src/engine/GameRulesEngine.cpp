@@ -218,8 +218,7 @@ void GameRulesEngine::update(const float deltaTime)
             overloaded { [&](MarkerItemRespawner& marker)
                          { handleItemRespawner(marker, idx, deltaTime); },
                          [&](MarkerDeadPlayer& marker)
-                         { handleDeadPlayer(marker, idx); },
-                         [&](MarkerAiDestination& marker) {} },
+                         { handleDeadPlayer(marker, idx); } },
             thing);
     }
 }

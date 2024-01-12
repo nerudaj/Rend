@@ -18,8 +18,16 @@ export enum class AiState {
     RequestingRespawn,
     WaitingForRespawn,
 
-    ComboSwapping,
+    PickingShortRangeWeaponForSwap,
+    PickingLongRangeWeaponForSwap,
+    TestingFlaregun,
+    ComboSwappingBeforeCycling,
+    CyclingInventory,
+    CyclingWaitingForOneFrame,
+    WeaponSwapping,
     WaitingForRaiseAnimation,
+
+    ComboSwapping,
 
     ExecutingDelayedTransition,
 };
