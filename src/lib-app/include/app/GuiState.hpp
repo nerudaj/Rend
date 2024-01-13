@@ -27,7 +27,8 @@ protected:
     [[nodiscard]] tgui::Label::Ptr createWindowTitle(
         tgui::Layout2d position, tgui::Layout2d size, const std::string& text);
 
-    [[nodiscard]] tgui::Label::Ptr createH1Title(const std::string& text);
+    [[nodiscard]] tgui::Label::Ptr
+    createH1Title(const std::string& text, const sf::Color color);
 
     [[nodiscard]] tgui::Label::Ptr createH2Title(const std::string& text);
 
