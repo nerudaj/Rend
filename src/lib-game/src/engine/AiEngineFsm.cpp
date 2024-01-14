@@ -16,14 +16,14 @@ AiEngine::AiEngine(Scene& scene)
     , fsmAlive(createAliveFsm(*this))
     , fsmDead(createDeadFsm(*this))
 {
+    fsmTop.setStateToStringHelper(std::map { TOP_STATES_TO_STRING });
+    fsmAlive.setStateToStringHelper(std::map { AI_STATE_TO_STRING });
+    fsmDead.setStateToStringHelper(std::map { AI_STATE_TO_STRING });
 
 #ifdef DEBUG_REMOVALS
     fsmTop.setLogging(true);
     fsmAlive.setLogging(true);
     fsmDead.setLogging(true);
-    fsmTop.setStateToStringHelper(std::map { TOP_STATES_TO_STRING });
-    fsmAlive.setStateToStringHelper(std::map { AI_STATE_TO_STRING });
-    fsmDead.setStateToStringHelper(std::map { AI_STATE_TO_STRING });
 #endif
 }
 
@@ -61,6 +61,9 @@ AiEngine::createAliveFsm(AiEngine& self)
     auto gather = Merge<AiBlackboard, Entity, PlayerInventory>(
         BIND3(moveTowardTargetLocation), BIND3(rotateTowardTargetLocation));
 
+    auto hunt = Merge<AiBlackboard, Entity, PlayerInventory>(
+        BIND3(rotateTowardTargetEnemy), BIND3(performHuntBookmarking));
+
     auto canShootTarget = And<AiBlackboard, Entity, PlayerInventory>(
         BIND3(isTargetEnemyInReticle), BIND3(canShoot));
 
@@ -77,8 +80,8 @@ AiEngine::createAliveFsm(AiEngine& self)
                 .goTo(PickingLongRangeWeaponForSwap)
             .orWhen(BIND3(shouldSwapToShortRangeWeapon))
                 .goTo(PickingShortRangeWeaponForSwap)
-            //.orWhen(isEnemyVisible).goTo(LockingTarget)
-            // TODO: swap on first and second weapon
+            .orWhen(BIND3(isAnyEnemyVisible))
+                .goTo(PickingTargetEnemy)
             .otherwiseExec(gather).andLoop()
         .with(PickingLongRangeWeaponForSwap)
             .exec(BIND3(pickTargetLongRangeWeapon)).andGoTo(CyclingInventory)
@@ -97,18 +100,27 @@ AiEngine::createAliveFsm(AiEngine& self)
         .with(ComboSwapping)
             .exec(BIND3(performComboSwap))
                 .andGoTo(WaitingForRaiseAnimation)
+        .with(PickingTargetEnemy)
+            .exec(BIND3(pickTargetEnemy)).andGoTo(LockingTarget)
+        .with(LockingTarget)
+            .when(BIND3(isTargetEnemyDead)).goTo(Gathering)
+            .orWhen(BIND3(isTargetEnemyOutOfView)).goTo(Pursuing)
+            .orWhen(BIND3(isTooCloseWithLongRangeWeapon)).goTo(ComboSwapping)
+            .orWhen(BIND3(isTooFarWithShortRangeWeapon)).goTo(ComboSwapping)
+            .orWhen(BIND3(hasNoAmmoForActiveWeapon)).goTo(ComboSwapping)
+            .orWhen(canShootTarget).goTo(Shooting)
+            .otherwiseExec(hunt).andLoop()
+        .with(Pursuing)
+            .when(BIND3(isTargetLocationReached)).goTo(Gathering)
+            .orWhen(BIND3(isAnyEnemyVisible)).goTo(PickingTargetEnemy)
+            .otherwiseExec(gather).andLoop()
+        .with(Shooting)
+        // TODO: this
+            .exec(doNothing).andGoTo(LockingTarget)
         .with(WaitingForRaiseAnimation)
             .when(BIND3(hasEnteredWeaponRaise))
                 .goTo(ExecutingDelayedTransition)
             .otherwiseExec(doNothing).andLoop()
-        /*.with(AiState::TryToPickNewTarget)
-            .exec(BIND3(pickTargetEnemy)).andGoTo(AiState::Update)
-        .with(AiState::ShootTarget)
-            .exec(BIND3(shoot)).andGoTo(AiState::Update)
-        .with(AiState::SwapWeapon)
-            .exec(BIND3(swapWeapon)).andGoTo(AiState::Delay)
-        .with(AiState::Delay)
-            .exec(doNothing).andGoTo(AiState::Update)*/
         .build();
     // clang-format on
 }

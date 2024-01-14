@@ -6,16 +6,23 @@ import UtilityAi;
 
 void AiEngine::update(const float deltaTime)
 {
+    bool logging = true;
     for (auto&& state : scene.playerStates)
     {
         if (!state.blackboard.has_value()) continue;
 
         auto& blackboard = state.blackboard.value();
 
+        fsmTop.setLogging(logging);
+        fsmAlive.setLogging(logging);
+        fsmDead.setLogging(logging);
+
         blackboard.input->clearInputs();
         fsmTop.setState(blackboard.aiTopState);
         fsmTop.update(blackboard);
         blackboard.aiTopState = fsmTop.getState();
+
+        logging = false;
     }
 }
 
@@ -46,14 +53,6 @@ bool AiEngine::isTargetLocationReached(
            < AI_MAX_POSITION_ERROR;
 }
 
-constexpr bool AiEngine::isTargetEnemyDead(
-    const AiBlackboard& blackboard,
-    const Entity&,
-    const PlayerInventory&) const noexcept
-{
-    return !isPlayerAlive(blackboard.targetEnemyIdx);
-}
-
 bool AiEngine::isTargetEnemyOutOfView(
     const AiBlackboard& blackboard,
     const Entity& player,
@@ -65,7 +64,7 @@ bool AiEngine::isTargetEnemyOutOfView(
 
     assert(inventory.ownerIdx != blackboard.targetEnemyIdx);
 
-    return isEnemyVisible(
+    return !isEnemyVisible(
         player,
         inventory.ownerIdx,
         blackboard.targetEnemyIdx,
@@ -96,15 +95,16 @@ bool AiEngine::isAnyEnemyVisible(
     {
         if (state.inventory.ownerIdx == inventory.ownerIdx) continue;
 
-        if (!scene.things.isIndexValid(inventory.ownerIdx)
-            || scene.things[inventory.ownerIdx].typeId != EntityType::Player)
-            return false;
+        if (!scene.things.isIndexValid(state.inventory.ownerIdx)
+            || scene.things[state.inventory.ownerIdx].typeId
+                   != EntityType::Player)
+            continue;
 
         return isEnemyVisible(
             player,
             inventory.ownerIdx,
             state.inventory.ownerIdx,
-            scene.things[inventory.ownerIdx].hitbox.getPosition());
+            scene.things[state.inventory.ownerIdx].hitbox.getPosition());
     }
 
     return false;
@@ -186,36 +186,28 @@ void AiEngine::pickGatherLocation(
 }
 
 void AiEngine::pickTargetEnemy(
-    AiBlackboard&, Entity&, PlayerInventory&) noexcept
-{ /*
- #ifdef DEBUG_REMOVALS
-     std::cout << "AiEngine::pickTargetEnemy()" << std::endl;
- #endif
+    AiBlackboard& blackboard,
+    Entity& player,
+    PlayerInventory& inventory) noexcept
+{
+    for (auto&& state : scene.playerStates)
+    {
+        if (state.inventory.ownerIdx == inventory.ownerIdx) continue;
 
-     blackboard.seekTimeout = SEEK_TIMEOUT;
-     blackboard.targetEnemyIdx = std::numeric_limits<EntityIndexType>::max();
-     for (PlayerStateIndexType i = 0; i < scene.playerStates.size(); i++)
-     {
-         auto enemyIdx = scene.playerStates[i].inventory.ownerIdx;
-         if (i == blackboard.playerStateIdx || !isPlayerAlive(enemyIdx))
-             continue;
-         assert(inventory.ownerIdx != enemyIdx);
+        if (!scene.things.isIndexValid(state.inventory.ownerIdx)
+            || scene.things[state.inventory.ownerIdx].typeId
+                   != EntityType::Player)
+            continue;
 
-         const auto& enemy = scene.things[enemyIdx];
-         if (isEnemyVisible(
-                 inventory.ownerIdx,
-                 player.hitbox.getPosition(),
-                 enemyIdx,
-                 enemy.hitbox.getPosition()))
-         {
- #ifdef DEBUG_REMOVALS
-             std::cout << "AiEngine::targetSetTo(idx=" << enemyIdx << ")"
-                       << std::endl;
- #endif
-             blackboard.targetEnemyIdx = enemyIdx;
-             return;
-         }
-     }*/
+        if (isEnemyVisible(
+                player,
+                inventory.ownerIdx,
+                state.inventory.ownerIdx,
+                scene.things[state.inventory.ownerIdx].hitbox.getPosition()))
+        {
+            blackboard.targetEnemyIdx = state.inventory.ownerIdx;
+        }
+    }
 }
 
 void AiEngine::moveTowardTargetLocation(

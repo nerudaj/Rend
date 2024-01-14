@@ -10,17 +10,13 @@ export enum class AiTopState { BootstrapAlive, Alive, BootstrapDead, Dead };
 export enum class AiState {
     ChoosingGatherLocation,
     Gathering,
-    LockingTarget,
-    Dueling,
-    Pursuing,
-    Shooting,
 
     RequestingRespawn,
     WaitingForRespawn,
 
     PickingShortRangeWeaponForSwap,
     PickingLongRangeWeaponForSwap,
-    TestingFlaregun,
+
     ComboSwappingBeforeCycling,
     CyclingInventory,
     CyclingWaitingForOneFrame,
@@ -28,6 +24,11 @@ export enum class AiState {
     WaitingForRaiseAnimation,
 
     ComboSwapping,
+
+    PickingTargetEnemy,
+    LockingTarget,
+    Pursuing,
+    Shooting,
 
     ExecutingDelayedTransition,
 };
@@ -42,12 +43,19 @@ export const std::map<AiTopState, std::string> TOP_STATES_TO_STRING = {
 export const std::map<AiState, std::string> AI_STATE_TO_STRING = {
     { AiState::ChoosingGatherLocation, "ChoosingGatherLocation" },
     { AiState::Gathering, "Gathering" },
-    { AiState::Dueling, "Dueling" },
-    { AiState::Pursuing, "Pursuing" },
-    { AiState::Shooting, "Shooting" },
     { AiState::RequestingRespawn, "RequestingRespawn" },
     { AiState::WaitingForRespawn, "WaitingForRespawn" },
-    { AiState::ComboSwapping, "ComboSwapping" },
+    { AiState::PickingShortRangeWeaponForSwap,
+      "PickingShortRangeWeaponForSwap" },
+    { AiState::PickingLongRangeWeaponForSwap, "PickingLongRangeWeaponForSwap" },
+    { AiState::ComboSwappingBeforeCycling, "ComboSwappingBeforeCycling" },
+    { AiState::CyclingInventory, "CyclingInventory" },
+    { AiState::CyclingWaitingForOneFrame, "CyclingWaitingForOneFrame" },
+    { AiState::WeaponSwapping, "WeaponSwapping" },
     { AiState::WaitingForRaiseAnimation, "WaitingForRaiseAnimation" },
+    { AiState::PickingTargetEnemy, "PickingTargetEnemy" },
+    { AiState::LockingTarget, "LockingTarget" },
+    { AiState::Pursuing, "Pursuing" },
+    { AiState::Shooting, "Shooting" },
     { AiState::ExecutingDelayedTransition, "ExecutingDelayedTransition" },
 };

@@ -42,9 +42,12 @@ private: // FSM predicates
     }
 
     [[nodiscard]] constexpr bool isTargetEnemyDead(
-        const AiBlackboard&,
+        const AiBlackboard& blackboard,
         const Entity&,
-        const PlayerInventory&) const noexcept;
+        const PlayerInventory&) const noexcept
+    {
+        return !isPlayerAlive(blackboard.targetEnemyIdx);
+    }
 
     [[nodiscard]] bool isTargetEnemyOutOfView(
         const AiBlackboard& blackboard,
@@ -105,6 +108,39 @@ private: // FSM predicates
     {
         return inventory.selectionIdx
                == weaponTypeToIndex(blackboard.targetWeaponToSwapTo);
+    }
+
+    [[nodiscard]] bool isTooCloseWithLongRangeWeapon(
+        const AiBlackboard& blackboard,
+        const Entity& entity,
+        const PlayerInventory& inventory)
+    {
+        return isLongRangeWeaponType(inventory.activeWeaponType)
+               && dgm::Math::getSize(
+                      getEnemy(blackboard).hitbox.getPosition()
+                      - entity.hitbox.getPosition())
+                      < 32.f;
+    }
+
+    [[nodiscard]] bool isTooFarWithShortRangeWeapon(
+        const AiBlackboard& blackboard,
+        const Entity& entity,
+        const PlayerInventory& inventory)
+    {
+        return inventory.activeWeaponType == EntityType::WeaponShotgun
+               && dgm::Math::getSize(
+                      getEnemy(blackboard).hitbox.getPosition()
+                      - entity.hitbox.getPosition())
+                      > 32.f;
+    }
+
+    [[nodiscard]] constexpr bool hasNoAmmoForActiveWeapon(
+        const AiBlackboard&,
+        const Entity&,
+        const PlayerInventory& inventory) const noexcept
+    {
+        return inventory.ammo[weaponTypeToIndex(inventory.activeWeaponType)]
+               <= 2;
     }
 
 private: // FSM actions
@@ -180,6 +216,13 @@ private: // FSM actions
                 return;
             }
         }
+    }
+
+    constexpr void
+    performHuntBookmarking(AiBlackboard& blackboard, Entity&, PlayerInventory&)
+    {
+        blackboard.delayedTransitionState = AiState::LockingTarget;
+        blackboard.targetLocation = getEnemy(blackboard).hitbox.getPosition();
     }
 
 private: // Utility predicates
