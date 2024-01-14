@@ -126,6 +126,16 @@ bool AiEngine::shouldSwapToShortRangeWeapon(
            && inventory.lastWeaponType != EntityType::WeaponShotgun;
 }
 
+constexpr bool AiEngine::hasNoAmmoForActiveWeapon(
+    const AiBlackboard&,
+    const Entity&,
+    const PlayerInventory& inventory) const noexcept
+{
+    return inventory.ammo[ammoTypeToAmmoIndex(
+               ENTITY_PROPERTIES.at(inventory.activeWeaponType).ammoType)]
+           < 3;
+}
+
 void AiEngine::pickGatherLocation(
     AiBlackboard& blackboard, Entity& player, PlayerInventory& inventory)
 {

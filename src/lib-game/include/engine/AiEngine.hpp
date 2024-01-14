@@ -137,11 +137,7 @@ private: // FSM predicates
     [[nodiscard]] constexpr bool hasNoAmmoForActiveWeapon(
         const AiBlackboard&,
         const Entity&,
-        const PlayerInventory& inventory) const noexcept
-    {
-        return inventory.ammo[weaponTypeToIndex(inventory.activeWeaponType)]
-               <= 2;
-    }
+        const PlayerInventory& inventory) const noexcept;
 
 private: // FSM actions
     void pickGatherLocation(

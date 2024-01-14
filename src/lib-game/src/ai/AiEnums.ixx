@@ -29,6 +29,7 @@ export enum class AiState {
     LockingTarget,
     Pursuing,
     Shooting,
+    ShootingWaitingForOneFrame,
 
     ExecutingDelayedTransition,
 };
@@ -53,9 +54,11 @@ export const std::map<AiState, std::string> AI_STATE_TO_STRING = {
     { AiState::CyclingWaitingForOneFrame, "CyclingWaitingForOneFrame" },
     { AiState::WeaponSwapping, "WeaponSwapping" },
     { AiState::WaitingForRaiseAnimation, "WaitingForRaiseAnimation" },
+    { AiState::ComboSwapping, "ComboSwapping" },
     { AiState::PickingTargetEnemy, "PickingTargetEnemy" },
     { AiState::LockingTarget, "LockingTarget" },
     { AiState::Pursuing, "Pursuing" },
     { AiState::Shooting, "Shooting" },
+    { AiState::ShootingWaitingForOneFrame, "ShootingWaitingForOneFrame" },
     { AiState::ExecutingDelayedTransition, "ExecutingDelayedTransition" },
 };

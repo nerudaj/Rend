@@ -123,7 +123,7 @@ std::vector<PlayerOptions> AppStateGameSetup::createPlayerSettings() const
            | std::views::transform(
                [](auto idx)
                {
-                   return PlayerOptions { .kind = idx == 5
+                   return PlayerOptions { .kind = idx == 0u
                                                       ? PlayerKind::LocalHuman
                                                       : PlayerKind::LocalNpc,
                                           .bindCamera = idx == 0 };
