@@ -126,7 +126,7 @@ AiEngine::createAliveFsm(AiEngine& self)
     // clang-format on
 }
 
-dgm::fsm::Fsm<AiState, AiBlackboard> AiEngine::createDeadFsm(AiEngine& self)
+dgm::fsm::Fsm<AiState, AiBlackboard> AiEngine::createDeadFsm(AiEngine&)
 {
     using enum AiState;
 

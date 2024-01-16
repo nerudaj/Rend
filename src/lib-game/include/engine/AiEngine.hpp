@@ -134,7 +134,7 @@ private: // FSM predicates
                       > 32.f;
     }
 
-    [[nodiscard]] constexpr bool hasNoAmmoForActiveWeapon(
+    [[nodiscard]] bool hasNoAmmoForActiveWeapon(
         const AiBlackboard&,
         const Entity&,
         const PlayerInventory& inventory) const noexcept;

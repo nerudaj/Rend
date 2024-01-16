@@ -4,7 +4,7 @@
 
 import UtilityAi;
 
-void AiEngine::update(const float deltaTime)
+void AiEngine::update(const float)
 {
     bool logging = true;
     for (auto&& state : scene.playerStates)
@@ -126,7 +126,7 @@ bool AiEngine::shouldSwapToShortRangeWeapon(
            && inventory.lastWeaponType != EntityType::WeaponShotgun;
 }
 
-constexpr bool AiEngine::hasNoAmmoForActiveWeapon(
+bool AiEngine::hasNoAmmoForActiveWeapon(
     const AiBlackboard&,
     const Entity&,
     const PlayerInventory& inventory) const noexcept
@@ -139,7 +139,8 @@ constexpr bool AiEngine::hasNoAmmoForActiveWeapon(
 void AiEngine::pickGatherLocation(
     AiBlackboard& blackboard, Entity& player, PlayerInventory& inventory)
 {
-    const auto activeWeaponIdx = weaponTypeToIndex(inventory.activeWeaponType);
+    const auto activeAmmoIdx = ammoTypeToAmmoIndex(
+        ENTITY_PROPERTIES.at(inventory.activeWeaponType).ammoType);
 
     auto&& bestPosition = sf::Vector2f(0.f, 0.f);
     float bestScore = 0;
@@ -155,7 +156,7 @@ void AiEngine::pickGatherLocation(
                                 player.health,
                                 player.armor,
                                 inventory.ammo,
-                                activeWeaponIdx,
+                                activeAmmoIdx,
                                 inventory.acquiredWeapons)
                             / static_cast<float>((distance * distance));
 
