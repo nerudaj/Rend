@@ -1,6 +1,6 @@
 #pragma once
 
-#include <LevelItemId.hpp>
+import <LevelItemId.hpp>;
 #include <cstdint>
 #include <map>
 #include <string>
@@ -99,7 +99,8 @@ enum class SpriteId : std::uint8_t
     RailDecalC,
     ErrorRender,
 
-    // These are different texture, but I need them to have the same enum type
+    // These are different texture, but I need them to have the same enum
+    // type
     HUD_ShotgunA = 0,
     HUD_ShotgunFA,
     HUD_ShotgunFB,
@@ -294,29 +295,4 @@ enum class AnimationStateId
     MarkerLoop,
     MarkerDestroy,
     MarkerFreeze, // Candidate for deletion
-};
-
-enum class AiTopState
-{
-    BootstrapAlive,
-    Alive,
-    BootstrapDead,
-    Dead
-};
-
-enum class AiState
-{
-    Start,
-
-    PickNextJumpPoint,
-    TryToPickNewTarget,
-    ShootTarget,
-    SwapWeapon,
-    Delay,
-
-    Update,
-
-    WaitForRespawnRequest,
-    RequestRespawn,
-    WaitForRespawn
 };

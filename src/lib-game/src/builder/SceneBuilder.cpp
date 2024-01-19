@@ -139,7 +139,7 @@ createSpatialIndex(const LevelD& level)
     return result;
 }
 
-[[nodiscard]] dgm::WorldNavMesh
+[[nodiscard]] std::tuple<dgm::WorldNavMesh, std::vector<sf::Vector2f>>
 createNavMesh(dgm::Mesh collisionMesh, dgm::DynamicBuffer<Entity>& things)
 {
     for (auto&& [thing, _] : things)
@@ -153,14 +153,28 @@ createNavMesh(dgm::Mesh collisionMesh, dgm::DynamicBuffer<Entity>& things)
         }
     }
 
-    return dgm::WorldNavMesh(collisionMesh);
+    std::vector<sf::Vector2f> dummyAiDestinations = {};
+    for (unsigned y = 1; y < collisionMesh.getDataSize().y - 1; ++y)
+    {
+        for (unsigned x = 1; x < collisionMesh.getDataSize().x - 1; ++x)
+        {
+            if (collisionMesh.at(x, y) == 0)
+            {
+                dummyAiDestinations.push_back(sf::Vector2f(
+                    sf::Vector2u(x, y) * collisionMesh.getVoxelSize().x
+                    + collisionMesh.getVoxelSize() / 2u));
+            }
+        }
+    }
+
+    return { dgm::WorldNavMesh(collisionMesh), dummyAiDestinations };
 }
 
 Scene SceneBuilder::buildScene(const LevelD& level, size_t maxPlayerCount)
 {
     auto things = createThingsBuffer(level, maxPlayerCount);
     const auto bottomMesh = MeshBuilder::buildMeshFromLvd(level, 0);
-    auto navmesh = createNavMesh(bottomMesh, things);
+    auto&& [navmesh, aiDestinations] = createNavMesh(bottomMesh, things);
     const auto bottomTextureMesh =
         MeshBuilder::buildTextureMeshFromLvd(level, 0);
     const auto upperTextureMesh =
@@ -185,6 +199,7 @@ Scene SceneBuilder::buildScene(const LevelD& level, size_t maxPlayerCount)
         .spatialIndex = createSpatialIndex(level),
         .distanceIndex = DistanceIndex(bottomMesh),
         .spawns = createSpawns(level),
+        .dummyAiDestinations = std::move(aiDestinations),
         .navmesh = std::move(navmesh)
     };
 }

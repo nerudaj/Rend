@@ -14,6 +14,7 @@
 #include <utils/SemanticTypes.hpp>
 
 import Memory;
+import AiEnums;
 
 struct HitscanResult
 {
@@ -76,11 +77,17 @@ struct AiBlackboard
 {
     mem::Rc<AiController> input;
     AiTopState aiTopState = AiTopState::BootstrapDead;
-    AiState aiState = AiState::Start;
+    AiState aiState = AiState::ChoosingGatherLocation;
+    AiState delayedTransitionState;
+    AiPersonality personality = AiPersonality::Default;
     PlayerStateIndexType playerStateIdx;
-    EntityIndexType trackedEnemyIdx = 0;
-    sf::Vector2f nextStop;
-    float seekTimeout = 0.f;
+    EntityIndexType targetEnemyIdx = 0;
+    WeaponIndexType targetWeaponIdx = 0;
+    sf::Vector2f targetLocation;
+    sf::Vector2f longTermTargetLocation;
+    EntityType targetWeaponToSwapTo = EntityType::WeaponFlaregun;
+    int lastHealth = 100;
+    float targettingTimer;
 };
 
 struct PlayerState
@@ -127,5 +134,6 @@ struct Scene
     dgm::SpatialIndex<EntityIndexType> spatialIndex;
     DistanceIndex distanceIndex;
     std::vector<sf::Vector2f> spawns = {};
+    std::vector<sf::Vector2f> dummyAiDestinations = {};
     dgm::WorldNavMesh navmesh;
 };

@@ -120,7 +120,7 @@ void GameRulesEngine::operator()(const HitscanProjectileFiredGameEvent& e)
         e.originatorStateIdx);
 }
 
-void GameRulesEngine::operator()(ScriptTriggeredGameEvent e)
+void GameRulesEngine::operator()(const ScriptTriggeredGameEvent& e)
 {
 #ifdef DEBUG_REMOVALS
 

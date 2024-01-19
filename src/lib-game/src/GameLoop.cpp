@@ -5,6 +5,7 @@ void GameLoop::update(const float dt, bool skipAudio)
     updateEngines(dt);
     processEvents(skipAudio);
     gameRulesEngine.deleteMarkedObjects();
+    aiEngine.update(dt); // must happen after everything else
 }
 
 void GameLoop::renderTo(dgm::Window& window)
@@ -26,7 +27,6 @@ bool GameLoop::isPointlimitReached(unsigned limit) const
 
 void GameLoop::updateEngines(const float dt)
 {
-    aiEngine.update(dt);
     animationEngine.update(dt);
     audioEngine.update(dt);
     physicsEngine.update(dt);

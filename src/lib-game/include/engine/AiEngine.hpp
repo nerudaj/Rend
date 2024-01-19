@@ -3,6 +3,7 @@
 #include <DGM/fsm.hpp>
 #include <core/Enums.hpp>
 #include <core/Scene.hpp>
+#include <ranges>
 #include <utils/Hitscanner.hpp>
 
 import Memory;
@@ -12,6 +13,14 @@ class AiEngine final
 public:
     [[nodiscard]] AiEngine(Scene& scene);
 
+public:
+    void update(const float deltaTime);
+
+private: // fsm updates
+    void runFsmAlive(AiBlackboard& blackboard);
+
+    void runFsmDead(AiBlackboard& blackboard);
+
 private:
     static dgm::fsm::Fsm<AiTopState, AiBlackboard> createTopFsm(AiEngine& self);
 
@@ -20,38 +29,8 @@ private:
 
     static dgm::fsm::Fsm<AiState, AiBlackboard> createDeadFsm(AiEngine& self);
 
-public:
-    void update(const float deltaTime);
-
-private:
-    struct WeaponLocation
-    {
-        WeaponIndexType weaponIndex;
-        sf::Vector2f position;
-    };
-
-    struct PowerItemLocation
-    {
-        EntityType type;
-        sf::Vector2f position;
-    };
-
-    struct PickupLocation
-    {
-        EntityType type;
-        sf::Vector2f position;
-    };
-
 private: // FSM predicates
-    [[nodiscard]] constexpr bool hasSeekTimerElapsed(
-        const AiBlackboard& blackboard,
-        const Entity&,
-        const PlayerInventory&) const noexcept
-    {
-        return blackboard.seekTimeout == 0.f;
-    }
-
-    [[nodiscard]] bool isJumpPointReached(
+    [[nodiscard]] bool isTargetLocationReached(
         const AiBlackboard&,
         const Entity&,
         const PlayerInventory&) const noexcept;
@@ -62,17 +41,39 @@ private: // FSM predicates
         return isPlayerAlive(getInventory(blackboard).ownerIdx);
     }
 
-    [[nodiscard]] bool isTrackedEnemyVisible(
+    [[nodiscard]] constexpr bool isTargetEnemyDead(
+        const AiBlackboard& blackboard,
+        const Entity&,
+        const PlayerInventory&) const noexcept
+    {
+        return !isPlayerAlive(blackboard.targetEnemyIdx);
+    }
+
+    [[nodiscard]] bool isTargetEnemyOutOfView(
         const AiBlackboard& blackboard,
         const Entity& player,
         const PlayerInventory& inventory) const noexcept;
 
-    [[nodiscard]] bool isTargetInReticle(
+    [[nodiscard]] bool isTargetEnemyInReticle(
         const AiBlackboard& blackboard,
         const Entity& player,
         const PlayerInventory& inventory) const noexcept;
 
-    [[nodiscard]] bool canShoot(
+    [[nodiscard]] bool isAnyEnemyVisible(
+        const AiBlackboard& blackboard,
+        const Entity& player,
+        const PlayerInventory& inventory) const noexcept;
+
+    [[nodiscard]] constexpr bool hasEnteredWeaponRaise(
+        const AiBlackboard&,
+        const Entity&,
+        const PlayerInventory& inventory) const noexcept
+    {
+        return inventory.animationContext.animationStateId
+               == AnimationStateId::Raise;
+    }
+
+    [[nodiscard]] constexpr bool canShoot(
         const AiBlackboard&,
         const Entity&,
         const PlayerInventory& inventory) const noexcept
@@ -81,15 +82,74 @@ private: // FSM predicates
                == AnimationStateId::Idle;
     }
 
-    [[nodiscard]] bool shouldSwapWeapon(
+    [[nodiscard]] bool shouldSwapToLongRangeWeapon(
+        const AiBlackboard&,
+        const Entity&,
+        const PlayerInventory& inventory) const;
+
+    [[nodiscard]] bool shouldSwapToShortRangeWeapon(
+        const AiBlackboard&,
+        const Entity&,
+        const PlayerInventory& inventory) const;
+
+    [[nodiscard]] constexpr bool isActiveWeaponFlaregunAndLastSomethingElse(
+        const AiBlackboard&,
+        const Entity&,
+        const PlayerInventory& inventory) const noexcept
+    {
+        return inventory.activeWeaponType == EntityType::WeaponFlaregun
+               && inventory.activeWeaponType != inventory.lastWeaponType;
+    }
+
+    [[nodiscard]] constexpr bool isTargetWeaponHighlightedInInventory(
         const AiBlackboard& blackboard,
-        const Entity& player,
+        const Entity&,
+        const PlayerInventory& inventory) const noexcept
+    {
+        return inventory.selectionIdx
+               == weaponTypeToIndex(blackboard.targetWeaponToSwapTo);
+    }
+
+    [[nodiscard]] bool isTooCloseWithLongRangeWeapon(
+        const AiBlackboard& blackboard,
+        const Entity& entity,
+        const PlayerInventory& inventory)
+    {
+        return isLongRangeWeaponType(inventory.activeWeaponType)
+               && dgm::Math::getSize(
+                      getEnemy(blackboard).hitbox.getPosition()
+                      - entity.hitbox.getPosition())
+                      < 32.f;
+    }
+
+    [[nodiscard]] bool isTooFarWithShortRangeWeapon(
+        const AiBlackboard& blackboard,
+        const Entity& entity,
+        const PlayerInventory& inventory)
+    {
+        return inventory.activeWeaponType == EntityType::WeaponShotgun
+               && dgm::Math::getSize(
+                      getEnemy(blackboard).hitbox.getPosition()
+                      - entity.hitbox.getPosition())
+                      > 32.f;
+    }
+
+    [[nodiscard]] bool hasNoAmmoForActiveWeapon(
+        const AiBlackboard&,
+        const Entity&,
         const PlayerInventory& inventory) const noexcept;
 
-private: // FSM actions
-    constexpr void doNothing(AiBlackboard&) const noexcept {}
+    [[nodiscard]] bool wasHurt(
+        const AiBlackboard& blackboard,
+        const Entity& entity,
+        const PlayerInventory&) const noexcept
+    {
+        return blackboard.personality != AiPersonality::Tank
+               && entity.health < blackboard.lastHealth;
+    }
 
-    void pickJumpPoint(
+private: // FSM actions
+    void pickGatherLocation(
         AiBlackboard& blackboard, Entity& player, PlayerInventory& inventory);
 
     void pickTargetEnemy(
@@ -97,8 +157,26 @@ private: // FSM actions
         Entity& player,
         PlayerInventory& inventory) noexcept;
 
-    void moveTowardsTarget(
+    void moveTowardTargetLocation(
         AiBlackboard& blackboard, Entity& player, PlayerInventory& inventory);
+
+    void moveInRelationToTargetEnemy(
+        AiBlackboard& blackboard, Entity& player, PlayerInventory& inventory);
+
+    void rotateTowardTargetLocation(
+        AiBlackboard& blackboard, Entity& player, PlayerInventory&)
+    {
+        rotateTowardTarget(player, blackboard.input, blackboard.targetLocation);
+    }
+
+    void rotateTowardTargetEnemy(
+        AiBlackboard& blackboard, Entity& player, PlayerInventory&)
+    {
+        rotateTowardTarget(
+            player,
+            blackboard.input,
+            getEnemy(blackboard).hitbox.getPosition());
+    }
 
     void
     shoot(AiBlackboard& blackboard, Entity&, PlayerInventory&) const noexcept
@@ -106,19 +184,90 @@ private: // FSM actions
         blackboard.input->shoot();
     }
 
-    void resetBlackboard(AiBlackboard& blackboard) const noexcept;
-
-    void rotateTowardsEnemy(
+    void confirmWeaponSelection(
         AiBlackboard& blackboard,
-        Entity& player,
-        PlayerInventory& inventory) noexcept;
+        Entity& entity,
+        PlayerInventory& inventory) const
+    {
+        blackboard.delayedTransitionState = AiState::ChoosingGatherLocation;
+        shoot(blackboard, entity, inventory);
+    }
 
-    void swapWeapon(
+    void performComboSwap(
+        AiBlackboard& blackboard, Entity&, PlayerInventory&) const noexcept
+    {
+        blackboard.input->switchToLastWeapon();
+    }
+
+    void
+    selectNextWeapon(AiBlackboard& blackboard, Entity&, PlayerInventory&) const
+    {
+        blackboard.input->switchToNextWeapon();
+    }
+
+    constexpr void pickTargetShortRangeWeapon(
+        AiBlackboard& blackboard, Entity&, PlayerInventory&) const noexcept
+    {
+        blackboard.targetWeaponToSwapTo = EntityType::WeaponShotgun;
+    }
+
+    constexpr void pickTargetLongRangeWeapon(
         AiBlackboard& blackboard,
-        Entity& player,
-        PlayerInventory& inventory) noexcept;
+        Entity&,
+        PlayerInventory& inventory) const noexcept
+    {
+        for (auto&& type : getLongRangeWeaponTypes())
+        {
+            if (inventory.acquiredWeapons[weaponTypeToIndex(type)])
+            {
+                blackboard.targetWeaponToSwapTo = type;
+                return;
+            }
+        }
+    }
+
+    constexpr void
+    performHuntBookmarking(AiBlackboard& blackboard, Entity&, PlayerInventory&)
+    {
+        blackboard.delayedTransitionState = AiState::LockingTarget;
+        blackboard.targetLocation = getEnemy(blackboard).hitbox.getPosition();
+    }
 
 private: // Utility predicates
+    [[nodiscard]] constexpr bool
+    isPlayerAlive(EntityIndexType idx) const noexcept
+    {
+        return scene.things.isIndexValid(idx)
+               && scene.things[idx].typeId == EntityType::Player;
+    }
+
+    [[nodiscard]] constexpr bool
+    hasLongRangeWeapon(const PlayerInventory& inventory) const noexcept
+    {
+        return inventory.acquiredWeapons[weaponTypeToIndex(
+                   EntityType::WeaponTrishot)]
+               || inventory.acquiredWeapons[weaponTypeToIndex(
+                   EntityType::WeaponCrossbow)]
+               || inventory.acquiredWeapons[weaponTypeToIndex(
+                   EntityType::WeaponLauncher)]
+               || inventory.acquiredWeapons[weaponTypeToIndex(
+                   EntityType::WeaponBallista)];
+    }
+
+    [[nodiscard]] constexpr bool
+    hasShortRangeWeapon(const PlayerInventory& inventory) const noexcept
+    {
+        return inventory
+            .acquiredWeapons[weaponTypeToIndex(EntityType::WeaponShotgun)];
+    }
+
+    [[nodiscard]] bool isEnemyVisible(
+        const Entity& player,
+        EntityIndexType playerIdx,
+        EntityIndexType enemyIdx,
+        const sf::Vector2f& enemyPosition) const noexcept;
+
+private: // Utility functions
     [[nodiscard]] constexpr auto&&
     getInventory(this auto&& self, const AiBlackboard& blackboard) noexcept
     {
@@ -130,24 +279,16 @@ private: // Utility predicates
     {
         assert(
             self.getInventory(blackboard).ownerIdx
-            != blackboard.trackedEnemyIdx);
+            != blackboard.targetEnemyIdx);
         return self.scene.things[self.getInventory(blackboard).ownerIdx];
     }
 
-    [[nodiscard]] constexpr bool
-    isPlayerAlive(EntityIndexType idx) const noexcept
+    [[nodiscard]] constexpr auto&&
+    getEnemy(this auto&& self, const AiBlackboard& blackboard) noexcept
     {
-        return scene.things.isIndexValid(idx)
-               && scene.things[idx].typeId == EntityType::Player;
+        return self.scene.things[blackboard.targetEnemyIdx];
     }
 
-    [[nodiscard]] bool isEnemyVisible(
-        EntityIndexType myIdx,
-        const sf::Vector2f& myPosition,
-        EntityIndexType enemyIdx,
-        const sf::Vector2f& enemyPosition) const noexcept;
-
-private: // Utility functions
     [[nodiscard]] sf::Vector2f getDirectionToEnemy(
         const sf::Vector2f& myPosition, EntityIndexType enemyIdx) const noexcept
     {
@@ -155,15 +296,24 @@ private: // Utility functions
             scene.things[enemyIdx].hitbox.getPosition() - myPosition);
     }
 
-    [[nodiscard]] int getItemBaseScore(
-        EntityType type,
-        int myHealth,
-        const PlayerInventory& inventory) const noexcept;
+    void rotateTowardTarget(
+        Entity& player,
+        mem::Rc<AiController>& input,
+        const sf::Vector2f& targetLocation);
 
-private: // fsm updates
-    void runFsmAlive(AiBlackboard& blackboard);
+    [[nodiscard]] static constexpr std::array<EntityType, 4>
+    getLongRangeWeaponTypes()
+    {
+        return { EntityType::WeaponTrishot,
+                 EntityType::WeaponCrossbow,
+                 EntityType::WeaponLauncher,
+                 EntityType::WeaponLauncher };
+    }
 
-    void runFsmDead(AiBlackboard& blackboard);
+    [[nodiscard]] static constexpr bool isLongRangeWeaponType(EntityType type)
+    {
+        return std::ranges::contains(getLongRangeWeaponTypes(), type);
+    }
 
 private:
     Scene& scene;

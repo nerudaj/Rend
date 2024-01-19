@@ -238,21 +238,22 @@ void AppStateIngame::unlockMouse()
 
 void AppStateIngame::createPlayers()
 {
-    for (PlayerStateIndexType i = 0; i < gameSettings.players.size(); ++i)
+    for (PlayerStateIndexType idx = 0; idx < gameSettings.players.size(); ++idx)
     {
         scene.markers.emplaceBack(MarkerDeadPlayer {
-            .rebindCamera = gameSettings.players[i].bindCamera,
-            .stateIdx = i });
+            .rebindCamera = gameSettings.players[idx].bindCamera,
+            .stateIdx = idx });
 
         scene.playerStates.push_back(PlayerState {});
         scene.playerStates.back().inventory =
-            SceneBuilder::getDefaultInventory(i, 0);
+            SceneBuilder::getDefaultInventory(idx, 0);
 
-        if (gameSettings.players[i].bindCamera) scene.camera.anchorIdx = i;
-        if (gameSettings.players[i].kind == PlayerKind::LocalNpc)
-            scene.playerStates[i].blackboard =
-                AiBlackboard { .input = inputs[i].castTo<AiController>(),
-                               .playerStateIdx = i };
+        if (gameSettings.players[idx].bindCamera) scene.camera.anchorIdx = idx;
+        if (gameSettings.players[idx].kind == PlayerKind::LocalNpc)
+            scene.playerStates[idx].blackboard =
+                AiBlackboard { .input = inputs[idx].castTo<AiController>(),
+                               .personality = static_cast<AiPersonality>(idx),
+                               .playerStateIdx = idx };
     }
 }
 

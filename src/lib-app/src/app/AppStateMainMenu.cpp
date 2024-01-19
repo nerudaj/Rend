@@ -17,7 +17,7 @@ void AppStateMainMenu::buildLayoutImpl()
         resmgr->get<sf::Texture>("title1.png").value().get()));
     gui->add(panel);
 
-    gui->add(createH1Title("rend"));
+    gui->add(createH1Title("rend", sf::Color::White));
 
     auto layout = tgui::VerticalLayout::create({ "15%", "30%" });
     layout->setPosition("42.5%", "35%");

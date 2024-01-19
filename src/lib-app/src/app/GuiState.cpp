@@ -13,11 +13,13 @@ tgui::Label::Ptr GuiState::createWindowTitle(
     return label;
 }
 
-tgui::Label::Ptr GuiState::createH1Title(const std::string& text)
+tgui::Label::Ptr
+GuiState::createH1Title(const std::string& text, const sf::Color color)
 {
     auto title = createWindowTitle({ "0%", "5%" }, { "100%", "25%" }, text);
     title->setHorizontalAlignment(tgui::Label::HorizontalAlignment::Center);
     title->setTextSize(72);
+    title->getRenderer()->setTextColor(tgui::Color(color));
     return title;
 }
 
