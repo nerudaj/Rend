@@ -1,4 +1,5 @@
 #include <engine/AiEngine.hpp>
+#include <limits>
 
 #define BIND(f) std::bind(&AiEngine::f, &self, std::placeholders::_1)
 #define BIND3(f)                                                               \
@@ -32,12 +33,18 @@ dgm::fsm::Fsm<AiTopState, AiBlackboard> AiEngine::createTopFsm(AiEngine& self)
     using dgm::fsm::decorator::Not;
     using enum AiTopState;
 
+    auto bootstrapAlive = [](auto& b)
+    {
+        b.aiState = AiState::ChoosingGatherLocation;
+        b.lastHealth = 100;
+        b.targetEnemyIdx = std::numeric_limits<EntityIndexType>::max();
+    };
     auto isThisPlayerDead = Not<AiBlackboard>(BIND(isThisPlayerAlive));
 
     // clang-format off
     return dgm::fsm::Builder<AiTopState, AiBlackboard>()
         .with(BootstrapAlive)
-            .exec([](auto& b) { b.aiState = AiState::ChoosingGatherLocation; }).andGoTo(Alive)
+            .exec(bootstrapAlive).andGoTo(Alive)
         .with(Alive)
             .when(isThisPlayerDead).goTo(BootstrapDead)
             .otherwiseExec(BIND(runFsmAlive)).andLoop()
@@ -58,14 +65,53 @@ AiEngine::createAliveFsm(AiEngine& self)
     using dgm::fsm::decorator::Not;
     using enum AiState;
 
-    auto gather = Merge<AiBlackboard, Entity, PlayerInventory>(
-        BIND3(moveTowardTargetLocation), BIND3(rotateTowardTargetLocation));
+    auto gather = [&self](
+                      AiBlackboard& blackboard,
+                      Entity& player,
+                      PlayerInventory& inventory)
+    {
+        self.moveTowardTargetLocation(blackboard, player, inventory);
+        self.rotateTowardTargetLocation(blackboard, player, inventory);
+        blackboard.lastHealth = player.health;
+    };
 
-    auto hunt = Merge<AiBlackboard, Entity, PlayerInventory>(
-        BIND3(rotateTowardTargetEnemy), BIND3(performHuntBookmarking));
+    auto gatherWhileHurt = [&self](
+                               AiBlackboard& blackboard,
+                               Entity& player,
+                               PlayerInventory& inventory)
+    {
+        self.moveTowardTargetLocation(blackboard, player, inventory);
+        blackboard.input->setSteer(-1.f * AI_TURN_SPEED_MULTIPLIER);
+        blackboard.lastHealth = player.health;
+    };
+
+    auto hunt = [&self](
+                    AiBlackboard& blackboard,
+                    Entity& player,
+                    PlayerInventory& inventory)
+    {
+        self.rotateTowardTargetEnemy(blackboard, player, inventory);
+        self.moveInRelationToTargetEnemy(blackboard, player, inventory);
+        self.performHuntBookmarking(blackboard, player, inventory);
+    };
 
     auto canShootTarget = And<AiBlackboard, Entity, PlayerInventory>(
         BIND3(isTargetEnemyInReticle), BIND3(canShoot));
+
+    auto comboSwappingFlaregun = Merge<AiBlackboard, Entity, PlayerInventory>(
+        BIND3(performComboSwap),
+        [](AiBlackboard& blackboard, Entity&, PlayerInventory&)
+        { blackboard.delayedTransitionState = AiState::CyclingInventory; });
+
+    auto setTimer = [](AiBlackboard& bb, Entity&, PlayerInventory&)
+    {
+        bb.targettingTimer =
+            bb.personality == AiPersonality::Flash ? 0.f : AI_REACTION_TIME;
+    };
+
+    auto timerHit =
+        [](const AiBlackboard& bb, const Entity&, const PlayerInventory&)
+    { return bb.targettingTimer <= 0.f; };
 
     auto doNothing = [](AiBlackboard&, Entity&, PlayerInventory&) {};
 
@@ -74,15 +120,22 @@ AiEngine::createAliveFsm(AiEngine& self)
         .with(ChoosingGatherLocation)
             .exec(BIND3(pickGatherLocation)).andGoTo(Gathering)
         .with(Gathering)
-            .when(BIND3(isTargetLocationReached))
+            .when(BIND3(wasHurt)).goTo(GatheringAfterHurt)
+            .orWhen(BIND3(isTargetLocationReached))
                 .goTo(ChoosingGatherLocation)
             .orWhen(BIND3(shouldSwapToLongRangeWeapon))
                 .goTo(PickingLongRangeWeaponForSwap)
             .orWhen(BIND3(shouldSwapToShortRangeWeapon))
                 .goTo(PickingShortRangeWeaponForSwap)
             .orWhen(BIND3(isAnyEnemyVisible))
-                .goTo(PickingTargetEnemy)
+                .goTo(StartTargettingTimer)
             .otherwiseExec(gather).andLoop()
+        .with(GatheringAfterHurt)
+            .when(BIND3(isTargetLocationReached))
+                .goTo(ChoosingGatherLocation)
+            .orWhen(BIND3(isAnyEnemyVisible))
+                .goTo(StartTargettingTimer)
+            .otherwiseExec(gatherWhileHurt).andLoop()
         .with(PickingLongRangeWeaponForSwap)
             .exec(BIND3(pickTargetLongRangeWeapon)).andGoTo(CyclingInventory)
         .with(PickingShortRangeWeaponForSwap)
@@ -97,22 +150,29 @@ AiEngine::createAliveFsm(AiEngine& self)
             .exec(BIND3(confirmWeaponSelection)).andGoTo(WaitingForRaiseAnimation)
         .with(CyclingWaitingForOneFrame)
             .exec(doNothing).andGoTo(CyclingInventory)
+        .with(ComboSwappingBeforeCycling)
+            .exec(comboSwappingFlaregun).andGoTo(WaitingForRaiseAnimation)
         .with(ComboSwapping)
             .exec(BIND3(performComboSwap))
                 .andGoTo(WaitingForRaiseAnimation)
+        .with(StartTargettingTimer)
+            .exec(setTimer).andGoTo(WaitingBeforePickingTargetEnemy)
+        .with(WaitingBeforePickingTargetEnemy)
+             .when(timerHit).goTo(PickingTargetEnemy)
+             .otherwiseExec(doNothing).andLoop()
         .with(PickingTargetEnemy)
-            .exec(BIND3(pickTargetEnemy)).andGoTo(LockingTarget)
+            .when(Not<AiBlackboard, Entity, PlayerInventory>(BIND3(isAnyEnemyVisible)))
+                .goTo(ChoosingGatherLocation)
+            .otherwiseExec(BIND3(pickTargetEnemy)).andGoTo(LockingTarget)
         .with(LockingTarget)
-            .when(BIND3(isTargetEnemyDead)).goTo(Gathering)
+            .when(BIND3(isTargetEnemyDead)).goTo(ChoosingGatherLocation)
             .orWhen(BIND3(isTargetEnemyOutOfView)).goTo(Pursuing)
-            //.orWhen(BIND3(isTooCloseWithLongRangeWeapon)).goTo(ComboSwapping)
-            //.orWhen(BIND3(isTooFarWithShortRangeWeapon)).goTo(ComboSwapping)
             .orWhen(BIND3(hasNoAmmoForActiveWeapon)).goTo(ComboSwapping)
             .orWhen(canShootTarget).goTo(Shooting)
             .otherwiseExec(hunt).andLoop()
         .with(Pursuing)
-            .when(BIND3(isTargetLocationReached)).goTo(Gathering)
-            .orWhen(BIND3(isAnyEnemyVisible)).goTo(PickingTargetEnemy)
+            .when(BIND3(isAnyEnemyVisible)).goTo(PickingTargetEnemy)
+            .orWhen(BIND3(isTargetLocationReached)).goTo(ChoosingGatherLocation)
             .otherwiseExec(gather).andLoop()
         .with(Shooting)
             .exec(BIND3(shoot)).andGoTo(ShootingWaitingForOneFrame)

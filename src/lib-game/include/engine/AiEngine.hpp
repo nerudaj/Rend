@@ -139,6 +139,15 @@ private: // FSM predicates
         const Entity&,
         const PlayerInventory& inventory) const noexcept;
 
+    [[nodiscard]] bool wasHurt(
+        const AiBlackboard& blackboard,
+        const Entity& entity,
+        const PlayerInventory&) const noexcept
+    {
+        return blackboard.personality != AiPersonality::Tank
+               && entity.health < blackboard.lastHealth;
+    }
+
 private: // FSM actions
     void pickGatherLocation(
         AiBlackboard& blackboard, Entity& player, PlayerInventory& inventory);
@@ -149,6 +158,9 @@ private: // FSM actions
         PlayerInventory& inventory) noexcept;
 
     void moveTowardTargetLocation(
+        AiBlackboard& blackboard, Entity& player, PlayerInventory& inventory);
+
+    void moveInRelationToTargetEnemy(
         AiBlackboard& blackboard, Entity& player, PlayerInventory& inventory);
 
     void rotateTowardTargetLocation(
@@ -177,7 +189,7 @@ private: // FSM actions
         Entity& entity,
         PlayerInventory& inventory) const
     {
-        blackboard.delayedTransitionState = AiState::Gathering;
+        blackboard.delayedTransitionState = AiState::ChoosingGatherLocation;
         shoot(blackboard, entity, inventory);
     }
 

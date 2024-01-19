@@ -10,6 +10,7 @@ export enum class AiTopState { BootstrapAlive, Alive, BootstrapDead, Dead };
 export enum class AiState {
     ChoosingGatherLocation,
     Gathering,
+    GatheringAfterHurt,
 
     RequestingRespawn,
     WaitingForRespawn,
@@ -25,6 +26,8 @@ export enum class AiState {
 
     ComboSwapping,
 
+    StartTargettingTimer,
+    WaitingBeforePickingTargetEnemy,
     PickingTargetEnemy,
     LockingTarget,
     Pursuing,
@@ -44,6 +47,7 @@ export const std::map<AiTopState, std::string> TOP_STATES_TO_STRING = {
 export const std::map<AiState, std::string> AI_STATE_TO_STRING = {
     { AiState::ChoosingGatherLocation, "ChoosingGatherLocation" },
     { AiState::Gathering, "Gathering" },
+    { AiState::GatheringAfterHurt, "GatheringAfterHurt" },
     { AiState::RequestingRespawn, "RequestingRespawn" },
     { AiState::WaitingForRespawn, "WaitingForRespawn" },
     { AiState::PickingShortRangeWeaponForSwap,
@@ -55,10 +59,19 @@ export const std::map<AiState, std::string> AI_STATE_TO_STRING = {
     { AiState::WeaponSwapping, "WeaponSwapping" },
     { AiState::WaitingForRaiseAnimation, "WaitingForRaiseAnimation" },
     { AiState::ComboSwapping, "ComboSwapping" },
+    { AiState::WaitingBeforePickingTargetEnemy,
+      "WaitingBeforePickingTargetEnemy" },
     { AiState::PickingTargetEnemy, "PickingTargetEnemy" },
     { AiState::LockingTarget, "LockingTarget" },
     { AiState::Pursuing, "Pursuing" },
     { AiState::Shooting, "Shooting" },
     { AiState::ShootingWaitingForOneFrame, "ShootingWaitingForOneFrame" },
     { AiState::ExecutingDelayedTransition, "ExecutingDelayedTransition" },
+};
+
+export enum class AiPersonality {
+    Default,
+    Tank,     // ignores hurt
+    Flash,    // no targetting timer,
+    Speartip, // rushes with shotgun
 };

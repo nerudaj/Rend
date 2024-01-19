@@ -4,7 +4,7 @@
 
 import UtilityAi;
 
-void AiEngine::update(const float)
+void AiEngine::update(const float deltaTime)
 {
     bool logging = true;
     for (auto&& state : scene.playerStates)
@@ -12,6 +12,7 @@ void AiEngine::update(const float)
         if (!state.blackboard.has_value()) continue;
 
         auto& blackboard = state.blackboard.value();
+        blackboard.targettingTimer -= deltaTime;
 
         fsmTop.setLogging(logging);
         fsmAlive.setLogging(logging);
@@ -91,29 +92,30 @@ bool AiEngine::isAnyEnemyVisible(
     const Entity& player,
     const PlayerInventory& inventory) const noexcept
 {
-    for (auto&& state : scene.playerStates)
-    {
-        if (state.inventory.ownerIdx == inventory.ownerIdx) continue;
+    return std::any_of(
+        scene.playerStates.begin(),
+        scene.playerStates.end(),
+        [&](const PlayerState& state)
+        {
+            if (state.inventory.ownerIdx == inventory.ownerIdx
+                || !isPlayerAlive(state.inventory.ownerIdx))
+                return false;
 
-        if (!scene.things.isIndexValid(state.inventory.ownerIdx)
-            || scene.things[state.inventory.ownerIdx].typeId
-                   != EntityType::Player)
-            continue;
-
-        return isEnemyVisible(
-            player,
-            inventory.ownerIdx,
-            state.inventory.ownerIdx,
-            scene.things[state.inventory.ownerIdx].hitbox.getPosition());
-    }
-
-    return false;
+            return isEnemyVisible(
+                player,
+                inventory.ownerIdx,
+                state.inventory.ownerIdx,
+                scene.things[state.inventory.ownerIdx].hitbox.getPosition());
+        });
 }
 
 bool AiEngine::shouldSwapToLongRangeWeapon(
-    const AiBlackboard&, const Entity&, const PlayerInventory& inventory) const
+    const AiBlackboard& blackboard,
+    const Entity&,
+    const PlayerInventory& inventory) const
 {
-    return hasLongRangeWeapon(inventory)
+    return blackboard.personality != AiPersonality::Speartip
+           && hasLongRangeWeapon(inventory)
            && !isLongRangeWeaponType(inventory.activeWeaponType)
            && !isLongRangeWeaponType(inventory.lastWeaponType);
 }
@@ -232,6 +234,21 @@ void AiEngine::moveTowardTargetLocation(
 
     blackboard.input->setThrust(lookRelativeThrust.x);
     blackboard.input->setSidewardThrust(lookRelativeThrust.y);
+}
+
+void AiEngine::moveInRelationToTargetEnemy(
+    AiBlackboard& blackboard, Entity& player, PlayerInventory& inventory)
+{
+    if (blackboard.personality == AiPersonality::Speartip)
+    {
+        // Rush towards the target with a shotgun in hand
+        blackboard.input->setThrust(1.f);
+    }
+    else
+    {
+        // Circle strafe
+        blackboard.input->setSidewardThrust(0.5f);
+    }
 }
 
 bool AiEngine::isEnemyVisible(

@@ -79,12 +79,15 @@ struct AiBlackboard
     AiTopState aiTopState = AiTopState::BootstrapDead;
     AiState aiState = AiState::ChoosingGatherLocation;
     AiState delayedTransitionState;
+    AiPersonality personality = AiPersonality::Default;
     PlayerStateIndexType playerStateIdx;
     EntityIndexType targetEnemyIdx = 0;
     WeaponIndexType targetWeaponIdx = 0;
     sf::Vector2f targetLocation;
     sf::Vector2f longTermTargetLocation;
     EntityType targetWeaponToSwapTo = EntityType::WeaponFlaregun;
+    int lastHealth = 100;
+    float targettingTimer;
 };
 
 struct PlayerState
