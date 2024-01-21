@@ -1,1 +1,9 @@
-TODO: description
+Rend is a love-letter to old-school arena shooters like Doom II, Quake 3 or Unreal Tournament. It looks like a remaster of a game that could be released between the original Wolfenstein 32 and Doom, but never did. It ships with a very approachable level-editor so everybody can unleash their inner level designer!
+
+Controls:
+
+WASD - movement
+QE - cycle weapons
+Space / LMB - shoot
+Tab / RMB - combo weapon swap
+Xbox gamepads (and Xinput-compatible gamepads) should work
