@@ -1,1 +1,0 @@
-﻿https://github.com/jacobpierce/pico-8-font/blob/master/LICENSE

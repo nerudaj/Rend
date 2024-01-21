@@ -1,0 +1,2 @@
+﻿https://creazilla.com/nodes/7897053-cruft-regular-font
+https://github.com/jacobpierce/pico-8-font/blob/master/LICENSE
