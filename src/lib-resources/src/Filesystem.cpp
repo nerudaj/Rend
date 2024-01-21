@@ -1,6 +1,11 @@
 import Resources;
 
+#include <Windows.h>
+#include <codecvt>
 #include <filesystem>
+#include <locale>
+#include <shlobj.h>
+#include <shlobj_core.h>
 
 std::filesystem::path Filesystem::getFullLevelPath(
     const std::filesystem::path& rootDir, const std::string& levelName)
@@ -33,4 +38,21 @@ std::filesystem::path
 Filesystem::getEditorConfigPath(const std::filesystem::path& rootDir)
 {
     return rootDir / "editor-config.json";
+}
+
+std::filesystem::path Filesystem::getAppdataPath()
+{
+    PWSTR raw;
+    std::wstring result;
+    if (SHGetKnownFolderPath(FOLDERID_RoamingAppData, 0, NULL, &raw) == S_OK)
+    {
+        result = std::wstring(raw);
+    }
+    CoTaskMemFree(raw);
+
+    // Need to convert wstring to string
+    using convert_type = std::codecvt_utf8<wchar_t>;
+    std::wstring_convert<convert_type, wchar_t> converter;
+
+    return std::filesystem::path(converter.to_bytes(result));
 }

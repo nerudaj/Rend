@@ -9,6 +9,8 @@ import Memory;
 import Options;
 import Audio;
 import Input;
+import Resources;
+import Error;
 
 CmdParameters processCmdParameters(int argc, char* argv[])
 {
@@ -62,9 +64,32 @@ AppOptions loadAppSettings(const std::filesystem::path& path)
     return AppOptions {};
 }
 
+ExpectSuccess createAppdataFolder(const std::filesystem::path& path)
+{
+    std::error_code error;
+    if (!std::filesystem::create_directory(path, error))
+    {
+        return std::unexpected(error.message());
+    }
+
+    return ReturnFlag::Success;
+}
+
 int main(int argc, char* argv[])
 {
-    const auto CONFIG_FILE_PATH = "app.json";
+    const auto APPDATA_FOLDER = Filesystem::getAppdataPath() / "Rend";
+    const auto status = createAppdataFolder(APPDATA_FOLDER);
+    status.or_else(
+        [&APPDATA_FOLDER](const ErrorMessage& msg) -> ExpectSuccess
+        {
+            std::cerr << std::format(
+                "Error: Could not create folder {}. Reason: {}",
+                APPDATA_FOLDER.string(),
+                msg) << std::endl;
+            return ReturnFlag::Failure;
+        });
+
+    const auto CONFIG_FILE_PATH = APPDATA_FOLDER / "app.json";
 
     auto&& settings = mem::Rc<AppOptions>(loadAppSettings(CONFIG_FILE_PATH));
     settings->cmdSettings = processCmdParameters(argc, argv);

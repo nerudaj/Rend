@@ -23,4 +23,6 @@ public:
 
     static [[nodiscard]] std::filesystem::path
     getResourcesDir(const std::filesystem::path& rootDir);
+
+    static [[nodiscard]] std::filesystem::path getAppdataPath();
 };
