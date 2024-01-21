@@ -17,7 +17,7 @@ constinit const float PROJECTILE_FORWARD_SPEED = 108.f;
 // Game logic
 constinit const unsigned FPS = 60;
 constinit const float FRAME_TIME = 1.f / FPS;
-constinit const float WEAPON_SELECTION_TIMEOUT = 3_seconds;
+constinit const float WEAPON_SELECTION_TIMEOUT = 2_seconds;
 constinit const int PLAYER_INITIAL_HEALTH = 100;
 constinit const int PLAYER_INITIAL_ARMOR = 0;
 constinit const int PLAYER_INITIAL_ROCKETS = 20;
