@@ -29,7 +29,7 @@ protected:
     void addAttributesToFormular(FormBuilder& builder);
 
 protected:
-    SkyboxTheme skyboxTheme = SkyboxTheme::Countryside;
-    TexturePack texturePack = TexturePack::AlphaVersion;
+    SkyboxTheme skyboxTheme = SkyboxTheme {};
+    TexturePack texturePack = TexturePack {};
     std::string author = "";
 };

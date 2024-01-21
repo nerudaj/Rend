@@ -103,8 +103,8 @@ struct Level
     unsigned height = 0;
     dgm::Mesh bottomMesh;
     dgm::Mesh upperMesh;
-    SkyboxTheme skyboxTheme = SkyboxTheme::Countryside;
-    TexturePack texturePack = TexturePack::AlphaVersion;
+    SkyboxTheme skyboxTheme = SkyboxTheme {};
+    TexturePack texturePack = TexturePack {};
 };
 
 struct CameraContext

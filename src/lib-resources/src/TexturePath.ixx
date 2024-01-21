@@ -15,9 +15,6 @@ public:
         {
             using enum TexturePack;
 
-        case AlphaVersion:
-            return "tileset.png";
-
         case SpaceStation:
             return "space_station_tileset.png";
 

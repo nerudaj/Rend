@@ -43,8 +43,8 @@ TexturePack TexturePackUtils::fromString(const std::string& str)
     else if (str == Strings::Level::TEXTURES_NEON)
         return TexturePack::Neon;
 
-    // Default to alpha if there is anything wrong
-    return TexturePack::AlphaVersion;
+    // Default to space station if there is anything wrong
+    return TexturePack::SpaceStation;
 }
 
 std::string TexturePackUtils::toString(TexturePack levelTheme)
@@ -52,8 +52,6 @@ std::string TexturePackUtils::toString(TexturePack levelTheme)
     switch (levelTheme)
     {
         using enum TexturePack;
-    case AlphaVersion:
-        return Strings::Level::TEXTURES_ALPHA;
     case SpaceStation:
         return Strings::Level::TEXTURES_SPACE;
     case CountrySide:
@@ -65,8 +63,7 @@ std::string TexturePackUtils::toString(TexturePack levelTheme)
 
 std::vector<std::string> TexturePackUtils::getAllNames()
 {
-    return std::vector<std::string> { toString(TexturePack::AlphaVersion),
-                                      toString(TexturePack::SpaceStation),
+    return std::vector<std::string> { toString(TexturePack::SpaceStation),
                                       toString(TexturePack::CountrySide),
                                       toString(TexturePack::Neon) };
 }

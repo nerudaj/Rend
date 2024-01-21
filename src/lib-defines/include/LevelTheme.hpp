@@ -25,7 +25,6 @@ public:
 
 enum class [[nodiscard]] TexturePack
 {
-    AlphaVersion,
     SpaceStation,
     CountrySide,
     Neon
@@ -45,7 +44,7 @@ struct LevelTheme
 {
     std::string skybox = SkyboxThemeUtils::toString(SkyboxTheme::Countryside);
     std::string textures =
-        TexturePackUtils::toString(TexturePack::AlphaVersion);
+        TexturePackUtils::toString(TexturePack::SpaceStation);
 
     static LevelTheme fromJson(const std::string& str) noexcept;
 };
