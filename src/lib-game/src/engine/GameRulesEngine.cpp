@@ -382,6 +382,7 @@ void GameRulesEngine::swapToLastWeapon(
     PlayerInventory& inventory, EntityIndexType idx)
 {
     if (inventory.lastWeaponType == inventory.activeWeaponType) return;
+    inventory.selectionTimeout = 0.f;
     eventQueue->emplace<WeaponSwappedAnimationEvent>(
         idx, AnimationStateId::FastLower);
 }
