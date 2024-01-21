@@ -107,4 +107,20 @@ TEST_CASE("[LightmapBuilder]")
         REQUIRE(static_cast<int>(lightmap.at({ 0u, 0u })) == 255u);
         REQUIRE(static_cast<int>(lightmap.at({ 2u, 0u })) == 0u);
     }
+
+    SECTION("Total darkness is 32")
+    {
+        auto&& level = prepareLevel(3u, 1u);
+        level.mesh.layers[0].tiles = { 0, 1, 0 };
+        level.mesh.layers[0].blocks = { 0, 0, 0 };
+        level.mesh.layers[1].tiles = { 6, 6, 6 }; // sky, wall, ceil
+        level.mesh.layers[1].blocks = { 1, 1, 1 };
+
+        auto lightmap =
+            LightmapBuilder::buildLightmap(level, SkyboxTheme::Countryside);
+
+        REQUIRE(static_cast<int>(lightmap.at({ 0u, 0u })) == 32);
+        REQUIRE(static_cast<int>(lightmap.at({ 1u, 0u })) == 32);
+        REQUIRE(static_cast<int>(lightmap.at({ 2u, 0u })) == 32);
+    }
 }
