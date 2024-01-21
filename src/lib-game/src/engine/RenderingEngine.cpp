@@ -48,7 +48,12 @@ RenderingEngine::RenderingEngine(
                                .value()
                                .get(),
                 .clipping =
-                    resmgr.get<dgm::Clip>("tileset.png.clip").value().get() }
+                    resmgr
+                        .get<dgm::Clip>(
+                            TexturePath::getTilesetName(scene.level.texturePack)
+                            + ".clip")
+                        .value()
+                        .get() }
     , spritesheet { .texture =
                         resmgr.get<sf::Texture>("sprites.png").value().get(),
                     .clipping = resmgr.get<dgm::Clip>("sprites.png.clip")
@@ -327,24 +332,36 @@ void RenderingEngine::renderHudForWeaponSelection(
 {
     if (inventory.selectionTimeout <= 0.f) return;
 
-    const auto start = spriteIdToIndex(SpriteId::HUD_FlaregunOutline);
-    const auto end = spriteIdToIndex(SpriteId::HUD_OutlineEnd);
-    const auto weaponCount = end - start;
+    const auto weaponCount = inventory.acquiredWeapons.size();
     const float baseX = settings.resolution.width / 2.f
                         - weaponCount * hud.sprite.getSize().x / 2.f;
-    for (auto idx : std::views::iota(0, weaponCount))
+    for (auto idx : std::views::iota(0u, weaponCount))
     {
+        const bool isEquipped =
+            weaponTypeToIndex(inventory.activeWeaponType) == idx;
         const bool isAcquired = inventory.acquiredWeapons[idx];
         const bool isSelected = inventory.selectionIdx == idx;
+
         hud.sprite.setPosition(
             baseX + idx * hud.sprite.getSize().x,
             settings.resolution.height / 2.f - hud.sprite.getSize().y / 2.f);
         hud.sprite.setFillColor(
-            isSelected   ? sf::Color::Magenta
-            : isAcquired ? sf::Color::Green
-                         : sf::Color::Red);
-        hud.sprite.setTextureRect(hud.clipping.getFrame(idx + start));
+            isSelected   ? COLOR_PICO8_MAGENTA
+            : isAcquired ? COLOR_PICO8_GREEN
+                         : COLOR_PICO8_RED);
+        hud.sprite.setTextureRect(hud.clipping.getFrame(
+            idx
+            + spriteIdToIndex(
+                isEquipped ? SpriteId::HUD_FlaregunFilled
+                           : SpriteId::HUD_FlaregunOutline)));
         window.draw(hud.sprite);
+
+        if (isSelected)
+        {
+            hud.sprite.setTextureRect(hud.clipping.getFrame(
+                spriteIdToIndex(SpriteId::HUD_SelectFrame)));
+            window.draw(hud.sprite);
+        }
     }
 
     hud.sprite.setFillColor(sf::Color::White);

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <SFML/Graphics/Color.hpp>
 #include <SFML/System/Vector2.hpp>
 #include <array>
 #include <core/Enums.hpp>
@@ -38,6 +39,11 @@ constinit const int MAX_ROCKETS = 25;
 constinit const std::array<AmmoCounterType, 4> AMMO_LIMIT = {
     MAX_BULLETS, MAX_SHELLS, MAX_ENERGY, MAX_ROCKETS
 };
+
+// Colors
+const sf::Color COLOR_PICO8_RED = sf::Color(255, 0, 77);
+const sf::Color COLOR_PICO8_GREEN = sf::Color(0, 228, 54);
+const sf::Color COLOR_PICO8_MAGENTA = sf::Color(255, 119, 168);
 
 // Ai
 constinit const float SEEK_TIMEOUT = 0.2f;
