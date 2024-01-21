@@ -17,7 +17,11 @@ export
     struct DisplayOptions
     {
         Resolution resolution = { 1280u, 720u };
+#ifdef _DEBUG
         bool isFullscreen = false;
+#else
+        bool isFullScreen = true;
+#endif
         bool useDitheredShadows = false;
         bool showFps = false;
         float fov = 0.66f;
