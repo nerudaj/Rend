@@ -26,7 +26,7 @@ sf::RectangleShape RenderContextBuilder::createHudIcon(
     const sf::Texture& texture, unsigned screenWidth)
 {
     auto result =
-        sf::RectangleShape({ screenWidth / 10.f, screenWidth / 10.f });
+        sf::RectangleShape({ screenWidth / 20.f, screenWidth / 20.f });
     result.setTexture(&texture);
     return result;
 };
