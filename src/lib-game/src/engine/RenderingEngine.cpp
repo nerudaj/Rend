@@ -336,7 +336,9 @@ void RenderingEngine::renderHudForWeaponSelection(
     {
         const bool isAcquired = inventory.acquiredWeapons[idx];
         const bool isSelected = inventory.selectionIdx == idx;
-        hud.sprite.setPosition(baseX + idx * hud.sprite.getSize().x, 10.f);
+        hud.sprite.setPosition(
+            baseX + idx * hud.sprite.getSize().x,
+            settings.resolution.height / 2.f - hud.sprite.getSize().y / 2.f);
         hud.sprite.setFillColor(
             isSelected   ? sf::Color::Magenta
             : isAcquired ? sf::Color::Green
