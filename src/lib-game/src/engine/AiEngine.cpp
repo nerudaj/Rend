@@ -237,7 +237,7 @@ void AiEngine::moveTowardTargetLocation(
 }
 
 void AiEngine::moveInRelationToTargetEnemy(
-    AiBlackboard& blackboard, Entity& player, PlayerInventory& inventory)
+    AiBlackboard& blackboard, Entity&, PlayerInventory&)
 {
     if (blackboard.personality == AiPersonality::Speartip)
     {

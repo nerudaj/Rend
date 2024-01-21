@@ -79,10 +79,8 @@ getLightIntensity(LevelTileId tile, SkyboxTheme skybox)
             return NIGHT_NATURAL_OUTDOOR_LIGHT_LEVEL;
         }
     }
-    else
-    {
-        return ARTIFICIAL_LIGHT_LEVEL;
-    }
+
+    return ARTIFICIAL_LIGHT_LEVEL;
 }
 
 static void performFloodStep(

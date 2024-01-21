@@ -92,7 +92,7 @@ createEntity(EntityType typeId, const sf::Vector2f& position)
 static void createCameraAnchorsAtPlaceOfFirstSpawn(
     const LevelD& level,
     dgm::DynamicBuffer<Entity>& result,
-    unsigned maxPlayerCount)
+    size_t maxPlayerCount)
 {
     for (auto&& thing : level.things)
     {
@@ -111,7 +111,7 @@ static void createCameraAnchorsAtPlaceOfFirstSpawn(
     }
 }
 
-static auto createThingsBuffer(const LevelD& level, unsigned maxPlayerCount)
+static auto createThingsBuffer(const LevelD& level, size_t maxPlayerCount)
 {
     auto&& result = dgm::DynamicBuffer<Entity>();
 
