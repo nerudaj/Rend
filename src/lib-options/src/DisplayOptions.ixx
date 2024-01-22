@@ -20,7 +20,7 @@ export
 #ifdef _DEBUG
         bool isFullscreen = false;
 #else
-        bool isFullScreen = true;
+        bool isFullscreen = true;
 #endif
         bool useDitheredShadows = false;
         bool showFps = false;
