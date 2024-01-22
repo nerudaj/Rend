@@ -1,5 +1,6 @@
 #include <builder/LightmapBuilder.hpp>
 #include <core/Enums.hpp>
+#include <ranges>
 #include <utils/SemanticTypes.hpp>
 
 constexpr LightType NATURAL_OUTDOOR_LIGHT_LEVEL = 255;
@@ -18,31 +19,56 @@ LightmapBuilder::buildLightmap(const LevelD& level, SkyboxTheme skyboxTheme)
         sf::Vector2u(level.mesh.tileWidth, level.mesh.tileHeight);
     const auto dataSize =
         sf::Vector2u(level.mesh.layerWidth, level.mesh.layerHeight);
-    auto data = std::vector<LightType>(dataSize.x * dataSize.y, 0);
+    auto bottomData = std::vector<LightType>(
+        dataSize.x * dataSize.y, NIGHT_NATURAL_OUTDOOR_LIGHT_LEVEL);
+    auto upperData = std::vector<LightType>(
+        dataSize.x * dataSize.y, NIGHT_NATURAL_OUTDOOR_LIGHT_LEVEL);
 
+    auto bottomVertical =
+        getVerticalLightSources(level.mesh.layers.at(0), dataSize, skyboxTheme);
+    auto upperVertical =
+        getVerticalLightSources(level.mesh.layers.at(1), dataSize, skyboxTheme);
+
+    // 1) get vertical light sources VL
+    // 2) get item-based light sources IL
+    // 3) get bottom horizontal light sources BHL
+    // 4) compute bottom data Bd from VL, IL and BHL
     processLightPointQueue(
-        getTileBasedLightSources(
-            level.mesh.layers.at(0),
-            dataSize,
-            skyboxTheme,
-            "skipOnBottomSolid"_true),
-        data,
+        bottomVertical, bottomData, dataSize, level.mesh.layers.at(0).blocks);
+    processLightPointQueue(
+        upperVertical, bottomData, dataSize, level.mesh.layers.at(0).blocks);
+    processLightPointQueue(
+        getHorizontalLightSources(
+            level.mesh.layers.at(0), dataSize, skyboxTheme),
+        bottomData,
         dataSize,
         level.mesh.layers.at(0).blocks);
     processLightPointQueue(
         getItemBasedLightSources(level, voxelSize),
-        data,
+        bottomData,
         dataSize,
         level.mesh.layers.at(0).blocks);
 
+    // 5) get upper horizontal light sources UHL
+    // 6) compute upper data Ud from VL, UHL
     processLightPointQueue(
-        getTileBasedLightSources(
+        bottomVertical, upperData, dataSize, level.mesh.layers.at(1).blocks);
+    processLightPointQueue(
+        upperVertical, upperData, dataSize, level.mesh.layers.at(1).blocks);
+    processLightPointQueue(
+        getHorizontalLightSources(
             level.mesh.layers.at(1), dataSize, skyboxTheme),
-        data,
+        upperData,
         dataSize,
         level.mesh.layers.at(1).blocks);
 
-    return LightmapType(data, dataSize, voxelSize);
+    // 7) compute result by merging Bd and Ud
+    for (auto&& idx : std::views::iota(0u, bottomData.size()))
+    {
+        bottomData[idx] = std::max(bottomData[idx], upperData[idx]);
+    }
+
+    return LightmapType(bottomData, dataSize, voxelSize);
 }
 
 [[nodiscard]] static constexpr bool isNaturalLightSource(LevelTileId id)
@@ -88,51 +114,69 @@ static void performFloodStep(
     MeshItrType x,
     MeshItrType y,
     LightType lightAmount,
-    LightType decayAmount,
-    bool skipOnBottomSolid)
+    LightType decayAmount)
 {
-    queue.emplace(x - 1, y, lightAmount, decayAmount, skipOnBottomSolid);
-    queue.emplace(x + 1, y, lightAmount, decayAmount, skipOnBottomSolid);
-    queue.emplace(x, y - 1, lightAmount, decayAmount, skipOnBottomSolid);
-    queue.emplace(x, y + 1, lightAmount, decayAmount, skipOnBottomSolid);
+    queue.emplace(x - 1, y, lightAmount, decayAmount);
+    queue.emplace(x + 1, y, lightAmount, decayAmount);
+    queue.emplace(x, y - 1, lightAmount, decayAmount);
+    queue.emplace(x, y + 1, lightAmount, decayAmount);
 }
 
-std::queue<LightPoint> LightmapBuilder::getTileBasedLightSources(
-    const LevelD::TileLayer& layer,
-    const sf::Vector2u layerSize,
-    SkyboxTheme skybox,
-    bool skipOnBottomSolid)
+static void foreachTile(
+    const sf::Vector2u& layerSize,
+    std::function<void(MeshItrType x, MeshItrType y, MeshItrType index)>
+        callback)
 {
-    std::queue<LightPoint> queue;
-
     for (MeshItrType y = 0, i = 0; y < layerSize.y; ++y)
     {
         for (MeshItrType x = 0; x < layerSize.x; ++x, ++i)
         {
-            const bool isBlocking = layer.blocks.at(i);
-            const auto tile = static_cast<LevelTileId>(layer.tiles.at(i));
-
-            if (!isLightSource(tile)) continue;
-
-            const auto lightAmount = getLightIntensity(tile, skybox);
-
-            if (isBlocking)
-            { // wall source
-                performFloodStep(
-                    queue,
-                    x,
-                    y,
-                    lightAmount,
-                    HORIZONTAL_LIGHT_DECAY_AMOUNT,
-                    skipOnBottomSolid);
-            }
-            else // floor/ceil source
-            {
-                queue.emplace(x, y, lightAmount, VERTICAL_LIGHT_DECAY_AMOUNT);
-            }
+            callback(x, y, i);
         }
     }
+}
 
+std::queue<LightPoint> LightmapBuilder::getVerticalLightSources(
+    const LevelD::TileLayer& layer,
+    const sf::Vector2u& layerSize,
+    SkyboxTheme skybox)
+{
+    auto&& queue = std::queue<LightPoint> {};
+    auto processTile = [&](MeshItrType x, MeshItrType y, MeshItrType idx)
+    {
+        if (layer.blocks.at(idx)) return;
+        const auto tile = static_cast<LevelTileId>(layer.tiles.at(idx));
+
+        if (isLightSource(tile))
+        {
+            const auto lightAmount = getLightIntensity(tile, skybox);
+            queue.emplace(x, y, lightAmount, VERTICAL_LIGHT_DECAY_AMOUNT);
+        }
+    };
+
+    foreachTile(layerSize, processTile);
+    return queue;
+}
+
+std::queue<LightPoint> LightmapBuilder::getHorizontalLightSources(
+    const LevelD::TileLayer& layer,
+    const sf::Vector2u layerSize,
+    SkyboxTheme skybox)
+{
+    std::queue<LightPoint> queue;
+    auto processTile = [&](MeshItrType x, MeshItrType y, MeshItrType idx)
+    {
+        const auto tile = static_cast<LevelTileId>(layer.tiles.at(idx));
+
+        if (layer.blocks.at(idx) && isLightSource(tile))
+        {
+            const auto lightAmount = getLightIntensity(tile, skybox);
+            performFloodStep(
+                queue, x, y, lightAmount, HORIZONTAL_LIGHT_DECAY_AMOUNT);
+        }
+    };
+
+    foreachTile(layerSize, processTile);
     return queue;
 }
 
@@ -152,8 +196,7 @@ std::queue<LightPoint> LightmapBuilder::getItemBasedLightSources(
                 thing.x / voxelSize.x,
                 thing.y / voxelSize.y,
                 ARTIFICIAL_LIGHT_LEVEL,
-                HORIZONTAL_LIGHT_DECAY_AMOUNT,
-                "skipOnBottomSolid"_true);
+                HORIZONTAL_LIGHT_DECAY_AMOUNT);
             break;
         default:
             break;
@@ -178,22 +221,16 @@ void LightmapBuilder::processLightPointQueue(
         if (front.y >= dataSize.y || front.x >= dataSize.x) continue;
 
         const auto index = front.y * dataSize.x + front.x;
-        if (blockingTiles.at(index) && front.skipOnBottomSolid) continue;
+        if (blockingTiles.at(index)) continue;
 
         const auto currentLightLevel = data.at(index);
         data.at(index) = std::max(currentLightLevel, front.lightLevel);
 
         if (front.lightLevel <= front.decayAmount) continue;
 
-        const LightType decayedLight =
-            front.lightLevel == 255 ? 224
-                                    : front.lightLevel - front.decayAmount;
+        const LightType decayedLight = front.lightLevel - front.decayAmount
+                                       + (front.lightLevel == 255 ? 1 : 0);
         performFloodStep(
-            queue,
-            front.x,
-            front.y,
-            decayedLight,
-            front.decayAmount,
-            front.skipOnBottomSolid);
+            queue, front.x, front.y, decayedLight, front.decayAmount);
     }
 }

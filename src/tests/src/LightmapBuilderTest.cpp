@@ -74,7 +74,7 @@ TEST_CASE("[LightmapBuilder]")
             LightmapBuilder::buildLightmap(level, SkyboxTheme::Countryside);
 
         REQUIRE(static_cast<int>(lightmap.at({ 1u, 0u })) == 255);
-        REQUIRE(static_cast<int>(lightmap.at({ 3u, 0u })) == 0);
+        REQUIRE(static_cast<int>(lightmap.at({ 3u, 0u })) == 32);
     }
 
     SECTION("The darkest place is under the candle")
@@ -89,7 +89,7 @@ TEST_CASE("[LightmapBuilder]")
             LightmapBuilder::buildLightmap(level, SkyboxTheme::Countryside);
 
         REQUIRE(static_cast<int>(lightmap.at({ 0u, 0u })) == 255);
-        REQUIRE(static_cast<int>(lightmap.at({ 1u, 0u })) == 0);
+        REQUIRE(static_cast<int>(lightmap.at({ 1u, 0u })) == 32);
         REQUIRE(static_cast<int>(lightmap.at({ 2u, 0u })) == 255);
     }
 
@@ -105,7 +105,7 @@ TEST_CASE("[LightmapBuilder]")
             LightmapBuilder::buildLightmap(level, SkyboxTheme::Countryside);
 
         REQUIRE(static_cast<int>(lightmap.at({ 0u, 0u })) == 255u);
-        REQUIRE(static_cast<int>(lightmap.at({ 2u, 0u })) == 0u);
+        REQUIRE(static_cast<int>(lightmap.at({ 2u, 0u })) == 32u);
     }
 
     SECTION("Total darkness is 32")

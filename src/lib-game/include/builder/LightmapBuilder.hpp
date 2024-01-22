@@ -13,8 +13,6 @@ struct LightPoint
     MeshItrType x, y;
     LightType lightLevel;
     LightType decayAmount;
-    // drop this light source if bottom tile is blocking
-    bool skipOnBottomSolid;
 };
 
 class LightmapBuilder final
@@ -24,11 +22,15 @@ public:
     buildLightmap(const LevelD& level, SkyboxTheme skyboxTheme);
 
 private:
-    static std::queue<LightPoint> getTileBasedLightSources(
+    static std::queue<LightPoint> getVerticalLightSources(
+        const LevelD::TileLayer& layer,
+        const sf::Vector2u& layerSize,
+        SkyboxTheme skybox);
+
+    static std::queue<LightPoint> getHorizontalLightSources(
         const LevelD::TileLayer& layer,
         const sf::Vector2u layerSize,
-        SkyboxTheme skybox,
-        bool skipOnBottomSolid = false);
+        SkyboxTheme skybox);
 
     static std::queue<LightPoint> getItemBasedLightSources(
         const LevelD& level, const sf::Vector2u& voxelSize);
