@@ -21,7 +21,7 @@ export
     {
         j = nlohmann::json {
             { "f", schema.shooting },    { "pw", schema.prevWeapon },
-            { "nw", schema.lastWeapon }, { "lw", schema.prevWeapon },
+            { "nw", schema.nextWeapon }, { "lw", schema.lastWeapon },
             { "ft", schema.thrust },     { "st", schema.sidewardThrust },
             { "lr", schema.steer }
         };
