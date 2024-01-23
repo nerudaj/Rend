@@ -18,6 +18,7 @@ class [[nodiscard]] AppStateWinnerAnnounced final
 public:
     AppStateWinnerAnnounced(
         dgm::App& app,
+        mem::Rc<const dgm::ResourceManager> resmgr,
         mem::Rc<tgui::Gui> gui,
         mem::Rc<AudioPlayer> audioPlayer,
         mem::Rc<Jukebox> jukebox,
@@ -26,6 +27,7 @@ public:
         dgm::UniversalReference<std::vector<int>> auto&& scores)
         : dgm::AppState(app)
         , GuiState(gui, audioPlayer)
+        , resmgr(resmgr)
         , gui(gui)
         , jukebox(jukebox)
         , controller(controller)
@@ -54,6 +56,7 @@ private:
     void buildLayoutImpl() override;
 
 private:
+    mem::Rc<const dgm::ResourceManager> resmgr;
     mem::Rc<tgui::Gui> gui;
     mem::Rc<Jukebox> jukebox;
     mem::Rc<PhysicalController> controller;

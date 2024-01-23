@@ -54,17 +54,17 @@ void AppStateGameSetup::input()
 
 void AppStateGameSetup::buildLayoutImpl()
 {
-    gui->add(createH2Title("game setup"));
+    gui->add(createBackground(*resmgr, "menu_setup.png"));
+    gui->add(
+        createH1Title(Strings::AppState::GameSetup::TITLE, tgui::Color::White));
 
     mapnames = Filesystem::getLevelNames(
         Filesystem::getLevelsDir(settings->cmdSettings.resourcesDir));
 
     if (mapname.empty()) mapname = mapnames.front();
 
-    auto panel = tgui::Panel::create({ "60%", "50%" });
-    panel->setPosition("20%", "35%");
+    auto panel = createPanel({ "20%", "35%" }, { "60%", "50%" });
     gui->add(panel);
-
     FormBuilder(panel)
         .addOption(
             Strings::AppState::GameSetup::PLAYER_COUNT,

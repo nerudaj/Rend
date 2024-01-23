@@ -1,4 +1,5 @@
 #include "app/GuiState.hpp"
+#include <Utilities/TguiHelper.hpp>
 #include <algorithm>
 
 tgui::Label::Ptr GuiState::createWindowTitle(
@@ -20,15 +21,29 @@ GuiState::createH1Title(const std::string& text, const sf::Color color)
     title->setHorizontalAlignment(tgui::Label::HorizontalAlignment::Center);
     title->setTextSize(72);
     title->getRenderer()->setTextColor(tgui::Color(color));
+    title->getRenderer()->setTextOutlineColor(tgui::Color::Black);
+    title->getRenderer()->setTextOutlineThickness(1.f);
     return title;
 }
 
-tgui::Label::Ptr GuiState::createH2Title(const std::string& text)
+tgui::Panel::Ptr GuiState::createBackground(
+    const dgm::ResourceManager& resmgr, const std::string& imgName) const
 {
-    auto title = createWindowTitle({ "0%", "5%" }, { "100%", "20%" }, text);
-    title->setHorizontalAlignment(tgui::Label::HorizontalAlignment::Center);
-    title->setTextSize(64);
-    return title;
+    auto panel = tgui::Panel::create();
+    panel->getRenderer()->setTextureBackground(TguiHelper::convertTexture(
+        resmgr.get<sf::Texture>(imgName).value().get()));
+    return panel;
+}
+
+tgui::Panel::Ptr GuiState::createPanel(
+    const tgui::Layout2d& position,
+    const tgui::Layout2d& size,
+    tgui::Color bgcolor) const
+{
+    auto panel = tgui::Panel::create(size);
+    panel->setPosition(position);
+    panel->getRenderer()->setBackgroundColor(bgcolor);
+    return panel;
 }
 
 tgui::Button::Ptr GuiState::createButton(

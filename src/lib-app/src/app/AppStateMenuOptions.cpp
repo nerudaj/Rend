@@ -25,17 +25,11 @@ std::string getWindowResolutionAsString(const dgm::Window& window)
 
 void AppStateMenuOptions::buildLayoutImpl()
 {
-    gui->add(createH2Title(Strings::AppState::Options::TITLE));
+    gui->add(createBackground(*resmgr, "menu_options.png"));
+    gui->add(
+        createH1Title(Strings::AppState::Options::TITLE, tgui::Color::White));
 
-    auto bgr = tgui::Panel::create();
-    bgr->getRenderer()->setTextureBackground(TguiHelper::convertTexture(
-        resmgr->get<sf::Texture>("title2.png").value().get()));
-    gui->add(bgr);
-
-    auto panel = tgui::Panel::create();
-    panel->getRenderer()->setBackgroundColor(tgui::Color::Transparent);
-    panel->setPosition("20%", "35%");
-    panel->setSize("60%", "50%");
+    auto panel = createPanel({ "20%", "35%" }, { "60%", "50%" });
     gui->add(panel, "IdTabPanel");
 
     auto tabs = tgui::Tabs::create();

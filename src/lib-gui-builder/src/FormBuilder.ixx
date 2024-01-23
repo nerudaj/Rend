@@ -27,9 +27,10 @@ private:
     std::vector<std::tuple<std::string, tgui::Widget::Ptr>> rowsToBuild;
 };
 
-module : private;
+module :private;
 
-FormBuilder& FormBuilder::addOption(const std::string& labelText, tgui::Widget::Ptr widget)
+FormBuilder&
+FormBuilder::addOption(const std::string& labelText, tgui::Widget::Ptr widget)
 {
     rowsToBuild.push_back({ labelText, widget });
     return *this;
@@ -39,11 +40,16 @@ void FormBuilder::build()
 {
     unsigned rowIdx = 0;
 
+    auto paddedPanel = tgui::Panel::create({ "90%", "90%" });
+    paddedPanel->getRenderer()->setBackgroundColor(tgui::Color::Transparent);
+    paddedPanel->setPosition({ "1.125%", "2%" });
+    panel->add(paddedPanel);
+
     for (auto&& [labelText, widgetPtr] : rowsToBuild)
     {
         auto row = WidgetBuilder::createOptionRow(labelText, widgetPtr);
         row->setPosition("0%", row->getSize().y * rowIdx);
-        panel->add(row);
+        paddedPanel->add(row);
         ++rowIdx;
     }
 }

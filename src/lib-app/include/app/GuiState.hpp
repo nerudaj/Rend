@@ -30,7 +30,13 @@ protected:
     [[nodiscard]] tgui::Label::Ptr
     createH1Title(const std::string& text, const sf::Color color);
 
-    [[nodiscard]] tgui::Label::Ptr createH2Title(const std::string& text);
+    [[nodiscard]] tgui::Panel::Ptr createBackground(
+        const dgm::ResourceManager& resmgr, const std::string& imgName) const;
+
+    [[nodiscard]] tgui::Panel::Ptr createPanel(
+        const tgui::Layout2d& position,
+        const tgui::Layout2d& size,
+        tgui::Color bgcolor = tgui::Color(255, 255, 255, 64)) const;
 
     [[nodiscard]] static tgui::Layout2d getCommonLayoutSize(unsigned rowCount)
     {

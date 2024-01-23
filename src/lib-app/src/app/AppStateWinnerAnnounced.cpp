@@ -21,7 +21,13 @@ void AppStateWinnerAnnounced::update()
     if (transitionTimeout <= 0.f)
     {
         app.pushState<AppStateScoreTable>(
-            gui, audioPlayer, jukebox, controller, gameSettings, scores);
+            resmgr,
+            gui,
+            audioPlayer,
+            jukebox,
+            controller,
+            gameSettings,
+            scores);
     }
 }
 

@@ -202,6 +202,7 @@ void AppStateIngame::evaluateWinCondition()
     {
         unlockMouse();
         app.pushState<AppStateWinnerAnnounced>(
+            resmgr,
             gui,
             audioPlayer,
             jukebox,

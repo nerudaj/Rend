@@ -49,11 +49,19 @@ namespace Strings
 
         namespace GameSetup
         {
+            RAWSTRING TITLE = "game setup";
             RAWSTRING PLAYER_COUNT = "player count";
             RAWSTRING SELECT_MAP = "select map";
             RAWSTRING FRAGLIMIT = "frag limit";
             RAWSTRING START_GAME = "start game";
         } // namespace GameSetup
+
+        namespace Scores
+        {
+            RAWSTRING TITLE = "results";
+            RAWSTRING PLAYER_TH = "player";
+            RAWSTRING SCORE_TH = "score";
+        } // namespace Scores
     }     // namespace AppState
 
     namespace Dialog

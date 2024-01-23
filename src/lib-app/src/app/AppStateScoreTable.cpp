@@ -1,4 +1,8 @@
+#include <Configs/Sizers.hpp>
+#include <Configs/Strings.hpp>
 #include <app/AppStateScoreTable.hpp>
+
+import WidgetBuilder;
 
 void AppStateScoreTable::input()
 {
@@ -16,31 +20,52 @@ void AppStateScoreTable::input()
     controller->update();
 }
 
+[[nodiscard]] static tgui::Label::Ptr
+createCell(const std::string& str, unsigned column)
+{
+    auto label = tgui::Label::create(str);
+    label->getRenderer()->setTextColor(tgui::Color::Black);
+    label->setSize({ "50%", "100%" });
+    label->setPosition({ column == 0 ? "0%" : "50%", "0%" });
+    label->setTextSize(Sizers::GetMenuBarTextHeight());
+    label->setHorizontalAlignment(tgui::Label::HorizontalAlignment::Center);
+    label->setVerticalAlignment(tgui::Label::VerticalAlignment::Center);
+    return label;
+}
+
 void AppStateScoreTable::buildLayoutImpl()
 {
-    gui->add(createH2Title("results"));
+    gui->add(createBackground(*resmgr, "menu_intermission.png"));
+    gui->add(
+        createH1Title(Strings::AppState::Scores::TITLE, tgui::Color::White));
 
-    auto table = tgui::Grid::create();
-    table->setSize(getCommonLayoutSize(scores.size() + 1));
-    table->setPosition(getCommonLayoutPosition());
+    auto panel = createPanel(
+        getCommonLayoutPosition(),
+        getCommonLayoutSize(scores.size() + 1),
+        tgui::Color::Transparent);
 
     // Add heading
-    for (auto column = 0; auto&& labelText : { "player", "score" })
     {
-        table->addWidget(tgui::Label::create(labelText), 0, column++);
+        auto row = WidgetBuilder::getStandardizedRow(tgui::Color::White);
+        row->setPosition({ "0%", "0%" });
+        row->add(createCell(Strings::AppState::Scores::PLAYER_TH, 0));
+        row->add(createCell(Strings::AppState::Scores::SCORE_TH, 1));
+        panel->add(row);
     }
 
     // Add results
     for (auto idx = 0; idx < scores.size(); ++idx)
     {
-        auto row = idx + 1;
-        table->addWidget(
-            tgui::Label::create("player " + std::to_string(row)), row, 0);
-        table->addWidget(
-            tgui::Label::create(std::to_string(scores[idx])), row, 1);
+        auto color = idx % 2 == 0 ? tgui::Color(255, 255, 255, 128)
+                                  : tgui::Color(255, 255, 255, 192);
+        auto row = WidgetBuilder::getStandardizedRow(color);
+        row->setPosition({ "0%", row->getSize().y * (idx + 1) });
+        row->add(createCell("player " + std::to_string(idx + 1), 0));
+        row->add(createCell(std::to_string(scores[idx]), 1));
+        panel->add(row);
     }
 
-    gui->add(table);
+    gui->add(panel);
 
     gui->add(createBackButton([this] { app.popState(3); }, "back to menu"));
 }

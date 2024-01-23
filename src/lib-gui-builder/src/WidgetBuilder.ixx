@@ -25,14 +25,22 @@ export class WidgetBuilder final
 {
 public:
     static [[nodiscard]] tgui::Panel::Ptr
-    createOptionRow(const std::string& labelText, tgui::Widget::Ptr widgetPtr)
+    getStandardizedRow(tgui::Color bgcolor = tgui::Color::Transparent)
     {
         auto row = tgui::Panel::create();
         row->setSize(
             "100%", std::to_string(Sizers::GetMenuBarHeight()).c_str());
-        row->getRenderer()->setBackgroundColor(tgui::Color::Transparent);
+        row->getRenderer()->setBackgroundColor(bgcolor);
+        return row;
+    }
+
+    static [[nodiscard]] tgui::Panel::Ptr
+    createOptionRow(const std::string& labelText, tgui::Widget::Ptr widgetPtr)
+    {
+        auto row = getStandardizedRow();
 
         auto label = tgui::Label::create(labelText);
+        label->getRenderer()->setTextColor(sf::Color::Black);
         label->setSize("60%", "100%");
         label->setPosition("0%", "0%");
         label->setTextSize(Sizers::GetMenuBarTextHeight());
@@ -70,10 +78,12 @@ public:
         float step = 1.f)
     {
         auto result = tgui::Panel::create();
+        result->getRenderer()->setBackgroundColor(tgui::Color::Transparent);
         const auto&& ID = randomString(16);
 
         auto valueLabel = tgui::Label::create(valueFormatter(value));
         valueLabel->setTextSize(Sizers::GetMenuBarTextHeight());
+        valueLabel->getRenderer()->setTextColor(sf::Color::Black);
         valueLabel->setPosition("85%", "0%");
         valueLabel->setSize("15%", "100%");
         valueLabel->setVerticalAlignment(
@@ -84,8 +94,8 @@ public:
 
         auto slider = tgui::Slider::create(lo, hi);
 
-        slider->setPosition("0%", "25%");
-        slider->setSize("85%", "50%");
+        slider->setPosition("5%", "25%");
+        slider->setSize("75%", "50%");
         slider->setStep(step);
         slider->setValue(value);
         slider->onValueChange(
