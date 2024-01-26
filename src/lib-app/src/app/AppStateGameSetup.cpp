@@ -63,7 +63,7 @@ void AppStateGameSetup::buildLayoutImpl()
 
     if (mapname.empty()) mapname = mapnames.front();
 
-    auto panel = createPanel({ "20%", "35%" }, { "60%", "50%" });
+    auto panel = createPanel({ "20%", "35%" }, { "60%", "25%" });
     gui->add(panel);
     FormBuilder(panel)
         .addOption(

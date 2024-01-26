@@ -29,7 +29,7 @@ void AppStateMenuOptions::buildLayoutImpl()
     gui->add(
         createH1Title(Strings::AppState::Options::TITLE, tgui::Color::White));
 
-    auto panel = createPanel({ "20%", "35%" }, { "60%", "50%" });
+    auto panel = createPanel({ "20%", "35%" }, { "60%", "25%" });
     gui->add(panel, "IdTabPanel");
 
     auto tabs = tgui::Tabs::create();
