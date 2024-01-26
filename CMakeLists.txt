@@ -68,22 +68,19 @@ set ( CPACK_PACKAGE_DESCRIPTION_FILE "${CMAKE_SOURCE_DIR}/nsis/description.txt" 
 set ( CPACK_PACKAGE_HOMEPAGE_URL     "https://nerudaj.itch.io/rend" )
 set ( CPACK_RESOURCE_FILE_LICENSE    "${CMAKE_SOURCE_DIR}/nsis/license.txt" )
 set ( CPACK_PACKAGE_EXECUTABLES      "${SETTINGS_BINARY_NAME}" "${CMAKE_SOURCE_DIR}/resources/graphics/appicon.ico" )
-# CPACK_RESOURCE_FILE_WELCOME
-# CPACK_PACKAGE_ICON
 
 if ( ${MAKE_INSTALLER} )
 	include(InstallRequiredSystemLibraries)
 	set ( CPACK_GENERATOR "NSIS" )
+	cmake_path(CONVERT "C:/Games" TO_NATIVE_PATH_LIST CPACK_NSIS_INSTALL_ROOT)
 	set ( CPACK_NSIS_MODIFY_PATH "OFF")
 	set ( CPACK_NSIS_ENABLE_UNINSTALL_BEFORE_INSTALL "ON" )
+	set ( CPACK_NSIS_MUI_ICON "${CMAKE_SOURCE_DIR}/resources/graphics/appicon.ico" )
+	set ( CPACK_NSIS_URL_INFO_ABOUT "https://nerudaj.itch.io/rend" )
 	set (
 		CMAKE_MODULE_PATH
 		"${PROJECT_SOURCE_DIR}/nsis"
 		${CMAKE_MODULE_PATH}
-	)
-	configure_file(
-		${PROJECT_SOURCE_DIR}/nsis/NSIS.definitions.nsh.in
-		${CMAKE_CURRENT_BINARY_DIR}/nsis/NSIS.definitions.nsh
 	)
 else()
 	set ( CPACK_GENERATOR "ZIP" )
