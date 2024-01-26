@@ -81,11 +81,17 @@ public:
         result->getRenderer()->setBackgroundColor(tgui::Color::Transparent);
         const auto&& ID = randomString(16);
 
+        auto dummyLabel = tgui::Label::create(valueFormatter(hi + step));
+        dummyLabel->setTextSize(Sizers::GetMenuBarTextHeight());
+        dummyLabel->setAutoSize(true);
+        gui->add(dummyLabel, "DummyLabel");
+        auto size = dummyLabel->getSizeLayout();
+
         auto valueLabel = tgui::Label::create(valueFormatter(value));
         valueLabel->setTextSize(Sizers::GetMenuBarTextHeight());
         valueLabel->getRenderer()->setTextColor(sf::Color::Black);
-        valueLabel->setPosition("85%", "0%");
-        valueLabel->setSize("15%", "100%");
+        valueLabel->setSize(size.x, "100%");
+        valueLabel->setPosition("parent.width" - size.x, "0%");
         valueLabel->setVerticalAlignment(
             tgui::Label::VerticalAlignment::Center);
         valueLabel->setHorizontalAlignment(
@@ -94,8 +100,8 @@ public:
 
         auto slider = tgui::Slider::create(lo, hi);
 
-        slider->setPosition("5%", "25%");
-        slider->setSize("75%", "50%");
+        slider->setPosition("2%", "25%");
+        slider->setSize("parent.width - 4% - " - size.x, "50%");
         slider->setStep(step);
         slider->setValue(value);
         slider->onValueChange(
@@ -105,6 +111,8 @@ public:
                 onChange(value);
             });
         result->add(slider);
+
+        gui->remove(gui->get<tgui::Label>("DummyLabel"));
 
         return result;
     }
