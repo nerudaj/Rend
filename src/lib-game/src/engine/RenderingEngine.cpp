@@ -209,7 +209,9 @@ void RenderingEngine::renderFps(dgm::Window& window)
 {
     if (!settings.showFps) return;
     text.setString(fpsCounter.getText());
-    text.setPosition({ 10.f, 10.f });
+    text.setPosition(
+        { settings.resolution.width - text.getGlobalBounds().width - 10.f,
+          10.f });
     window.draw(text);
 }
 
@@ -221,6 +223,7 @@ void RenderingEngine::renderPlayerHud(
     renderHudForArmor(window, player);
     renderHudForAmmo(window, inventory);
     renderHudForWeaponSelection(window, inventory);
+    renderHudForScore(window, inventory);
     renderHurtOverlay(window);
 }
 
@@ -365,6 +368,14 @@ void RenderingEngine::renderHudForWeaponSelection(
     }
 
     hud.sprite.setFillColor(sf::Color::White);
+}
+
+void RenderingEngine::renderHudForScore(
+    dgm::Window& window, const PlayerInventory& inventory)
+{
+    text.setString(std::to_string(inventory.score));
+    text.setPosition({ 10.f, 10.f });
+    window.draw(text);
 }
 
 void RenderingEngine::renderHurtOverlay(dgm::Window& window)

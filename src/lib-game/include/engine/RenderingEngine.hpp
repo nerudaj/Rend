@@ -52,6 +52,8 @@ private:
     renderHudForAmmo(dgm::Window& window, const PlayerInventory& inventory);
     void renderHudForWeaponSelection(
         dgm::Window& window, const PlayerInventory& inventory);
+    void
+    renderHudForScore(dgm::Window& window, const PlayerInventory& inventory);
     void renderHurtOverlay(dgm::Window& window);
     void renderRespawnPrompt(dgm::Window& window);
 
