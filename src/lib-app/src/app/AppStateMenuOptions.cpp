@@ -106,13 +106,6 @@ void AppStateMenuOptions::buildDisplayOptionsLayout(FormBuilder& builder)
                             !settings->display.useDitheredShadows;
                     }))
             .addOption(
-                Strings::AppState::Options::SHOW_FPS,
-                WidgetBuilder::createCheckbox(
-                    settings->display.showFps,
-                    [this](bool) {
-                        settings->display.showFps = !settings->display.showFps;
-                    }))
-            .addOption(
                 Strings::AppState::Options::FOV,
                 WidgetBuilder::createSlider(
                     settings->display.fov,
