@@ -10,6 +10,8 @@ sf::Text RenderContextBuilder::createTextObject(
     text.setFont(font);
     text.setCharacterSize(charSize);
     text.setFillColor(color);
+    text.setOutlineColor(sf::Color::Black);
+    text.setOutlineThickness(1.f);
     return text;
 }
 

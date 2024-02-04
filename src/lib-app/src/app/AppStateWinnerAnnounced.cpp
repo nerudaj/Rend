@@ -48,6 +48,7 @@ void AppStateWinnerAnnounced::buildLayoutImpl()
     label->setHorizontalAlignment(tgui::Label::HorizontalAlignment::Center);
     label->setVerticalAlignment(tgui::Label::VerticalAlignment::Center);
     label->getRenderer()->setTextColor(tgui::Color::White);
+    label->getRenderer()->setTextOutlineThickness(1.f);
     label->getRenderer()->setTextOutlineColor(tgui::Color::Black);
     label->setTextSize(64);
     gui->add(label);
