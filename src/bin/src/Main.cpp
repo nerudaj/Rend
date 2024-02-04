@@ -150,7 +150,7 @@ int main(int argc, char* argv[])
 
     nlohmann::json json = *settings;
     std::ofstream save(CONFIG_FILE_PATH);
-    save << json;
+    save << json.dump(4);
 
     return 0;
 }
