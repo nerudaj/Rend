@@ -9,6 +9,13 @@
 
 import Memory;
 
+struct GiveResult
+{
+    bool given = true;
+    bool removePickup = true;
+    bool playSound = true;
+};
+
 class GameRulesEngine final
 {
 public:
@@ -66,8 +73,7 @@ private:
 
     void swapToLastWeapon(PlayerInventory& inventory, EntityIndexType idx);
 
-    /// <returns>True if thing was succesfully given</returns>
-    [[nodiscard]] bool
+    [[nodiscard]] GiveResult
     give(Entity& entity, PlayerInventory& inventory, EntityType pickupId);
 
     [[nodiscard]] int computeProjectileDamage(

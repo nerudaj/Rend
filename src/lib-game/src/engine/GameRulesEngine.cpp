@@ -331,11 +331,15 @@ void GameRulesEngine::handleGrabbedPickable(
     Entity pickup,
     std::size_t pickupId)
 {
-    if (give(entity, inventory, pickup.typeId))
+    if (auto giveResult = give(entity, inventory, pickup.typeId);
+        giveResult.given)
     {
-        eventQueue->emplace<PickablePickedUpGameEvent>(pickupId);
-        eventQueue->emplace<SoundTriggeredAudioEvent>(
-            ENTITY_PROPERTIES.at(pickup.typeId).specialSound, entity.stateIdx);
+        if (giveResult.removePickup)
+            eventQueue->emplace<PickablePickedUpGameEvent>(pickupId);
+        if (giveResult.playSound)
+            eventQueue->emplace<SoundTriggeredAudioEvent>(
+                ENTITY_PROPERTIES.at(pickup.typeId).specialSound,
+                entity.stateIdx);
     }
 }
 
@@ -387,22 +391,32 @@ void GameRulesEngine::swapToLastWeapon(
         idx, AnimationStateId::FastLower);
 }
 
-bool GameRulesEngine::give(
+GiveResult GameRulesEngine::give(
     Entity& entity, PlayerInventory& inventory, EntityType pickupType)
 {
     using enum EntityType;
 
     const auto& def = ENTITY_PROPERTIES.at(pickupType);
 
+    const auto NOT_GIVEN = GiveResult { .given = false,
+                                        .removePickup = false,
+                                        .playSound = false };
+
+    const auto PICKUP_GIVEN =
+        GiveResult { .given = true, .removePickup = true, .playSound = true };
+
+    const auto WEAPON_GIVEN =
+        GiveResult { .given = true, .removePickup = false, .playSound = true };
+
     switch (pickupType)
     {
     case PickupHealth:
-        if (entity.health >= MAX_HEALTH) return false;
+        if (entity.health >= MAX_HEALTH) return NOT_GIVEN;
         entity.health =
             std::clamp(entity.health + def.healthAmount, 0, MAX_HEALTH);
         break;
     case PickupArmor:
-        if (entity.armor >= MAX_ARMOR) return false;
+        if (entity.armor >= MAX_ARMOR) return NOT_GIVEN;
         entity.armor = std::clamp(entity.armor + def.armorAmount, 0, MAX_ARMOR);
         break;
     case PickupMegaHealth:
@@ -417,7 +431,8 @@ bool GameRulesEngine::give(
     case PickupEnergy:
     case PickupRockets: {
         const auto ammoIndex = ammoPickupToAmmoIndex(pickupType);
-        if (inventory.ammo[ammoIndex] == AMMO_LIMIT[ammoIndex]) return false;
+        if (inventory.ammo[ammoIndex] == AMMO_LIMIT[ammoIndex])
+            return NOT_GIVEN;
         inventory.ammo[ammoIndex] = std::clamp(
             inventory.ammo[ammoIndex] + def.ammoAmount,
             0,
@@ -430,17 +445,17 @@ bool GameRulesEngine::give(
     case PickupLauncher:
     case PickupBallista: {
         const auto index = weaponPickupToIndex(pickupType);
-        if (inventory.acquiredWeapons[index]) return false;
+        if (inventory.acquiredWeapons[index]) return NOT_GIVEN;
         std::ignore =
             give(entity, inventory, ammoTypeToPickupType(def.ammoType));
         inventory.acquiredWeapons[index] = true;
-        return false;
+        return WEAPON_GIVEN;
     }
     default:
-        return false;
+        return NOT_GIVEN;
     }
 
-    return true;
+    return PICKUP_GIVEN;
 }
 
 int GameRulesEngine::computeProjectileDamage(
