@@ -218,6 +218,8 @@ void RenderingEngine::renderFps(dgm::Window& window)
 void RenderingEngine::renderPlayerHud(
     dgm::Window& window, const Entity& player, const PlayerInventory& inventory)
 {
+    if (settings.hideHud) return;
+
     renderHudActiveWeapon(window, player, inventory);
     renderHudForHealth(window, player);
     renderHudForArmor(window, player);

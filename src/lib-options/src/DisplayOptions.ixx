@@ -25,8 +25,14 @@ export
         bool useDitheredShadows = false;
         bool showFps = false;
         float fov = 0.66f;
+        bool hideHud = false;
     };
 
     NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(
-        DisplayOptions, resolution, isFullscreen, useDitheredShadows, showFps);
+        DisplayOptions,
+        resolution,
+        isFullscreen,
+        useDitheredShadows,
+        showFps,
+        hideHud);
 }
