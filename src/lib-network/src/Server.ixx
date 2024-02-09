@@ -1,9 +1,10 @@
 module;
 
-#include <DGM/dgm.hpp>
 #pragma warning(push, 0)
+#include <DGM/dgm.hpp>
 #include <SFML/Network.hpp>
 #pragma warning(pop)
+#include <deque>
 #include <format>
 #include <stdexcept>
 #include <vector>
@@ -60,5 +61,5 @@ private:
 
 private:
     sf::UdpSocket socket;
-    // dgm::DynamicBuffer<int> connectedClients;
+    std::deque<int> connectedClients;
 };

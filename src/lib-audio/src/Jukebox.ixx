@@ -1,7 +1,7 @@
 module;
 
-#include <DGM/dgm.hpp>
 #pragma warning(push, 0)
+#include <DGM/dgm.hpp>
 #include <SFML/Audio.hpp>
 #pragma warning(pop)
 

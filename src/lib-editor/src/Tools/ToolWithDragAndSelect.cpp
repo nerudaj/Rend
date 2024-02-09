@@ -30,7 +30,7 @@ void ToolWithDragAndSelect::penDragEnded(
     selecting = false;
 }
 
-void ToolWithDragAndSelect::penDragCancel(const sf::Vector2i& origin)
+void ToolWithDragAndSelect::penDragCancel(const sf::Vector2i&)
 {
     selectedObjects.clear();
     dragging = false;

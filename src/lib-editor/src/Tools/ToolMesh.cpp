@@ -184,8 +184,10 @@ void ToolMesh::shrinkTo(const TileRect& boundingBox)
 
 void ToolMesh::saveTo(LevelD& lvd) const
 {
-    lvd.mesh.tileWidth = sidebarUser.getClip().getFrameSize().x;
-    lvd.mesh.tileHeight = sidebarUser.getClip().getFrameSize().y;
+    lvd.mesh.tileWidth =
+        static_cast<uint16_t>(sidebarUser.getClip().getFrameSize().x);
+    lvd.mesh.tileHeight =
+        static_cast<uint16_t>(sidebarUser.getClip().getFrameSize().y);
     lvd.mesh.layerWidth = getMap().getMapDimensions().x;
     lvd.mesh.layerHeight = getMap().getMapDimensions().y;
 
@@ -223,7 +225,7 @@ void ToolMesh::loadFrom(const LevelD& lvd)
     const auto dataSize =
         sf::Vector2u(lvd.mesh.layerWidth, lvd.mesh.layerHeight);
 
-    for (unsigned i = 0; i < lvd.mesh.layers.size(); i++)
+    for (size_t i = 0; i < lvd.mesh.layers.size(); i++)
     {
         const auto tilemapData = std::vector<int>(
             lvd.mesh.layers[i].tiles.begin(), lvd.mesh.layers[i].tiles.end());
@@ -233,7 +235,7 @@ void ToolMesh::loadFrom(const LevelD& lvd)
         maps[i].build(tilemapData, collisionData, dataSize);
     }
 
-    for (unsigned i = lvd.mesh.layers.size(); i < maps.size(); i++)
+    for (auto i = lvd.mesh.layers.size(); i < maps.size(); i++)
     {
         const auto dataSizeMul = dataSize.x * dataSize.y;
         const auto emptyData = std::vector<int>(dataSizeMul, 0);
