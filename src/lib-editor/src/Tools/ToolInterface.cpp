@@ -6,7 +6,11 @@ void ToolInterface::buildCtxMenu(tgui::MenuBar::Ptr& menu)
 {
     destroyCtxMenu(menu);
     shortcutEngine->unregisterShortcutGroup(CTX_MENU_NAME);
-    menu->addMenu(CTX_MENU_NAME);
+
+    if (!menu->getMenuEnabled(CTX_MENU_NAME))
+    {
+        menu->addMenu(CTX_MENU_NAME);
+    }
     buildCtxMenuInternal(menu);
 }
 
@@ -16,7 +20,7 @@ void ToolInterface::addCtxMenuItem(
     std::function<void(void)> callback,
     sf::Keyboard::Key key)
 {
-    menu->addMenuItem(label);
+    menu->addMenuItem(CTX_MENU_NAME, label);
     ctxMenuSignalHandlers.push_back(
         menu->connectMenuItem(CTX_MENU_NAME, label, callback));
     shortcutEngine->registerShortcut(
@@ -30,7 +34,7 @@ void ToolInterface::destroyCtxMenu(tgui::MenuBar::Ptr& menu)
         menu->disconnect(id);*/
 
     ctxMenuSignalHandlers.clear();
-    menu->removeMenu(CTX_MENU_NAME);
+    menu->removeMenuItems(CTX_MENU_NAME);
 }
 
 sf::Vector2i Helper::minVector(const sf::Vector2i& a, const sf::Vector2i& b)

@@ -44,9 +44,9 @@ Editor::Editor(
         level.mesh.layerWidth, level.mesh.layerHeight, level.mesh.tileWidth);
     configureMouseIndicator();
     configureMeshTool(level);
+    populateMenuBar();
     switchTool(EditorState::Mesh);
     configureItemTool(level);
-    populateMenuBar();
     configureCanvasCallbacks();
 }
 
@@ -107,8 +107,13 @@ void Editor::populateMenuBar()
 
     auto menu = gui->gui.get<tgui::MenuBar>("TopMenuBar");
 
+    if (!menu->getMenuEnabled(MENU_NAME))
+    {
+        menu->addMenu(MENU_NAME);
+    }
+
     // Cleanup previously built data
-    menu->removeMenu(MENU_NAME);
+    menu->removeMenuItems(MENU_NAME);
     shortcutEngine->unregisterShortcutGroup(MENU_NAME);
 
     auto addEditorMenuItem =
@@ -117,7 +122,7 @@ void Editor::populateMenuBar()
             sf::Keyboard::Key shortcut = sf::Keyboard::KeyCount,
             bool ctrlRequired = false)
     {
-        menu->addMenuItem(label);
+        menu->addMenuItem(MENU_NAME, label);
         menu->connectMenuItem(MENU_NAME, label, callback);
 
         if (shortcut != sf::Keyboard::KeyCount)
@@ -128,7 +133,6 @@ void Editor::populateMenuBar()
     using namespace Strings::Editor::ContextMenu;
 
     // Build menu
-    menu->addMenu(MENU_NAME);
     addEditorMenuItem(
         MESH_MODE, [this] { switchTool(EditorState::Mesh); }, sf::Keyboard::M);
     addEditorMenuItem(
