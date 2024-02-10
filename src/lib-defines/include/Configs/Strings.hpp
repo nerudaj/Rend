@@ -120,7 +120,10 @@ namespace Strings
     namespace Game
     {
         RAWSTRING RESPAWN_PROMPT = "Press [Space] to respawn";
-    }
+        RAWSTRING SUICIDE = "You killed yourself";
+        RAWSTRING KILLED_BY = "{} killed you";
+        RAWSTRING YOU_KILLED = "You killed {}";
+    } // namespace Game
 
     namespace Level
     {

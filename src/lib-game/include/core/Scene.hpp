@@ -15,6 +15,7 @@
 
 import Memory;
 import AiEnums;
+import HudMessage;
 
 struct HitscanResult
 {
@@ -90,10 +91,17 @@ struct AiBlackboard
     float targettingTimer;
 };
 
+struct RenderContext
+{
+    HudMessage message;
+    float redOverlayIntensity = 0.f;
+};
+
 struct PlayerState
 {
     SimpleController input;
     PlayerInventory inventory;
+    RenderContext renderContext;
     std::optional<AiBlackboard> blackboard;
 };
 
@@ -110,7 +118,6 @@ struct Level
 struct CameraContext
 {
     EntityIndexType anchorIdx = 0;
-    float redOverlayIntensity = 0.f;
 };
 
 // Add all game actors and objects to this struct as it is passed

@@ -15,7 +15,7 @@ void GameLoop::renderTo(dgm::Window& window)
 
 bool GameLoop::isPointlimitReached(unsigned limit) const
 {
-    for (auto&& [_, inventory, __] : scene.playerStates)
+    for (auto&& [_, inventory, __, ___] : scene.playerStates)
     {
         if (inventory.score >= static_cast<int>(limit))
         {

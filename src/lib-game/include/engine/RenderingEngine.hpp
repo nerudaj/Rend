@@ -54,7 +54,10 @@ private:
         dgm::Window& window, const PlayerInventory& inventory);
     void
     renderHudForScore(dgm::Window& window, const PlayerInventory& inventory);
-    void renderHurtOverlay(dgm::Window& window);
+    void
+    renderHurtOverlay(dgm::Window& window, const RenderContext& renderContext);
+    void
+    renderHudMessage(dgm::Window& window, const RenderContext& renderContext);
     void renderRespawnPrompt(dgm::Window& window);
 
     void renderLevelMesh(

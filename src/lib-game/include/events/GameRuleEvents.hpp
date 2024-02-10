@@ -123,6 +123,30 @@ struct ScriptTriggeredGameEvent
     }
 };
 
+struct PlayerKilledThemselvesGameEvent
+{
+    PlayerStateIndexType playerStateIdx;
+
+    [[nodiscard]] constexpr PlayerKilledThemselvesGameEvent(
+        PlayerStateIndexType idx) noexcept
+        : playerStateIdx(idx)
+    {
+    }
+};
+
+struct PlayerKilledPlayerGameEvent
+{
+    PlayerStateIndexType killerStateIdx;
+    PlayerStateIndexType victimStateIdx;
+
+    [[nodiscard]] constexpr PlayerKilledPlayerGameEvent(
+        PlayerStateIndexType killerStateIdx,
+        PlayerStateIndexType victimStateIdx) noexcept
+        : killerStateIdx(killerStateIdx), victimStateIdx(victimStateIdx)
+    {
+    }
+};
+
 using GameEvent = std::variant<
     PickablePickedUpGameEvent,
     ProjectileCreatedGameEvent,
@@ -132,4 +156,6 @@ using GameEvent = std::variant<
     EffectSpawnedGameEvent,
     PickupSpawnedGameEvent,
     HitscanProjectileFiredGameEvent,
-    ScriptTriggeredGameEvent>;
+    ScriptTriggeredGameEvent,
+    PlayerKilledThemselvesGameEvent,
+    PlayerKilledPlayerGameEvent>;

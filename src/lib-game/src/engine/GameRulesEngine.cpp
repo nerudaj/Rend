@@ -1,5 +1,6 @@
 #include "engine/GameRulesEngine.hpp"
 #include "events/EventQueue.hpp"
+#include <Configs/Strings.hpp>
 #include <builder/SceneBuilder.hpp>
 #include <core/EntityDefinitions.hpp>
 #include <utils/MathHelpers.hpp>
@@ -188,6 +189,25 @@ void GameRulesEngine::operator()(const ScriptTriggeredGameEvent& e)
         scene.playerStates[thing.stateIdx].input.stopShooting();
         break;
     }
+}
+
+void GameRulesEngine::operator()(const PlayerKilledThemselvesGameEvent& e)
+{
+    auto&& context = scene.playerStates[e.playerStateIdx].renderContext;
+    context.message = HudMessage(Strings::Game::SUICIDE);
+}
+
+void GameRulesEngine::operator()(const PlayerKilledPlayerGameEvent& e)
+{
+    auto&& killerContext = scene.playerStates[e.killerStateIdx].renderContext;
+    auto&& victimContext = scene.playerStates[e.victimStateIdx].renderContext;
+
+    killerContext.message = HudMessage(std::vformat(
+        Strings::Game::YOU_KILLED,
+        std::make_format_args("player " + std::to_string(e.victimStateIdx))));
+    victimContext.message = HudMessage(std::vformat(
+        Strings::Game::KILLED_BY,
+        std::make_format_args("player " + std::to_string(e.killerStateIdx))));
 }
 
 #pragma endregion
@@ -491,13 +511,26 @@ void GameRulesEngine::damage(
     damage -= amountAbsorbedByArmor;
 
     thing.health -= damage;
-    if (idx == scene.camera.anchorIdx) scene.camera.redOverlayIntensity = 128.f;
+    if (idx == scene.camera.anchorIdx)
+        scene.playerStates[thing.stateIdx].renderContext.redOverlayIntensity =
+            128.f;
 
     if (thing.health <= 0)
     {
         auto& inventory = scene.playerStates[originatorStateIdx].inventory;
         // decrement score if killing myself
-        inventory.score += idx == inventory.ownerIdx ? -1 : 1;
+        if (idx == inventory.ownerIdx)
+        {
+            --inventory.score;
+            eventQueue->emplace<PlayerKilledThemselvesGameEvent>(
+                thing.stateIdx);
+        }
+        else
+        {
+            ++inventory.score;
+            eventQueue->emplace<PlayerKilledPlayerGameEvent>(
+                originatorStateIdx, thing.stateIdx);
+        }
         removeEntity(idx);
     }
 }

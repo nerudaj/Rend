@@ -100,11 +100,16 @@ RenderingEngine::RenderingEngine(
 void RenderingEngine::update(const float deltaTime)
 {
     fpsCounter.update(deltaTime);
-    scene.camera.redOverlayIntensity = std::clamp(
-        scene.camera.redOverlayIntensity
-            - OVERLAY_INTENSITY_DECAY_RATE * deltaTime,
-        0.f,
-        255.f);
+
+    for (auto&& state : scene.playerStates)
+    {
+        state.renderContext.redOverlayIntensity = std::clamp(
+            state.renderContext.redOverlayIntensity
+                - OVERLAY_INTENSITY_DECAY_RATE * deltaTime,
+            0.f,
+            255.f);
+        state.renderContext.message.update(deltaTime);
+    }
 }
 
 void RenderingEngine::renderTo(dgm::Window& window)
@@ -123,6 +128,14 @@ void RenderingEngine::renderTo(dgm::Window& window)
     else
     {
         renderRespawnPrompt(window);
+    }
+
+    auto&& renderContext = scene.playerStates[pov.stateIdx].renderContext;
+
+    if (!settings.hideHud)
+    {
+        renderHurtOverlay(window, renderContext);
+        renderHudMessage(window, renderContext);
     }
 }
 
@@ -226,7 +239,6 @@ void RenderingEngine::renderPlayerHud(
     renderHudForAmmo(window, inventory);
     renderHudForWeaponSelection(window, inventory);
     renderHudForScore(window, inventory);
-    renderHurtOverlay(window);
 }
 
 void RenderingEngine::renderHudActiveWeapon(
@@ -380,12 +392,26 @@ void RenderingEngine::renderHudForScore(
     window.draw(text);
 }
 
-void RenderingEngine::renderHurtOverlay(dgm::Window& window)
+void RenderingEngine::renderHurtOverlay(
+    dgm::Window& window, const RenderContext& renderContext)
 {
     auto redOverlay = sf::RectangleShape(sf::Vector2f(window.getSize()));
     redOverlay.setFillColor(
-        sf::Color(255, 0, 0, sf::Int8(scene.camera.redOverlayIntensity)));
+        sf::Color(255, 0, 0, sf::Int8(renderContext.redOverlayIntensity)));
     window.draw(redOverlay);
+}
+
+void RenderingEngine::renderHudMessage(
+    dgm::Window& window, const RenderContext& renderContext)
+{
+    if (!renderContext.message.isActive()) return;
+
+    text.setString(renderContext.message.getText());
+    const auto bounds = text.getGlobalBounds();
+    text.setPosition(
+        (settings.resolution.width - bounds.width) / 2.f,
+        settings.resolution.height / 2.f - bounds.height);
+    window.draw(text);
 }
 
 void RenderingEngine::renderRespawnPrompt(dgm::Window& window)
