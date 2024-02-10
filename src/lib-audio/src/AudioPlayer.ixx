@@ -79,7 +79,7 @@ public:
         for (auto& channel : channels)
         {
             channel.setVolume(volume);
-            channel.setAttenuation(1.f);
+            channel.setAttenuation(1.f / 4);
         }
     }
 

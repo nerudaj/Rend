@@ -101,7 +101,8 @@ const static inline auto ENTITY_PROPERTIES =
                                                  // sound playback
                                           { ExplosionA,
                                             1,
-                                            playSound("rocket_explosion.wav") },
+                                            playSound(
+                                                "rocket_explosion2.wav") },
                                           { ExplosionB, 2 },
                                           { ExplosionC, 2 },
                                           { ExplosionD, 2 },
@@ -363,7 +364,7 @@ const static inline auto ENTITY_PROPERTIES =
                                   .clip = { { HUD_ShotgunRA,
                                               15,
                                               playSound(
-                                                  "ssg_reload3.wav",
+                                                  "shotgun_reload.wav",
                                                   SoundSourceType::Pov) },
                                             { HUD_ShotgunRB, 15 },
                                             { HUD_ShotgunRC, 15 } },
@@ -561,11 +562,7 @@ const static inline auto ENTITY_PROPERTIES =
                                   .transition = AnimationStateId::Recovery } },
                             { AnimationStateId::Recovery,
                               AnimationState {
-                                  .clip = { { HUD_BallistaRA,
-                                              10,
-                                              playSound(
-                                                  "ballista_depowering.wav",
-                                                  SoundSourceType::Player) },
+                                  .clip = { { HUD_BallistaRA, 10 },
                                             { HUD_BallistaRB, 10 },
                                             { HUD_BallistaRC, 10 },
                                             { HUD_BallistaRD, 10 },
