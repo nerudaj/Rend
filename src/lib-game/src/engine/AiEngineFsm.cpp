@@ -180,16 +180,20 @@ AiEngine::createAliveFsm(AiEngine& self)
     // clang-format on
 }
 
-dgm::fsm::Fsm<AiState, AiBlackboard> AiEngine::createDeadFsm(AiEngine&)
+dgm::fsm::Fsm<AiState, AiBlackboard> AiEngine::createDeadFsm(AiEngine& engine)
 {
     using enum AiState;
+
+    auto shouldWaitBeforeRequestingRespawn = [&engine](const AiBlackboard& bb)
+    { return engine.scene.tick % (bb.playerStateIdx + 1) != 0; };
 
     auto requestRespawn = [](AiBlackboard& bb) { bb.input->shoot(); };
 
     // clang-format off
     return dgm::fsm::Builder<AiState, AiBlackboard>()
         .with(RequestingRespawn)
-            .exec(requestRespawn)
+            .when(shouldWaitBeforeRequestingRespawn).goTo(RequestingRespawn)
+            .otherwiseExec(requestRespawn)
             .andGoTo(WaitingForRespawn)
         .with(WaitingForRespawn)
             .exec([](auto){})
