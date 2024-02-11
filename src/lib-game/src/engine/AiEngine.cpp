@@ -6,7 +6,6 @@ import UtilityAi;
 
 void AiEngine::update(const float deltaTime)
 {
-    bool logging = true;
     for (auto&& state : scene.playerStates)
     {
         if (!state.blackboard.has_value()) continue;
@@ -14,16 +13,10 @@ void AiEngine::update(const float deltaTime)
         auto& blackboard = state.blackboard.value();
         blackboard.targettingTimer -= deltaTime;
 
-        fsmTop.setLogging(logging);
-        fsmAlive.setLogging(logging);
-        fsmDead.setLogging(logging);
-
         blackboard.input->clearInputs();
         fsmTop.setState(blackboard.aiTopState);
         fsmTop.update(blackboard);
         blackboard.aiTopState = fsmTop.getState();
-
-        logging = false;
     }
 }
 

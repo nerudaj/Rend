@@ -17,15 +17,9 @@ AiEngine::AiEngine(Scene& scene)
     , fsmAlive(createAliveFsm(*this))
     , fsmDead(createDeadFsm(*this))
 {
-    fsmTop.setStateToStringHelper(std::map { TOP_STATES_TO_STRING });
+    /*fsmTop.setStateToStringHelper(std::map { TOP_STATES_TO_STRING });
     fsmAlive.setStateToStringHelper(std::map { AI_STATE_TO_STRING });
-    fsmDead.setStateToStringHelper(std::map { AI_STATE_TO_STRING });
-
-#ifdef DEBUG_REMOVALS
-    fsmTop.setLogging(true);
-    fsmAlive.setLogging(true);
-    fsmDead.setLogging(true);
-#endif
+    fsmDead.setStateToStringHelper(std::map { AI_STATE_TO_STRING });*/
 }
 
 dgm::fsm::Fsm<AiTopState, AiBlackboard> AiEngine::createTopFsm(AiEngine& self)
