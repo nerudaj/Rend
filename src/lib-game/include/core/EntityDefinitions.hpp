@@ -9,9 +9,17 @@ constinit const unsigned LOWER_TIME = 30;
 constinit const unsigned RAISE_TIME = 30;
 constinit const unsigned FAST_LOWER_TIME = 10;
 constinit const unsigned FAST_RAISE_TIME = 10;
+constinit const int FLARE_DAMAGE = 64_damage;
+constinit const int SHOTGUN_DAMAGE = 16_damage;
+constinit const int BULLET_DAMAGE = 20_damage;
+constinit const int LASERDART_DAMAGE = 96_damage;
+constinit const int ROCKET_DAMAGE = 150_damage;
+constinit const int RAILGUN_DAMAGE = 200_damage
 
-constexpr Script playSound(
-    const std::string& sound, SoundSourceType type = SoundSourceType::Ambient)
+    constexpr Script
+    playSound(
+        const std::string& sound,
+        SoundSourceType type = SoundSourceType::Ambient)
 {
     return Script { .id = ScriptId::TriggerSound,
                     .sound = sound,
@@ -261,7 +269,7 @@ const static inline auto ENTITY_PROPERTIES =
               .radius = 2_px,
               .speed = 200_unitspersec,
               .traits = Trait::Projectile,
-              .damage = 64,
+              .damage = FLARE_DAMAGE,
               .debrisEffectType = EntityType::EffectFlareExplosion,
               .initialSpriteIndex = FlareA0,
           } },
@@ -272,7 +280,7 @@ const static inline auto ENTITY_PROPERTIES =
               .traits =
                   Trait::Projectile | Trait::Explosive | Trait::Directional,
               .explosionRadius = 16_px,
-              .damage = 150,
+              .damage = ROCKET_DAMAGE,
               .debrisEffectType = EntityType::EffectRocketExplosion,
               .initialSpriteIndex = RocketA0,
               .states = { { AnimationStateId::Idle,
@@ -286,7 +294,7 @@ const static inline auto ENTITY_PROPERTIES =
               .speed = 150_unitspersec,
               .traits = Trait::Projectile | Trait::Bouncy | Trait::Directional,
               .specialSound = "dart_bounce.wav",
-              .damage = 96,
+              .damage = LASERDART_DAMAGE,
               .debrisEffectType = EntityType::EffectDartExplosion,
               .initialSpriteIndex = LaserDartA0,
           } },
@@ -354,7 +362,7 @@ const static inline auto ENTITY_PROPERTIES =
                                               10,
                                               firePellets(
                                                   8,
-                                                  10_damage,
+                                                  SHOTGUN_DAMAGE,
                                                   "shotgun.wav") },
                                             { HUD_ShotgunFA, 10 } },
                                   .transition = AnimationStateId::Recovery } },
@@ -402,21 +410,24 @@ const static inline auto ENTITY_PROPERTIES =
                                   .clip = { { HUD_TrishotFA,
                                               3,
                                               fireBullet(
-                                                  40_damage, "bullet.wav") },
+                                                  BULLET_DAMAGE,
+                                                  "bullet.wav") },
                                             { HUD_TrishotFB, 3 },
                                             { HUD_TrishotFC, 3 },
                                             { HUD_TrishotFD, 3 },
                                             { HUD_TrishotFA,
                                               3,
                                               fireBullet(
-                                                  40_damage, "bullet.wav") },
+                                                  BULLET_DAMAGE,
+                                                  "bullet.wav") },
                                             { HUD_TrishotFB, 3 },
                                             { HUD_TrishotFC, 3 },
                                             { HUD_TrishotFD, 3 },
                                             { HUD_TrishotFA,
                                               3,
                                               fireBullet(
-                                                  40_damage, "bullet.wav") },
+                                                  BULLET_DAMAGE,
+                                                  "bullet.wav") },
                                             { HUD_TrishotFB, 3 },
                                             { HUD_TrishotFC, 3 },
                                             { HUD_TrishotFD,
@@ -544,19 +555,19 @@ const static inline auto ENTITY_PROPERTIES =
                             { AnimationStateId::Missile,
                               AnimationState {
                                   .clip = { { HUD_BallistaFA,
-                                              5,
+                                              4,
                                               playSound(
                                                   "ballista_powering.wav",
                                                   SoundSourceType::Player) },
-                                            { HUD_BallistaFB, 5 },
-                                            { HUD_BallistaFC, 5 },
-                                            { HUD_BallistaFD, 5 },
-                                            { HUD_BallistaFE, 5 },
-                                            { HUD_BallistaFF, 5 },
+                                            { HUD_BallistaFB, 4 },
+                                            { HUD_BallistaFC, 4 },
+                                            { HUD_BallistaFD, 4 },
+                                            { HUD_BallistaFE, 4 },
+                                            { HUD_BallistaFF, 4 },
                                             { HUD_BallistaFG,
                                               5,
                                               fireRay(
-                                                  200_damage,
+                                                  RAILGUN_DAMAGE,
                                                   "railgun.wav") } },
                                   .transition = AnimationStateId::Recovery } },
                             { AnimationStateId::Recovery,
