@@ -61,6 +61,6 @@ TEST_CASE("[GameRuleEngine]")
         audioEventVisitor.expectedSound = "rocket_explosion.wav";
         eventQueue->processAndClear(audioEventVisitor);
         REQUIRE(audioEventVisitor.soundTriggered);
-        REQUIRE(audioEventVisitor.playedSoundCount++);
+        REQUIRE(audioEventVisitor.playedSoundCount == 1u);
     }
 }

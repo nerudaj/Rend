@@ -101,8 +101,7 @@ const static inline auto ENTITY_PROPERTIES =
                                                  // sound playback
                                           { ExplosionA,
                                             1,
-                                            playSound(
-                                                "rocket_explosion2.wav") },
+                                            playSound("rocket_explosion.wav") },
                                           { ExplosionB, 2 },
                                           { ExplosionC, 2 },
                                           { ExplosionD, 2 },
