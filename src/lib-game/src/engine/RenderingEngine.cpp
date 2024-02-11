@@ -1,5 +1,6 @@
 #include "engine/RenderingEngine.hpp"
 #include "builder/VertexArrayBuilder.hpp"
+#include <Configs/Sizers.hpp>
 #include <Configs/Strings.hpp>
 #include <builder/RenderContextBuilder.hpp>
 #include <core/EntityDefinitions.hpp>
@@ -79,7 +80,7 @@ RenderingEngine::RenderingEngine(
     , noiseTexture(resmgr.get<sf::Texture>("ditherNoise.png").value().get())
     , text(RenderContextBuilder::createTextObject(
           resmgr.get<sf::Font>("pico-8.ttf").value().get(),
-          32u,
+          Sizers::getBaseFontSize(),
           sf::Color::White))
     , caster(scene.level.bottomMesh.getVoxelSize())
     , depthBuffer(settings.resolution.width)
