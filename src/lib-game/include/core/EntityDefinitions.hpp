@@ -14,12 +14,10 @@ constinit const int SHOTGUN_DAMAGE = 16_damage;
 constinit const int BULLET_DAMAGE = 20_damage;
 constinit const int LASERDART_DAMAGE = 96_damage;
 constinit const int ROCKET_DAMAGE = 150_damage;
-constinit const int RAILGUN_DAMAGE = 200_damage
+constinit const int RAILGUN_DAMAGE = 200_damage;
 
-    constexpr Script
-    playSound(
-        const std::string& sound,
-        SoundSourceType type = SoundSourceType::Ambient)
+constexpr Script playSound(
+    const std::string& sound, SoundSourceType type = SoundSourceType::Ambient)
 {
     return Script { .id = ScriptId::TriggerSound,
                     .sound = sound,
