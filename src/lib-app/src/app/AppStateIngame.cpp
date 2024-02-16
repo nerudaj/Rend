@@ -97,9 +97,11 @@ void AppStateIngame::input()
         }
         else if (controller->shouldTakeScreenshot())
         {
-            assert(app.window.getScreenshot().saveToFile(std::format(
-                "./Rend_screenshot_{0:%F}_{0:%H}-{0:%M}-{0:%S}.png",
-                std::chrono::system_clock::now())));
+            const auto&& succeeded =
+                app.window.getScreenshot().saveToFile(std::format(
+                    "./Rend_screenshot_{0:%F}_{0:%H}-{0:%M}-{0:%S}.png",
+                    std::chrono::system_clock::now()));
+            assert(succeeded);
         }
     }
 
