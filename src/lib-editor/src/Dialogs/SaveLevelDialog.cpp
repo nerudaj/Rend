@@ -36,7 +36,7 @@ void NewSaveLevelDialog::buildLayoutImpl(tgui::Panel::Ptr target)
             WidgetBuilder::createTextInput(
                 levelName,
                 [&](tgui::String str) { levelName = str.toStdString(); },
-                "[a-zA-Z0-9]+"))
+                "[a-zA-Z0-9_]+"))
         .build();
 }
 
