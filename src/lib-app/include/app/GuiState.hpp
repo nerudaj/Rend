@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Configs/Sizers.hpp>
 #include <DGM/dgm.hpp>
 #include <TGUI/Backend/SFML-Graphics.hpp>
 #include <TGUI/TGUI.hpp>
@@ -60,7 +61,11 @@ protected:
     [[nodiscard]] tgui::Button::Ptr createBackButton(
         std::function<void(void)> callback, const std::string& label = "back")
     {
-        return createButton(label, { "1%", "94%" }, { "15%", "5%" }, callback);
+        return createButton(
+            label,
+            { "1%", "94%" },
+            { "15%", Sizers::getBaseRowHeight() },
+            callback);
     }
 
     /**

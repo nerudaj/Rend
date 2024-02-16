@@ -1,6 +1,8 @@
 #include <app/AppStateScoreTable.hpp>
 #include <app/AppStateWinnerAnnounced.hpp>
 
+import WidgetBuilder;
+
 void AppStateWinnerAnnounced::input()
 {
     sf::Event event;
@@ -41,15 +43,11 @@ void AppStateWinnerAnnounced::buildLayoutImpl()
     maxIndex++;
 
     // TODO: Use player names from settings
-    auto label =
-        tgui::Label::create("player " + std::to_string(maxIndex) + " won!");
+    auto&& label = WidgetBuilder::createBigLabel(
+        "player " + std::to_string(maxIndex) + " won!");
     label->setSize({ "100%", "25%" });
     label->setPosition({ "0%", "30%" });
     label->setHorizontalAlignment(tgui::Label::HorizontalAlignment::Center);
     label->setVerticalAlignment(tgui::Label::VerticalAlignment::Center);
-    label->getRenderer()->setTextColor(tgui::Color::White);
-    label->getRenderer()->setTextOutlineThickness(1.f);
-    label->getRenderer()->setTextOutlineColor(tgui::Color::Black);
-    label->setTextSize(64);
     gui->add(label);
 }
