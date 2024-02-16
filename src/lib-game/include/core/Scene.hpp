@@ -103,6 +103,7 @@ struct PlayerState
     PlayerInventory inventory;
     RenderContext renderContext;
     std::optional<AiBlackboard> blackboard;
+    bool autoswapOnPickup = false;
 };
 
 struct Level

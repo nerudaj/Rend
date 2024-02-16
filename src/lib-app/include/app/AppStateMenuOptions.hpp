@@ -19,13 +19,15 @@ public:
         mem::Rc<AudioPlayer> audioPlayer,
         mem::Rc<Jukebox> jukebox,
         mem::Rc<AppOptions> settings,
-        mem::Rc<PhysicalController> controller)
+        mem::Rc<PhysicalController> controller,
+        bool enteredFromGame = false)
         : dgm::AppState(app)
         , GuiState(gui, audioPlayer)
         , resmgr(resmgr)
         , jukebox(jukebox)
         , settings(settings)
         , controller(controller)
+        , enteredFromGame(enteredFromGame)
     {
         buildLayout();
     }
@@ -66,4 +68,5 @@ private:
     mem::Rc<Jukebox> jukebox;
     mem::Rc<AppOptions> settings;
     mem::Rc<PhysicalController> controller;
+    bool enteredFromGame;
 };

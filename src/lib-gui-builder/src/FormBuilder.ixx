@@ -16,8 +16,10 @@ public:
     FormBuilder(tgui::Panel::Ptr panel) : panel(panel) {}
 
 public:
-    [[nodiscard]] FormBuilder&
-    addOption(const std::string& labelText, tgui::Widget::Ptr widget);
+    [[nodiscard]] FormBuilder& addOption(
+        const std::string& labelText,
+        tgui::Widget::Ptr widget,
+        bool disabled = false);
 
     void build();
 
@@ -29,9 +31,10 @@ private:
 
 module :private;
 
-FormBuilder&
-FormBuilder::addOption(const std::string& labelText, tgui::Widget::Ptr widget)
+FormBuilder& FormBuilder::addOption(
+    const std::string& labelText, tgui::Widget::Ptr widget, bool disabled)
 {
+    widget->setEnabled(!disabled);
     rowsToBuild.push_back({ labelText, widget });
     return *this;
 }

@@ -257,6 +257,11 @@ void AppStateIngame::createPlayers()
                 AiBlackboard { .input = inputs[idx].castTo<AiController>(),
                                .personality = static_cast<AiPersonality>(idx),
                                .playerStateIdx = idx };
+        else if (gameSettings.players[idx].kind == PlayerKind::LocalHuman)
+        {
+            scene.playerStates.back().autoswapOnPickup =
+                settings->input.autoswapOnPickup;
+        }
     }
 }
 

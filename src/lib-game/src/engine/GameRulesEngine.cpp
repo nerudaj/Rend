@@ -123,17 +123,6 @@ void GameRulesEngine::operator()(const HitscanProjectileFiredGameEvent& e)
 
 void GameRulesEngine::operator()(const ScriptTriggeredGameEvent& e)
 {
-#ifdef DEBUG_REMOVALS
-
-    std::cout << std::format(
-        "{}: scriptTriggered(idx = {}, script = {})",
-        scene.tick,
-        e.targetEntityIdx,
-        static_cast<int>(e.script.id))
-              << std::endl;
-
-#endif
-
     auto& thing = scene.things[e.targetEntityIdx];
     const auto position =
         Position { thing.hitbox.getPosition()
@@ -208,6 +197,25 @@ void GameRulesEngine::operator()(const PlayerKilledPlayerGameEvent& e)
     victimContext.message = HudMessage(std::vformat(
         Strings::Game::KILLED_BY,
         std::make_format_args("player " + std::to_string(e.killerStateIdx))));
+}
+
+void GameRulesEngine::operator()(const WeaponPickedUpGameEvent& e)
+{
+    auto&& player = scene.things[e.playerIdx];
+    auto&& state = scene.playerStates[player.stateIdx];
+
+    const auto isAllowedToFire =
+        state.inventory.animationContext.animationStateId
+        == AnimationStateId::Idle;
+    const auto isAllowedToSelectAnotherWeapon =
+        isAllowedToFire
+        || state.inventory.animationContext.animationStateId
+               == AnimationStateId::Recovery;
+
+    if (!state.autoswapOnPickup || !isAllowedToSelectAnotherWeapon) return;
+
+    state.inventory.selectionIdx = e.weaponIdx;
+    state.inventory.selectionTimeout = FRAME_TIME / 2.f;
 }
 
 #pragma endregion
@@ -289,6 +297,7 @@ void GameRulesEngine::handlePlayer(
 
     if (isSelectingWeapon && isSelectionConfirmed)
     {
+        assert(isAllowedToSelectAnotherWeapon);
         swapToSelectedWeapon(state, idx);
     }
     else if (
@@ -471,6 +480,8 @@ GiveResult GameRulesEngine::give(
         std::ignore =
             give(entity, inventory, ammoTypeToPickupType(def.ammoType));
         inventory.acquiredWeapons[index] = true;
+
+        eventQueue->emplace<WeaponPickedUpGameEvent>(index, inventory.ownerIdx);
         return WEAPON_GIVEN;
     }
     default:

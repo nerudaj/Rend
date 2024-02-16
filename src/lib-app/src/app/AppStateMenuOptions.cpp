@@ -191,7 +191,14 @@ void AppStateMenuOptions::buildInputOptionsLayout(FormBuilder& builder)
                     deadzoneFormatter,
                     0.f,
                     1.f,
-                    0.01f));
+                    0.01f))
+            .addOption(
+                Strings::AppState::Options::SWAP_ON_PICKUP,
+                WidgetBuilder::createCheckbox(
+                    settings->input.autoswapOnPickup,
+                    [this](bool value)
+                    { settings->input.autoswapOnPickup = value; }),
+                enteredFromGame);
 }
 
 void AppStateMenuOptions::input()

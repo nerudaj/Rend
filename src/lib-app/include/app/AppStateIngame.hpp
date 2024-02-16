@@ -83,7 +83,6 @@ private:
     void unlockMouse();
 
     void createPlayers();
-
     void propagateSettings();
 
 protected:

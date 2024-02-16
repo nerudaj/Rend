@@ -37,6 +37,7 @@ public: // Must visit on all related events
     void operator()(const ScriptTriggeredGameEvent&);
     void operator()(const PlayerKilledThemselvesGameEvent&);
     void operator()(const PlayerKilledPlayerGameEvent&);
+    void operator()(const WeaponPickedUpGameEvent&);
 
 public:
     void update(const float deltaTime);
