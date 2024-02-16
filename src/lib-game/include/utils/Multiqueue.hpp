@@ -60,6 +60,12 @@ public:
         std::get<std::vector<Variant>>(queues).clear();
     }
 
+    template<class Variant>
+    [[nodiscard]] constexpr bool isEmpty() const
+    {
+        return std::get<std::vector<Variant>>(queues).empty();
+    }
+
 private:
     template<bool DeducingFromBaseType, class T>
     static consteval std::size_t getIndex(std::size_t index) noexcept

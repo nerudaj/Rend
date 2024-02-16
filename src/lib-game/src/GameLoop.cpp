@@ -15,9 +15,9 @@ void GameLoop::renderTo(dgm::Window& window)
 
 bool GameLoop::isPointlimitReached(unsigned limit) const
 {
-    for (auto&& [_, inventory, __, ___] : scene.playerStates)
+    for (auto&& state : scene.playerStates)
     {
-        if (inventory.score >= static_cast<int>(limit))
+        if (state.inventory.score >= static_cast<int>(limit))
         {
             return true;
         }
@@ -39,6 +39,7 @@ void GameLoop::processEvents(const bool skipAudio)
     // Animation, Physics and Game can produce GameEvent
     eventQueue->processAndClear(animationEngine);
     eventQueue->processAndClear(gameRulesEngine);
+    assert(eventQueue->isEmpty<AnimationEvent>());
 
     // Audio can only produce Audio events
     if (skipAudio)
