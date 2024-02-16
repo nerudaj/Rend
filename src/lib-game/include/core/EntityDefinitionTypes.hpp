@@ -44,6 +44,7 @@ struct EntityProperties
     AmmoType ammoType;
     int ammoAmount = 0;
     int minAmmoNeededToFire = 1;
+    int ammoConsumedPerShot = 1;
     int healthAmount = 0;
     int armorAmount = 0;
     EntityType debrisEffectType = EntityType::None;

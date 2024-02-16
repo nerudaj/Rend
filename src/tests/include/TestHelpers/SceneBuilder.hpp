@@ -1,3 +1,4 @@
+#include <builder/SceneBuilder.hpp>
 #include <core/Scene.hpp>
 
 static [[nodiscard]] dgm::Mesh createDummyMesh()
@@ -10,8 +11,25 @@ static [[nodiscard]] dgm::Mesh createDummyMesh()
 
 static [[nodiscard]] Scene createDummyScene(const dgm::Mesh& mesh)
 {
-    return Scene { .spatialIndex = dgm::SpatialIndex<EntityIndexType>(
+    return Scene { .level = { .width = mesh.getDataSize().x,
+                              .height = mesh.getDataSize().y,
+                              .bottomMesh = mesh,
+                              .upperMesh = mesh },
+                   .spatialIndex = dgm::SpatialIndex<EntityIndexType>(
                        dgm::Rect(0.f, 0.f, 48.f, 48.f), 16),
                    .distanceIndex = DistanceIndex(mesh),
                    .navmesh = dgm::WorldNavMesh(mesh) };
+}
+
+static [[nodiscard]] sf::Vector2f getSafePosition()
+{
+    return sf::Vector2f(24.f, 24.f);
+}
+
+static [[nodiscard]] Entity createDummyPlayer()
+{
+    return SceneBuilder::createPlayer(
+        Position { getSafePosition() },
+        Direction { sf::Vector2f(1.f, 0.f) },
+        0u);
 }

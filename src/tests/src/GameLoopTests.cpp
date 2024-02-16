@@ -63,4 +63,36 @@ TEST_CASE("[GameRuleEngine]")
         REQUIRE(audioEventVisitor.soundTriggered);
         REQUIRE(audioEventVisitor.playedSoundCount == 1u);
     }
+
+    SECTION("BUG: fireRay does not drain energy")
+    {
+        scene.things.emplaceBack(createDummyPlayer());
+        scene.playerStates.push_back(PlayerState {
+            .inventory = SceneBuilder::getDefaultInventory(0u, 0) });
+        scene.playerStates.front().inventory.activeWeaponType =
+            EntityType::WeaponBallista;
+
+        auto origBulletAmmo =
+            scene.playerStates.front()
+                .inventory.ammo[ammoTypeToAmmoIndex(AmmoType::Bullets)];
+        auto origShellAmmo =
+            scene.playerStates.front()
+                .inventory.ammo[ammoTypeToAmmoIndex(AmmoType::Shells)];
+        auto origRocketAmmo =
+            scene.playerStates.front()
+                .inventory.ammo[ammoTypeToAmmoIndex(AmmoType::Rockets)];
+        auto origEnergyAmmo =
+            scene.playerStates.front()
+                .inventory.ammo[ammoTypeToAmmoIndex(AmmoType::Energy)];
+
+        eventQueue->emplace<ScriptTriggeredGameEvent>(
+            Script { .id = ScriptId::FireRay }, 0u);
+        eventQueue->processAndClear(gameRulesEngine);
+
+        auto&& ammo = scene.playerStates.front().inventory.ammo;
+        REQUIRE(origBulletAmmo == ammo[ammoTypeToAmmoIndex(AmmoType::Bullets)]);
+        REQUIRE(origShellAmmo == ammo[ammoTypeToAmmoIndex(AmmoType::Shells)]);
+        REQUIRE(origRocketAmmo == ammo[ammoTypeToAmmoIndex(AmmoType::Rockets)]);
+        REQUIRE(origEnergyAmmo > ammo[ammoTypeToAmmoIndex(AmmoType::Energy)]);
+    }
 }

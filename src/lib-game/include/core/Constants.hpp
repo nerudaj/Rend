@@ -30,10 +30,12 @@ constinit const float ITEM_RESPAWN_TIMEOUT = 15.f;
 constinit const float ITEM_SPAWN_EFFECT_TIMEOUT = 0.5f;
 constinit const unsigned SHOTGUN_PELLET_AMOUNT = 10;
 constinit const float SHOTGUN_SPREAD = 0.1f;
-constinit const int MAX_BULLETS = 200;
-constinit const int MAX_SHELLS = 50;
-constinit const int MAX_ENERGY = 100;
-constinit const int MAX_ROCKETS = 25;
+
+constinit const int MAX_BULLETS = 66;
+constinit const int MAX_SHELLS = 20;
+constinit const int MAX_ENERGY = 14;
+constinit const int MAX_ROCKETS = 15;
+
 constinit const std::array<AmmoCounterType, 4> AMMO_LIMIT = {
     MAX_BULLETS, MAX_SHELLS, MAX_ENERGY, MAX_ROCKETS
 };

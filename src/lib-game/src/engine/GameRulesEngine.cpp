@@ -468,6 +468,8 @@ GiveResult GameRulesEngine::give(
         if (inventory.acquiredWeapons[index]) return NOT_GIVEN;
         std::ignore =
             give(entity, inventory, ammoTypeToPickupType(def.ammoType));
+        std::ignore =
+            give(entity, inventory, ammoTypeToPickupType(def.ammoType));
         inventory.acquiredWeapons[index] = true;
         return WEAPON_GIVEN;
     }
@@ -542,17 +544,6 @@ void GameRulesEngine::removeEntity(std::size_t index)
     const auto thing = scene.things[index];
     const auto& DEF = ENTITY_PROPERTIES.at(thing.typeId);
     const bool playerWasDestroyed = thing.typeId == EntityType::Player;
-
-#ifdef DEBUG_REMOVALS
-
-    std::cout << std::format(
-        "{}: removeEntity({}) with type {}",
-        scene.tick,
-        index,
-        static_cast<int>(thing.typeId))
-              << std::endl;
-
-#endif
 
     if (DEF.debrisEffectType != EntityType::None)
     {
@@ -665,9 +656,10 @@ void GameRulesEngine::fireProjectile(
     const Direction& direction,
     PlayerStateIndexType inventoryIdx)
 {
-    auto& inventory = scene.playerStates[inventoryIdx].inventory;
-    --inventory.ammo[ammoTypeToAmmoIndex(
-        ENTITY_PROPERTIES.at(inventory.activeWeaponType).ammoType)];
+    auto&& inventory = scene.playerStates[inventoryIdx].inventory;
+    auto&& def = ENTITY_PROPERTIES.at(inventory.activeWeaponType);
+    inventory.ammo[ammoTypeToAmmoIndex(def.ammoType)] -=
+        def.ammoConsumedPerShot;
 
     eventQueue->emplace<ProjectileCreatedGameEvent>(
         projectileType, position.value, direction.value, inventoryIdx);
@@ -680,8 +672,10 @@ void GameRulesEngine::fireRay(
     EntityIndexType playerIdx,
     PlayerStateIndexType inventoryIdx)
 {
-    auto& inventory = scene.playerStates[inventoryIdx].inventory;
-    --inventory.ammo[ammoTypeToAmmoIndex(AmmoType::Bullets)];
+    auto&& inventory = scene.playerStates[inventoryIdx].inventory;
+    auto&& def = ENTITY_PROPERTIES.at(inventory.activeWeaponType);
+    inventory.ammo[ammoTypeToAmmoIndex(def.ammoType)] -=
+        def.ammoConsumedPerShot;
 
     auto hit = hitscanner.hitscan(position, direction, playerIdx);
     eventQueue->emplace<HitscanProjectileFiredGameEvent>(

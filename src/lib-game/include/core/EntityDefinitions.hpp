@@ -9,12 +9,18 @@ constinit const unsigned LOWER_TIME = 30;
 constinit const unsigned RAISE_TIME = 30;
 constinit const unsigned FAST_LOWER_TIME = 10;
 constinit const unsigned FAST_RAISE_TIME = 10;
+
 constinit const int FLARE_DAMAGE = 64_damage;
 constinit const int SHOTGUN_DAMAGE = 16_damage;
 constinit const int BULLET_DAMAGE = 20_damage;
 constinit const int LASERDART_DAMAGE = 96_damage;
 constinit const int ROCKET_DAMAGE = 150_damage;
 constinit const int RAILGUN_DAMAGE = 200_damage;
+
+constinit const int BULLET_AMMO_PICKUP = 11;
+constinit const int SHELL_AMMO_PICKUP = 4;
+constinit const int ENERGY_AMMO_PICKUP = 3;
+constinit const int ROCKET_AMMO_PICKUP = 2;
 
 constexpr Script playSound(
     const std::string& sound, SoundSourceType type = SoundSourceType::Ambient)
@@ -201,25 +207,25 @@ const static inline auto ENTITY_PROPERTIES =
           EntityProperties { .radius = 4_px,
                              .traits = Trait::Pickable,
                              .specialSound = "pickup.wav",
-                             .ammoAmount = 100,
+                             .ammoAmount = BULLET_AMMO_PICKUP,
                              .initialSpriteIndex = BulletsA } },
         { EntityType::PickupShells,
           EntityProperties { .radius = 3_px,
                              .traits = Trait::Pickable,
                              .specialSound = "pickup.wav",
-                             .ammoAmount = 20,
+                             .ammoAmount = SHELL_AMMO_PICKUP,
                              .initialSpriteIndex = ShellsA } },
         { EntityType::PickupEnergy,
           EntityProperties { .radius = 4_px,
                              .traits = Trait::Pickable,
                              .specialSound = "pickup.wav",
-                             .ammoAmount = 20,
+                             .ammoAmount = ENERGY_AMMO_PICKUP,
                              .initialSpriteIndex = EnergyPackA } },
         { EntityType::PickupRockets,
           EntityProperties { .radius = 3_px,
                              .traits = Trait::Pickable,
                              .specialSound = "pickup.wav",
-                             .ammoAmount = 10,
+                             .ammoAmount = ROCKET_AMMO_PICKUP,
                              .initialSpriteIndex = RocketsA } },
         { EntityType::PickupShotgun,
           EntityProperties { .radius = 6_px,
@@ -303,6 +309,7 @@ const static inline auto ENTITY_PROPERTIES =
                 .ammoType = AmmoType::Rockets,
                 .ammoAmount = 30,
                 .minAmmoNeededToFire = 1,
+                .ammoConsumedPerShot = 1,
                 .initialSpriteIndex = HUD_FlaregunA,
                 .states = { { AnimationStateId::Idle,
                               AnimationState {
@@ -347,6 +354,7 @@ const static inline auto ENTITY_PROPERTIES =
                 .ammoType = AmmoType::Shells,
                 .ammoAmount = 20,
                 .minAmmoNeededToFire = 1,
+                .ammoConsumedPerShot = 1,
                 .initialSpriteIndex = HUD_ShotgunA,
                 .states = { { AnimationStateId::Idle,
                               AnimationState {
@@ -397,6 +405,7 @@ const static inline auto ENTITY_PROPERTIES =
                 .ammoType = AmmoType::Bullets,
                 .ammoAmount = 50,
                 .minAmmoNeededToFire = 3,
+                .ammoConsumedPerShot = 1,
                 .initialSpriteIndex = HUD_TrishotA,
                 .states = { { AnimationStateId::Idle,
                               AnimationState {
@@ -455,6 +464,7 @@ const static inline auto ENTITY_PROPERTIES =
                 .ammoType = AmmoType::Energy,
                 .ammoAmount = 10,
                 .minAmmoNeededToFire = 1,
+                .ammoConsumedPerShot = 1,
                 .initialSpriteIndex = HUD_CrossbowA,
                 .states = { { AnimationStateId::Idle,
                               AnimationState {
@@ -498,7 +508,8 @@ const static inline auto ENTITY_PROPERTIES =
                 .radius = 0_px,
                 .ammoType = AmmoType::Rockets,
                 .ammoAmount = 10,
-                .minAmmoNeededToFire = 1,
+                .minAmmoNeededToFire = 2,
+                .ammoConsumedPerShot = 2,
                 .initialSpriteIndex = HUD_LauncherA,
                 .states = { { AnimationStateId::Idle,
                               AnimationState {
@@ -541,7 +552,8 @@ const static inline auto ENTITY_PROPERTIES =
                 .radius = 0_px,
                 .ammoType = AmmoType::Energy,
                 .ammoAmount = 20,
-                .minAmmoNeededToFire = 2,
+                .minAmmoNeededToFire = 3,
+                .ammoConsumedPerShot = 3,
                 .initialSpriteIndex = HUD_BallistaA,
                 .states = { { AnimationStateId::Idle,
                               AnimationState {

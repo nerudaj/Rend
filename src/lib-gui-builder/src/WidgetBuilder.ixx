@@ -21,9 +21,47 @@ import Memory;
            | std::ranges::to<std::string>();
 }
 
+#define let auto&&
+
 export class WidgetBuilder final
 {
+private:
+    static [[nodiscard]] tgui::Label::Ptr
+    createBaseLabel(const std::string& text)
+    {
+        let label = tgui::Label::create(text);
+        label->getRenderer()->setTextColor(sf::Color::White);
+        label->getRenderer()->setTextOutlineColor(tgui::Color::Black);
+        label->getRenderer()->setTextOutlineThickness(1.f);
+        return label;
+    }
+
 public:
+    static [[nodiscard]] tgui::Label::Ptr
+    createNormalLabel(const std::string& text)
+    {
+        let label = createBaseLabel(text);
+        label->setTextSize(Sizers::getBaseFontSize());
+        return label;
+    }
+
+    static [[nodiscard]] tgui::Label::Ptr
+    createBigLabel(const std::string& text)
+    {
+        let label = createBaseLabel(text);
+        label->setTextSize(
+            static_cast<unsigned>(Sizers::getBaseFontSize() * 1.5f));
+        return label;
+    }
+
+    static [[nodiscard]] tgui::Label::Ptr
+    createJumboLabel(const std::string& text)
+    {
+        let label = createBaseLabel(text);
+        label->setTextSize(Sizers::getBaseFontSize() * 2);
+        return label;
+    }
+
     static [[nodiscard]] tgui::Panel::Ptr
     getStandardizedRow(tgui::Color bgcolor = tgui::Color::Transparent)
     {
