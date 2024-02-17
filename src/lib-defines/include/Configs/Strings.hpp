@@ -75,6 +75,8 @@ namespace Strings
             RAWSTRING SAVE_LEVEL = "Save level";
             RAWSTRING EDIT_METADATA = "Edit level metadata";
             RAWSTRING NEW_LEVEL = "New level";
+            RAWSTRING ERR = "Error";
+            RAWSTRING LOADING = "Loading";
         } // namespace Title
 
         namespace Message
@@ -86,6 +88,8 @@ namespace Strings
                 "Cannot play level because no level is opened.";
             RAWSTRING LEVEL_NAME_EMPTY = "Level name cannot be empty.";
             RAWSTRING LEVEL_NAME_TAKEN = "Level name is already taken";
+            RAWSTRING BAKING_LIGHTS = "Baking in lights...";
+            RAWSTRING COMPUTING_DISTANCE_INDEX = "Computing distance index...";
         } // namespace Message
 
         namespace Body

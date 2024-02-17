@@ -38,6 +38,7 @@ AppStateEditor::AppStateEditor(
     , dialogLoadLevel(gui, settings->cmdSettings.resourcesDir)
     , dialogSaveLevel(
           gui, Filesystem::getLevelsDir(settings->cmdSettings.resourcesDir))
+    , dialogLoading(gui)
 {
     jukebox->stop();
 
@@ -145,6 +146,14 @@ void AppStateEditor::update()
 {
     clickPreventer.update();
 
+    while (!delayedActions.empty() && delayActionsForNumFrames == 0)
+    {
+        delayedActions.top()();
+        delayedActions.pop();
+    }
+
+    if (delayActionsForNumFrames > 0) delayActionsForNumFrames--;
+
     if (commandQueue->isEmpty()) return;
 
     unsavedChanges = true;
@@ -235,8 +244,10 @@ tgui::MenuBar::Ptr AppStateEditor::buildMenuBarLayout(
         SAVE, [this] { handleSaveLevel(); }, sf::Keyboard::S);
     addFileMenuItem(SAVE_AS, [this] { handleSaveLevel(true); });
     addFileMenuItem(
-        PLAY, [this] { handlePlayLevel("useBot"_false); }, sf::Keyboard::F5);
-    addFileMenuItem(PLAY2P, [this] { handlePlayLevel("useBot"_true); });
+        PLAY,
+        [this] { handlePlayLevelWrapper("useBot"_false); },
+        sf::Keyboard::F5);
+    addFileMenuItem(PLAY2P, [this] { handlePlayLevelWrapper("useBot"_true); });
     addFileMenuItem(
         UNDO, [this] { handleUndo(); }, sf::Keyboard::Z);
     addFileMenuItem(
@@ -363,6 +374,13 @@ void AppStateEditor::saveLevel()
     }
 }
 
+void AppStateEditor::handlePlayLevelWrapper(bool useBot)
+{
+    dialogLoading.open(Strings::Dialog::Message::COMPUTING_DISTANCE_INDEX);
+    delayedActions.push([this, useBot]() { handlePlayLevel(useBot); });
+    delayActionsForNumFrames = 1;
+}
+
 void AppStateEditor::handlePlayLevel(bool useBot)
 {
     if (savePath.empty())
@@ -385,6 +403,7 @@ void AppStateEditor::handlePlayLevel(bool useBot)
 
     auto lvd = LevelD {};
     lvd.loadFromFile(savePath);
+
     app.pushState<AppStateIngame>(
         resmgr,
         nativeGui,

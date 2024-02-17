@@ -4,6 +4,7 @@
 #include "Commands/CommandHistory.hpp"
 #include "Commands/CommandQueue.hpp"
 #include "Dialogs/LoadLevelDialog.hpp"
+#include "Dialogs/LoadingDialog.hpp"
 #include "Dialogs/NewLevelDialog.hpp"
 #include "Dialogs/SaveLevelDialog.hpp"
 #include "Editor/Editor.hpp"
@@ -18,6 +19,7 @@
 #include <TGUI/Backend/SFML-Graphics.hpp>
 #include <TGUI/TGUI.hpp>
 #include <optional>
+#include <stack>
 
 import Memory;
 import Options;
@@ -55,6 +57,7 @@ public:
     virtual void restoreFocus()
     {
         jukebox->stop();
+        dialogLoading.close();
     }
 
 protected:
@@ -102,6 +105,7 @@ protected: // Callback handlers
         std::optional<std::string> pathToConfigOverride = {});
     void handleSaveLevel(bool forceNewPath = false) noexcept;
     void saveLevel();
+    void handlePlayLevelWrapper(bool useBot);
     void handlePlayLevel(bool useBot);
     void handleUndo();
     void handleRedo();
@@ -148,8 +152,11 @@ protected:
     ModernNewLevelDialog dialogNewLevel;
     LoadLevelDialog dialogLoadLevel;
     NewSaveLevelDialog dialogSaveLevel;
+    LoadingDialog dialogLoading;
     ClickPreventer clickPreventer;
     mem::Rc<LevelMetadata> levelMetadata;
+    std::stack<std::function<void(void)>> delayedActions;
+    int delayActionsForNumFrames = 0;
 
     std::function<void(void)> onStateChanged = [this]
     {

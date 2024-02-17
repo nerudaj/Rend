@@ -1,9 +1,10 @@
 #include "Dialogs/ErrorInfoDialog.hpp"
 #include "Globals.hpp"
+#include <Configs/Strings.hpp>
 
 void ErrorInfoDialog::open(const std::string& text)
 {
-    auto modal = gui->createNewChildWindow("Error");
+    auto modal = gui->createNewChildWindow(Strings::Dialog::Title::ERR);
     modal->setSize("30%", "20%");
     modal->setPosition("35%", "40%");
     modal->setPositionLocked(true);
