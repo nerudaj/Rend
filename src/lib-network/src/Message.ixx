@@ -10,21 +10,57 @@ export
     using PlayerIdType = std::uint8_t;
     using ChecksumType = std::uint64_t;
 
+    enum class [[nodiscard]] ClientMessageType : uint8_t
+    {
+        ConnectionRequest,
+        PeerSettingsUpdate,
+        GameSettingsUpdate,
+        CommitLobby,
+        MapLoaded,
+        ReportInput,
+        Disconnect
+    };
+
+    struct [[nodiscard]] ClientMessage
+    {
+    };
+
+    enum class [[nodiscard]] ServerMessageType : uint8_t
+    {
+        ConnectionAccepted,
+        ConnectionRefused,
+        LobbyCommited,
+        StartGame,
+        UpdateInput
+    };
+
+    struct [[nodiscard]] ServerMessage
+    {
+    };
+
     enum class MessageType : std::uint8_t
     {
         Connect,
+        ConnectConfirmed,
+        ConnectionRefused,
+        PeerSettingsUpdate,
+        GameSettingsUpdate,
         Update,
         Disconnect
     };
 
-    struct Message
+    struct [[nodiscard]] Message
     {
-        PlayerIdType playerId;
         MessageType type;
+        PlayerIdType playerId;
         std::string playerName;
         std::string inputJson;
         std::size_t tick;
         ChecksumType checksum;
+
+        static Message parseMessage(sf::Packet& packet);
+
+        [[nodiscard]] sf::Packet toPacket() const;
     };
 
     sf::Packet& operator<<(sf::Packet& packet, const Message& message)
@@ -44,4 +80,20 @@ export
         message.type = static_cast<MessageType>(type);
         return packet;
     }
+}
+
+module :private;
+
+Message Message::parseMessage(sf::Packet& packet)
+{
+    auto&& result = Message();
+    packet >> result;
+    return result;
+}
+
+sf::Packet Message::toPacket() const
+{
+    auto&& packet = sf::Packet();
+    packet << *this;
+    return packet;
 }
