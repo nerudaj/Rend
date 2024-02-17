@@ -240,6 +240,7 @@ void RenderingEngine::renderPlayerHud(
     renderHudForAmmo(window, inventory);
     renderHudForWeaponSelection(window, inventory);
     renderHudForScore(window, inventory);
+    renderHudForCrosshair(window);
 }
 
 void RenderingEngine::renderHudActiveWeapon(
@@ -412,6 +413,18 @@ void RenderingEngine::renderHudMessage(
     text.setPosition(
         (settings.resolution.width - bounds.width) / 2.f,
         settings.resolution.height / 2.f - bounds.height);
+    window.draw(text);
+}
+
+void RenderingEngine::renderHudForCrosshair(dgm::Window& window)
+{
+    if (!settings.showCrosshair) return;
+
+    text.setString("+");
+    auto&& bounds = text.getGlobalBounds();
+    text.setPosition(
+        settings.resolution.width / 2.f - bounds.width / 2.f,
+        settings.resolution.height / 2.f - bounds.height / 2.f);
     window.draw(text);
 }
 

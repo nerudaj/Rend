@@ -36,9 +36,10 @@ namespace Strings
             RAWSTRING AUDIO = "audio";
             RAWSTRING INPUT = "input";
             RAWSTRING FULLSCREEN = "fullscreen";
-            RAWSTRING SET_RESOLUTION = "set resolution";
+            RAWSTRING SET_RESOLUTION = "resolution";
             RAWSTRING USE_DITHERED_SHADES = "dithered shadows";
             RAWSTRING SHOW_FPS = "show fps";
+            RAWSTRING SHOW_CROSSHAIR = "show crosshair";
             RAWSTRING FOV = "fov";
             RAWSTRING SOUND_VOLUME = "sound volume";
             RAWSTRING MUSIC_VOLUME = "music volume";

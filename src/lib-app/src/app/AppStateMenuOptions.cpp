@@ -77,11 +77,6 @@ void AppStateMenuOptions::buildDisplayOptionsLayout(FormBuilder& builder)
     std::ignore =
         builder
             .addOption(
-                Strings::AppState::Options::FULLSCREEN,
-                WidgetBuilder::createCheckbox(
-                    app.window.isFullscreen(),
-                    [this](bool) { app.window.toggleFullscreen(); }))
-            .addOption(
                 Strings::AppState::Options::SET_RESOLUTION,
                 WidgetBuilder::createDropdown(
                     STRING_RESOLUTIONS,
@@ -97,14 +92,22 @@ void AppStateMenuOptions::buildDisplayOptionsLayout(FormBuilder& builder)
                         restoreFocus();
                     }))
             .addOption(
+                Strings::AppState::Options::FULLSCREEN,
+                WidgetBuilder::createCheckbox(
+                    app.window.isFullscreen(),
+                    [this](bool) { app.window.toggleFullscreen(); }))
+            .addOption(
                 Strings::AppState::Options::USE_DITHERED_SHADES,
                 WidgetBuilder::createCheckbox(
                     settings->display.useDitheredShadows,
-                    [this](bool)
-                    {
-                        settings->display.useDitheredShadows =
-                            !settings->display.useDitheredShadows;
-                    }))
+                    [this](bool value)
+                    { settings->display.useDitheredShadows = value; }))
+            .addOption(
+                Strings::AppState::Options::SHOW_CROSSHAIR,
+                WidgetBuilder::createCheckbox(
+                    settings->display.showCrosshair,
+                    [this](bool value)
+                    { settings->display.showCrosshair = value; }))
             .addOption(
                 Strings::AppState::Options::FOV,
                 WidgetBuilder::createSlider(
