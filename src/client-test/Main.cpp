@@ -6,7 +6,8 @@ import Network;
 
 int main(int, char*[])
 {
-    auto&& client = Client::create("127.0.0.1", 10666);
+    auto&& client = Client::create(
+        "127.0.0.1", 10666, [](auto, auto) {}, [](auto, auto) {});
     if (!client)
     {
         std::println(std::cerr, "{}", client.error());

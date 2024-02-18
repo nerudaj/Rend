@@ -12,7 +12,8 @@ module;
 
 export module Server;
 
-import Message;
+import ServerMessage;
+import ClientMessage;
 import ClientData;
 import Error;
 
@@ -39,46 +40,60 @@ public:
 public:
     void startLoop()
     {
+        // Read all incoming messages
+        while (true)
+        {
+            update();
+        }
+    }
+
+    void update()
+    {
         socket.setBlocking(false);
         sf::IpAddress remoteAddress;
         unsigned short remotePort;
         sf::Packet packet;
-        Message message;
 
-        // Read all incoming messages
-        while (true)
+        while (socket.receive(packet, remoteAddress, remotePort)
+               == sf::Socket::Status::Done)
         {
-            while (socket.receive(packet, remoteAddress, remotePort)
-                   == sf::Socket::Status::Done)
-            {
-                handleMessage(
-                    Message::parseMessage(packet), remoteAddress, remotePort);
-            }
-
-            // Send them back to all clients
-            // TODO:
+            handleMessage(
+                ClientMessage::fromPacket(packet), remoteAddress, remotePort);
         }
+
+        // Send them back to all clients
+        // TODO:
     }
 
 private:
     void handleMessage(
-        const Message& message,
+        const ClientMessage& message,
         const sf::IpAddress& address,
         unsigned short port)
     {
         switch (message.type)
         {
-        case MessageType::Connect:
+            using enum ClientMessageType;
+        case ConnectionRequest:
             if (auto&& result = handleConnectionAttempt(address, port); !result)
             {
                 std::println(std::cerr, "Server: {}", result.error());
             }
             break;
-        case MessageType::Update:
-            std::println("Update");
+        case PeerSettingsUpdate:
+        case GameSettingsUpdate:
+        case CommitLobby:
+        case MapLoaded:
+        case ReportInput:
+        case Disconnect:
+            std::println("Other message");
             break;
-        case MessageType::Disconnect:
-            std::println("Disconnect");
+        default:
+            std::println(
+                std::cerr,
+                "Unknown message {}",
+                static_cast<std::underlying_type_t<ClientMessageType>>(
+                    message.type));
             break;
         }
     }
@@ -99,7 +114,8 @@ private:
         std::println("Server: Already at full capacity, refusing new peer");
 
         auto&& packet =
-            Message { .type = MessageType::ConnectionRefused }.toPacket();
+            ServerMessage { .type = ServerMessageType::ConnectionRefused }
+                .toPacket();
         if (socket.send(packet, address, port) != sf::Socket::Status::Done)
         {
             return std::unexpected(std::format(
@@ -119,7 +135,8 @@ private:
             address.toString(),
             port);
         auto&& packet =
-            Message { .type = MessageType::ConnectionRefused }.toPacket();
+            ServerMessage { .type = ServerMessageType::ConnectionRefused }
+                .toPacket();
         if (socket.send(packet, address, port) != sf::Socket::Status::Done)
         {
             return std::unexpected(std::format(
@@ -136,7 +153,8 @@ private:
     {
         auto&& newId = static_cast<PlayerIdType>(registeredClients.size());
         auto&& packet =
-            Message { .type = MessageType::ConnectConfirmed, .playerId = newId }
+            ServerMessage { .type = ServerMessageType::ConnectionAccepted,
+                            .clientId = newId }
                 .toPacket();
         std::println(
             "Registering new client at {}:{} with ID: {}",
@@ -153,6 +171,10 @@ private:
         }
 
         registeredClients[address.toInteger()] = newId;
+        if (newId == 0)
+        {
+            adminAddress = address.toInteger();
+        }
 
         return ReturnFlag::Success;
     }
@@ -160,6 +182,6 @@ private:
 private:
     const unsigned short MAX_CLIENT_COUNT;
     sf::UdpSocket socket;
-    std::deque<int> connectedClients;
     std::map<sf::Uint32, PlayerIdType> registeredClients;
+    sf::Uint32 adminAddress; // first connected client is the admin
 };
