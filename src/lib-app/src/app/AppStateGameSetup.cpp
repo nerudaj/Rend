@@ -2,10 +2,22 @@
 #include <LevelD.hpp>
 #include <app/AppStateGameSetup.hpp>
 #include <app/AppStateIngame.hpp>
+#include <atomic>
+#include <expected>
 
 import Resources;
 import FormBuilder;
 import WidgetBuilder;
+
+std::atomic_bool serverEnabled = true;
+
+void serverLoop(Server server)
+{
+    while (serverEnabled)
+    {
+        server.update();
+    }
+}
 
 AppStateGameSetup::AppStateGameSetup(
     dgm::App& app,
@@ -23,6 +35,10 @@ AppStateGameSetup::AppStateGameSetup(
     , audioPlayer(audioPlayer)
     , jukebox(jukebox)
     , controller(controller)
+    , serverThread(
+          serverLoop,
+          Server(ServerConfiguration { .port = 10666, .maxClientCount = 4 }))
+    , client(mem::Rc<Client>("127.0.0.1", 10666ui16))
     , fraglimit(settings->cmdSettings.fraglimit)
     , playerCount(settings->cmdSettings.playerCount)
     , mapname(settings->cmdSettings.mapname)
@@ -95,7 +111,7 @@ void AppStateGameSetup::buildLayoutImpl()
         { "79%", "94%" },
         { "20%", "5%" },
         std::bind(&AppStateGameSetup::startGame, this)));
-    gui->add(createBackButton([this] { app.popState(); }));
+    gui->add(createBackButton([this] { cleanup(); }));
 }
 
 void AppStateGameSetup::startGame()
@@ -112,6 +128,7 @@ void AppStateGameSetup::startGame()
         audioPlayer,
         jukebox,
         controller,
+        client,
         GameOptions { .players = createPlayerSettings(),
                       .fraglimit = static_cast<unsigned>(fraglimit) },
         lvd);
@@ -129,4 +146,11 @@ std::vector<PlayerOptions> AppStateGameSetup::createPlayerSettings() const
                                           .bindCamera = idx == 0 };
                })
            | std::ranges::to<std::vector<PlayerOptions>>();
+}
+
+void AppStateGameSetup::cleanup()
+{
+    serverEnabled = false;
+    serverThread.join();
+    app.popState();
 }

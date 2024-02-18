@@ -20,6 +20,7 @@ import Options;
 import Memory;
 import Audio;
 import Input;
+import Network;
 
 class AppStateIngame final : public dgm::AppState
 {
@@ -32,6 +33,7 @@ public:
         mem::Rc<AudioPlayer> audioPlayer,
         mem::Rc<Jukebox> jukebox,
         mem::Rc<PhysicalController> controller,
+        mem::Rc<Client> client,
         GameOptions gameSettings,
         const LevelD& level,
         bool launchedFromEditor = false);
@@ -93,6 +95,7 @@ protected:
     mem::Rc<AudioPlayer> audioPlayer;
     mem::Rc<Jukebox> jukebox;
     mem::Rc<PhysicalController> controller;
+    mem::Rc<Client> client;
     mem::Rc<EventQueue> eventQueue;
     bool launchedFromEditor;
 

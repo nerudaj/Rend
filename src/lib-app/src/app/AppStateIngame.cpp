@@ -36,6 +36,7 @@ AppStateIngame::AppStateIngame(
     mem::Rc<AudioPlayer> _audioPlayer,
     mem::Rc<Jukebox> _jukebox,
     mem::Rc<PhysicalController> _controller,
+    mem::Rc<Client> _client,
     GameOptions gameSettings,
     const LevelD& level,
     bool launchedFromEditor)
@@ -47,6 +48,7 @@ AppStateIngame::AppStateIngame(
     , audioPlayer(_audioPlayer)
     , jukebox(_jukebox)
     , controller(_controller)
+    , client(_client)
     , launchedFromEditor(launchedFromEditor)
     , inputs(createInputs(_controller, gameSettings))
     , scene(SceneBuilder::buildScene(level, gameSettings.players.size()))

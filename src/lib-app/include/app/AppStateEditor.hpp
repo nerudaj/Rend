@@ -25,6 +25,7 @@ import Memory;
 import Options;
 import Audio;
 import Input;
+import Network;
 
 class AppStateEditor : public dgm::AppState
 {
