@@ -28,7 +28,8 @@ void AppStatePaused::buildLayoutImpl()
                       controller,
                       true);
               }),
-          ButtonProps(" main menu ", [&] { app.popState(2); }),
+          ButtonProps(
+              " main menu ", [&] { app.popState("pop if not menu", 2); }),
           ButtonProps("exit", [&] { app.exit(); }) },
         0.05f);
 }

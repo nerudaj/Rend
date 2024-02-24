@@ -67,5 +67,6 @@ void AppStateScoreTable::buildLayoutImpl()
 
     gui->add(panel);
 
-    gui->add(createBackButton([this] { app.popState(3); }, "back to menu"));
+    gui->add(createBackButton(
+        [this] { app.popState("pop if not menu", 3); }, "back to menu"));
 }

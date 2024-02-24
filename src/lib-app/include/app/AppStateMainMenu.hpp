@@ -8,12 +8,12 @@ import Input;
 #include "GuiState.hpp"
 #include <vector>
 
-class AppStateMainMenu final
+class [[nodiscard]] AppStateMainMenu final
     : public dgm::AppState
     , public GuiState
 {
 public:
-    [[nodiscard]] AppStateMainMenu(
+    AppStateMainMenu(
         dgm::App& app,
         mem::Rc<const dgm::ResourceManager> resmgr,
         mem::Rc<tgui::Gui> gui,
@@ -21,7 +21,8 @@ public:
         mem::Rc<Jukebox> jukebox,
         mem::Rc<AppOptions> settings,
         mem::Rc<PhysicalController> controller)
-        : dgm::AppState(app)
+        : dgm::AppState(
+            app, dgm::AppStateConfig { .clearColor = sf::Color::White })
         , GuiState(gui, audioPlayer)
         , resmgr(resmgr)
         , jukebox(jukebox)
@@ -32,38 +33,27 @@ public:
         jukebox->playTitleSong();
     }
 
-private:
-    void buildLayoutImpl() override;
-
 public:
-    virtual void input() override;
+    void input() override;
 
-    virtual void update() override {}
+    void update() override {}
 
-    virtual void draw() override
+    void draw() override
     {
         gui->draw();
     }
 
-    virtual [[nodiscard]] bool isTransparent() const noexcept override
-    {
-        return false;
-    }
+private:
+    void goToGameSetup();
 
-    virtual [[nodiscard]] sf::Color getClearColor() const override
-    {
-        return sf::Color::White;
-    }
+    void buildLayoutImpl() override;
 
-    virtual void restoreFocus() override
+    void restoreFocusImpl(const std::string&) override
     {
         app.window.getWindowContext().setTitle("Rend");
         GuiState::restoreFocus(app.window.getWindowContext());
         jukebox->playTitleSong();
     }
-
-private:
-    void goToGameSetup();
 
 private:
     mem::Rc<const dgm::ResourceManager> resmgr;

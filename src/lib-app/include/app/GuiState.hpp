@@ -11,7 +11,7 @@ import Audio;
 class GuiState
 {
 protected:
-    struct ButtonProps
+    struct [[nodiscard]] ButtonProps final
     {
         std::string label;
         std::function<void(void)> callback;

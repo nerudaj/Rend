@@ -89,7 +89,7 @@ void AppStateMenuOptions::buildDisplayOptionsLayout(FormBuilder& builder)
                         app.window.changeResolution(NUM_RESOLUTIONS[idx]);
 
                         // Force gui to update viewport and resolution
-                        restoreFocus();
+                        restoreFocusImpl();
                     }))
             .addOption(
                 Strings::AppState::Options::FULLSCREEN,

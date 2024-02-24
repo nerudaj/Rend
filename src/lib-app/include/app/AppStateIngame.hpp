@@ -21,10 +21,10 @@ import Memory;
 import Audio;
 import Input;
 
-class AppStateIngame final : public dgm::AppState
+class [[nodiscard]] AppStateIngame final : public dgm::AppState
 {
 public:
-    [[nodiscard]] AppStateIngame(
+    AppStateIngame(
         dgm::App& app,
         mem::Rc<const dgm::ResourceManager> resmgr,
         mem::Rc<tgui::Gui> gui,
@@ -48,19 +48,14 @@ public:
     virtual void update() override;
     virtual void draw() override;
 
-    virtual [[nodiscard]] bool isTransparent() const noexcept override
-    {
-        return false;
-    }
-
-    virtual void restoreFocus() override
+private:
+    void restoreFocusImpl(const std::string&) override
     {
         app.window.getWindowContext().setFramerateLimit(60);
         propagateSettings();
         lockMouse();
     }
 
-private:
     struct FrameState
     {
         std::size_t tick;

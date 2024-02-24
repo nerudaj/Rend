@@ -15,7 +15,7 @@ AppStateGameSetup::AppStateGameSetup(
     mem::Rc<AudioPlayer> audioPlayer,
     mem::Rc<Jukebox> jukebox,
     mem::Rc<PhysicalController> controller) noexcept
-    : AppState(app)
+    : AppState(app, dgm::AppStateConfig { .clearColor = sf::Color::White })
     , GuiState(gui, audioPlayer)
     , resmgr(resmgr)
     , gui(gui)
