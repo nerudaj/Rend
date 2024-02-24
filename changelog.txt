@@ -1,0 +1,26 @@
+Rend 1.1.0 changelog:
+
+Gameplay:
+* Rebalancing:
+  * Damage outputs of most weapons were adjusted
+  * Ammo consumption was adjusted
+  * Ammo pickup amount and max ammo limits were greatly decreased
+* Added new 4-player neon level
+* Added sound for weapon pickup
+* Ballista sounds were changed to something more pleasant
+
+Bugfixes:
+* Flats are now correctly textured, no more texture warping
+* Editor navbar menus are no longer randomly changing positions
+* Fixed ballista not consuming energy
+
+Accessibility & UX:
+* Added a black outline to all ingame texts
+* A loading message is displayed while launching levels from the editor
+* Crosshair can be enabled
+* Weapons can be automatically equipped on pickup
+* Ingame font size is based off computer DPI
+* Level names can contain underscores
+
+Other:
+* Screenshots can now be taken with the P key
