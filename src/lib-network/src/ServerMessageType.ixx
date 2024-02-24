@@ -9,5 +9,6 @@ export enum class [[nodiscard]] ServerMessageType : uint8_t {
     ConnectionRefused,
     LobbyCommited,
     StartGame, // after all clients reported map loaded
-    UpdateInput
+    UpdateInput,
+    Update
 };

@@ -67,6 +67,7 @@ AppStateIngame::AppStateIngame(
     lockMouse();
     createPlayers();
     jukebox->playIngameSong();
+    client->sendMapReadySignal();
 }
 
 void AppStateIngame::input()

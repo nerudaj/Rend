@@ -28,6 +28,7 @@ public:
     Client(const sf::IpAddress& address, unsigned short port);
 
     void readIncomingPackets(
+        bool blocking,
         UpdatePlayerConfigCallback updatePlayerConfigCallback,
         UpdatePlayerInputCallback updatePlayerInputCallback);
 

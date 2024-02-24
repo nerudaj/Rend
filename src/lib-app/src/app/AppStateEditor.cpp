@@ -5,10 +5,25 @@
 #include "Editor/NullEditor.hpp"
 #include "app/AppStateIngame.hpp"
 #include <LevelMetadata.hpp>
+#include <atomic>
 #include <cmath>
+#include <expected>
 
 import Resources;
 import Audio;
+
+/* copy pasted from AppStateGameSetup */
+/*std::atomic_bool serverEnabled = false;
+
+void serverLoop(Server&& server)
+{
+    while (serverEnabled)
+    {
+        server.update();
+    }
+}*/
+
+/* end copy paste */
 
 AppStateEditor::AppStateEditor(
     dgm::App& app,
@@ -404,7 +419,7 @@ void AppStateEditor::handlePlayLevel(bool useBot)
     auto lvd = LevelD {};
     lvd.loadFromFile(savePath);
 
-    app.pushState<AppStateIngame>(
+    /*app.pushState<AppStateIngame>(
         resmgr,
         nativeGui,
         settings,
@@ -413,7 +428,7 @@ void AppStateEditor::handlePlayLevel(bool useBot)
         controller,
         gameSettings,
         lvd,
-        "launchedFromEditor"_true);
+        "launchedFromEditor"_true);*/
 }
 
 void AppStateEditor::handleUndo()

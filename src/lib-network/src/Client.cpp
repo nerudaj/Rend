@@ -1,4 +1,5 @@
 #include <format>
+#include <nlohmann/json.hpp>
 #include <print>
 #include <stdexcept>
 
@@ -16,12 +17,13 @@ Client::Client(const sf::IpAddress& address, unsigned short port)
 }
 
 void Client::readIncomingPackets(
-    UpdatePlayerConfigCallback, UpdatePlayerInputCallback)
+    bool blocking, UpdatePlayerConfigCallback, UpdatePlayerInputCallback)
 {
     sf::Packet packet;
     sf::IpAddress address;
     unsigned short port;
 
+    socket->setBlocking(blocking);
     while (socket->receive(packet, address, port) == sf::Socket::Status::Done)
     {
         auto&& result =

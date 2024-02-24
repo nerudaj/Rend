@@ -1,5 +1,6 @@
 #include <format>
 #include <iostream>
+#include <nlohmann/json.hpp>
 #include <print>
 #include <stdexcept>
 
@@ -20,23 +21,58 @@ Server::Server(ServerConfiguration config)
 
 void Server::update()
 {
-    socket->setBlocking(false); // TODO: revise
+    socket->setBlocking(false);
     sf::IpAddress remoteAddress;
     unsigned short remotePort;
     sf::Packet packet;
 
+    bool shouldUpdate = false;
     while (socket->receive(packet, remoteAddress, remotePort)
            == sf::Socket::Status::Done)
     {
-        handleMessage(
+        auto&& result = handleMessage(
             ClientMessage::fromPacket(packet), remoteAddress, remotePort);
+
+        if (result)
+        {
+            std::cout << "Server: " << result.value() << std::endl;
+            shouldUpdate = true;
+        }
+        else
+        {
+            std::cout << "Server:error: " << result.error() << std::endl;
+        }
     }
 
-    // Send them back to all clients
-    // TODO:
+    if (!shouldUpdate) return;
+
+    auto&& payload = nlohmann::json(updateData).dump();
+    for (auto&& [key, client] : registeredClients)
+    {
+        packet = ServerMessage { .type = ServerMessageType::Update,
+                                 .sequence = sequence,
+                                 .clientId = client.id,
+                                 .payload = payload }
+                     .toPacket();
+
+        if (socket->send(packet, client.address, client.port)
+            != sf::Socket::Status::Done)
+        {
+            std::cout << "Server:error "
+                      << std::format(
+                             "Could not send response to client {} at {}:{}",
+                             client.id,
+                             client.address.toInteger(),
+                             client.port)
+                      << std::endl;
+        }
+    }
+
+    ++sequence;
+    updateData.inputs.clear();
 }
 
-void Server::handleMessage(
+ExpectedLog Server::handleMessage(
     const ClientMessage& message,
     const sf::IpAddress& address,
     unsigned short port)
@@ -45,92 +81,65 @@ void Server::handleMessage(
     {
         using enum ClientMessageType;
     case ConnectionRequest:
-        if (auto&& result = handleConnectionAttempt(address, port); !result)
-        {
-            std::println(std::cerr, "Server: {}", result.error());
-        }
-        break;
+        return handleNewConnection(address, port);
     case PeerSettingsUpdate:
+        return std::unexpected("Dunno how to handle PeerSettingsUpdate");
     case GameSettingsUpdate:
+        return std::unexpected("Dunno how to handle GameSettingsUpdate");
     case CommitLobby:
+        return handleLobbyCommited(address, port);
     case MapLoaded:
+        return handleMapReady(address, port);
     case ReportInput:
+        return std::unexpected("Dunno how to handle ReportInput");
     case Disconnect:
-        std::println("Other message");
-        break;
+        return std::unexpected("Dunno how to handle Disconnect");
     default:
-        std::println(
-            std::cerr,
+        return std::unexpected(std::format(
             "Unknown message {}",
             static_cast<std::underlying_type_t<ClientMessageType>>(
-                message.type));
-        break;
+                message.type)));
     }
 }
 
-ExpectSuccess Server::handleConnectionAttempt(
-    const sf::IpAddress& address, unsigned short port)
+ExpectedLog
+Server::handleNewConnection(const sf::IpAddress& address, unsigned short port)
 {
-    return registeredClients.size() == MAX_CLIENT_COUNT
-               ? denyNewClient(address, port)
-           : registeredClients.contains(address.toInteger())
-               ? denyReconnection(address, port)
-               : registerNewClient(address, port);
-}
-
-ExpectSuccess
-Server::denyNewClient(const sf::IpAddress& address, unsigned short port)
-{
-    std::println("Server: Already at full capacity, refusing new peer");
-
-    auto&& packet =
-        ServerMessage { .type = ServerMessageType::ConnectionRefused }
-            .toPacket();
-    if (socket->send(packet, address, port) != sf::Socket::Status::Done)
+    if (isRegistered(address))
     {
-        return std::unexpected(std::format(
-            "Failed to send ConnectionRefused to remote peer at {}:{}",
+        if (auto&& result = denyNewPeer(address, port); !result)
+            return std::unexpected(result.error());
+        return std::format(
+            "Could not register new peer at {}:{}, because it is already "
+            "registered",
             address.toString(),
-            port));
+            port);
     }
-
-    return ReturnFlag::Success;
-}
-
-ExpectSuccess
-Server::denyReconnection(const sf::IpAddress& address, unsigned short port)
-{
-    std::println(
-        "Server: Client at {}:{} is trying to connect again, refusing",
-        address.toString(),
-        port);
-    auto&& packet =
-        ServerMessage { .type = ServerMessageType::ConnectionRefused }
-            .toPacket();
-    if (socket->send(packet, address, port) != sf::Socket::Status::Done)
+    else if (MAX_CLIENT_COUNT == registeredClients.size())
     {
-        return std::unexpected(std::format(
-            "Failed to send ConnectionRefused to remote peer at {}:{}",
+        if (auto&& result = denyNewPeer(address, port); !result)
+            return std::unexpected(result.error());
+        return std::format(
+            "Could not register new peer at {}:{}, because limit of clients "
+            "has been reached ",
             address.toString(),
-            port));
+            port);
+    }
+    else if (updateData.lobbyCommited)
+    {
+        if (auto&& result = denyNewPeer(address, port); !result)
+            return std::unexpected(result.error());
+        return std::format(
+            "Could not register new peer at {}:{}, game has started",
+            address.toString(),
+            port);
     }
 
-    return ReturnFlag::Success;
-}
-
-ExpectSuccess
-Server::registerNewClient(const sf::IpAddress& address, unsigned short port)
-{
     auto&& newId = static_cast<PlayerIdType>(registeredClients.size());
     auto&& packet =
         ServerMessage { .type = ServerMessageType::ConnectionAccepted,
                         .clientId = newId }
             .toPacket();
-    std::println(
-        "Registering new client at {}:{} with ID: {}",
-        address.toString(),
-        port,
-        newId);
 
     if (socket->send(packet, address, port) != sf::Socket::Status::Done)
     {
@@ -140,10 +149,72 @@ Server::registerNewClient(const sf::IpAddress& address, unsigned short port)
             port));
     }
 
-    registeredClients[address.toInteger()] = newId;
-    if (newId == 0)
+    registeredClients[address.toInteger()] =
+        ClientConnectionInfo { .id = newId, .address = address, .port = port };
+
+    return std::format(
+        "Registered new client at {}:{} with ID: {}",
+        address.toString(),
+        port,
+        newId);
+}
+
+ExpectedLog
+Server::handleLobbyCommited(const sf::IpAddress& address, unsigned short port)
+{
+    if (!isAdmin(address))
+        return std::unexpected(std::format(
+            "Unauthorized attempt for access from {}:{}",
+            address.toString(),
+            port));
+
+    updateData.lobbyCommited = true;
+
+    for (auto&& [key, client] : registeredClients)
     {
-        adminAddress = address.toInteger();
+        client.ready = false;
+    }
+
+    return "Lobby was commited";
+}
+
+ExpectedLog
+Server::handleMapReady(const sf::IpAddress& address, unsigned short port)
+{
+    if (!isRegistered(address))
+    {
+        return std::unexpected(std::format(
+            "MapReady message from unknown client {}:{}",
+            address.toString(),
+            port));
+    }
+
+    registeredClients.at(address.toInteger()).ready = true;
+
+    updateData.peersReady = std::all_of(
+        registeredClients.begin(),
+        registeredClients.end(),
+        [](auto&& client) { return client.second.ready; });
+
+    return std::format(
+        "Map ready accepted from {}:{}, all peers ready? {}",
+        address.toString(),
+        port,
+        updateData.peersReady);
+}
+
+ExpectSuccess
+Server::denyNewPeer(const sf::IpAddress& address, unsigned short port)
+{
+    auto&& packet =
+        ServerMessage { .type = ServerMessageType::ConnectionRefused }
+            .toPacket();
+    if (socket->send(packet, address, port) != sf::Socket::Status::Done)
+    {
+        return std::unexpected(std::format(
+            "Failed to send ConnectionRefused to remote peer at {}:{}",
+            address.toString(),
+            port));
     }
 
     return ReturnFlag::Success;
