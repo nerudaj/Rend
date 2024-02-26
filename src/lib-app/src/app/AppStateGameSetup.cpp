@@ -6,6 +6,7 @@
 import Resources;
 import FormBuilder;
 import WidgetBuilder;
+import LayoutBuilder;
 
 AppStateGameSetup::AppStateGameSetup(
     dgm::App& app,
@@ -54,17 +55,13 @@ void AppStateGameSetup::input()
 
 void AppStateGameSetup::buildLayoutImpl()
 {
-    gui->add(createBackground(*resmgr, "menu_setup.png"));
-    gui->add(
-        createH1Title(Strings::AppState::GameSetup::TITLE, tgui::Color::White));
-
     mapnames = Filesystem::getLevelNames(
         Filesystem::getLevelsDir(settings->cmdSettings.resourcesDir));
 
     if (mapname.empty()) mapname = mapnames.front();
 
-    auto panel = createPanel({ "20%", "35%" }, { "60%", "25%" });
-    gui->add(panel);
+    auto panel =
+        WidgetBuilder::createPanel({ "100%", "100%" }, PANEL_BACKGROUND_COLOR);
     FormBuilder(panel)
         .addOption(
             Strings::AppState::GameSetup::PLAYER_COUNT,
@@ -90,12 +87,17 @@ void AppStateGameSetup::buildLayoutImpl()
                 WidgetBuilder::getNumericValidator()))
         .build();
 
-    gui->add(createButton(
-        "start game",
-        { "79%", "94%" },
-        { "20%", "5%" },
-        std::bind(&AppStateGameSetup::startGame, this)));
-    gui->add(createBackButton([this] { app.popState(); }));
+    gui->add(
+        LayoutBuilder::withBackgroundImage(
+            resmgr->get<sf::Texture>("menu_setup.png").value().get())
+            .withTitle(Strings::AppState::GameSetup::TITLE, HeadingLevel::H2)
+            .withContent(panel)
+            .withBackButton(WidgetBuilder::createButton(
+                Strings::AppState::MainMenu::BACK, [this] { app.popState(); }))
+            .withSubmitButton(WidgetBuilder::createButton(
+                Strings::AppState::MainMenu::PLAY,
+                std::bind(&AppStateGameSetup::startGame, this)))
+            .build());
 }
 
 void AppStateGameSetup::startGame()

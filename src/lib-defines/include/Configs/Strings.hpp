@@ -27,6 +27,8 @@ namespace Strings
             RAWSTRING EDITOR = "editor";
             RAWSTRING OPTIONS = "options";
             RAWSTRING EXIT = "exit";
+            RAWSTRING BACK = "back";
+            RAWSTRING BACK_TO_MENU = "back";
         } // namespace MainMenu
 
         namespace Options

@@ -3,6 +3,7 @@
 #include <app/AppStateScoreTable.hpp>
 
 import WidgetBuilder;
+import LayoutBuilder;
 
 void AppStateScoreTable::input()
 {
@@ -35,14 +36,7 @@ createCell(const std::string& str, unsigned column)
 
 void AppStateScoreTable::buildLayoutImpl()
 {
-    gui->add(createBackground(*resmgr, "menu_intermission.png"));
-    gui->add(
-        createH1Title(Strings::AppState::Scores::TITLE, tgui::Color::White));
-
-    auto panel = createPanel(
-        getCommonLayoutPosition(),
-        getCommonLayoutSize(scores.size() + 1),
-        tgui::Color::Transparent);
+    auto&& panel = WidgetBuilder::createPanel();
 
     // Add heading
     {
@@ -65,8 +59,14 @@ void AppStateScoreTable::buildLayoutImpl()
         panel->add(row);
     }
 
-    gui->add(panel);
-
-    gui->add(createBackButton(
-        [this] { app.popState("pop if not menu", 3); }, "back to menu"));
+    gui->add(
+        LayoutBuilder::withBackgroundImage(
+            resmgr->get<sf::Texture>("menu_intermission.png").value().get())
+            .withTitle(Strings::AppState::Scores::TITLE, HeadingLevel::H2)
+            .withContent(panel)
+            .withBackButton(WidgetBuilder::createButton(
+                Strings::AppState::MainMenu::BACK_TO_MENU,
+                [this] { app.popState("pop if not menu", 3); }))
+            .withNoSubmitButton()
+            .build());
 }

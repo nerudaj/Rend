@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Configs/Sizers.hpp>
+#include <Configs/Strings.hpp>
 #include <DGM/dgm.hpp>
 #include <TGUI/Backend/SFML-Graphics.hpp>
 #include <TGUI/TGUI.hpp>
@@ -25,15 +26,6 @@ protected:
     }
 
 protected:
-    [[nodiscard]] tgui::Label::Ptr createWindowTitle(
-        tgui::Layout2d position, tgui::Layout2d size, const std::string& text);
-
-    [[nodiscard]] tgui::Label::Ptr
-    createH1Title(const std::string& text, const sf::Color color);
-
-    [[nodiscard]] tgui::Panel::Ptr createBackground(
-        const dgm::ResourceManager& resmgr, const std::string& imgName) const;
-
     [[nodiscard]] tgui::Panel::Ptr createPanel(
         const tgui::Layout2d& position,
         const tgui::Layout2d& size,
@@ -59,14 +51,11 @@ protected:
         std::function<void(void)> onClick);
 
     [[nodiscard]] tgui::Button::Ptr createBackButton(
-        std::function<void(void)> callback, const std::string& label = "back")
-    {
-        return createButton(
-            label,
-            { "1%", "94%" },
-            { "15%", Sizers::getBaseRowHeight() },
-            callback);
-    }
+        std::function<void(void)> onClick,
+        const std::string& label = Strings::AppState::MainMenu::BACK);
+
+    [[nodiscard]] tgui::Button::Ptr createSubmitButton(
+        std::function<void(void)> onClick, const std::string& label);
 
     /**
      *  \brief Adds a list of buttons to layout

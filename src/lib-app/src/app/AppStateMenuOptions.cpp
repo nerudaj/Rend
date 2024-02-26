@@ -6,6 +6,7 @@
 #include <ranges>
 
 import WidgetBuilder;
+import LayoutBuilder;
 
 static const std::vector<std::string> STRING_RESOLUTIONS = {
     "640x480",  "800x600",   "1024x768",  "1280x720", "1366x768",
@@ -25,16 +26,20 @@ std::string getWindowResolutionAsString(const dgm::Window& window)
 
 void AppStateMenuOptions::buildLayoutImpl()
 {
-    gui->add(createBackground(*resmgr, "menu_options.png"));
-    gui->add(
-        createH1Title(Strings::AppState::Options::TITLE, tgui::Color::White));
+    auto&& basePanel = WidgetBuilder::createPanel();
 
-    auto panel = createPanel({ "20%", "35%" }, { "60%", "25%" });
-    gui->add(panel, "IdTabPanel");
+    auto&& panel = WidgetBuilder::createPanel(
+        { "100%",
+          ("100% - " + std::to_string(Sizers::getBaseContainerHeight()))
+              .c_str() },
+        PANEL_BACKGROUND_COLOR);
+    panel->setPosition({ "0%", Sizers::getBaseContainerHeight() });
 
-    auto tabs = tgui::Tabs::create();
-    tabs->setPosition("20%", "30%");
-    tabs->setSize("60%", "5%");
+    basePanel->add(panel, "IdTabPanel");
+
+    auto&& tabs = tgui::Tabs::create();
+    tabs->setSize({ "100%", Sizers::getBaseContainerHeight() });
+    tabs->setTextSize(Sizers::getBaseTextSize());
     tabs->add(Strings::AppState::Options::DISPLAY);
     tabs->add(Strings::AppState::Options::AUDIO);
     tabs->add(Strings::AppState::Options::INPUT);
@@ -63,10 +68,18 @@ void AppStateMenuOptions::buildLayoutImpl()
                 builder.build();
             }
         });
-    tabs->select(Strings::AppState::Options::DISPLAY);
-    gui->add(tabs);
+    basePanel->add(tabs);
 
-    gui->add(createBackButton([this] { app.popState(); }));
+    gui->add(
+        LayoutBuilder::withBackgroundImage(
+            resmgr->get<sf::Texture>("menu_options.png").value().get())
+            .withTitle(Strings::AppState::Options::TITLE, HeadingLevel::H2)
+            .withContent(basePanel)
+            .withBackButton(WidgetBuilder::createButton(
+                Strings::AppState::MainMenu::BACK, [this] { app.popState(); }))
+            .withNoSubmitButton()
+            .build());
+    tabs->select(Strings::AppState::Options::DISPLAY);
 }
 
 void AppStateMenuOptions::buildDisplayOptionsLayout(FormBuilder& builder)

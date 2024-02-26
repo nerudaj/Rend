@@ -10,13 +10,13 @@
 #include "app/AppStateMenuOptions.hpp"
 #include "settings/GameTitle.hpp"
 
+import WidgetBuilder;
+import LayoutBuilder;
+
 void AppStateMainMenu::buildLayoutImpl()
 {
-    gui->add(createBackground(*resmgr, "menu_title.png"));
-    gui->add(createH1Title("rend", sf::Color::White));
-
-    auto layout = tgui::VerticalLayout::create({ "15%", "30%" });
-    layout->setPosition("42.5%", "35%");
+    auto layout = tgui::VerticalLayout::create({ "50%", "80%" });
+    layout->setPosition("25%", "20%");
     gui->add(layout);
 
     createButtonListInLayout(
@@ -51,6 +51,14 @@ void AppStateMainMenu::buildLayoutImpl()
           ButtonProps(
               Strings::AppState::MainMenu::EXIT, [this] { app.exit(); }) },
         0.05f);
+
+    gui->add(LayoutBuilder::withBackgroundImage(
+                 resmgr->get<sf::Texture>("menu_title.png").value().get())
+                 .withTitle("rend", HeadingLevel::H1)
+                 .withContent(layout)
+                 .withNoBackButton()
+                 .withNoSubmitButton()
+                 .build());
 }
 
 void AppStateMainMenu::input()

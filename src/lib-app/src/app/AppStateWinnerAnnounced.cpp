@@ -43,7 +43,7 @@ void AppStateWinnerAnnounced::buildLayoutImpl()
     maxIndex++;
 
     // TODO: Use player names from settings
-    auto&& label = WidgetBuilder::createBigLabel(
+    auto&& label = WidgetBuilder::createH2Label(
         "player " + std::to_string(maxIndex) + " won!");
     label->setSize({ "100%", "25%" });
     label->setPosition({ "0%", "30%" });

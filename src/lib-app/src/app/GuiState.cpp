@@ -1,39 +1,7 @@
 #include "app/GuiState.hpp"
-#include <Utilities/TguiHelper.hpp>
 #include <algorithm>
 
-tgui::Label::Ptr GuiState::createWindowTitle(
-    tgui::Layout2d position, tgui::Layout2d size, const std::string& text)
-{
-    auto label = tgui::Label::create(text);
-    label->setAutoSize(true);
-    label->setSize(size);
-    label->setPosition(position);
-    label->setHorizontalAlignment(tgui::Label::HorizontalAlignment::Left);
-    label->setVerticalAlignment(tgui::Label::VerticalAlignment::Center);
-    return label;
-}
-
-tgui::Label::Ptr
-GuiState::createH1Title(const std::string& text, const sf::Color color)
-{
-    auto title = createWindowTitle({ "0%", "5%" }, { "100%", "25%" }, text);
-    title->setHorizontalAlignment(tgui::Label::HorizontalAlignment::Center);
-    title->setTextSize(72);
-    title->getRenderer()->setTextColor(tgui::Color(color));
-    title->getRenderer()->setTextOutlineColor(tgui::Color::Black);
-    title->getRenderer()->setTextOutlineThickness(1.f);
-    return title;
-}
-
-tgui::Panel::Ptr GuiState::createBackground(
-    const dgm::ResourceManager& resmgr, const std::string& imgName) const
-{
-    auto panel = tgui::Panel::create();
-    panel->getRenderer()->setTextureBackground(TguiHelper::convertTexture(
-        resmgr.get<sf::Texture>(imgName).value().get()));
-    return panel;
-}
+import WidgetBuilder;
 
 tgui::Panel::Ptr GuiState::createPanel(
     const tgui::Layout2d& position,
@@ -53,15 +21,42 @@ tgui::Button::Ptr GuiState::createButton(
     std::function<void(void)> onClick)
 {
     tgui::Button::Ptr button = tgui::Button::create(label);
+    button->setTextSize(Sizers::getBaseTextSize());
     button->setSize(size);
     button->setPosition(position);
     button->onClick(
-        [this, onClick]()
+        [this, onClick]
         {
             audioPlayer->playSoundOnChannel("click.wav", 0);
             onClick();
         });
     return button;
+}
+
+tgui::Button::Ptr GuiState::createBackButton(
+    std::function<void(void)> onClick, const std::string& label)
+{
+    return createButton(
+        label,
+        tgui::Layout2d {
+            "1%",
+            ("99% - " + std::to_string(Sizers::getBaseContainerHeight()))
+                .c_str() },
+        { "15%", Sizers::getBaseContainerHeight() },
+        onClick);
+}
+
+tgui::Button::Ptr GuiState::createSubmitButton(
+    std::function<void(void)> onClick, const std::string& label)
+{
+    return createButton(
+        label,
+        tgui::Layout2d {
+            "84%",
+            ("99% - " + std::to_string(Sizers::getBaseContainerHeight()))
+                .c_str() },
+        { "15%", Sizers::getBaseContainerHeight() },
+        onClick);
 }
 
 void GuiState::createButtonListInLayout(

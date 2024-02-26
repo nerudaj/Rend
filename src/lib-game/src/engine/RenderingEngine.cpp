@@ -80,7 +80,7 @@ RenderingEngine::RenderingEngine(
     , noiseTexture(resmgr.get<sf::Texture>("ditherNoise.png").value().get())
     , text(RenderContextBuilder::createTextObject(
           resmgr.get<sf::Font>("pico-8.ttf").value().get(),
-          Sizers::getBaseFontSize(),
+          Sizers::getBaseTextSize(),
           sf::Color::White))
     , caster(scene.level.bottomMesh.getVoxelSize())
     , depthBuffer(settings.resolution.width)
