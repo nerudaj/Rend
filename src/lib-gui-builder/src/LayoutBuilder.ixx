@@ -101,4 +101,6 @@ export class [[nodiscard]] LayoutBuilder final
 public:
     static LayoutBuilderWithBackground
     withBackgroundImage(const sf::Texture& texture);
+
+    static LayoutBuilderWithBackground withNoBackgroundImage();
 };

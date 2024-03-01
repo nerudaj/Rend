@@ -10,52 +10,53 @@
 #include "app/AppStateMenuOptions.hpp"
 #include "settings/GameTitle.hpp"
 
-import WidgetBuilder;
-import LayoutBuilder;
+import GuiBuilder;
 
 void AppStateMainMenu::buildLayoutImpl()
 {
-    auto layout = tgui::VerticalLayout::create({ "50%", "80%" });
-    layout->setPosition("25%", "20%");
-    gui->add(layout);
-
-    createButtonListInLayout(
-        layout,
-        { ButtonProps(
-              Strings::AppState::MainMenu::PLAY, [this] { goToGameSetup(); }),
-          ButtonProps(
-              Strings::AppState::MainMenu::EDITOR,
-              [this]
-              {
-                  auto _gui = mem::Rc<Gui>();
-                  app.pushState<AppStateEditor>(
-                      gui,
-                      _gui,
-                      resmgr,
-                      settings,
-                      audioPlayer,
-                      jukebox,
-                      controller,
-                      mem::Rc<ShortcutEngine>(
-                          [_gui] { return _gui->isAnyModalOpened(); }),
-                      mem::Rc<YesNoCancelDialog>(_gui),
-                      mem::Rc<ErrorInfoDialog>(_gui));
-              }),
-          ButtonProps(
-              Strings::AppState::MainMenu::OPTIONS,
-              [this]
-              {
-                  app.pushState<AppStateMenuOptions>(
-                      gui, resmgr, audioPlayer, jukebox, settings, controller);
-              }),
-          ButtonProps(
-              Strings::AppState::MainMenu::EXIT, [this] { app.exit(); }) },
-        0.05f);
-
     gui->add(LayoutBuilder::withBackgroundImage(
                  resmgr->get<sf::Texture>("menu_title.png").value().get())
                  .withTitle("rend", HeadingLevel::H1)
-                 .withContent(layout)
+                 .withContent(
+                     ButtonListBuilder()
+                         .addButton(
+                             Strings::AppState::MainMenu::PLAY,
+                             [this] { goToGameSetup(); })
+                         .addButton(
+                             Strings::AppState::MainMenu::EDITOR,
+                             [this]
+                             {
+                                 auto _gui = mem::Rc<Gui>();
+                                 app.pushState<AppStateEditor>(
+                                     gui,
+                                     _gui,
+                                     resmgr,
+                                     settings,
+                                     audioPlayer,
+                                     jukebox,
+                                     controller,
+                                     mem::Rc<ShortcutEngine>(
+                                         [_gui]
+                                         { return _gui->isAnyModalOpened(); }),
+                                     mem::Rc<YesNoCancelDialog>(_gui),
+                                     mem::Rc<ErrorInfoDialog>(_gui));
+                             })
+                         .addButton(
+                             Strings::AppState::MainMenu::OPTIONS,
+                             [this]
+                             {
+                                 app.pushState<AppStateMenuOptions>(
+                                     gui,
+                                     resmgr,
+                                     audioPlayer,
+                                     jukebox,
+                                     settings,
+                                     controller);
+                             })
+                         .addButton(
+                             Strings::AppState::MainMenu::EXIT,
+                             [this] { app.exit(); })
+                         .build())
                  .withNoBackButton()
                  .withNoSubmitButton()
                  .build());

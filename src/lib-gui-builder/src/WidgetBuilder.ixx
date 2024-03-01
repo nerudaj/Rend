@@ -31,12 +31,12 @@ public:
 
     static [[nodiscard]] tgui::Label::Ptr createH2Label(const std::string& text)
     {
-        return createLabelInternal(text, 1.5f, true);
+        return createLabelInternal(text, 2.f, true);
     }
 
     static [[nodiscard]] tgui::Label::Ptr createH1Label(const std::string& text)
     {
-        return createLabelInternal(text, 2.f, true);
+        return createLabelInternal(text, 4.f, true);
     }
 
     static [[nodiscard]] tgui::Panel::Ptr createPanel(

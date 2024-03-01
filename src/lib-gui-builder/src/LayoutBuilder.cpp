@@ -7,7 +7,7 @@ import WidgetBuilder;
 
 auto getTitleHeight()
 {
-    return Sizers::getBaseContainerHeight() * 2.5f;
+    return Sizers::getBaseContainerHeight() * 4.f;
 }
 
 FinalizedLayoutBuilder LayoutBuilderWithContentAndBackButton::withSubmitButton(
@@ -70,4 +70,9 @@ LayoutBuilder::withBackgroundImage(const sf::Texture& texture)
     bgr->getRenderer()->setTextureBackground(
         TguiHelper::convertTexture(texture));
     return LayoutBuilderWithBackground(bgr);
+}
+
+LayoutBuilderWithBackground LayoutBuilder::withNoBackgroundImage()
+{
+    return LayoutBuilderWithBackground(WidgetBuilder::createPanel());
 }

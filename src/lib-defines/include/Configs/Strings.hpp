@@ -60,6 +60,13 @@ namespace Strings
             RAWSTRING START_GAME = "start game";
         } // namespace GameSetup
 
+        namespace Pause
+        {
+            RAWSTRING TITLE = "pause";
+            RAWSTRING RESUME = "resume";
+            RAWSTRING TO_MENU = "main menu";
+        } // namespace Pause
+
         namespace Scores
         {
             RAWSTRING TITLE = "results";
