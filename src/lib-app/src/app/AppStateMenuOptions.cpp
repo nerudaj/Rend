@@ -31,8 +31,7 @@ void AppStateMenuOptions::buildLayoutImpl()
     auto&& panel = WidgetBuilder::createPanel(
         { "100%",
           ("100% - " + std::to_string(Sizers::getBaseContainerHeight()))
-              .c_str() },
-        PANEL_BACKGROUND_COLOR);
+              .c_str() });
     panel->setPosition({ "0%", Sizers::getBaseContainerHeight() });
 
     basePanel->add(panel, "IdTabPanel");
@@ -49,24 +48,20 @@ void AppStateMenuOptions::buildLayoutImpl()
             auto panel = gui->get<tgui::Panel>("IdTabPanel");
             panel->removeAllWidgets();
 
+            auto&& builder = FormBuilder();
             if (tabname == Strings::AppState::Options::DISPLAY)
             {
-                auto&& builder = FormBuilder(panel);
                 buildDisplayOptionsLayout(builder);
-                builder.build();
             }
             else if (tabname == Strings::AppState::Options::AUDIO)
             {
-                auto&& builder = FormBuilder(panel);
                 buildAudioOptionsLayout(builder);
-                builder.build();
             }
             else if (tabname == Strings::AppState::Options::INPUT)
             {
-                auto&& builder = FormBuilder(panel);
                 buildInputOptionsLayout(builder);
-                builder.build();
             }
+            panel->add(builder.build(PANEL_BACKGROUND_COLOR));
         });
     basePanel->add(tabs);
 

@@ -9,21 +9,16 @@
 import Memory;
 import Audio;
 
-class GuiState
+class [[nodiscard]] GuiState
 {
-protected:
-    struct [[nodiscard]] ButtonProps final
-    {
-        std::string label;
-        std::function<void(void)> callback;
-    };
-
 protected:
     [[nodiscard]] GuiState(
         mem::Rc<tgui::Gui> gui, mem::Rc<AudioPlayer> audioPlayer) noexcept
         : gui(gui), audioPlayer(audioPlayer)
     {
     }
+
+    virtual ~GuiState() = default;
 
 protected:
     virtual void buildLayoutImpl() = 0;

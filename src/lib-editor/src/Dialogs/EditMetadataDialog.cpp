@@ -21,7 +21,7 @@ void EditMetadataDialog::open(
 
 void EditMetadataDialog::buildLayoutImpl(tgui::Panel::Ptr panel)
 {
-    auto&& builder = FormBuilder(panel);
+    auto&& builder = FormBuilder();
     addAttributesToFormular(builder);
-    builder.build();
+    panel->add(builder.build());
 }

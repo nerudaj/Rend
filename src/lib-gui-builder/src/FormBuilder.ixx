@@ -11,7 +11,10 @@ export module FormBuilder;
 export class [[nodiscard]] FormBuilder final
 {
 public:
-    FormBuilder(tgui::Panel::Ptr panel) : panel(panel) {}
+    FormBuilder() = default;
+    FormBuilder(const FormBuilder&) = delete;
+    FormBuilder(FormBuilder&&) = delete;
+    ~FormBuilder() = default;
 
 public:
     [[nodiscard]] FormBuilder& addOption(
@@ -19,10 +22,15 @@ public:
         tgui::Widget::Ptr widget,
         bool disabled = false);
 
-    void build();
+    [[nodiscard]] tgui::Panel::Ptr
+    build(tgui::Color backgroundColor = tgui::Color::Transparent);
 
 private:
-    tgui::Panel::Ptr panel;
-    unsigned labelFontSize;
-    std::vector<std::tuple<std::string, tgui::Widget::Ptr>> rowsToBuild;
+    struct RowProps
+    {
+        std::string label;
+        tgui::Widget::Ptr widget;
+    };
+
+    std::vector<RowProps> rowsToBuild;
 };

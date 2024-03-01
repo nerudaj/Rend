@@ -60,38 +60,36 @@ void AppStateGameSetup::buildLayoutImpl()
 
     if (mapname.empty()) mapname = mapnames.front();
 
-    auto panel =
-        WidgetBuilder::createPanel({ "100%", "100%" }, PANEL_BACKGROUND_COLOR);
-    FormBuilder(panel)
-        .addOption(
-            Strings::AppState::GameSetup::PLAYER_COUNT,
-            WidgetBuilder::createDropdown(
-                { "1", "2", "3", "4" },
-                std::to_string(playerCount),
-                [this](std::size_t idx) { playerCount = idx + 1; }))
-        .addOption(
-            Strings::AppState::GameSetup::SELECT_MAP,
-            WidgetBuilder::createDropdown(
-                mapnames,
-                mapname,
-                [this](std::size_t idx) { mapname = mapnames[idx]; }))
-        .addOption(
-            Strings::AppState::GameSetup::FRAGLIMIT,
-            WidgetBuilder::createTextInput(
-                std::to_string(fraglimit),
-                [this](const tgui::String& newValue)
-                {
-                    if (newValue.empty()) return;
-                    fraglimit = std::stoi(std::string(newValue));
-                },
-                WidgetBuilder::getNumericValidator()))
-        .build();
-
     gui->add(
         LayoutBuilder::withBackgroundImage(
             resmgr->get<sf::Texture>("menu_setup.png").value().get())
             .withTitle(Strings::AppState::GameSetup::TITLE, HeadingLevel::H2)
-            .withContent(panel)
+            .withContent(
+                FormBuilder()
+                    .addOption(
+                        Strings::AppState::GameSetup::PLAYER_COUNT,
+                        WidgetBuilder::createDropdown(
+                            { "1", "2", "3", "4" },
+                            std::to_string(playerCount),
+                            [this](std::size_t idx) { playerCount = idx + 1; }))
+                    .addOption(
+                        Strings::AppState::GameSetup::SELECT_MAP,
+                        WidgetBuilder::createDropdown(
+                            mapnames,
+                            mapname,
+                            [this](std::size_t idx)
+                            { mapname = mapnames[idx]; }))
+                    .addOption(
+                        Strings::AppState::GameSetup::FRAGLIMIT,
+                        WidgetBuilder::createTextInput(
+                            std::to_string(fraglimit),
+                            [this](const tgui::String& newValue)
+                            {
+                                if (newValue.empty()) return;
+                                fraglimit = std::stoi(std::string(newValue));
+                            },
+                            WidgetBuilder::getNumericValidator()))
+                    .build(PANEL_BACKGROUND_COLOR))
             .withBackButton(WidgetBuilder::createButton(
                 Strings::AppState::MainMenu::BACK, [this] { app.popState(); }))
             .withSubmitButton(WidgetBuilder::createButton(
