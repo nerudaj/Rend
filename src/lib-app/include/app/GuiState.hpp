@@ -8,6 +8,8 @@
 
 import Memory;
 import Audio;
+import AppMessage;
+import CoreTypes;
 
 class [[nodiscard]] GuiState
 {
@@ -33,6 +35,17 @@ protected:
     {
         gui->setWindow(window);
         buildLayout();
+    }
+
+    void handleRestoreMessage(dgm::App& app, const std::string& message)
+    {
+        auto&& msg = deserializeAppMessage(message);
+        if (!msg) return;
+
+        std::visit(
+            overloaded { [&](const PopIfNotMainMenu&)
+                         { app.popState(message); } },
+            msg.value());
     }
 
 protected:

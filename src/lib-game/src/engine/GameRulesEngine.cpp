@@ -7,6 +7,8 @@
 
 #pragma region EventHandling
 
+import CoreTypes;
+
 void GameRulesEngine::operator()(const PickablePickedUpGameEvent& e)
 {
     scene.markers.emplaceBack(MarkerItemRespawner {
@@ -219,12 +221,6 @@ void GameRulesEngine::operator()(const WeaponPickedUpGameEvent& e)
 }
 
 #pragma endregion
-
-template<class... Ts>
-struct overloaded : Ts...
-{
-    using Ts::operator()...;
-};
 
 void GameRulesEngine::update(const float deltaTime)
 {

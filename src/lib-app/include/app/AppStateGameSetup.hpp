@@ -36,8 +36,9 @@ public:
     }
 
 private:
-    void restoreFocusImpl(const std::string&) override
+    void restoreFocusImpl(const std::string& message) override
     {
+        handleRestoreMessage(app, message);
         GuiState::restoreFocus(app.window.getWindowContext());
     }
 

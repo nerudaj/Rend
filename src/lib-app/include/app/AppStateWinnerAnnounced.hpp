@@ -52,6 +52,11 @@ public:
 private:
     void buildLayoutImpl() override;
 
+    void restoreFocusImpl(const std::string& message) override
+    {
+        handleRestoreMessage(app, message);
+    }
+
 private:
     mem::Rc<const dgm::ResourceManager> resmgr;
     mem::Rc<tgui::Gui> gui;

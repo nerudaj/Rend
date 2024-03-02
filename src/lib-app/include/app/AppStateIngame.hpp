@@ -20,6 +20,8 @@ import Options;
 import Memory;
 import Audio;
 import Input;
+import AppMessage;
+import CoreTypes;
 
 class [[nodiscard]] AppStateIngame final : public dgm::AppState
 {
@@ -49,8 +51,16 @@ public:
     virtual void draw() override;
 
 private:
-    void restoreFocusImpl(const std::string&) override
+    void restoreFocusImpl(const std::string& message) override
     {
+        if (auto&& msg = deserializeAppMessage(message); msg.has_value())
+        {
+            std::visit(
+                overloaded { [&](const PopIfNotMainMenu&)
+                             { app.popState(message); } },
+                msg.value());
+        }
+
         app.window.getWindowContext().setFramerateLimit(60);
         propagateSettings();
         lockMouse();

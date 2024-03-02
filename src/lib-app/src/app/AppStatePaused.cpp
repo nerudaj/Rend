@@ -2,6 +2,7 @@
 #include "app/AppStateMenuOptions.hpp"
 
 import GuiBuilder;
+import AppMessage;
 
 void AppStatePaused::buildLayoutImpl()
 {
@@ -28,7 +29,7 @@ void AppStatePaused::buildLayoutImpl()
                         })
                     .addButton(
                         Strings::AppState::Pause::TO_MENU,
-                        [&] { app.popState("pop if not menu", 2); })
+                        [&] { app.popState(PopIfNotMainMenu::serialize()); })
                     .addButton(
                         Strings::AppState::MainMenu::EXIT, [&] { app.exit(); })
                     .build())

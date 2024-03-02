@@ -4,6 +4,7 @@
 
 import WidgetBuilder;
 import LayoutBuilder;
+import AppMessage;
 
 void AppStateScoreTable::input()
 {
@@ -66,7 +67,7 @@ void AppStateScoreTable::buildLayoutImpl()
             .withContent(panel)
             .withBackButton(WidgetBuilder::createButton(
                 Strings::AppState::MainMenu::BACK_TO_MENU,
-                [this] { app.popState("pop if not menu", 3); }))
+                [this] { app.popState(PopIfNotMainMenu::serialize()); }))
             .withNoSubmitButton()
             .build());
 }
