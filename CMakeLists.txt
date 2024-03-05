@@ -41,6 +41,7 @@ add_subdirectory ( "src/bin" )
 add_subdirectory ( "src/demo-ordered-dither" )
 add_subdirectory ( "src/server-test" )
 add_subdirectory ( "src/client-test" )
+add_subdirectory ( "src/benchmark" )
 
 if ( NOT ${DISABLE_TESTING} )
 	add_subdirectory ( "src/tests" )

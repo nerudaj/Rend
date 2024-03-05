@@ -1,0 +1,5 @@
+#pragma once
+
+#include <filesystem>
+
+const std::filesystem::path ROOT_DIR = "@CMAKE_SOURCE_DIR@";

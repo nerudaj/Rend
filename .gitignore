@@ -8,3 +8,4 @@ src/tests/.clang-format
 _build
 level-editor/bin/stdout.txt
 src/tests/include/TestHelpers/TestAssets.hpp
+src/benchmark/include/RootDir.hpp
