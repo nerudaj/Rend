@@ -24,3 +24,4 @@ Accessibility & UX:
 
 Other:
 * Screenshots can now be taken with the P key
+* Optimized loading times from dozens of seconds to miliseconds
