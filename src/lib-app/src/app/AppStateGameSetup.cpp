@@ -119,14 +119,22 @@ void AppStateGameSetup::startGame()
 
 std::vector<PlayerOptions> AppStateGameSetup::createPlayerSettings() const
 {
+    const auto&& defaultPlayerNames = std::vector<std::string> {
+        "player",
+        "phobos",
+        "spartan",
+        "deimos",
+    };
+
     return std::views::iota(0u, playerCount)
            | std::views::transform(
-               [](auto idx)
+               [&defaultPlayerNames](auto idx)
                {
                    return PlayerOptions { .kind = idx == 0u
                                                       ? PlayerKind::LocalHuman
                                                       : PlayerKind::LocalNpc,
-                                          .bindCamera = idx == 0 };
+                                          .bindCamera = idx == 0,
+                                          .name = defaultPlayerNames[idx] };
                })
            | std::ranges::to<std::vector<PlayerOptions>>();
 }

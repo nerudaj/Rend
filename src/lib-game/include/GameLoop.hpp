@@ -9,6 +9,7 @@
 #include <engine/PhysicsEngine.hpp>
 #include <engine/RenderingEngine.hpp>
 #include <events/EventQueue.hpp>
+#include <ranges>
 
 import Memory;
 import Options;
@@ -22,13 +23,14 @@ public:
         mem::Rc<EventQueue> eventQueue,
         mem::Rc<const dgm::ResourceManager> resmgr,
         mem::Rc<AudioPlayer> audioPlayer,
+        const std::vector<std::string>& playerNames,
         const DisplayOptions& renderSettings)
         : scene(scene)
         , eventQueue(eventQueue)
         , aiEngine(scene)
         , animationEngine(scene, eventQueue)
         , audioEngine(audioPlayer, scene)
-        , gameRulesEngine(scene, eventQueue)
+        , gameRulesEngine(scene, eventQueue, playerNames)
         , physicsEngine(scene, eventQueue)
         , renderingEngine(renderSettings, *resmgr, scene)
     {

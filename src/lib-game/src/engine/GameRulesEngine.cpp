@@ -195,10 +195,10 @@ void GameRulesEngine::operator()(const PlayerKilledPlayerGameEvent& e)
 
     killerContext.message = HudMessage(std::vformat(
         Strings::Game::YOU_KILLED,
-        std::make_format_args("player " + std::to_string(e.victimStateIdx))));
+        std::make_format_args(playerNames[e.victimStateIdx])));
     victimContext.message = HudMessage(std::vformat(
         Strings::Game::KILLED_BY,
-        std::make_format_args("player " + std::to_string(e.killerStateIdx))));
+        std::make_format_args(playerNames[e.killerStateIdx])));
 }
 
 void GameRulesEngine::operator()(const WeaponPickedUpGameEvent& e)

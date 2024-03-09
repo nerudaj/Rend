@@ -37,6 +37,27 @@ createCell(const std::string& str, unsigned column)
 
 void AppStateScoreTable::buildLayoutImpl()
 {
+    struct PlayerScore
+    {
+        std::string name;
+        int score;
+    };
+
+    auto orderedScores =
+        std::views::zip(scores, gameSettings.players)
+        | std::views::transform(
+            [](const std::tuple<int, PlayerOptions>& t)
+            {
+                return PlayerScore { .name = std::get<1>(t).name,
+                                     .score = std::get<0>(t) };
+            })
+        | std::ranges::to<std::vector>();
+
+    std::ranges::sort(
+        orderedScores,
+        [](const PlayerScore& a, const PlayerScore& b) -> bool
+        { return a.score >= b.score; });
+
     auto&& panel = WidgetBuilder::createPanel();
 
     // Add heading
@@ -49,21 +70,21 @@ void AppStateScoreTable::buildLayoutImpl()
     }
 
     // Add results
-    for (auto idx = 0; idx < scores.size(); ++idx)
+    for (auto&& [idx, score] : std::views::enumerate(orderedScores))
     {
         auto color = idx % 2 == 0 ? tgui::Color(255, 255, 255, 128)
                                   : tgui::Color(255, 255, 255, 192);
         auto row = WidgetBuilder::getStandardizedRow(color);
         row->setPosition({ "0%", row->getSize().y * (idx + 1) });
-        row->add(createCell("player " + std::to_string(idx + 1), 0));
-        row->add(createCell(std::to_string(scores[idx]), 1));
+        row->add(createCell(score.name, 0));
+        row->add(createCell(std::to_string(score.score), 1));
         panel->add(row);
     }
 
     gui->add(
         LayoutBuilder::withBackgroundImage(
             resmgr->get<sf::Texture>("menu_intermission.png").value().get())
-            .withTitle(Strings::AppState::Scores::TITLE, HeadingLevel::H2)
+            .withTitle(Strings::AppState::Scores::TITLE, HeadingLevel::H1)
             .withContent(panel)
             .withBackButton(WidgetBuilder::createButton(
                 Strings::AppState::MainMenu::BACK_TO_MENU,

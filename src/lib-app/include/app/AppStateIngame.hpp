@@ -90,6 +90,8 @@ private:
     void createPlayers();
     void propagateSettings();
 
+    mem::Box<GameLoop> createGameLoop();
+
 protected:
     mem::Rc<const dgm::ResourceManager> resmgr;
     mem::Rc<tgui::Gui> gui;
