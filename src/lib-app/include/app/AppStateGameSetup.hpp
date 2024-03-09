@@ -46,6 +46,10 @@ private:
 
     void buildLayoutImpl() override;
 
+    void commitLobby();
+
+    void handleNetworkUpdate(const ServerUpdateData& update);
+
     void startGame();
 
     [[nodiscard]] std::vector<PlayerOptions> createPlayerSettings() const;

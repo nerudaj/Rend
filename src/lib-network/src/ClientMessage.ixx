@@ -14,8 +14,7 @@ export struct [[nodiscard]] ClientMessage
     PlayerIdType clientId;
     std::string clientName;
     std::string jsonData; // either map configuration JSON or input JSON
-
-    // tick?
+    size_t tick;
 
     static ClientMessage fromPacket(sf::Packet& packet)
     {

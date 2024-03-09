@@ -18,7 +18,8 @@ export
     {
         bool lobbyCommited = false;
         bool peersReady = false;
-        MapData mapinfo;
+        MapData mapinfo; // TODO: rename to game info and contain stuff like
+                         // fraglimit
         std::vector<ClientData> clients;
         std::vector<InputData> inputs;
     };

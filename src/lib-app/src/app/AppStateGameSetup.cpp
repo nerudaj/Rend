@@ -67,6 +67,8 @@ void AppStateGameSetup::input()
     }
 
     controller->update();
+    client->readIncomingPackets(
+        std::bind(&AppStateGameSetup::handleNetworkUpdate, this));
 }
 
 void AppStateGameSetup::buildLayoutImpl()
@@ -110,8 +112,24 @@ void AppStateGameSetup::buildLayoutImpl()
                 Strings::AppState::MainMenu::BACK, [this] { app.popState(); }))
             .withSubmitButton(WidgetBuilder::createButton(
                 Strings::AppState::MainMenu::PLAY,
-                std::bind(&AppStateGameSetup::startGame, this)))
+                std::bind(&AppStateGameSetup::commitLobby, this)))
             .build());
+}
+
+void AppStateGameSetup::commitLobby()
+{
+    auto&& result = client->commitLobby();
+    if (!result) throw std::runtime_error(result.error());
+}
+
+void AppStateGameSetup::handleNetworkUpdate(const ServerUpdateData& update)
+{
+    // TODO: player settings
+    if (update.lobbyCommited)
+    {
+        mapname = update.mapinfo.name;
+        startGame();
+    }
 }
 
 void AppStateGameSetup::startGame()

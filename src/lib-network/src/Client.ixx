@@ -17,22 +17,21 @@ export struct PlayerConfig
     std::string name;
 };
 
-export using UpdatePlayerConfigCallback =
-    std::function<void(PlayerIdType, PlayerConfig)>;
-export using UpdatePlayerInputCallback =
-    std::function<void(PlayerIdType, std::string)>;
+export using HandleNetworkUpdate = std::function<void(const ServerUpdateData&)>;
 
 export class [[nodiscard]] Client final
 {
 public:
     Client(const sf::IpAddress& address, unsigned short port);
 
-    void readIncomingPackets(
-        bool blocking,
-        UpdatePlayerConfigCallback updatePlayerConfigCallback,
-        UpdatePlayerInputCallback updatePlayerInputCallback);
+    ExpectSuccess readIncomingPackets(HandleNetworkUpdate handleUpdateCallback);
 
     ExpectSuccess sendMapReadySignal();
+
+    ExpectSuccess commitLobby();
+
+    ExpectSuccess
+    sendUpdate(size_t tick, const std::vector<InputSchema>& inputs);
 
 private:
     ExpectSuccess bindToAnyPort();
@@ -42,8 +41,6 @@ private:
     ExpectSuccess sendConnectPacket();
 
     std::expected<ServerMessage, ErrorMessage> getConnectResponse();
-
-    ExpectSuccess handleIncomingMessage(const ServerMessage& message);
 
 private:
     sf::IpAddress remoteAddress;

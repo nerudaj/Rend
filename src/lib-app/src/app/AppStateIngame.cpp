@@ -110,12 +110,17 @@ void AppStateIngame::input()
     }
 
     controller->update();
+    client->readIncomingPackets(
+        std::bind(&AppStateGameSetup::handleNetworkUpdate, this));
 }
 
 void AppStateIngame::update()
 {
+    if (!ready) return;
+
     stateBuffer.pushBack(FrameState {});
     snapshotInputs(stateBuffer.last());
+    client->sendUpdate(lastTick, stateBuffer.last().inputs);
     sf::Mouse::setPosition(
         sf::Vector2i(app.window.getSize() / 2u), app.window.getWindowContext());
 
@@ -141,6 +146,8 @@ void AppStateIngame::update()
         backupState(stateBuffer.last());
     }
 
+    ++lastTick;
+
     evaluateWinCondition();
 }
 
@@ -148,6 +155,17 @@ void AppStateIngame::draw()
 {
     app.window.getWindowContext().setView(camera->getCurrentView());
     gameLoop->renderTo(app.window);
+}
+
+void AppStateIngame::handleNetworkUpdate(const ServerUpdateData& update)
+{
+    ready = update.peersReady;
+
+    for (auto&& inputData : update.inputs)
+    {
+        stateBuffer[lastTick - inputData.tick].inputs[inputData.clientId] =
+            inputData.input;
+    }
 }
 
 void AppStateIngame::snapshotInputs(FrameState& state)

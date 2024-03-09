@@ -78,6 +78,7 @@ private:
         EntityIndexType cameraAnchorIdx;
     };
 
+    void handleNetworkUpdate(const ServerUpdateData& update);
     void snapshotInputs(FrameState& state);
     void simulateFrameFromState(const FrameState& state, bool skipAudio);
     void evaluateWinCondition();
@@ -112,4 +113,6 @@ protected:
     mem::Box<GameLoop> gameLoop;
     DemoFileHandler demoFileHandler;
     mem::Box<dgm::Camera> camera;
+    bool ready = false;
+    size_t lastTick = {};
 };

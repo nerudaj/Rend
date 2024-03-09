@@ -14,21 +14,31 @@ Client::Client(const sf::IpAddress& address, unsigned short port)
     auto&& id = registerToServer();
     if (!id) throw std::runtime_error(id.error());
     myClientId = *id;
+
+    socket->setBlocking(false);
 }
 
-void Client::readIncomingPackets(
-    bool blocking, UpdatePlayerConfigCallback, UpdatePlayerInputCallback)
+ExpectSuccess
+Client::readIncomingPackets(HandleNetworkUpdate handleUpdateCallback)
 {
     sf::Packet packet;
     sf::IpAddress address;
     unsigned short port;
 
-    socket->setBlocking(blocking);
     while (socket->receive(packet, address, port) == sf::Socket::Status::Done)
     {
-        auto&& result =
-            handleIncomingMessage(ServerMessage::fromPacket(packet));
+        auto&& message = ServerMessage::fromPacket(packet);
+        if (message.type != ServerMessageType::Update)
+        {
+            return std::unexpected(std::format(
+                "Expected server Update message, got type {}",
+                std::to_underlying(message.type)));
+        }
+
+        handleUpdateCallback(nlohmann::json::parse(message.payload));
     }
+
+    return ReturnFlag::Success;
 }
 
 ExpectSuccess Client::sendMapReadySignal()
@@ -41,6 +51,39 @@ ExpectSuccess Client::sendMapReadySignal()
     {
         return std::unexpected(
             std::format("Could not send MapLoaded message to server"));
+    }
+
+    return ReturnFlag::Success;
+}
+
+ExpectSuccess Client::commitLobby()
+{
+    auto&& packet = ClientMessage { .type = ClientMessageType::CommitLobby,
+                                    .clientId = myClientId }
+                        .toPacket();
+    if (socket->send(packet, remoteAddress, remotePort)
+        != sf::Socket::Status::Done)
+    {
+        return std::unexpected(std::format("Could not commit lobby"));
+    }
+
+    return ReturnFlag::Success;
+}
+
+ExpectSuccess
+Client::sendUpdate(size_t tick, const std::vector<InputSchema>& inputs)
+{
+    auto&& packet =
+        ClientMessage { .type = ClientMessageType::ReportInput,
+                        .clientId = myClientId,
+                        .jsonData =
+                            nlohmann::json { inputs[myClientId] }.dump(),
+                        .tick = tick }
+            .toPacket();
+    if (socket->send(packet, remoteAddress, remotePort)
+        != sf::Socket::Status::Done)
+    {
+        return std::unexpected(std::format("Could not send input update"));
     }
 
     return ReturnFlag::Success;
@@ -108,26 +151,4 @@ std::expected<ServerMessage, ErrorMessage> Client::getConnectResponse()
     }
 
     return message;
-}
-
-ExpectSuccess Client::handleIncomingMessage(const ServerMessage& message)
-{
-    switch (message.type)
-    {
-        using enum ServerMessageType;
-
-    case ConnectionAccepted:
-    case ConnectionRefused:
-    case LobbyCommited:
-    case StartGame:
-    case UpdateInput:
-        break;
-    default:
-        return std::unexpected(std::format(
-            "Got invalid message code {}",
-            static_cast<std::underlying_type_t<ServerMessageType>>(
-                message.type)));
-    }
-
-    return ReturnFlag::Success;
 }
