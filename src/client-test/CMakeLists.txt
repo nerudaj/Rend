@@ -1,9 +1,6 @@
 cmake_minimum_required ( VERSION 3.26 )
 
-file (
-	COPY "${CMAKE_BINARY_DIR}/.clang-format"
-	DESTINATION "${CMAKE_CURRENT_SOURCE_DIR}"
-)
+get_latest_clang_format()
 
 project ( client-test )
 

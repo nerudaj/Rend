@@ -27,7 +27,7 @@ import Audio;
 import Input;
 import Network;
 
-class AppStateEditor : public dgm::AppState
+class [[nodiscard]] AppStateEditor final : public dgm::AppState
 {
 public:
     AppStateEditor(
@@ -50,18 +50,13 @@ public:
     virtual void update() override;
     virtual void draw() override;
 
-    virtual [[nodiscard]] bool isTransparent() const noexcept override
-    {
-        return false;
-    }
-
-    virtual void restoreFocus()
+protected:
+    virtual void restoreFocusImpl(const std::string&)
     {
         jukebox->stop();
         dialogLoading.close();
     }
 
-protected:
     void updateWindowTitle()
     {
         app.window.getWindowContext().setTitle(

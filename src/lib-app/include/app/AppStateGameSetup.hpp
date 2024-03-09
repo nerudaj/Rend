@@ -37,22 +37,13 @@ public:
         gui->draw();
     }
 
-    [[nodiscard]] bool isTransparent() const noexcept override
+private:
+    void restoreFocusImpl(const std::string& message) override
     {
-        return false;
-    }
-
-    [[nodiscard]] sf::Color getClearColor() const override
-    {
-        return sf::Color::White;
-    }
-
-    void restoreFocus() override
-    {
+        handleRestoreMessage(app, message);
         GuiState::restoreFocus(app.window.getWindowContext());
     }
 
-private:
     void buildLayoutImpl() override;
 
     void startGame();

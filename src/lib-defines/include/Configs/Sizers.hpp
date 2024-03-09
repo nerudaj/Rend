@@ -9,12 +9,12 @@ public:
 
     static unsigned GetMenuBarTextHeight();
 
-    static [[nodiscard]] unsigned getBaseFontSize()
+    static [[nodiscard]] unsigned getBaseTextSize()
     {
         return GetMenuBarTextHeight();
     }
 
-    static [[nodiscard]] unsigned getBaseRowHeight()
+    static [[nodiscard]] unsigned getBaseContainerHeight()
     {
         return GetMenuBarHeight();
     }

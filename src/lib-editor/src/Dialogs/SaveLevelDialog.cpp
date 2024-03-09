@@ -30,14 +30,15 @@ NewSaveLevelDialog::NewSaveLevelDialog(
 
 void NewSaveLevelDialog::buildLayoutImpl(tgui::Panel::Ptr target)
 {
-    FormBuilder(target)
-        .addOption(
-            Strings::Dialog::Body::LEVEL_NAME,
-            WidgetBuilder::createTextInput(
-                levelName,
-                [&](tgui::String str) { levelName = str.toStdString(); },
-                "[a-zA-Z0-9_]+"))
-        .build();
+    target->add(
+        FormBuilder()
+            .addOption(
+                Strings::Dialog::Body::LEVEL_NAME,
+                WidgetBuilder::createTextInput(
+                    levelName,
+                    [&](tgui::String str) { levelName = str.toStdString(); },
+                    "[a-zA-Z0-9_]+"))
+            .build());
 }
 
 std::expected<ReturnFlag, ErrorMessage>

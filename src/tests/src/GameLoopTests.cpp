@@ -29,7 +29,8 @@ TEST_CASE("[GameRuleEngine]")
     Scene scene = createDummyScene(mesh);
 
     auto&& eventQueue = mem::Rc<EventQueue>();
-    auto&& gameRulesEngine = GameRulesEngine(scene, eventQueue);
+    auto&& gameRulesEngine =
+        GameRulesEngine(scene, eventQueue, { "", "", "", "" });
     auto&& animationEngine = AnimationEngine(scene, eventQueue);
 
     auto simulateStep = [&]()

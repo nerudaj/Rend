@@ -8,12 +8,13 @@ module;
 
 export module FormBuilder;
 
-import WidgetBuilder;
-
 export class [[nodiscard]] FormBuilder final
 {
 public:
-    FormBuilder(tgui::Panel::Ptr panel) : panel(panel) {}
+    FormBuilder() = default;
+    FormBuilder(const FormBuilder&) = delete;
+    FormBuilder(FormBuilder&&) = delete;
+    ~FormBuilder() = default;
 
 public:
     [[nodiscard]] FormBuilder& addOption(
@@ -21,38 +22,15 @@ public:
         tgui::Widget::Ptr widget,
         bool disabled = false);
 
-    void build();
+    [[nodiscard]] tgui::Panel::Ptr
+    build(tgui::Color backgroundColor = tgui::Color::Transparent);
 
 private:
-    tgui::Panel::Ptr panel;
-    unsigned labelFontSize;
-    std::vector<std::tuple<std::string, tgui::Widget::Ptr>> rowsToBuild;
-};
-
-module :private;
-
-FormBuilder& FormBuilder::addOption(
-    const std::string& labelText, tgui::Widget::Ptr widget, bool disabled)
-{
-    widget->setEnabled(!disabled);
-    rowsToBuild.push_back({ labelText, widget });
-    return *this;
-}
-
-void FormBuilder::build()
-{
-    unsigned rowIdx = 0;
-
-    auto paddedPanel = tgui::Panel::create({ "97.75%", "96%" });
-    paddedPanel->getRenderer()->setBackgroundColor(tgui::Color::Transparent);
-    paddedPanel->setPosition({ "1.125%", "2%" });
-    panel->add(paddedPanel);
-
-    for (auto&& [labelText, widgetPtr] : rowsToBuild)
+    struct RowProps
     {
-        auto row = WidgetBuilder::createOptionRow(labelText, widgetPtr);
-        row->setPosition("0%", row->getSize().y * rowIdx);
-        paddedPanel->add(row);
-        ++rowIdx;
-    }
-}
+        std::string label;
+        tgui::Widget::Ptr widget;
+    };
+
+    std::vector<RowProps> rowsToBuild;
+};

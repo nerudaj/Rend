@@ -7,12 +7,12 @@ import Audio;
 import FormBuilder;
 import Input;
 
-class AppStateMenuOptions final
+class [[nodiscard]] AppStateMenuOptions final
     : public dgm::AppState
     , public GuiState
 {
 public:
-    [[nodiscard]] AppStateMenuOptions(
+    AppStateMenuOptions(
         dgm::App& app,
         mem::Rc<tgui::Gui> gui,
         mem::Rc<const dgm::ResourceManager> resmgr,
@@ -21,7 +21,8 @@ public:
         mem::Rc<AppOptions> settings,
         mem::Rc<PhysicalController> controller,
         bool enteredFromGame = false)
-        : dgm::AppState(app)
+        : dgm::AppState(
+            app, dgm::AppStateConfig { .clearColor = sf::Color::White })
         , GuiState(gui, audioPlayer)
         , resmgr(resmgr)
         , jukebox(jukebox)
@@ -33,28 +34,13 @@ public:
     }
 
 public:
-    virtual void input() override;
+    void input() override;
 
-    virtual void update() override {}
+    void update() override {}
 
-    virtual void draw() override
+    void draw() override
     {
         gui->draw();
-    }
-
-    virtual [[nodiscard]] bool isTransparent() const noexcept override
-    {
-        return false;
-    }
-
-    virtual [[nodiscard]] sf::Color getClearColor() const override
-    {
-        return sf::Color::White;
-    }
-
-    virtual void restoreFocus() override
-    {
-        GuiState::restoreFocus(app.window.getWindowContext());
     }
 
 private:
@@ -62,6 +48,11 @@ private:
     void buildDisplayOptionsLayout(FormBuilder& builder);
     void buildAudioOptionsLayout(FormBuilder& builder);
     void buildInputOptionsLayout(FormBuilder& builder);
+
+    void restoreFocusImpl(const std::string& = "") override
+    {
+        GuiState::restoreFocus(app.window.getWindowContext());
+    }
 
 private:
     mem::Rc<const dgm::ResourceManager> resmgr;

@@ -25,7 +25,8 @@ public:
         mem::Rc<PhysicalController> controller,
         const GameOptions& gameSettings,
         dgm::UniversalReference<std::vector<int>> auto&& scores)
-        : dgm::AppState(app)
+        : dgm::AppState(
+            app, dgm::AppStateConfig { .clearColor = sf::Color::White })
         , GuiState(gui, audioPlayer)
         , resmgr(resmgr)
         , gui(gui)
@@ -46,16 +47,6 @@ public:
     void draw() override
     {
         gui->draw();
-    }
-
-    [[nodiscard]] bool isTransparent() const noexcept override
-    {
-        return false;
-    }
-
-    [[nodiscard]] sf::Color getClearColor() const override
-    {
-        return sf::Color::White;
     }
 
 private:

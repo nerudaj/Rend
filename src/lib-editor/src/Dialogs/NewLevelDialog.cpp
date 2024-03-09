@@ -12,7 +12,7 @@ ModernNewLevelDialog::ModernNewLevelDialog(mem::Rc<Gui> gui)
 
 void ModernNewLevelDialog::buildLayoutImpl(tgui::Panel::Ptr panel)
 {
-    auto&& builder = FormBuilder(panel);
+    auto&& builder = FormBuilder();
     std::ignore = builder
                       .addOption(
                           Strings::Editor::NewLevel::WIDTH,
@@ -30,5 +30,5 @@ void ModernNewLevelDialog::buildLayoutImpl(tgui::Panel::Ptr panel)
                                   height = std::stol(ALLOWED_LEVEL_SIZES[idx]);
                               }));
     addAttributesToFormular(builder);
-    builder.build();
+    panel->add(builder.build());
 }

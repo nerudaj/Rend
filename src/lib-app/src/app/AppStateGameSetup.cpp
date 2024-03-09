@@ -8,6 +8,7 @@
 import Resources;
 import FormBuilder;
 import WidgetBuilder;
+import LayoutBuilder;
 
 std::atomic_bool serverEnabled = true;
 
@@ -27,7 +28,7 @@ AppStateGameSetup::AppStateGameSetup(
     mem::Rc<AudioPlayer> audioPlayer,
     mem::Rc<Jukebox> jukebox,
     mem::Rc<PhysicalController> controller) noexcept
-    : AppState(app)
+    : AppState(app, dgm::AppStateConfig { .clearColor = sf::Color::White })
     , GuiState(gui, audioPlayer)
     , resmgr(resmgr)
     , gui(gui)
@@ -70,48 +71,47 @@ void AppStateGameSetup::input()
 
 void AppStateGameSetup::buildLayoutImpl()
 {
-    gui->add(createBackground(*resmgr, "menu_setup.png"));
-    gui->add(
-        createH1Title(Strings::AppState::GameSetup::TITLE, tgui::Color::White));
-
     mapnames = Filesystem::getLevelNames(
         Filesystem::getLevelsDir(settings->cmdSettings.resourcesDir));
 
     if (mapname.empty()) mapname = mapnames.front();
 
-    auto panel = createPanel({ "20%", "35%" }, { "60%", "25%" });
-    gui->add(panel);
-    FormBuilder(panel)
-        .addOption(
-            Strings::AppState::GameSetup::PLAYER_COUNT,
-            WidgetBuilder::createDropdown(
-                { "1", "2", "3", "4" },
-                std::to_string(playerCount),
-                [this](std::size_t idx) { playerCount = idx + 1; }))
-        .addOption(
-            Strings::AppState::GameSetup::SELECT_MAP,
-            WidgetBuilder::createDropdown(
-                mapnames,
-                mapname,
-                [this](std::size_t idx) { mapname = mapnames[idx]; }))
-        .addOption(
-            Strings::AppState::GameSetup::FRAGLIMIT,
-            WidgetBuilder::createTextInput(
-                std::to_string(fraglimit),
-                [this](const tgui::String& newValue)
-                {
-                    if (newValue.empty()) return;
-                    fraglimit = std::stoi(std::string(newValue));
-                },
-                WidgetBuilder::getNumericValidator()))
-        .build();
-
-    gui->add(createButton(
-        "start game",
-        { "79%", "94%" },
-        { "20%", "5%" },
-        std::bind(&AppStateGameSetup::startGame, this)));
-    gui->add(createBackButton([this] { cleanup(); }));
+    gui->add(
+        LayoutBuilder::withBackgroundImage(
+            resmgr->get<sf::Texture>("menu_setup.png").value().get())
+            .withTitle(Strings::AppState::GameSetup::TITLE, HeadingLevel::H2)
+            .withContent(
+                FormBuilder()
+                    .addOption(
+                        Strings::AppState::GameSetup::PLAYER_COUNT,
+                        WidgetBuilder::createDropdown(
+                            { "1", "2", "3", "4" },
+                            std::to_string(playerCount),
+                            [this](std::size_t idx) { playerCount = idx + 1; }))
+                    .addOption(
+                        Strings::AppState::GameSetup::SELECT_MAP,
+                        WidgetBuilder::createDropdown(
+                            mapnames,
+                            mapname,
+                            [this](std::size_t idx)
+                            { mapname = mapnames[idx]; }))
+                    .addOption(
+                        Strings::AppState::GameSetup::FRAGLIMIT,
+                        WidgetBuilder::createTextInput(
+                            std::to_string(fraglimit),
+                            [this](const tgui::String& newValue)
+                            {
+                                if (newValue.empty()) return;
+                                fraglimit = std::stoi(std::string(newValue));
+                            },
+                            WidgetBuilder::getNumericValidator()))
+                    .build(PANEL_BACKGROUND_COLOR))
+            .withBackButton(WidgetBuilder::createButton(
+                Strings::AppState::MainMenu::BACK, [this] { app.popState(); }))
+            .withSubmitButton(WidgetBuilder::createButton(
+                Strings::AppState::MainMenu::PLAY,
+                std::bind(&AppStateGameSetup::startGame, this)))
+            .build());
 }
 
 void AppStateGameSetup::startGame()
@@ -136,14 +136,22 @@ void AppStateGameSetup::startGame()
 
 std::vector<PlayerOptions> AppStateGameSetup::createPlayerSettings() const
 {
+    const auto&& defaultPlayerNames = std::vector<std::string> {
+        "player",
+        "phobos",
+        "spartan",
+        "deimos",
+    };
+
     return std::views::iota(0u, playerCount)
            | std::views::transform(
-               [](auto idx)
+               [&defaultPlayerNames](auto idx)
                {
                    return PlayerOptions { .kind = idx == 0u
                                                       ? PlayerKind::LocalHuman
                                                       : PlayerKind::LocalNpc,
-                                          .bindCamera = idx == 0 };
+                                          .bindCamera = idx == 0,
+                                          .name = defaultPlayerNames[idx] };
                })
            | std::ranges::to<std::vector<PlayerOptions>>();
 }

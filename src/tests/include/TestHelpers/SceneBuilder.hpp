@@ -15,6 +15,12 @@ static [[nodiscard]] Scene createDummyScene(const dgm::Mesh& mesh)
                               .height = mesh.getDataSize().y,
                               .bottomMesh = mesh,
                               .upperMesh = mesh },
+                   .drawableLevel = { .bottomTextures = mesh,
+                                      .upperTextures = mesh,
+                                      .lightmap = LightmapType(
+                                          std::vector<LightType> {},
+                                          { 0u, 0u },
+                                          { 0u, 0u }) },
                    .spatialIndex = dgm::SpatialIndex<EntityIndexType>(
                        dgm::Rect(0.f, 0.f, 48.f, 48.f), 16),
                    .distanceIndex = DistanceIndex(mesh),

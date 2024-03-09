@@ -10,7 +10,7 @@ class DrawableDgmMesh final
 protected:
     sf::Texture texture;
     dgm::TileMap map;
-    dgm::Mesh mesh;
+    dgm::Mesh mesh = dgm::Mesh(std::vector<bool> {}, { 0u, 0u }, { 0u, 0u });
 
 public:
     DrawableDgmMesh();

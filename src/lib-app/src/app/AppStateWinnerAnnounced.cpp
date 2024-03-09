@@ -42,9 +42,8 @@ void AppStateWinnerAnnounced::buildLayoutImpl()
     }
     maxIndex++;
 
-    // TODO: Use player names from settings
-    auto&& label = WidgetBuilder::createBigLabel(
-        "player " + std::to_string(maxIndex) + " won!");
+    auto&& label = WidgetBuilder::createH2Label(
+        gameSettings.players[maxIndex].name + " won!");
     label->setSize({ "100%", "25%" });
     label->setPosition({ "0%", "30%" });
     label->setHorizontalAlignment(tgui::Label::HorizontalAlignment::Center);

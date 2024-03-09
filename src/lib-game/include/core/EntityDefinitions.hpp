@@ -13,13 +13,13 @@ constinit const unsigned FAST_RAISE_TIME = 10;
 constinit const int FLARE_DAMAGE = 64_damage;
 constinit const int SHOTGUN_DAMAGE = 16_damage;
 constinit const int BULLET_DAMAGE = 20_damage;
-constinit const int LASERDART_DAMAGE = 96_damage;
+constinit const int LASERDART_DAMAGE = 79_damage;
 constinit const int ROCKET_DAMAGE = 150_damage;
 constinit const int RAILGUN_DAMAGE = 200_damage;
 
-constinit const int BULLET_AMMO_PICKUP = 11;
-constinit const int SHELL_AMMO_PICKUP = 4;
-constinit const int ENERGY_AMMO_PICKUP = 3;
+constinit const int BULLET_AMMO_PICKUP = 18;
+constinit const int SHELL_AMMO_PICKUP = 6;
+constinit const int ENERGY_AMMO_PICKUP = 6;
 constinit const int ROCKET_AMMO_PICKUP = 2;
 
 constexpr Script playSound(

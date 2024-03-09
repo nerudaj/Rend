@@ -9,8 +9,9 @@ export enum class PlayerKind { LocalHuman, LocalNpc, RemoteHuman };
 
 export struct PlayerOptions
 {
-    PlayerKind kind;
-    bool bindCamera;
+    PlayerKind kind = PlayerKind::LocalHuman;
+    bool bindCamera = false;
+    std::string name = "";
 };
 
 export struct GameOptions

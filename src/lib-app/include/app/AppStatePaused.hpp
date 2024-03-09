@@ -18,7 +18,9 @@ public:
         mem::Rc<Jukebox> jukebox,
         mem::Rc<PhysicalController> controller,
         mem::Rc<AppOptions> settings)
-        : dgm::AppState(app)
+        // TODO: should update underlying state as well
+        : dgm::AppState(
+            app, dgm::AppStateConfig { .shouldDrawUnderlyingState = true })
         , GuiState(gui, audioPlayer)
         , resmgr(resmgr)
         , jukebox(jukebox)
@@ -38,18 +40,13 @@ public:
         gui->draw();
     }
 
-    [[nodiscard]] bool isTransparent() const noexcept override
-    {
-        return true;
-    }
+private:
+    void buildLayoutImpl() override;
 
-    void restoreFocus() override
+    void restoreFocusImpl(const std::string&) override
     {
         GuiState::restoreFocus(app.window.getWindowContext());
     }
-
-private:
-    void buildLayoutImpl() override;
 
 private:
     mem::Rc<const dgm::ResourceManager> resmgr;

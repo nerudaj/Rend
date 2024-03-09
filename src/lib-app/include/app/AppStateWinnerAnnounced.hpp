@@ -25,7 +25,9 @@ public:
         mem::Rc<PhysicalController> controller,
         const GameOptions& gameSettings,
         dgm::UniversalReference<std::vector<int>> auto&& scores)
-        : dgm::AppState(app)
+        // TODO: should update underlying state as well
+        : dgm::AppState(
+            app, dgm::AppStateConfig { .shouldDrawUnderlyingState = true })
         , GuiState(gui, audioPlayer)
         , resmgr(resmgr)
         , gui(gui)
@@ -47,13 +49,13 @@ public:
         gui->draw();
     }
 
-    [[nodiscard]] bool isTransparent() const noexcept override
-    {
-        return true;
-    }
-
 private:
     void buildLayoutImpl() override;
+
+    void restoreFocusImpl(const std::string& message) override
+    {
+        handleRestoreMessage(app, message);
+    }
 
 private:
     mem::Rc<const dgm::ResourceManager> resmgr;

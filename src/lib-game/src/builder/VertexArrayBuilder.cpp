@@ -34,8 +34,8 @@ void VertexObjectBuilder::makeFace(
     // Removes some visual artifacts
     if (leftHeightBottom < 0.f && rightHeightBottom < 0.f) return;
 
-    uint16_t left = static_cast<uint16_t>(face.leftHeight);
-    uint16_t right = static_cast<uint16_t>(face.rightHeight);
+    const uint16_t left = static_cast<uint16_t>(face.leftHeight);
+    const uint16_t right = static_cast<uint16_t>(face.rightHeight);
 
     auto light1 = sf::Color(left >> 8, left & 255, face.brightness, 0b00);
     auto light2 = sf::Color(right >> 8, right & 255, face.brightness, 0b10);
@@ -83,14 +83,15 @@ void VertexObjectBuilder::makeFlat(
     const float tty = static_cast<float>(clipRect.top);
     const float bty = static_cast<float>(clipRect.top + clipRect.height);
 
-    const auto light1 =
-        sf::Color(flat.brightness, flat.brightness, flat.brightness, 0b00);
-    const auto light2 =
-        sf::Color(flat.brightness, flat.brightness, flat.brightness, 0b10);
-    const auto light3 =
-        sf::Color(flat.brightness, flat.brightness, flat.brightness, 0b11);
-    const auto light4 =
-        sf::Color(flat.brightness, flat.brightness, flat.brightness, 0b01);
+    const uint16_t y0 = static_cast<uint16_t>(flat.vertices[0].y);
+    const uint16_t y1 = static_cast<uint16_t>(flat.vertices[1].y);
+    const uint16_t y2 = static_cast<uint16_t>(flat.vertices[2].y);
+    const uint16_t y3 = static_cast<uint16_t>(flat.vertices[3].y);
+
+    const auto light1 = sf::Color(y0 >> 8, y0 & 255, flat.brightness, 0b00);
+    const auto light2 = sf::Color(y1 >> 8, y1 & 255, flat.brightness, 0b10);
+    const auto light3 = sf::Color(y2 >> 8, y2 & 255, flat.brightness, 0b11);
+    const auto light4 = sf::Color(y3 >> 8, y3 & 255, flat.brightness, 0b01);
 
     const float h0 = midHeight - flat.vertices[0].y * flat.heightHint;
     const float h1 = midHeight - flat.vertices[1].y * flat.heightHint;

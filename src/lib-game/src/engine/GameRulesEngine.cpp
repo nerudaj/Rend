@@ -7,6 +7,8 @@
 
 #pragma region EventHandling
 
+import CoreTypes;
+
 void GameRulesEngine::operator()(const PickablePickedUpGameEvent& e)
 {
     scene.markers.emplaceBack(MarkerItemRespawner {
@@ -193,10 +195,10 @@ void GameRulesEngine::operator()(const PlayerKilledPlayerGameEvent& e)
 
     killerContext.message = HudMessage(std::vformat(
         Strings::Game::YOU_KILLED,
-        std::make_format_args("player " + std::to_string(e.victimStateIdx))));
+        std::make_format_args(playerNames[e.victimStateIdx])));
     victimContext.message = HudMessage(std::vformat(
         Strings::Game::KILLED_BY,
-        std::make_format_args("player " + std::to_string(e.killerStateIdx))));
+        std::make_format_args(playerNames[e.killerStateIdx])));
 }
 
 void GameRulesEngine::operator()(const WeaponPickedUpGameEvent& e)
@@ -219,12 +221,6 @@ void GameRulesEngine::operator()(const WeaponPickedUpGameEvent& e)
 }
 
 #pragma endregion
-
-template<class... Ts>
-struct overloaded : Ts...
-{
-    using Ts::operator()...;
-};
 
 void GameRulesEngine::update(const float deltaTime)
 {

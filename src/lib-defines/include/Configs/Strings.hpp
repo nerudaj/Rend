@@ -27,6 +27,8 @@ namespace Strings
             RAWSTRING EDITOR = "editor";
             RAWSTRING OPTIONS = "options";
             RAWSTRING EXIT = "exit";
+            RAWSTRING BACK = "back";
+            RAWSTRING BACK_TO_MENU = "back";
         } // namespace MainMenu
 
         namespace Options
@@ -57,6 +59,13 @@ namespace Strings
             RAWSTRING FRAGLIMIT = "frag limit";
             RAWSTRING START_GAME = "start game";
         } // namespace GameSetup
+
+        namespace Pause
+        {
+            RAWSTRING TITLE = "pause";
+            RAWSTRING RESUME = "resume";
+            RAWSTRING TO_MENU = "main menu";
+        } // namespace Pause
 
         namespace Scores
         {

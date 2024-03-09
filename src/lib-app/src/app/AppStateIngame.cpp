@@ -52,7 +52,8 @@ AppStateIngame::AppStateIngame(
     , launchedFromEditor(launchedFromEditor)
     , inputs(createInputs(_controller, gameSettings))
     , scene(SceneBuilder::buildScene(level, gameSettings.players.size()))
-    , gameLoop(scene, eventQueue, resmgr, audioPlayer, settings->display)
+    , eventQueue()
+    , gameLoop(createGameLoop())
     , demoFileHandler(
           settings->cmdSettings.demoFile,
           settings->cmdSettings.playDemo ? DemoFileMode::Read
@@ -278,6 +279,19 @@ void AppStateIngame::propagateSettings()
 
     controller->updateSettings(settings->input);
 
-    gameLoop = mem::Box<GameLoop>(
-        scene, eventQueue, resmgr, audioPlayer, settings->display);
+    gameLoop = createGameLoop();
+}
+
+mem::Box<GameLoop> AppStateIngame::createGameLoop()
+{
+    return mem::Box<GameLoop>(
+        scene,
+        eventQueue,
+        resmgr,
+        audioPlayer,
+        gameSettings.players
+            | std::views::transform([](const PlayerOptions& opts)
+                                    { return opts.name; })
+            | std::ranges::to<std::vector>(),
+        settings->display);
 }

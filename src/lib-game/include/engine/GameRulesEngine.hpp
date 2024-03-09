@@ -20,8 +20,13 @@ class GameRulesEngine final
 {
 public:
     [[nodiscard]] GameRulesEngine(
-        Scene& scene, mem::Rc<EventQueue> eventQueue) noexcept
-        : scene(scene), eventQueue(eventQueue), hitscanner(scene)
+        Scene& scene,
+        mem::Rc<EventQueue> eventQueue,
+        const std::vector<std::string>& playerNames) noexcept
+        : scene(scene)
+        , eventQueue(eventQueue)
+        , playerNames(playerNames)
+        , hitscanner(scene)
     {
     }
 
@@ -134,6 +139,7 @@ private: // Scripts API
 private:
     Scene& scene;
     mem::Rc<EventQueue> eventQueue;
+    std::vector<std::string> playerNames;
     Hitscanner hitscanner;
     std::vector<EntityIndexType> indicesToRemove;
 };
