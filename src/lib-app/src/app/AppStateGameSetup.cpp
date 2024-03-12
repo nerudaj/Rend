@@ -40,11 +40,13 @@ AppStateGameSetup::AppStateGameSetup(
           serverLoop,
           Server(ServerConfiguration { .port = 10666, .maxClientCount = 4 }))
     , client(mem::Rc<Client>("127.0.0.1", 10666ui16))
-    , fraglimit(settings->cmdSettings.fraglimit)
-    , playerCount(settings->cmdSettings.playerCount)
-    , mapname(settings->cmdSettings.mapname)
+    , lobbySettings(LobbySettings {
+          .mapname = settings->cmdSettings.mapname,
+          .fraglimit = static_cast<int>(settings->cmdSettings.fraglimit),
+          .playerCount = settings->cmdSettings.playerCount })
 {
     buildLayout();
+    client->sendLobbyUpdate(lobbySettings);
 }
 
 void AppStateGameSetup::input()
@@ -67,8 +69,8 @@ void AppStateGameSetup::input()
     }
 
     controller->update();
-    client->readIncomingPackets(
-        std::bind(&AppStateGameSetup::handleNetworkUpdate, this));
+    client->readIncomingPackets(std::bind(
+        &AppStateGameSetup::handleNetworkUpdate, this, std::placeholders::_1));
 }
 
 void AppStateGameSetup::buildLayoutImpl()
@@ -76,38 +78,46 @@ void AppStateGameSetup::buildLayoutImpl()
     mapnames = Filesystem::getLevelNames(
         Filesystem::getLevelsDir(settings->cmdSettings.resourcesDir));
 
-    if (mapname.empty()) mapname = mapnames.front();
+    if (lobbySettings.mapname.empty()) lobbySettings.mapname = mapnames.front();
 
     gui->add(
         LayoutBuilder::withBackgroundImage(
             resmgr->get<sf::Texture>("menu_setup.png").value().get())
             .withTitle(Strings::AppState::GameSetup::TITLE, HeadingLevel::H2)
-            .withContent(
-                FormBuilder()
-                    .addOption(
-                        Strings::AppState::GameSetup::PLAYER_COUNT,
-                        WidgetBuilder::createDropdown(
-                            { "1", "2", "3", "4" },
-                            std::to_string(playerCount),
-                            [this](std::size_t idx) { playerCount = idx + 1; }))
-                    .addOption(
-                        Strings::AppState::GameSetup::SELECT_MAP,
-                        WidgetBuilder::createDropdown(
-                            mapnames,
-                            mapname,
-                            [this](std::size_t idx)
-                            { mapname = mapnames[idx]; }))
-                    .addOption(
-                        Strings::AppState::GameSetup::FRAGLIMIT,
-                        WidgetBuilder::createTextInput(
-                            std::to_string(fraglimit),
-                            [this](const tgui::String& newValue)
-                            {
-                                if (newValue.empty()) return;
-                                fraglimit = std::stoi(std::string(newValue));
-                            },
-                            WidgetBuilder::getNumericValidator()))
-                    .build(PANEL_BACKGROUND_COLOR))
+            .withContent(FormBuilder()
+                             .addOption(
+                                 Strings::AppState::GameSetup::PLAYER_COUNT,
+                                 WidgetBuilder::createDropdown(
+                                     { "1", "2", "3", "4" },
+                                     std::to_string(lobbySettings.playerCount),
+                                     [this](std::size_t idx)
+                                     {
+                                         lobbySettings.playerCount = idx + 1;
+                                         client->sendLobbyUpdate(lobbySettings);
+                                     }))
+                             .addOption(
+                                 Strings::AppState::GameSetup::SELECT_MAP,
+                                 WidgetBuilder::createDropdown(
+                                     mapnames,
+                                     lobbySettings.mapname,
+                                     [this](std::size_t idx)
+                                     {
+                                         lobbySettings.mapname = mapnames[idx];
+                                         client->sendLobbyUpdate(lobbySettings);
+                                     }))
+                             .addOption(
+                                 Strings::AppState::GameSetup::FRAGLIMIT,
+                                 WidgetBuilder::createTextInput(
+                                     std::to_string(lobbySettings.fraglimit),
+                                     [this](const tgui::String& newValue)
+                                     {
+                                         if (newValue.empty()) return;
+                                         lobbySettings.fraglimit =
+                                             std::stoi(std::string(newValue));
+                                         client->sendLobbyUpdate(lobbySettings);
+                                     },
+                                     WidgetBuilder::getNumericValidator()))
+                             .build(PANEL_BACKGROUND_COLOR))
             .withBackButton(WidgetBuilder::createButton(
                 Strings::AppState::MainMenu::BACK, [this] { app.popState(); }))
             .withSubmitButton(WidgetBuilder::createButton(
@@ -124,10 +134,10 @@ void AppStateGameSetup::commitLobby()
 
 void AppStateGameSetup::handleNetworkUpdate(const ServerUpdateData& update)
 {
-    // TODO: player settings
+    lobbySettings = update.lobbySettings;
+
     if (update.lobbyCommited)
     {
-        mapname = update.mapinfo.name;
         startGame();
     }
 }
@@ -135,9 +145,10 @@ void AppStateGameSetup::handleNetworkUpdate(const ServerUpdateData& update)
 void AppStateGameSetup::startGame()
 {
     auto lvd = LevelD {};
-    lvd.loadFromFile(Filesystem::getFullLevelPath(
-                         settings->cmdSettings.resourcesDir, mapname)
-                         .string());
+    lvd.loadFromFile(
+        Filesystem::getFullLevelPath(
+            settings->cmdSettings.resourcesDir, lobbySettings.mapname)
+            .string());
 
     app.pushState<AppStateIngame>(
         resmgr,
@@ -148,7 +159,8 @@ void AppStateGameSetup::startGame()
         controller,
         client,
         GameOptions { .players = createPlayerSettings(),
-                      .fraglimit = static_cast<unsigned>(fraglimit) },
+                      .fraglimit =
+                          static_cast<unsigned>(lobbySettings.fraglimit) },
         lvd);
 }
 
@@ -161,7 +173,7 @@ std::vector<PlayerOptions> AppStateGameSetup::createPlayerSettings() const
         "deimos",
     };
 
-    return std::views::iota(0u, playerCount)
+    return std::views::iota(0u, lobbySettings.playerCount)
            | std::views::transform(
                [&defaultPlayerNames](auto idx)
                {

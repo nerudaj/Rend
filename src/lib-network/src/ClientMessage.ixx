@@ -25,6 +25,7 @@ export struct [[nodiscard]] ClientMessage
         ClientMessage message;
         message.type = static_cast<ClientMessageType>(messageType);
         packet >> message.clientId;
+        packet >> message.jsonData;
 
         return message;
     }
@@ -34,6 +35,7 @@ export struct [[nodiscard]] ClientMessage
         sf::Packet packet;
         packet << static_cast<std::underlying_type_t<ClientMessageType>>(type);
         packet << clientId;
+        packet << jsonData;
         return packet;
     }
 };

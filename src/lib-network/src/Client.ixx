@@ -11,6 +11,7 @@ export import ClientMessage;
 export import ServerMessage;
 export import Error;
 export import Memory;
+export import LobbySettings;
 
 export struct PlayerConfig
 {
@@ -33,6 +34,8 @@ public:
     ExpectSuccess
     sendUpdate(size_t tick, const std::vector<InputSchema>& inputs);
 
+    ExpectSuccess sendLobbyUpdate(const LobbySettings& lobbySettings);
+
 private:
     ExpectSuccess bindToAnyPort();
 
@@ -41,6 +44,17 @@ private:
     ExpectSuccess sendConnectPacket();
 
     std::expected<ServerMessage, ErrorMessage> getConnectResponse();
+
+    ExpectSuccess
+    trySendPacket(sf::Packet&& packet, const ErrorMessage& errorMessage)
+    {
+        if (socket->send(packet, remoteAddress, remotePort)
+            != sf::Socket::Status::Done)
+        {
+            return std::unexpected(errorMessage);
+        }
+        return ReturnFlag::Success;
+    }
 
 private:
     sf::IpAddress remoteAddress;

@@ -110,8 +110,8 @@ void AppStateIngame::input()
     }
 
     controller->update();
-    client->readIncomingPackets(
-        std::bind(&AppStateGameSetup::handleNetworkUpdate, this));
+    client->readIncomingPackets(std::bind(
+        &AppStateIngame::handleNetworkUpdate, this, std::placeholders::_1));
 }
 
 void AppStateIngame::update()

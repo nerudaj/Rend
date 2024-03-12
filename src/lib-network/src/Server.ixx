@@ -44,6 +44,10 @@ private:
     ExpectedLog
     handleMapReady(const sf::IpAddress& address, unsigned short port);
 
+    ExpectedLog handleReportedInput(const ClientMessage& message);
+
+    ExpectedLog handleLobbySettingsUpdate(const ClientMessage& message);
+
     ExpectSuccess
     denyNewPeer(const sf::IpAddress& address, unsigned short port);
 

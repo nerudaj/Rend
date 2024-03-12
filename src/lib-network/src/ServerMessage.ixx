@@ -9,7 +9,7 @@ export module ServerMessage;
 export import ServerMessageType;
 export import NetworkTypes;
 export import ClientData;
-export import MapData;
+export import LobbySettings;
 export import InputData;
 
 export
@@ -18,14 +18,18 @@ export
     {
         bool lobbyCommited = false;
         bool peersReady = false;
-        MapData mapinfo; // TODO: rename to game info and contain stuff like
-                         // fraglimit
+        LobbySettings lobbySettings;
         std::vector<ClientData> clients;
         std::vector<InputData> inputs;
     };
 
     NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(
-        ServerUpdateData, lobbyCommited, peersReady, mapinfo, clients, inputs);
+        ServerUpdateData,
+        lobbyCommited,
+        peersReady,
+        lobbySettings,
+        clients,
+        inputs);
 }
 
 export struct [[nodiscard]] ServerMessage

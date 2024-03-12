@@ -4,6 +4,7 @@
 #include <stdexcept>
 
 import Client;
+import LobbySettings;
 
 Client::Client(const sf::IpAddress& address, unsigned short port)
     : remoteAddress(address), remotePort(port)
@@ -76,8 +77,7 @@ Client::sendUpdate(size_t tick, const std::vector<InputSchema>& inputs)
     auto&& packet =
         ClientMessage { .type = ClientMessageType::ReportInput,
                         .clientId = myClientId,
-                        .jsonData =
-                            nlohmann::json { inputs[myClientId] }.dump(),
+                        .jsonData = nlohmann::json(inputs[myClientId]).dump(),
                         .tick = tick }
             .toPacket();
     if (socket->send(packet, remoteAddress, remotePort)
@@ -87,6 +87,16 @@ Client::sendUpdate(size_t tick, const std::vector<InputSchema>& inputs)
     }
 
     return ReturnFlag::Success;
+}
+
+ExpectSuccess Client::sendLobbyUpdate(const LobbySettings& lobbySettings)
+{
+    return trySendPacket(
+        ClientMessage { .type = ClientMessageType::GameSettingsUpdate,
+                        .clientId = myClientId,
+                        .jsonData = nlohmann::json(lobbySettings).dump() }
+            .toPacket(),
+        "Could not send lobby update");
 }
 
 ExpectSuccess Client::bindToAnyPort()
@@ -114,19 +124,13 @@ std::expected<PlayerIdType, ErrorMessage> Client::registerToServer()
 
 ExpectSuccess Client::sendConnectPacket()
 {
-    auto&& packet =
+    return trySendPacket(
         ClientMessage { .type = ClientMessageType::ConnectionRequest }
-            .toPacket();
-    if (socket->send(packet, remoteAddress, remotePort)
-        != sf::Socket::Status::Done)
-    {
-        return std::unexpected(std::format(
+            .toPacket(),
+        std::format(
             "Could not send message to {}:{}",
             remoteAddress.toString(),
             remotePort));
-    }
-
-    return ReturnFlag::Success;
 }
 
 std::expected<ServerMessage, ErrorMessage> Client::getConnectResponse()

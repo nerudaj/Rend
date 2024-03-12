@@ -85,13 +85,13 @@ ExpectedLog Server::handleMessage(
     case PeerSettingsUpdate:
         return std::unexpected("Dunno how to handle PeerSettingsUpdate");
     case GameSettingsUpdate:
-        return std::unexpected("Dunno how to handle GameSettingsUpdate");
+        return handleLobbySettingsUpdate(message);
     case CommitLobby:
         return handleLobbyCommited(address, port);
     case MapLoaded:
         return handleMapReady(address, port);
     case ReportInput:
-        return std::unexpected("Dunno how to handle ReportInput");
+        return handleReportedInput(message);
     case Disconnect:
         return std::unexpected("Dunno how to handle Disconnect");
     default:
@@ -201,6 +201,55 @@ Server::handleMapReady(const sf::IpAddress& address, unsigned short port)
         address.toString(),
         port,
         updateData.peersReady);
+}
+
+ExpectedLog Server::handleReportedInput(const ClientMessage& message)
+{
+    try
+    {
+        updateData.inputs.push_back(
+            InputData { .clientId = message.clientId,
+                        .tick = message.tick,
+                        .input = nlohmann::json::parse(message.jsonData) });
+    }
+    catch (const std::exception& e)
+    {
+        return std::unexpected(std::format(
+            "Could not parse incoming input json '{}', from client {}, with "
+            "error: {}",
+            message.jsonData,
+            message.clientId,
+            e.what()));
+    }
+
+    return std::format(
+        "Processed input from client {}, tick {}, json {}",
+        message.clientId,
+        message.tick,
+        message.jsonData);
+}
+
+ExpectedLog Server::handleLobbySettingsUpdate(const ClientMessage& message)
+{
+    try
+    {
+        updateData.lobbySettings = nlohmann::json::parse(message.jsonData);
+    }
+    catch (const std::exception& e)
+    {
+        return std::unexpected(std::format(
+            "Could not parse incoming lobby settings update json '{}', from "
+            "client {}, with "
+            "error: {}",
+            message.jsonData,
+            message.clientId,
+            e.what()));
+    }
+
+    return std::format(
+        "Processed lobby update from client {}, json {}",
+        message.clientId,
+        message.jsonData);
 }
 
 ExpectSuccess

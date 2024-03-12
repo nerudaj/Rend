@@ -5,6 +5,7 @@ import Options;
 import Audio;
 import Input;
 import Network;
+import LobbySettings;
 
 #include "GuiState.hpp"
 #include <TGUI/Backend/SFML-Graphics.hpp>
@@ -65,8 +66,6 @@ private:
     mem::Rc<PhysicalController> controller;
     std::thread serverThread;
     mem::Rc<Client> client;
-    int fraglimit;
-    unsigned playerCount;
-    std::string mapname;
+    LobbySettings lobbySettings;
     std::vector<std::string> mapnames;
 };
