@@ -12,7 +12,6 @@ export struct [[nodiscard]] ClientMessage
 {
     ClientMessageType type;
     PlayerIdType clientId;
-    std::string clientName;
     std::string jsonData; // either map configuration JSON or input JSON
     size_t tick;
 
@@ -26,6 +25,7 @@ export struct [[nodiscard]] ClientMessage
         message.type = static_cast<ClientMessageType>(messageType);
         packet >> message.clientId;
         packet >> message.jsonData;
+        packet >> message.tick;
 
         return message;
     }
@@ -36,6 +36,7 @@ export struct [[nodiscard]] ClientMessage
         packet << static_cast<std::underlying_type_t<ClientMessageType>>(type);
         packet << clientId;
         packet << jsonData;
+        packet << tick;
         return packet;
     }
 };

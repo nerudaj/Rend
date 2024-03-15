@@ -14,7 +14,7 @@
 #include <core/Scene.hpp>
 #include <events/EventQueue.hpp>
 #include <utils/DemoFileHandler.hpp>
-#include <utils/RoundRobinBuffer.hpp>
+#include <utils/RollbackManager.hpp>
 
 import Options;
 import Memory;
@@ -79,7 +79,7 @@ private:
     };
 
     void handleNetworkUpdate(const ServerUpdateData& update);
-    void snapshotInputs(FrameState& state);
+    [[nodiscard]] FrameState snapshotInputsIntoNewFrameState();
     void simulateFrameFromState(const FrameState& state, bool skipAudio);
     void evaluateWinCondition();
     void restoreState(const FrameState& state);
@@ -109,7 +109,7 @@ protected:
 
     std::vector<mem::Rc<ControllerInterface>> inputs;
     Scene scene;
-    RoundRobinBuffer<FrameState, 10> stateBuffer;
+    RollbackManager<FrameState, 10> stateManager;
     mem::Box<GameLoop> gameLoop;
     DemoFileHandler demoFileHandler;
     mem::Box<dgm::Camera> camera;

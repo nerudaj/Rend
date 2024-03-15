@@ -1,20 +1,22 @@
 #include <DGM/dgm.hpp>
 
-template<class T, unsigned C>
+template<class T, size_t C>
 class RoundRobinBuffer
 {
 public:
     using DataType = T;
+    using BufferIndexType = decltype(C);
 
 public:
     void pushBack(dgm::UniversalReference<T> auto&& item)
     {
         data[endIndex] = std::forward<decltype(item)>(item);
-        used = std::clamp(used + 1u, 0u, C);
+        used = std::clamp(used + 1u, size_t(0), C);
         endIndex = (endIndex + 1u) % C;
     }
 
-    auto& operator[](this auto&& self, unsigned index)
+    constexpr auto&&
+    operator[](this auto&& self, BufferIndexType index) noexcept
     {
         if (self.getSize() == C)
             return self.data[(self.endIndex + index) % C];
@@ -22,17 +24,18 @@ public:
             return self.data[index];
     }
 
-    auto& last(this auto&& self)
+    auto& last(this auto&& self) noexcept
     {
+        assert(self.getSize() != 0);
         return self[self.getSize() - 1];
     }
 
-    [[nodiscard]] constexpr unsigned getSize() const noexcept
+    [[nodiscard]] constexpr BufferIndexType getSize() const noexcept
     {
         return used;
     }
 
-    [[nodiscard]] constexpr unsigned getCapacity() const noexcept
+    [[nodiscard]] constexpr BufferIndexType getCapacity() const noexcept
     {
         return C;
     }
@@ -43,7 +46,7 @@ public:
     }
 
 private:
-    unsigned endIndex = 0;
-    unsigned used = 0;
+    BufferIndexType endIndex = 0;
+    BufferIndexType used = 0;
     std::array<T, C> data;
 };

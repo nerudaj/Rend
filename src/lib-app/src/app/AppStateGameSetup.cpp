@@ -10,9 +10,7 @@ import FormBuilder;
 import WidgetBuilder;
 import LayoutBuilder;
 
-std::atomic_bool serverEnabled = true;
-
-void serverLoop(Server server)
+void serverLoop(Server server, std::atomic_bool& serverEnabled)
 {
     while (serverEnabled)
     {
@@ -38,7 +36,8 @@ AppStateGameSetup::AppStateGameSetup(
     , controller(controller)
     , serverThread(
           serverLoop,
-          Server(ServerConfiguration { .port = 10666, .maxClientCount = 4 }))
+          Server(ServerConfiguration { .port = 10666, .maxClientCount = 4 }),
+          std::ref(serverEnabled))
     , client(mem::Rc<Client>("127.0.0.1", 10666ui16))
     , lobbySettings(LobbySettings {
           .mapname = settings->cmdSettings.mapname,
@@ -190,5 +189,4 @@ void AppStateGameSetup::cleanup()
 {
     serverEnabled = false;
     serverThread.join();
-    app.popState();
 }

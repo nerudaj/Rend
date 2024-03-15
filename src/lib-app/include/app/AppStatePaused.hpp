@@ -18,9 +18,10 @@ public:
         mem::Rc<Jukebox> jukebox,
         mem::Rc<PhysicalController> controller,
         mem::Rc<AppOptions> settings)
-        // TODO: should update underlying state as well
         : dgm::AppState(
-            app, dgm::AppStateConfig { .shouldDrawUnderlyingState = true })
+            app,
+            dgm::AppStateConfig { .shouldUpdateUnderlyingState = true,
+                                  .shouldDrawUnderlyingState = true })
         , GuiState(gui, audioPlayer)
         , resmgr(resmgr)
         , jukebox(jukebox)

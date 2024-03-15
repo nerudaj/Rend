@@ -28,6 +28,11 @@ public:
         mem::Rc<Jukebox> jukebox,
         mem::Rc<PhysicalController> controller) noexcept;
 
+    ~AppStateGameSetup()
+    {
+        cleanup();
+    }
+
 public:
     void input() override;
 
@@ -64,6 +69,7 @@ private:
     mem::Rc<AudioPlayer> audioPlayer;
     mem::Rc<Jukebox> jukebox;
     mem::Rc<PhysicalController> controller;
+    std::atomic_bool serverEnabled = true;
     std::thread serverThread;
     mem::Rc<Client> client;
     LobbySettings lobbySettings;

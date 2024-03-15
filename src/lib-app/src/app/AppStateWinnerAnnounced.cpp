@@ -40,7 +40,6 @@ void AppStateWinnerAnnounced::buildLayoutImpl()
     {
         if (scores[i] > scores[maxIndex]) maxIndex = i;
     }
-    maxIndex++;
 
     auto&& label = WidgetBuilder::createH2Label(
         gameSettings.players[maxIndex].name + " won!");
