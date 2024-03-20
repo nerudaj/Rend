@@ -12,19 +12,6 @@
 import Resources;
 import Audio;
 
-/* copy pasted from AppStateGameSetup */
-/*std::atomic_bool serverEnabled = false;
-
-void serverLoop(Server&& server)
-{
-    while (serverEnabled)
-    {
-        server.update();
-    }
-}*/
-
-/* end copy paste */
-
 AppStateEditor::AppStateEditor(
     dgm::App& app,
     mem::Rc<tgui::Gui> nativeGui,
@@ -419,16 +406,23 @@ void AppStateEditor::handlePlayLevel(bool useBot)
     auto lvd = LevelD {};
     lvd.loadFromFile(savePath);
 
-    /*app.pushState<AppStateIngame>(
+    auto&& client = mem::Rc<Client>("127.0.0.1", 10666ui16);
+    if (auto&& result = client->commitLobby(); !result)
+        throw std::runtime_error(result.error());
+
+    client->readIncomingPackets([](auto) {});
+
+    app.pushState<AppStateIngame>(
         resmgr,
         nativeGui,
         settings,
         audioPlayer,
         jukebox,
         controller,
+        client,
         gameSettings,
         lvd,
-        "launchedFromEditor"_true);*/
+        "launchedFromEditor"_true);
 }
 
 void AppStateEditor::handleUndo()
