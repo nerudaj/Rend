@@ -10,14 +10,6 @@ import FormBuilder;
 import WidgetBuilder;
 import LayoutBuilder;
 
-void serverLoop(Server server, std::atomic_bool& serverEnabled)
-{
-    while (serverEnabled)
-    {
-        server.update();
-    }
-}
-
 AppStateGameSetup::AppStateGameSetup(
     dgm::App& app,
     mem::Rc<const dgm::ResourceManager> resmgr,
@@ -34,10 +26,6 @@ AppStateGameSetup::AppStateGameSetup(
     , audioPlayer(audioPlayer)
     , jukebox(jukebox)
     , controller(controller)
-    , serverThread(
-          serverLoop,
-          Server(ServerConfiguration { .port = 10666, .maxClientCount = 4 }),
-          std::ref(serverEnabled))
     , client(mem::Rc<Client>("127.0.0.1", 10666ui16))
     , lobbySettings(LobbySettings {
           .mapname = settings->cmdSettings.mapname,
@@ -183,10 +171,4 @@ std::vector<PlayerOptions> AppStateGameSetup::createPlayerSettings() const
                                           .name = defaultPlayerNames[idx] };
                })
            | std::ranges::to<std::vector<PlayerOptions>>();
-}
-
-void AppStateGameSetup::cleanup()
-{
-    serverEnabled = false;
-    serverThread.join();
 }
