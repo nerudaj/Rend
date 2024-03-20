@@ -44,8 +44,9 @@ public:
 private:
     void buildLayoutImpl() override;
 
-    void restoreFocusImpl(const std::string&) override
+    void restoreFocusImpl(const std::string& message) override
     {
+        if (PopIfPause::canDeserializeFrom(message)) app.popState();
         GuiState::restoreFocus(app.window.getWindowContext());
     }
 

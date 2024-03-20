@@ -59,7 +59,8 @@ private:
         {
             std::visit(
                 overloaded { [&](const PopIfNotMainMenu&)
-                             { app.popState(message); } },
+                             { app.popState(message); },
+                             [](const PopIfPause&) {} },
                 msg.value());
         }
 

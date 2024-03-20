@@ -232,18 +232,25 @@ void AppStateIngame::evaluateWinCondition()
 {
     if (gameLoop->isPointlimitReached(gameSettings.fraglimit))
     {
-        unlockMouse();
-        app.pushState<AppStateWinnerAnnounced>(
-            resmgr,
-            gui,
-            audioPlayer,
-            jukebox,
-            controller,
-            gameSettings,
-            scene.playerStates
-                | std::views::transform([](const PlayerState& state)
-                                        { return state.inventory.score; })
-                | std::ranges::to<std::vector<int>>());
+        if (hasFocus)
+        {
+            unlockMouse();
+            app.pushState<AppStateWinnerAnnounced>(
+                resmgr,
+                gui,
+                audioPlayer,
+                jukebox,
+                controller,
+                gameSettings,
+                scene.playerStates
+                    | std::views::transform([](const PlayerState& state)
+                                            { return state.inventory.score; })
+                    | std::ranges::to<std::vector<int>>());
+        }
+        else
+        {
+            app.popState(PopIfPause::serialize());
+        }
     }
 }
 
