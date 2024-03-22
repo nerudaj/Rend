@@ -11,5 +11,6 @@ export enum class [[nodiscard]] ClientMessageType : uint8_t {
     CommitLobby,
     MapLoaded,
     ReportInput,
+    MapEnded,
     Disconnect
 };

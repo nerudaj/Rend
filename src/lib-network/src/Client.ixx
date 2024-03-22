@@ -25,6 +25,11 @@ export class [[nodiscard]] Client final
 public:
     Client(const sf::IpAddress& address, unsigned short port);
 
+    ~Client()
+    {
+        disconnect();
+    }
+
     ExpectSuccess readIncomingPackets(HandleNetworkUpdate handleUpdateCallback);
 
     ExpectSuccess sendMapReadySignal();
@@ -35,6 +40,8 @@ public:
     sendUpdate(size_t tick, const std::vector<InputSchema>& inputs);
 
     ExpectSuccess sendLobbyUpdate(const LobbySettings& lobbySettings);
+
+    ExpectSuccess sendMapEnded();
 
 private:
     ExpectSuccess bindToAnyPort();
@@ -55,6 +62,8 @@ private:
         }
         return ReturnFlag::Success;
     }
+
+    void disconnect();
 
 private:
     sf::IpAddress remoteAddress;

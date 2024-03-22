@@ -19,6 +19,7 @@ export struct ServerConfiguration final
 {
     unsigned short port;
     unsigned short maxClientCount;
+    bool acceptReconnects = false;
 };
 
 export class [[nodiscard]] Server final
@@ -44,9 +45,15 @@ private:
     ExpectedLog
     handleMapReady(const sf::IpAddress& address, unsigned short port);
 
+    ExpectedLog
+    handleMapEnded(const sf::IpAddress& address, unsigned short port);
+
     ExpectedLog handleReportedInput(const ClientMessage& message);
 
     ExpectedLog handleLobbySettingsUpdate(const ClientMessage& message);
+
+    ExpectedLog
+    handleDisconnection(const sf::IpAddress& address, unsigned short port);
 
     ExpectSuccess
     denyNewPeer(const sf::IpAddress& address, unsigned short port);
@@ -62,6 +69,24 @@ private:
         return registeredClients.contains(address.toInteger());
     }
 
+    void updateMapEndedStatuses();
+
+    [[nodiscard]] constexpr bool areAllPeersReady() const noexcept
+    {
+        return std::all_of(
+            registeredClients.begin(),
+            registeredClients.end(),
+            [](auto&& client) { return client.second.ready; });
+    }
+
+    [[nodiscard]] constexpr bool isNoPeerReady() const noexcept
+    {
+        return std::none_of(
+            registeredClients.begin(),
+            registeredClients.end(),
+            [](auto&& client) { return client.second.ready; });
+    }
+
 private:
     struct ClientConnectionInfo
     {
@@ -72,6 +97,7 @@ private:
     };
 
     const unsigned short MAX_CLIENT_COUNT;
+    const bool ACCEPT_RECONNECTS;
     mem::Box<sf::UdpSocket> socket;
     std::map<sf::Uint32, ClientConnectionInfo> registeredClients;
     ServerUpdateData updateData;

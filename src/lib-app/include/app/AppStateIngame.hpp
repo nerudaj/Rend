@@ -45,6 +45,7 @@ public:
         app.window.getWindowContext().setView(
             app.window.getWindowContext().getDefaultView());
         unlockMouse();
+        client->sendMapEnded();
     }
 
 public:

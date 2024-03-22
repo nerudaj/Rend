@@ -99,6 +99,15 @@ ExpectSuccess Client::sendLobbyUpdate(const LobbySettings& lobbySettings)
         "Could not send lobby update");
 }
 
+ExpectSuccess Client::sendMapEnded()
+{
+    return trySendPacket(
+        ClientMessage { .type = ClientMessageType::MapEnded,
+                        .clientId = myClientId }
+            .toPacket(),
+        "Sending map ended failed");
+}
+
 ExpectSuccess Client::bindToAnyPort()
 {
     if (socket->bind(sf::Socket::AnyPort) != sf::Socket::Status::Done)
@@ -155,4 +164,13 @@ std::expected<ServerMessage, ErrorMessage> Client::getConnectResponse()
     }
 
     return message;
+}
+
+void Client::disconnect()
+{
+    trySendPacket(
+        ClientMessage { .type = ClientMessageType::Disconnect,
+                        .clientId = myClientId }
+            .toPacket(),
+        "");
 }

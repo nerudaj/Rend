@@ -32,7 +32,10 @@ AppStateServerWrapper::AppStateServerWrapper(
     , serverEnabled(true)
     , serverThread(
           serverLoop,
-          Server(ServerConfiguration { .port = 10666, .maxClientCount = 4 }),
+          Server(ServerConfiguration {
+              .port = 10666,
+              .maxClientCount = 4,
+              .acceptReconnects = target == ServerWrapperTarget::Editor }),
           std::ref(serverEnabled))
 {
     switch (target)
