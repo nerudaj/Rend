@@ -22,7 +22,11 @@ public:
         mem::Rc<PhysicalController> controller,
         bool enteredFromGame = false)
         : dgm::AppState(
-            app, dgm::AppStateConfig { .clearColor = sf::Color::White })
+            app,
+            dgm::AppStateConfig {
+                .clearColor = sf::Color::White,
+                .shouldUpdateUnderlyingState = enteredFromGame,
+            })
         , GuiState(gui, audioPlayer)
         , resmgr(resmgr)
         , jukebox(jukebox)

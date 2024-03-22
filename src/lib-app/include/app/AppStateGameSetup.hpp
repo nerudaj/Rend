@@ -4,12 +4,15 @@ import Memory;
 import Options;
 import Audio;
 import Input;
+import Network;
+import LobbySettings;
 
 #include "GuiState.hpp"
 #include <TGUI/Backend/SFML-Graphics.hpp>
 #include <TGUI/TGUI.hpp>
 #include <dgm/classes/AppState.hpp>
 #include <dgm/classes/ResourceManager.hpp>
+#include <thread>
 
 class [[nodiscard]] AppStateGameSetup final
     : public dgm::AppState
@@ -44,6 +47,10 @@ private:
 
     void buildLayoutImpl() override;
 
+    void commitLobby();
+
+    void handleNetworkUpdate(const ServerUpdateData& update);
+
     void startGame();
 
     [[nodiscard]] std::vector<PlayerOptions> createPlayerSettings() const;
@@ -55,8 +62,7 @@ private:
     mem::Rc<AudioPlayer> audioPlayer;
     mem::Rc<Jukebox> jukebox;
     mem::Rc<PhysicalController> controller;
-    int fraglimit;
-    unsigned playerCount;
-    std::string mapname;
+    mem::Rc<Client> client;
+    LobbySettings lobbySettings;
     std::vector<std::string> mapnames;
 };

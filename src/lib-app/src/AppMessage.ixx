@@ -6,17 +6,42 @@ module;
 
 export module AppMessage;
 
-export struct PopIfNotMainMenu
+template<class This>
+struct CanDeserializeFrom
 {
-    static [[nodiscard]] bool canDeserializeFrom(const std::string& str);
+    static [[nodiscard]] constexpr bool
+    canDeserializeFrom(const std::string& str) noexcept
+    {
+        return str == std::string_view(This::serialize());
+    }
+};
 
+export struct [[nodiscard]] PopIfNotMainMenu final
+    : public CanDeserializeFrom<PopIfNotMainMenu>
+{
     static [[nodiscard]] constexpr const char* serialize() noexcept
     {
         return "pop if not main menu";
     }
 };
 
-export using AppMessage = std::variant<PopIfNotMainMenu>;
+export struct [[nodiscard]] PopIfPause final
+    : public CanDeserializeFrom<PopIfPause>
+{
+    static [[nodiscard]] constexpr const char* serialize() noexcept
+    {
+        return "pop if pause";
+    }
+};
+
+export using AppMessage = std::variant<PopIfNotMainMenu, PopIfPause>;
 
 export [[nodiscard]] std::optional<AppMessage>
-deserializeAppMessage(const std::string& str);
+deserializeAppMessage(const std::string& str)
+{
+    if (PopIfNotMainMenu::canDeserializeFrom(str))
+        return PopIfNotMainMenu();
+    else if (PopIfPause::canDeserializeFrom(str))
+        return PopIfPause();
+    return std::nullopt;
+}

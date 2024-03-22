@@ -14,12 +14,13 @@
 #include <core/Scene.hpp>
 #include <events/EventQueue.hpp>
 #include <utils/DemoFileHandler.hpp>
-#include <utils/RoundRobinBuffer.hpp>
+#include <utils/RollbackManager.hpp>
 
 import Options;
 import Memory;
 import Audio;
 import Input;
+import Network;
 import AppMessage;
 import CoreTypes;
 
@@ -34,6 +35,7 @@ public:
         mem::Rc<AudioPlayer> audioPlayer,
         mem::Rc<Jukebox> jukebox,
         mem::Rc<PhysicalController> controller,
+        mem::Rc<Client> client,
         GameOptions gameSettings,
         const LevelD& level,
         bool launchedFromEditor = false);
@@ -43,6 +45,7 @@ public:
         app.window.getWindowContext().setView(
             app.window.getWindowContext().getDefaultView());
         unlockMouse();
+        client->sendMapEnded();
     }
 
 public:
@@ -57,7 +60,8 @@ private:
         {
             std::visit(
                 overloaded { [&](const PopIfNotMainMenu&)
-                             { app.popState(message); } },
+                             { app.popState(message); },
+                             [](const PopIfPause&) {} },
                 msg.value());
         }
 
@@ -76,7 +80,8 @@ private:
         EntityIndexType cameraAnchorIdx;
     };
 
-    void snapshotInputs(FrameState& state);
+    void handleNetworkUpdate(const ServerUpdateData& update);
+    [[nodiscard]] FrameState snapshotInputsIntoNewFrameState();
     void simulateFrameFromState(const FrameState& state, bool skipAudio);
     void evaluateWinCondition();
     void restoreState(const FrameState& state);
@@ -100,13 +105,16 @@ protected:
     mem::Rc<AudioPlayer> audioPlayer;
     mem::Rc<Jukebox> jukebox;
     mem::Rc<PhysicalController> controller;
+    mem::Rc<Client> client;
     mem::Rc<EventQueue> eventQueue;
     bool launchedFromEditor;
 
     std::vector<mem::Rc<ControllerInterface>> inputs;
     Scene scene;
-    RoundRobinBuffer<FrameState, 10> stateBuffer;
+    RollbackManager<FrameState, 10> stateManager;
     mem::Box<GameLoop> gameLoop;
     DemoFileHandler demoFileHandler;
     mem::Box<dgm::Camera> camera;
+    bool ready = false;
+    size_t lastTick = {};
 };

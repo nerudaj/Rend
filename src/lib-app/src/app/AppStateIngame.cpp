@@ -36,6 +36,7 @@ AppStateIngame::AppStateIngame(
     mem::Rc<AudioPlayer> _audioPlayer,
     mem::Rc<Jukebox> _jukebox,
     mem::Rc<PhysicalController> _controller,
+    mem::Rc<Client> _client,
     GameOptions gameSettings,
     const LevelD& level,
     bool launchedFromEditor)
@@ -47,6 +48,7 @@ AppStateIngame::AppStateIngame(
     , audioPlayer(_audioPlayer)
     , jukebox(_jukebox)
     , controller(_controller)
+    , client(_client)
     , launchedFromEditor(launchedFromEditor)
     , inputs(createInputs(_controller, gameSettings))
     , scene(SceneBuilder::buildScene(level, gameSettings.players.size()))
@@ -66,10 +68,17 @@ AppStateIngame::AppStateIngame(
     lockMouse();
     createPlayers();
     jukebox->playIngameSong();
+    client->sendMapReadySignal();
 }
 
 void AppStateIngame::input()
 {
+
+    client->readIncomingPackets(std::bind(
+        &AppStateIngame::handleNetworkUpdate, this, std::placeholders::_1));
+
+    if (!hasFocus) return;
+
     sf::Event event;
     while (app.window.pollEvent(event))
     {
@@ -111,32 +120,23 @@ void AppStateIngame::input()
 
 void AppStateIngame::update()
 {
-    stateBuffer.pushBack(FrameState {});
-    snapshotInputs(stateBuffer.last());
-    sf::Mouse::setPosition(
-        sf::Vector2i(app.window.getSize() / 2u), app.window.getWindowContext());
+    if (!ready) return;
 
-    const unsigned howMuchToUnroll =
-        10u; // Can be more, based on network latency
-    const unsigned startIndex = stateBuffer.getSize() < howMuchToUnroll
-                                    ? 0u
-                                    : stateBuffer.getSize() - howMuchToUnroll;
-    // Excluding state pushed back earlier - that is the next
-    // frame
-    const unsigned endIndex = stateBuffer.getSize() - 1u;
-    for (unsigned i = startIndex; i < endIndex; ++i)
-    {
-        auto&& state = stateBuffer[i];
-        simulateFrameFromState(state, i == endIndex - 1);
-        ++scene.tick; // advancing frame
-        // Write the simulated state into the next frame
-        backupState(stateBuffer[i + 1u]);
-    }
+    stateManager.insert(snapshotInputsIntoNewFrameState(), lastTick);
 
-    if (stateBuffer.getSize() == 1u)
-    { // nothing was simulated, nothing was backed up yet
-        backupState(stateBuffer.last());
-    }
+    if (hasFocus)
+        sf::Mouse::setPosition(
+            sf::Vector2i(app.window.getSize() / 2u),
+            app.window.getWindowContext());
+
+    namespace ph = std::placeholders;
+
+    stateManager.forEachItemFromOldestToNewest(
+        std::bind(
+            &AppStateIngame::simulateFrameFromState, this, ph::_1, ph::_2),
+        std::bind(&AppStateIngame::backupState, this, ph::_1));
+
+    ++lastTick;
 
     evaluateWinCondition();
 }
@@ -147,24 +147,50 @@ void AppStateIngame::draw()
     gameLoop->renderTo(app.window);
 }
 
-void AppStateIngame::snapshotInputs(FrameState& state)
+void AppStateIngame::handleNetworkUpdate(const ServerUpdateData& update)
 {
-    state.inputs = inputs
-                   | std::views::transform(
-                       [](mem::Rc<ControllerInterface>& i) -> InputSchema
-                       {
-                           i->update();
-                           return i->getSnapshot();
-                       })
-                   | std::ranges::to<decltype(state.inputs)>();
+    ready = update.peersReady;
 
+    for (auto&& inputData : update.inputs)
+    {
+        stateManager.get(inputData.tick).inputs.at(inputData.clientId) =
+            inputData.input;
+    }
+}
+
+AppStateIngame::FrameState AppStateIngame::snapshotInputsIntoNewFrameState()
+{
+    auto&& state =
+        FrameState { .inputs =
+                         inputs
+                         | std::views::transform(
+                             [](mem::Rc<ControllerInterface>& i) -> InputSchema
+                             {
+                                 i->update();
+                                 return i->getSnapshot();
+                             })
+                         | std::ranges::to<decltype(FrameState::inputs)>() };
+
+    if (!hasFocus)
+    {
+        // FIXME: myClientId
+        state.inputs[0] = InputSchema {};
+    }
+
+    client->sendUpdate(lastTick, state.inputs);
+
+    // TODO: remove the following line. It just disables local input and routes
+    // it through network
+    state.inputs[0] = InputSchema {};
+
+    // TODO: rework demos
     if (settings->cmdSettings.playDemo)
     {
         auto line = demoFileHandler.getLine();
         if (line.empty())
         {
             app.exit();
-            return;
+            return state;
         }
         state.inputs[0] = nlohmann::json::parse(line);
     }
@@ -172,6 +198,8 @@ void AppStateIngame::snapshotInputs(FrameState& state)
     {
         demoFileHandler.writeLine(nlohmann::json(state.inputs[0]).dump());
     }
+
+    return state;
 }
 
 void AppStateIngame::simulateFrameFromState(
@@ -179,6 +207,7 @@ void AppStateIngame::simulateFrameFromState(
 {
     restoreState(state);
     gameLoop->update(FRAME_TIME, skipAudio);
+    ++scene.tick;
 }
 
 void AppStateIngame::restoreState(const FrameState& state)
@@ -203,18 +232,25 @@ void AppStateIngame::evaluateWinCondition()
 {
     if (gameLoop->isPointlimitReached(gameSettings.fraglimit))
     {
-        unlockMouse();
-        app.pushState<AppStateWinnerAnnounced>(
-            resmgr,
-            gui,
-            audioPlayer,
-            jukebox,
-            controller,
-            gameSettings,
-            scene.playerStates
-                | std::views::transform([](const PlayerState& state)
-                                        { return state.inventory.score; })
-                | std::ranges::to<std::vector<int>>());
+        if (hasFocus)
+        {
+            unlockMouse();
+            app.pushState<AppStateWinnerAnnounced>(
+                resmgr,
+                gui,
+                audioPlayer,
+                jukebox,
+                controller,
+                gameSettings,
+                scene.playerStates
+                    | std::views::transform([](const PlayerState& state)
+                                            { return state.inventory.score; })
+                    | std::ranges::to<std::vector<int>>());
+        }
+        else
+        {
+            app.popState(PopIfPause::serialize());
+        }
     }
 }
 

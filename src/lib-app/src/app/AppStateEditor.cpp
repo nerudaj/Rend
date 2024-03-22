@@ -5,7 +5,9 @@
 #include "Editor/NullEditor.hpp"
 #include "app/AppStateIngame.hpp"
 #include <LevelMetadata.hpp>
+#include <atomic>
 #include <cmath>
+#include <expected>
 
 import Resources;
 import Audio;
@@ -404,6 +406,12 @@ void AppStateEditor::handlePlayLevel(bool useBot)
     auto lvd = LevelD {};
     lvd.loadFromFile(savePath);
 
+    auto&& client = mem::Rc<Client>("127.0.0.1", 10666ui16);
+    if (auto&& result = client->commitLobby(); !result)
+        throw std::runtime_error(result.error());
+
+    client->readIncomingPackets([](auto) {});
+
     app.pushState<AppStateIngame>(
         resmgr,
         nativeGui,
@@ -411,6 +419,7 @@ void AppStateEditor::handlePlayLevel(bool useBot)
         audioPlayer,
         jukebox,
         controller,
+        client,
         gameSettings,
         lvd,
         "launchedFromEditor"_true);

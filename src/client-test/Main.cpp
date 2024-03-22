@@ -3,16 +3,17 @@
 #include <iostream>
 
 import Network;
+import Memory;
+
+struct A
+{
+    A() : client(mem::Rc<Client>("127.0.0.1", 10666ui16)) {}
+
+    mem::Rc<Client> client;
+};
 
 int main(int, char*[])
 {
-    auto&& client = Client::create(
-        "127.0.0.1", 10666, [](auto, auto) {}, [](auto, auto) {});
-    if (!client)
-    {
-        std::println(std::cerr, "{}", client.error());
-        return 1;
-    }
-
+    A a;
     return 0;
 }

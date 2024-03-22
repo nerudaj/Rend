@@ -40,6 +40,8 @@ void AppStatePaused::buildLayoutImpl()
 
 void AppStatePaused::input()
 {
+    if (!hasFocus) return;
+
     sf::Event event;
     while (app.window.pollEvent(event))
     {

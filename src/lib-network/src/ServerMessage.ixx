@@ -1,17 +1,43 @@
 module;
 
 #include <SFML/Network.hpp>
+#include <nlohmann/json.hpp>
 #include <string>
 
 export module ServerMessage;
 
 export import ServerMessageType;
 export import NetworkTypes;
+export import ClientData;
+export import LobbySettings;
+export import InputData;
+
+export
+{
+    struct [[nodiscard]] ServerUpdateData
+    {
+        bool lobbyCommited = false;
+        bool peersReady = false;
+        LobbySettings lobbySettings;
+        std::vector<ClientData> clients;
+        std::vector<InputData> inputs;
+    };
+
+    NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(
+        ServerUpdateData,
+        lobbyCommited,
+        peersReady,
+        lobbySettings,
+        clients,
+        inputs);
+}
 
 export struct [[nodiscard]] ServerMessage
 {
     ServerMessageType type;
+    size_t sequence = 0;
     PlayerIdType clientId;
+    std::string payload;
 
     static ServerMessage fromPacket(sf::Packet& packet)
     {
@@ -21,7 +47,9 @@ export struct [[nodiscard]] ServerMessage
 
         ServerMessage message;
         message.type = static_cast<ServerMessageType>(messageType);
+        packet >> message.sequence;
         packet >> message.clientId;
+        packet >> message.payload;
 
         return message;
     }
@@ -30,7 +58,9 @@ export struct [[nodiscard]] ServerMessage
     {
         sf::Packet packet;
         packet << static_cast<std::underlying_type_t<ServerMessageType>>(type);
+        packet << sequence;
         packet << clientId;
+        packet << payload;
         return packet;
     }
 };
