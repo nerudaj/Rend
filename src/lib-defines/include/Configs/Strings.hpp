@@ -49,6 +49,7 @@ namespace Strings
             RAWSTRING TURN_SENSITIVITY = "turn sensitivity";
             RAWSTRING GAMEPAD_DEADZONE = "gamepad deadzone";
             RAWSTRING SWAP_ON_PICKUP = "autoswap weapon on pickup";
+            RAWSTRING HUD_UI_SCALE = "hud ui scale";
         } // namespace Options
 
         namespace GameSetup

@@ -82,6 +82,9 @@ void AppStateMenuOptions::buildDisplayOptionsLayout(FormBuilder& builder)
     auto fovFormatter = [](float fov)
     { return std::to_string(static_cast<int>(fov * 100)); };
 
+    auto hudScaleFormatter = [](float scale)
+    { return std::format("{:.1f}", scale); };
+
     std::ignore =
         builder
             .addOption(
@@ -125,7 +128,17 @@ void AppStateMenuOptions::buildDisplayOptionsLayout(FormBuilder& builder)
                     fovFormatter,
                     0.6f,
                     1.2f,
-                    0.01f));
+                    0.01f))
+            .addOption(
+                Strings::AppState::Options::HUD_UI_SCALE,
+                WidgetBuilder::createSlider(
+                    settings->display.hudScale,
+                    [this](float value) { settings->display.hudScale = value; },
+                    gui,
+                    hudScaleFormatter,
+                    1.f,
+                    2.f,
+                    0.5f));
 }
 
 void AppStateMenuOptions::buildAudioOptionsLayout(FormBuilder& builder)
