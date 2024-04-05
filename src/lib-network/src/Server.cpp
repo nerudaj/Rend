@@ -37,12 +37,12 @@ void Server::update()
         if (result)
         {
             if (!result.value().empty())
-                std::println("Server: {}", result.value());
+                std::cout << "Server: " << result.value() << std::endl;
             shouldUpdate = true;
         }
         else
         {
-            std::println("Server:error: {}", result.error());
+            std::cout << "Server:error: " << result.error() << std::endl;
         }
     }
 

@@ -68,7 +68,7 @@ void AppStateMenuOptions::buildLayoutImpl()
     gui->add(
         LayoutBuilder::withBackgroundImage(
             resmgr->get<sf::Texture>("menu_options.png").value().get())
-            .withTitle(Strings::AppState::Options::TITLE, HeadingLevel::H2)
+            .withTitle(Strings::AppState::Options::TITLE, HeadingLevel::H1)
             .withContent(basePanel)
             .withBackButton(WidgetBuilder::createButton(
                 Strings::AppState::MainMenu::BACK, [this] { app.popState(); }))

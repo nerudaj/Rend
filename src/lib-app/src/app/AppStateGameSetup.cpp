@@ -70,7 +70,7 @@ void AppStateGameSetup::buildLayoutImpl()
     gui->add(
         LayoutBuilder::withBackgroundImage(
             resmgr->get<sf::Texture>("menu_setup.png").value().get())
-            .withTitle(Strings::AppState::GameSetup::TITLE, HeadingLevel::H2)
+            .withTitle(Strings::AppState::GameSetup::TITLE, HeadingLevel::H1)
             .withContent(FormBuilder()
                              .addOption(
                                  Strings::AppState::GameSetup::PLAYER_COUNT,
