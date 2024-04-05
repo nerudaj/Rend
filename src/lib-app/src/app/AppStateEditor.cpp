@@ -302,6 +302,7 @@ void AppStateEditor::handleLoadLevel()
         {
             loadLevel(Filesystem::getFullLevelPath(
                           settings->cmdSettings.resourcesDir,
+                          dialogLoadLevel.getMapPackName(),
                           dialogLoadLevel.getLevelName())
                           .string());
         });
@@ -343,6 +344,7 @@ void AppStateEditor::handleSaveLevel(bool forceNewPath) noexcept
             {
                 savePath = Filesystem::getFullLevelPath(
                                settings->cmdSettings.resourcesDir,
+                               dialogSaveLevel.getMapPackName(),
                                dialogSaveLevel.getLevelName())
                                .string();
                 saveLevel();
@@ -367,7 +369,13 @@ void AppStateEditor::saveLevel()
                                         .textures = TexturePackUtils::toString(
                                             levelMetadata->texturePack) })
                 .dump();
-        lvd.saveToFile(savePath);
+
+        if (!std::filesystem::exists(savePath.parent_path()))
+        {
+            std::filesystem::create_directory(savePath.parent_path());
+        }
+
+        lvd.saveToFile(savePath.string());
         updateWindowTitle();
     }
     catch (std::exception& e)
@@ -404,7 +412,7 @@ void AppStateEditor::handlePlayLevel(bool useBot)
     }
 
     auto lvd = LevelD {};
-    lvd.loadFromFile(savePath);
+    lvd.loadFromFile(savePath.string());
 
     auto&& client = mem::Rc<Client>("127.0.0.1", 10666ui16);
     if (auto&& result = client->commitLobby(); !result)

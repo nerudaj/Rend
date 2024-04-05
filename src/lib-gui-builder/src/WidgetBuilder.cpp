@@ -7,8 +7,8 @@ import TguiHelper;
 
 [[nodiscard]] std::string randomString(std::size_t len)
 {
-    constexpr const char* CHARS =
-        "abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    constexpr auto CHARS = std::string_view(
+        "abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ");
     return std::views::iota(0u, len)
            | std::views::transform([CHARS](std::size_t)
                                    { return CHARS[rand() % std::size(CHARS)]; })
@@ -40,24 +40,66 @@ WidgetBuilder::createPanel(const tgui::Layout2d& size, const tgui::Color color)
     return panel;
 }
 
-tgui::Panel::Ptr WidgetBuilder::createOptionRow(
-    const std::string& labelText, tgui::Widget::Ptr widgetPtr)
+static tgui::Label::Ptr createRowLabel(const std::string& text)
 {
-    auto&& row = getStandardizedRow();
-
-    auto&& label = tgui::Label::create(labelText);
+    auto&& label = tgui::Label::create(text);
     label->getRenderer()->setTextColor(sf::Color::Black);
     label->setSize("60%", "100%");
     label->setPosition("0%", "0%");
     label->setTextSize(Sizers::GetMenuBarTextHeight());
     label->setVerticalAlignment(tgui::Label::VerticalAlignment::Center);
-    row->add(label);
+    return label;
+}
+
+tgui::Panel::Ptr WidgetBuilder::createOptionRow(
+    const std::string& labelText,
+    tgui::Widget::Ptr widgetPtr,
+    std::optional<std::string> widgetId)
+{
+    auto&& row = getStandardizedRow();
+    row->add(createRowLabel(labelText));
 
     auto&& widgetPanel = tgui::Panel::create({ "40%", "100%" });
     widgetPanel->setPosition("60%", "0%");
     widgetPanel->getRenderer()->setBackgroundColor(tgui::Color::Transparent);
     row->add(widgetPanel);
+
+    widgetId
+        .or_else(
+            [&]() -> std::optional<std::string>
+            {
+                widgetPanel->add(widgetPtr);
+                return std::nullopt;
+            })
+        .and_then(
+            [&](auto id) -> std::optional<std::string>
+            {
+                widgetPanel->add(widgetPtr, id);
+                return id;
+            });
+
+    return row;
+}
+
+tgui::Panel::Ptr WidgetBuilder::createOptionRowWithSubmitButton(
+    const std::string& labelText,
+    tgui::Widget::Ptr widgetPtr,
+    tgui::Button::Ptr buttonPtr)
+{
+    auto&& row = getStandardizedRow();
+    row->add(createRowLabel(labelText));
+
+    auto&& widgetPanel = tgui::Panel::create({ "25%", "100%" });
+    widgetPanel->setPosition("60%", "0%");
+    widgetPanel->getRenderer()->setBackgroundColor(tgui::Color::Transparent);
     widgetPanel->add(widgetPtr);
+    row->add(widgetPanel);
+
+    auto&& btnPanel = tgui::Panel::create({ "15%", "100%" });
+    btnPanel->setPosition("85%", "0%");
+    btnPanel->getRenderer()->setBackgroundColor(tgui::Color::Transparent);
+    btnPanel->add(buttonPtr);
+    row->add(btnPanel);
 
     return row;
 }
@@ -146,16 +188,22 @@ tgui::ComboBox::Ptr WidgetBuilder::createDropdown(
     auto&& dropdown = tgui::ComboBox::create();
     dropdown->setSize("100%", "80%");
     dropdown->setPosition("0%", "10%");
-
-    for (auto& item : items)
-    {
-        dropdown->addItem(item, item);
-    }
-
+    updateDropdownItems(dropdown, items);
     dropdown->setSelectedItem(selected);
     dropdown->onItemSelect(onSelect);
 
     return dropdown;
+}
+
+void WidgetBuilder::updateDropdownItems(
+    tgui::ComboBox::Ptr dropdown, const std::vector<std::string>& items)
+{
+    dropdown->removeAllItems();
+    for (auto&& item : items)
+    {
+        dropdown->addItem(item, item);
+    }
+    dropdown->setSelectedItem(items.front());
 }
 
 tgui::EditBox::Ptr WidgetBuilder::createTextInput(

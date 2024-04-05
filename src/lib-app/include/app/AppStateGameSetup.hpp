@@ -55,6 +55,10 @@ private:
 
     [[nodiscard]] std::vector<PlayerOptions> createPlayerSettings() const;
 
+    void selectMapPack(const std::string& packname);
+
+    void selectMapPackAndSendUpdate(const std::string& packname);
+
 private:
     mem::Rc<const dgm::ResourceManager> resmgr;
     mem::Rc<tgui::Gui> gui;
@@ -64,5 +68,5 @@ private:
     mem::Rc<PhysicalController> controller;
     mem::Rc<Client> client;
     LobbySettings lobbySettings;
-    std::vector<std::string> mapnames;
+    std::vector<std::string> mapPackNames;
 };

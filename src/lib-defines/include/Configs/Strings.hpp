@@ -56,9 +56,11 @@ namespace Strings
         {
             RAWSTRING TITLE = "game setup";
             RAWSTRING PLAYER_COUNT = "player count";
-            RAWSTRING SELECT_MAP = "select map";
+            RAWSTRING SELECT_PACK = "select map pack";
+            RAWSTRING SELECT_MAPS = "configure map rotation";
             RAWSTRING FRAGLIMIT = "frag limit";
             RAWSTRING START_GAME = "start game";
+            RAWSTRING DOTDOTDOT = "...";
         } // namespace GameSetup
 
         namespace Pause
@@ -97,15 +99,20 @@ namespace Strings
             RAWSTRING CANNOT_PLAY_LEVEL =
                 "Cannot play level because no level is opened.";
             RAWSTRING LEVEL_NAME_EMPTY = "Level name cannot be empty.";
-            RAWSTRING LEVEL_NAME_TAKEN = "Level name is already taken";
+            RAWSTRING LEVEL_NAME_TAKEN = "Level name is already taken.";
             RAWSTRING BAKING_LIGHTS = "Baking in lights...";
             RAWSTRING COMPUTING_DISTANCE_INDEX = "Computing distance index...";
+            RAWSTRING PACK_NAME_EMPTY = "Map pack name cannot be empty.";
+            RAWSTRING PACK_NAME_TAKEN = "Map pack name is already taken.";
         } // namespace Message
 
         namespace Body
         {
+            RAWSTRING CREATE_PACK = "or add new";
+            RAWSTRING SELECT_PACK = "Select map pack";
             RAWSTRING SELECT_LEVEL = "Select level";
             RAWSTRING LEVEL_NAME = "Level name";
+            RAWSTRING ADD = "Add";
         } // namespace Body
     }     // namespace Dialog
 

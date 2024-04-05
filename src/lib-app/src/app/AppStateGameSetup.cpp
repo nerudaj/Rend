@@ -28,10 +28,12 @@ AppStateGameSetup::AppStateGameSetup(
     , controller(controller)
     , client(mem::Rc<Client>("127.0.0.1", 10666ui16))
     , lobbySettings(LobbySettings {
-          .mapname = settings->cmdSettings.mapname,
           .fraglimit = static_cast<int>(settings->cmdSettings.fraglimit),
           .playerCount = settings->cmdSettings.playerCount })
+    , mapPackNames(Filesystem::getLevelPackNames(
+          Filesystem::getLevelsDir(settings->cmdSettings.resourcesDir)))
 {
+    selectMapPack(mapPackNames.front());
     buildLayout();
     client->sendLobbyUpdate(lobbySettings);
 }
@@ -62,11 +64,6 @@ void AppStateGameSetup::input()
 
 void AppStateGameSetup::buildLayoutImpl()
 {
-    mapnames = Filesystem::getLevelNames(
-        Filesystem::getLevelsDir(settings->cmdSettings.resourcesDir));
-
-    if (lobbySettings.mapname.empty()) lobbySettings.mapname = mapnames.front();
-
     gui->add(
         LayoutBuilder::withBackgroundImage(
             resmgr->get<sf::Texture>("menu_setup.png").value().get())
@@ -83,15 +80,19 @@ void AppStateGameSetup::buildLayoutImpl()
                                          client->sendLobbyUpdate(lobbySettings);
                                      }))
                              .addOption(
-                                 Strings::AppState::GameSetup::SELECT_MAP,
+                                 Strings::AppState::GameSetup::SELECT_PACK,
                                  WidgetBuilder::createDropdown(
-                                     mapnames,
-                                     lobbySettings.mapname,
-                                     [this](std::size_t idx)
-                                     {
-                                         lobbySettings.mapname = mapnames[idx];
-                                         client->sendLobbyUpdate(lobbySettings);
+                                     mapPackNames,
+                                     lobbySettings.packname,
+                                     [this](std::size_t idx) {
+                                         selectMapPackAndSendUpdate(
+                                             mapPackNames.at(idx));
                                      }))
+                             .addOption(
+                                 Strings::AppState::GameSetup::SELECT_MAPS,
+                                 WidgetBuilder::createButton(
+                                     Strings::AppState::GameSetup::DOTDOTDOT,
+                                     [&]() { /*TODO: this*/ }))
                              .addOption(
                                  Strings::AppState::GameSetup::FRAGLIMIT,
                                  WidgetBuilder::createTextInput(
@@ -132,10 +133,11 @@ void AppStateGameSetup::handleNetworkUpdate(const ServerUpdateData& update)
 void AppStateGameSetup::startGame()
 {
     auto lvd = LevelD {};
-    lvd.loadFromFile(
-        Filesystem::getFullLevelPath(
-            settings->cmdSettings.resourcesDir, lobbySettings.mapname)
-            .string());
+    lvd.loadFromFile(Filesystem::getFullLevelPath(
+                         settings->cmdSettings.resourcesDir,
+                         lobbySettings.packname,
+                         lobbySettings.mapSettings.front().name)
+                         .string());
 
     app.pushState<AppStateIngame>(
         resmgr,
@@ -171,4 +173,26 @@ std::vector<PlayerOptions> AppStateGameSetup::createPlayerSettings() const
                                           .name = defaultPlayerNames[idx] };
                })
            | std::ranges::to<std::vector<PlayerOptions>>();
+}
+
+void AppStateGameSetup::selectMapPack(const std::string& packname)
+{
+    lobbySettings.packname = packname;
+    lobbySettings.mapSettings =
+        Filesystem::getLevelNames(
+            Filesystem::getLevelsDir(settings->cmdSettings.resourcesDir),
+            packname)
+        | std::views::transform(
+            [](const std::string& name)
+            { return MapSettings { .name = name, .enabled = true }; })
+        | std::ranges::to<std::vector>();
+    lobbySettings.mapOrder =
+        std::views::iota(size_t { 0 }, lobbySettings.mapSettings.size())
+        | std::ranges::to<std::vector>();
+}
+
+void AppStateGameSetup::selectMapPackAndSendUpdate(const std::string& packname)
+{
+    selectMapPack(packname);
+    client->sendLobbyUpdate(lobbySettings);
 }

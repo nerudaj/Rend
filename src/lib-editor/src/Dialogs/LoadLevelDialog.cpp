@@ -1,28 +1,52 @@
 #include "Dialogs/LoadLevelDialog.hpp"
 #include "Configs/Strings.hpp"
-#include <filesystem>
 
 import Resources;
+import FormBuilder;
+import WidgetBuilder;
 
 constexpr const char* SELECT_LEVEL_ID = "SelectLevelId";
 
 LoadLevelDialog::LoadLevelDialog(
     mem::Rc<Gui> gui, const std::filesystem::path& rootDir)
-    : DialogInterface(
-        gui,
-        "LoadLevelDialog",
-        Strings::Dialog::Title::OPEN_LEVEL,
-        std::vector<OptionLine> { { OptionDropdown {
-            Strings::Dialog::Body::SELECT_LEVEL,
-            SELECT_LEVEL_ID,
-            Filesystem::getLevelNames(Filesystem::getLevelsDir(rootDir)) } } })
+    : ModernDialogInterface(
+        gui, "LoadLevelDialog", Strings::Dialog::Title::OPEN_LEVEL)
+    , levelsDir(Filesystem::getLevelsDir(rootDir))
+    , mapPackNames(Filesystem::getLevelPackNames(levelsDir))
+    , mapPackName(mapPackNames.front())
+    , mapNames(Filesystem::getLevelNames(levelsDir, mapPackName))
+    , mapName(mapNames.front())
+    , gui(gui)
 {
 }
 
-std::string LoadLevelDialog::getLevelName() const
+void LoadLevelDialog::buildLayoutImpl(tgui::Panel::Ptr panel)
 {
-    auto combo = gui->get<tgui::ComboBox>(SELECT_LEVEL_ID);
-    return combo->getSelectedItem().toStdString();
+    panel->add(
+        FormBuilder()
+            .addOption(
+                Strings::Dialog::Body::SELECT_PACK,
+                WidgetBuilder::createDropdown(
+                    mapPackNames,
+                    mapPackName,
+                    std::bind(
+                        &LoadLevelDialog::handleSelectedMapPack,
+                        this,
+                        std::placeholders::_1)))
+            .addOptionWithWidgetId(
+                Strings::Dialog::Body::SELECT_LEVEL,
+                WidgetBuilder::createDropdown(
+                    mapNames,
+                    mapName,
+                    [&](const size_t idx) { mapName = mapNames.at(idx); }),
+                SELECT_LEVEL_ID)
+            .build());
 }
 
-void LoadLevelDialog::customOpenCode() {}
+void LoadLevelDialog::handleSelectedMapPack(const size_t idx)
+{
+    mapPackName = mapPackNames.at(idx);
+    mapNames = Filesystem::getLevelNames(levelsDir, mapPackName);
+    WidgetBuilder::updateDropdownItems(
+        gui->get<tgui::ComboBox>(SELECT_LEVEL_ID), mapNames);
+}
