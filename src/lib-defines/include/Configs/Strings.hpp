@@ -89,6 +89,7 @@ namespace Strings
             RAWSTRING NEW_LEVEL = "New level";
             RAWSTRING ERR = "Error";
             RAWSTRING LOADING = "Loading";
+            RAWSTRING SELECT_MAPS = "select maps";
         } // namespace Title
 
         namespace Message
