@@ -29,6 +29,7 @@ namespace Strings
             RAWSTRING EXIT = "exit";
             RAWSTRING BACK = "back";
             RAWSTRING BACK_TO_MENU = "back";
+            RAWSTRING NEXT_MAP = "next map";
         } // namespace MainMenu
 
         namespace Options

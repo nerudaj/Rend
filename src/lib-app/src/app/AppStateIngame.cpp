@@ -184,7 +184,7 @@ AppStateIngame::FrameState AppStateIngame::snapshotInputsIntoNewFrameState()
     state.inputs[0] = InputSchema {};
 
     // TODO: rework demos
-    if (settings->cmdSettings.playDemo)
+    /*if (settings->cmdSettings.playDemo)
     {
         auto line = demoFileHandler.getLine();
         if (line.empty())
@@ -197,7 +197,7 @@ AppStateIngame::FrameState AppStateIngame::snapshotInputsIntoNewFrameState()
     else
     {
         demoFileHandler.writeLine(nlohmann::json(state.inputs[0]).dump());
-    }
+    }*/
 
     return state;
 }

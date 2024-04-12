@@ -1,7 +1,7 @@
 #include <Configs/Strings.hpp>
 #include <LevelD.hpp>
 #include <app/AppStateGameSetup.hpp>
-#include <app/AppStateIngame.hpp>
+#include <app/AppStateMapRotationWrapper.hpp>
 #include <atomic>
 #include <expected>
 
@@ -137,22 +137,15 @@ void AppStateGameSetup::handleNetworkUpdate(const ServerUpdateData& update)
 
 void AppStateGameSetup::startGame()
 {
-    auto firstEnabled = std::find_if(
-        lobbySettings.mapSettings.begin(),
-        lobbySettings.mapSettings.end(),
-        [](const MapSettings& ms) { return ms.enabled; });
+    auto&& maplist =
+        lobbySettings.mapSettings
+        | std::views::filter([](const MapSettings& ms) { return ms.enabled; })
+        | std::views::transform([](const MapSettings& ms) { return ms.name; })
+        | std::ranges::to<std::vector>();
 
-    if (firstEnabled == lobbySettings.mapSettings.end())
-        throw std::runtime_error("No map selected!");
+    if (maplist.empty()) throw std::runtime_error("No map selected!");
 
-    auto lvd = LevelD {};
-    lvd.loadFromFile(Filesystem::getFullLevelPath(
-                         settings->cmdSettings.resourcesDir,
-                         lobbySettings.packname,
-                         firstEnabled->name)
-                         .string());
-
-    app.pushState<AppStateIngame>(
+    app.pushState<AppStateMapRotationWrapper>(
         resmgr,
         gui,
         settings,
@@ -163,7 +156,8 @@ void AppStateGameSetup::startGame()
         GameOptions { .players = createPlayerSettings(),
                       .fraglimit =
                           static_cast<unsigned>(lobbySettings.fraglimit) },
-        lvd);
+        lobbySettings.packname,
+        maplist);
 }
 
 std::vector<PlayerOptions> AppStateGameSetup::createPlayerSettings() const
