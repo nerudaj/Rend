@@ -26,7 +26,7 @@ protected:
 
 private:
     const std::filesystem::path levelsDir;
-    const std::vector<std::string> mapPackNames;
+    std::vector<std::string> mapPackNames;
     std::string mapPackName;
     std::vector<std::string> mapNames;
     std::string mapName;

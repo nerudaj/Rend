@@ -22,6 +22,8 @@ LoadLevelDialog::LoadLevelDialog(
 
 void LoadLevelDialog::buildLayoutImpl(tgui::Panel::Ptr panel)
 {
+    // must be initialized each time a modal is opened
+    mapPackNames = Filesystem::getLevelPackNames(levelsDir);
     panel->add(
         FormBuilder()
             .addOption(
