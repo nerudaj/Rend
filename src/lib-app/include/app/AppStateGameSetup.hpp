@@ -8,11 +8,11 @@ import Network;
 import LobbySettings;
 
 #include "GuiState.hpp"
+#include <Dialogs/MapPickerDialog.hpp>
 #include <TGUI/Backend/SFML-Graphics.hpp>
 #include <TGUI/TGUI.hpp>
 #include <dgm/classes/AppState.hpp>
 #include <dgm/classes/ResourceManager.hpp>
-#include <thread>
 
 class [[nodiscard]] AppStateGameSetup final
     : public dgm::AppState
@@ -36,6 +36,7 @@ public:
     void draw() override
     {
         gui->draw();
+        guiWithModals->gui.draw();
     }
 
 private:
@@ -55,14 +56,25 @@ private:
 
     [[nodiscard]] std::vector<PlayerOptions> createPlayerSettings() const;
 
+    void selectMapPack(const std::string& packname);
+
+    void selectMapPackAndSendUpdate(const std::string& packname);
+
+    void openMapPicker();
+
+    void handleMapRotationUpdate();
+
 private:
     mem::Rc<const dgm::ResourceManager> resmgr;
     mem::Rc<tgui::Gui> gui;
+    mem::Rc<Gui> guiWithModals;
     mem::Rc<AppOptions> settings;
     mem::Rc<AudioPlayer> audioPlayer;
     mem::Rc<Jukebox> jukebox;
     mem::Rc<PhysicalController> controller;
     mem::Rc<Client> client;
     LobbySettings lobbySettings;
-    std::vector<std::string> mapnames;
+    std::vector<std::string> mapPackNames;
+    mem::Box<MapPickerDialog> mapPickerDialog = mem::Box<MapPickerDialog>(
+        guiWithModals, std::vector<MapSettingsForPicker> {});
 };

@@ -27,6 +27,7 @@ export
         float fov = 0.66f;
         bool hideHud = false;
         bool showCrosshair = true;
+        float hudScale = 1.f;
     };
 
     NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(
@@ -36,5 +37,6 @@ export
         useDitheredShadows,
         showFps,
         hideHud,
-        showCrosshair);
+        showCrosshair,
+        hudScale);
 }

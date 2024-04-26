@@ -10,19 +10,21 @@ export class Filesystem
 {
 public:
     static [[nodiscard]] std::filesystem::path getFullLevelPath(
-        const std::filesystem::path& rootDir, const std::string& levelName);
+        const std::filesystem::path& rootDir,
+        const std::string& packName,
+        const std::string& levelName);
+
+    static [[nodiscard]] std::vector<std::string> getLevelNames(
+        const std::filesystem::path& levelsDir, const std::string& packName);
 
     static [[nodiscard]] std::vector<std::string>
-    getLevelNames(const std::filesystem::path& levelsDir);
+    getLevelPackNames(const std::filesystem::path& levelsDir);
 
     static [[nodiscard]] std::filesystem::path
     getLevelsDir(const std::filesystem::path& rootDir);
 
     static [[nodiscard]] std::filesystem::path
     getEditorConfigPath(const std::filesystem::path& rootDir);
-
-    static [[nodiscard]] std::filesystem::path
-    getResourcesDir(const std::filesystem::path& rootDir);
 
     static [[nodiscard]] std::filesystem::path getAppdataPath();
 };

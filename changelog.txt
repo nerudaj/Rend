@@ -1,4 +1,10 @@
-Rend 1.1.0 changelog:
+Rend 0.x.x changelog:
+
+Accessibility & UX:
+* Sizes of all menu titles unified to Jumbo size
+* Added an option to scale HUD text
+
+Rend 0.2.0 changelog:
 
 Gameplay:
 * Rebalancing:
@@ -25,3 +31,6 @@ Accessibility & UX:
 Other:
 * Screenshots can now be taken with the P key
 * Optimized loading times from dozens of seconds to miliseconds
+
+Rend 0.1.0 changelog:
+* Initial release

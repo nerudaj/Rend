@@ -44,8 +44,15 @@ public:
     static [[nodiscard]] tgui::Panel::Ptr
     getStandardizedRow(tgui::Color bgcolor = tgui::Color::Transparent);
 
-    static [[nodiscard]] tgui::Panel::Ptr
-    createOptionRow(const std::string& labelText, tgui::Widget::Ptr widgetPtr);
+    static [[nodiscard]] tgui::Panel::Ptr createOptionRow(
+        const std::string& labelText,
+        tgui::Widget::Ptr widgetPtr,
+        std::optional<std::string> widgetId);
+
+    static [[nodiscard]] tgui::Panel::Ptr createOptionRowWithSubmitButton(
+        const std::string& labelText,
+        tgui::Widget::Ptr widgetPtr,
+        tgui::Button::Ptr buttonPtr);
 
     static [[nodiscard]] tgui::Button::Ptr
     createButton(const std::string& label, std::function<void(void)> onClick);
@@ -66,6 +73,9 @@ public:
         const std::vector<std::string>& items,
         const std::string& selected,
         std::function<void(std::size_t)> onSelect);
+
+    static void updateDropdownItems(
+        tgui::ComboBox::Ptr dropdown, const std::vector<std::string>& items);
 
     static [[nodiscard]] tgui::EditBox::Ptr createTextInput(
         const std::string& initialValue,

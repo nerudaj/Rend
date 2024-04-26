@@ -3,18 +3,6 @@
 #include "Dialogs/DialogBase.hpp"
 #include <filesystem>
 
-class [[nodiscard]] SaveLevelDialog final : public DialogInterface
-{
-public:
-    SaveLevelDialog(mem::Rc<Gui> gui);
-
-public:
-    std::string getLevelName() const;
-
-protected:
-    void customOpenCode() override {}
-};
-
 class [[nodiscard]] NewSaveLevelDialog final : public ModernDialogInterface
 {
 public:
@@ -22,9 +10,14 @@ public:
         mem::Rc<Gui> gui, const std::filesystem::path& levelsDir);
 
 public:
-    const std::string& getLevelName() const
+    [[nodiscard]] constexpr const std::string& getLevelName() const noexcept
     {
         return levelName;
+    }
+
+    [[nodiscard]] constexpr const std::string& getMapPackName() const noexcept
+    {
+        return mapPackName;
     }
 
 private:
@@ -33,7 +26,12 @@ private:
     std::expected<ReturnFlag, ErrorMessage>
     validateBeforeConfirmation() const override;
 
+    void handleNewMapPack();
+
 private:
     const std::filesystem::path levelsDir;
+    std::vector<std::string> mapPackNames;
+    std::string mapPackName;
     std::string levelName;
+    std::string mapPackNameInput;
 };

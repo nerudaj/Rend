@@ -68,7 +68,7 @@ void AppStateMenuOptions::buildLayoutImpl()
     gui->add(
         LayoutBuilder::withBackgroundImage(
             resmgr->get<sf::Texture>("menu_options.png").value().get())
-            .withTitle(Strings::AppState::Options::TITLE, HeadingLevel::H2)
+            .withTitle(Strings::AppState::Options::TITLE, HeadingLevel::H1)
             .withContent(basePanel)
             .withBackButton(WidgetBuilder::createButton(
                 Strings::AppState::MainMenu::BACK, [this] { app.popState(); }))
@@ -81,6 +81,9 @@ void AppStateMenuOptions::buildDisplayOptionsLayout(FormBuilder& builder)
 {
     auto fovFormatter = [](float fov)
     { return std::to_string(static_cast<int>(fov * 100)); };
+
+    auto hudScaleFormatter = [](float scale)
+    { return std::format("{:.1f}", scale); };
 
     std::ignore =
         builder
@@ -125,7 +128,17 @@ void AppStateMenuOptions::buildDisplayOptionsLayout(FormBuilder& builder)
                     fovFormatter,
                     0.6f,
                     1.2f,
-                    0.01f));
+                    0.01f))
+            .addOption(
+                Strings::AppState::Options::HUD_UI_SCALE,
+                WidgetBuilder::createSlider(
+                    settings->display.hudScale,
+                    [this](float value) { settings->display.hudScale = value; },
+                    gui,
+                    hudScaleFormatter,
+                    1.f,
+                    4.f,
+                    0.5f));
 }
 
 void AppStateMenuOptions::buildAudioOptionsLayout(FormBuilder& builder)
