@@ -1,4 +1,4 @@
-Rend 0.x.x changelog:
+Rend 0.3.0 changelog:
 
 Gameplay:
 * Rockets are faster by 50%
@@ -6,6 +6,11 @@ Gameplay:
 Accessibility & UX:
 * Sizes of all menu titles unified to Jumbo size
 * Added an option to scale HUD text
+
+Other:
+* Added support for map packs
+	* You can create your own map pack in the editor and add maps to it
+	* When setting up a game, you can select any number of maps from a given map pack and play them in a rotation
 
 Rend 0.2.0 changelog:
 
