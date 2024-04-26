@@ -16,13 +16,13 @@
 #include <utils/DemoFileHandler.hpp>
 #include <utils/RollbackManager.hpp>
 
-import Options;
-import Memory;
-import Audio;
-import Input;
-import Network;
 import AppMessage;
+import Audio;
 import CoreTypes;
+import Input;
+import Memory;
+import Network;
+import Options;
 
 class [[nodiscard]] AppStateIngame final : public dgm::AppState
 {
@@ -45,6 +45,8 @@ public:
         app.window.getWindowContext().setView(
             app.window.getWindowContext().getDefaultView());
         unlockMouse();
+        client->readIncomingPackets(
+            [](auto) {}); // there is at least one packet in pipeline
         client->sendMapEnded();
     }
 
@@ -60,6 +62,8 @@ private:
         {
             std::visit(
                 overloaded { [&](const PopIfNotMainMenu&)
+                             { app.popState(message); },
+                             [&](const PopIfNotMapRotationWrapper&)
                              { app.popState(message); },
                              [](const PopIfPause&) {} },
                 msg.value());

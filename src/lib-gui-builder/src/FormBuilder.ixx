@@ -22,6 +22,16 @@ public:
         tgui::Widget::Ptr widget,
         bool disabled = false);
 
+    [[nodiscard]] FormBuilder& addOptionWithWidgetId(
+        const std::string& labelText,
+        tgui::Widget::Ptr widget,
+        const std::string widgetId);
+
+    [[nodiscard]] FormBuilder& addOptionWithSubmit(
+        const std::string& labelText,
+        tgui::Widget::Ptr widget,
+        tgui::Button::Ptr submitBtn);
+
     [[nodiscard]] tgui::Panel::Ptr
     build(tgui::Color backgroundColor = tgui::Color::Transparent);
 
@@ -30,6 +40,8 @@ private:
     {
         std::string label;
         tgui::Widget::Ptr widget;
+        std::optional<std::string> widgetId = {};
+        std::optional<tgui::Button::Ptr> submitBtn = {};
     };
 
     std::vector<RowProps> rowsToBuild;

@@ -2,6 +2,7 @@ module;
 
 #include <optional>
 #include <string>
+#include <typeinfo>
 #include <variant>
 
 export module AppMessage;
@@ -14,27 +15,30 @@ struct CanDeserializeFrom
     {
         return str == std::string_view(This::serialize());
     }
+
+    static [[nodiscard]] constexpr const char* serialize() noexcept
+    {
+        return typeid(This).name();
+    }
 };
 
 export struct [[nodiscard]] PopIfNotMainMenu final
     : public CanDeserializeFrom<PopIfNotMainMenu>
 {
-    static [[nodiscard]] constexpr const char* serialize() noexcept
-    {
-        return "pop if not main menu";
-    }
 };
 
 export struct [[nodiscard]] PopIfPause final
     : public CanDeserializeFrom<PopIfPause>
 {
-    static [[nodiscard]] constexpr const char* serialize() noexcept
-    {
-        return "pop if pause";
-    }
 };
 
-export using AppMessage = std::variant<PopIfNotMainMenu, PopIfPause>;
+export struct [[nodiscard]] PopIfNotMapRotationWrapper final
+    : public CanDeserializeFrom<PopIfNotMapRotationWrapper>
+{
+};
+
+export using AppMessage =
+    std::variant<PopIfNotMainMenu, PopIfPause, PopIfNotMapRotationWrapper>;
 
 export [[nodiscard]] std::optional<AppMessage>
 deserializeAppMessage(const std::string& str)
@@ -43,5 +47,7 @@ deserializeAppMessage(const std::string& str)
         return PopIfNotMainMenu();
     else if (PopIfPause::canDeserializeFrom(str))
         return PopIfPause();
+    else if (PopIfNotMapRotationWrapper::canDeserializeFrom(str))
+        return PopIfNotMapRotationWrapper();
     return std::nullopt;
 }

@@ -60,7 +60,8 @@ protected:
     void updateWindowTitle()
     {
         app.window.getWindowContext().setTitle(
-            "Rend Level Editor" + (savePath.empty() ? "" : " - " + savePath)
+            "Rend Level Editor"
+            + (savePath.empty() ? "" : " - " + savePath.string())
             + (unsavedChanges ? " *" : ""));
     }
 
@@ -139,7 +140,7 @@ protected:
     mem::Rc<ErrorInfoDialogInterface> dialogErrorInfo;
 
     // Attributes
-    std::string savePath;
+    std::filesystem::path savePath;
     bool unsavedChanges = false;
     tgui::CanvasSFML::Ptr canvas;
     mem::Rc<CommandHistory> commandHistory;

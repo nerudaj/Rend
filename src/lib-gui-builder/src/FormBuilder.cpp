@@ -9,7 +9,27 @@ FormBuilder& FormBuilder::addOption(
     const std::string& labelText, tgui::Widget::Ptr widget, bool disabled)
 {
     widget->setEnabled(!disabled);
-    rowsToBuild.push_back({ labelText, widget });
+    rowsToBuild.push_back({ .label = labelText, .widget = widget });
+    return *this;
+}
+
+FormBuilder& FormBuilder::addOptionWithWidgetId(
+    const std::string& labelText,
+    tgui::Widget::Ptr widget,
+    const std::string widgetId)
+{
+    rowsToBuild.push_back(
+        { .label = labelText, .widget = widget, .widgetId = widgetId });
+    return *this;
+}
+
+FormBuilder& FormBuilder::addOptionWithSubmit(
+    const std::string& labelText,
+    tgui::Widget::Ptr widget,
+    tgui::Button::Ptr submitBtn)
+{
+    rowsToBuild.push_back(
+        { .label = labelText, .widget = widget, .submitBtn = submitBtn });
     return *this;
 }
 
@@ -23,7 +43,12 @@ tgui::Panel::Ptr FormBuilder::build(tgui::Color backgroundColor)
 
     for (auto&& [idx, props] : std::views::enumerate(rowsToBuild))
     {
-        auto&& row = WidgetBuilder::createOptionRow(props.label, props.widget);
+
+        auto&& row = props.submitBtn
+                         ? WidgetBuilder::createOptionRowWithSubmitButton(
+                             props.label, props.widget, props.submitBtn.value())
+                         : WidgetBuilder::createOptionRow(
+                             props.label, props.widget, props.widgetId);
         row->setPosition({ "0%", row->getSize().y * idx });
         panel->add(row);
     }

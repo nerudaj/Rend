@@ -89,6 +89,9 @@ void AppStateScoreTable::buildLayoutImpl()
             .withBackButton(WidgetBuilder::createButton(
                 Strings::AppState::MainMenu::BACK_TO_MENU,
                 [this] { app.popState(PopIfNotMainMenu::serialize()); }))
-            .withNoSubmitButton()
+            .withSubmitButton(WidgetBuilder::createButton(
+                Strings::AppState::MainMenu::NEXT_MAP,
+                [this]
+                { app.popState(PopIfNotMapRotationWrapper::serialize()); }))
             .build());
 }

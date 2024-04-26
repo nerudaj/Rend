@@ -137,7 +137,7 @@ void AppStateMenuOptions::buildDisplayOptionsLayout(FormBuilder& builder)
                     gui,
                     hudScaleFormatter,
                     1.f,
-                    2.f,
+                    4.f,
                     0.5f));
 }
 
