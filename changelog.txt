@@ -1,5 +1,8 @@
 Rend 0.x.x changelog:
 
+Gameplay:
+* Rockets are faster by 50%
+
 Accessibility & UX:
 * Sizes of all menu titles unified to Jumbo size
 * Added an option to scale HUD text

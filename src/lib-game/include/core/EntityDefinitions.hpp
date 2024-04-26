@@ -280,7 +280,7 @@ const static inline auto ENTITY_PROPERTIES =
         { EntityType::ProjectileRocket,
           EntityProperties {
               .radius = 2_px,
-              .speed = 100_unitspersec,
+              .speed = 150_unitspersec,
               .traits =
                   Trait::Projectile | Trait::Explosive | Trait::Directional,
               .explosionRadius = 16_px,
