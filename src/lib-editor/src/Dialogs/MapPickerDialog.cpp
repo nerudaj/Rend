@@ -15,7 +15,7 @@ void MapPickerDialog::buildLayoutImpl(tgui::Panel::Ptr panel)
 
     for (auto&& [idx, map] : std::views::enumerate(maps))
     {
-        builder.addOption(
+        std::ignore = builder.addOption(
             map.name,
             WidgetBuilder::createCheckbox(
                 map.enabled,

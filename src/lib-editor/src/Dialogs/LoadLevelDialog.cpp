@@ -5,6 +5,7 @@ import Resources;
 import FormBuilder;
 import WidgetBuilder;
 
+constexpr const char* SELECT_PACK_ID = "SelectPackId";
 constexpr const char* SELECT_LEVEL_ID = "SelectLevelId";
 
 LoadLevelDialog::LoadLevelDialog(
@@ -24,9 +25,10 @@ void LoadLevelDialog::buildLayoutImpl(tgui::Panel::Ptr panel)
 {
     // must be initialized each time a modal is opened
     mapPackNames = Filesystem::getLevelPackNames(levelsDir);
+    panel->setWidgetName(SELECT_LEVEL_ID + std::string("LayoutPanel"));
     panel->add(
         FormBuilder()
-            .addOption(
+            .addOptionWithWidgetId(
                 Strings::Dialog::Body::SELECT_PACK,
                 WidgetBuilder::createDropdown(
                     mapPackNames,
@@ -34,7 +36,8 @@ void LoadLevelDialog::buildLayoutImpl(tgui::Panel::Ptr panel)
                     std::bind(
                         &LoadLevelDialog::handleSelectedMapPack,
                         this,
-                        std::placeholders::_1)))
+                        std::placeholders::_1)),
+                SELECT_PACK_ID)
             .addOptionWithWidgetId(
                 Strings::Dialog::Body::SELECT_LEVEL,
                 WidgetBuilder::createDropdown(
