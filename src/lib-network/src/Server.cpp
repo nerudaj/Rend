@@ -3,9 +3,7 @@
 #include <nlohmann/json.hpp>
 #include <print>
 #include <stdexcept>
-
-import Server;
-import ServerMessage;
+#include "Server.hpp"
 
 Server::Server(ServerConfiguration config)
     : MAX_CLIENT_COUNT(config.maxClientCount)

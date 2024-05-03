@@ -6,8 +6,6 @@
 #include <core/Types.hpp>
 #include <utils/SemanticTypes.hpp>
 
-import Options;
-
 class SceneBuilder
 {
 public:

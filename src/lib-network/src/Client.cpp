@@ -1,10 +1,12 @@
+#include "Client.hpp"
+#include "ClientMessage.hpp"
+#include "LobbySettings.hpp"
+#include "ServerMessage.hpp"
+#include "ServerMessageType.hpp"
 #include <format>
 #include <nlohmann/json.hpp>
 #include <print>
 #include <stdexcept>
-
-import Client;
-import LobbySettings;
 
 Client::Client(const sf::IpAddress& address, unsigned short port)
     : remoteAddress(address), remotePort(port)

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "DisplayOptions.hpp"
 #include "core/Scene.hpp"
 #include "render/FpsCounter.hpp"
 #include "render/Raycaster.hpp"
@@ -7,7 +8,6 @@
 #include <LevelD.hpp>
 
 import Memory;
-import Options;
 
 struct ClippableTexture
 {

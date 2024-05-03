@@ -1,4 +1,5 @@
 #include "GuiBuilder.hpp"
+#include "LobbySettings.hpp"
 #include <Configs/Strings.hpp>
 #include <LevelD.hpp>
 #include <app/AppStateGameSetup.hpp>

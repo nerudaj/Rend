@@ -3,9 +3,6 @@
 #include "GuiState.hpp"
 #include "utils/DependencyContainer.hpp"
 
-import Options;
-import Input;
-
 class [[nodiscard]] AppStatePaused final
     : public dgm::AppState
     , public GuiState

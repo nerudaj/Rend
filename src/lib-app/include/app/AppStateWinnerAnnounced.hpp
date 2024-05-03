@@ -1,10 +1,8 @@
 #pragma once
 
 import Memory;
-import Options;
-import Audio;
-import Input;
 
+#include "GameSettings.hpp"
 #include "GuiState.hpp"
 #include "utils/DependencyContainer.hpp"
 #include <DGM/classes/AppState.hpp>

@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Client.hpp"
+#include "GameSettings.hpp"
 #include "engine/AiEngine.hpp"
 #include "engine/AnimationEngine.hpp"
 #include "engine/AudioEngine.hpp"
@@ -18,12 +20,8 @@
 #include <utils/RollbackManager.hpp>
 
 import AppMessage;
-import Audio;
 import CoreTypes;
-import Input;
 import Memory;
-import Network;
-import Options;
 
 class [[nodiscard]] AppStateIngame final : public dgm::AppState
 {

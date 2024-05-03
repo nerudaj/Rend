@@ -1,12 +1,11 @@
 #pragma once
 
-import AudioPlayer;
-
+#include "AudioPlayerInterface.hpp"
 #include <SFML/System/Vector2.hpp>
 #include <optional>
 #include <string>
 
-class AudioPlayerStub : public AudioPlayerInterface
+class [[nodiscard]] AudioPlayerStub final : public AudioPlayerInterface
 {
 public:
     void playSoundOnChannel(

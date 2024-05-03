@@ -1,12 +1,13 @@
 #pragma once
 
+#include "AppOptions.hpp"
+#include "AudioPlayer.hpp"
 #include "Gui.hpp"
+#include "Jukebox.hpp"
+#include "PhysicalController.hpp"
 #include <DGM/classes/ResourceManager.hpp>
 
-import Audio;
 import Memory;
-import Options;
-import Input;
 
 struct [[nodiscard]] DependencyContainer final
 {

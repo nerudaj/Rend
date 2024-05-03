@@ -1,12 +1,7 @@
 #pragma once
 
-import Memory;
-import Options;
-import Audio;
-import Input;
-import Network;
-import LobbySettings;
-
+#include "Client.hpp"
+#include "GameSettings.hpp"
 #include "GuiState.hpp"
 #include "utils/DependencyContainer.hpp"
 #include <Dialogs/MapPickerDialog.hpp>
@@ -14,6 +9,8 @@ import LobbySettings;
 #include <TGUI/TGUI.hpp>
 #include <dgm/classes/AppState.hpp>
 #include <dgm/classes/ResourceManager.hpp>
+
+import Memory;
 
 class [[nodiscard]] AppStateGameSetup final
     : public dgm::AppState

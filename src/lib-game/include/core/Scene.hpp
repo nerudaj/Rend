@@ -1,5 +1,6 @@
 #pragma once
 
+#include "utils/HudMessage.hpp"
 #include <DGM/dgm.hpp>
 #include <LevelTheme.hpp>
 #include <array>
@@ -15,7 +16,6 @@
 
 import Memory;
 import AiEnums;
-import HudMessage;
 
 struct HitscanResult
 {

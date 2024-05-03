@@ -1,5 +1,6 @@
 #include "Dialogs/ErrorInfoDialog.hpp"
 #include "Dialogs/YesNoCancelDialog.hpp"
+#include "Server.hpp"
 #include "Shortcuts/ShortcutEngine.hpp"
 #include <app/AppStateEditor.hpp>
 #include <app/AppStateGameSetup.hpp>

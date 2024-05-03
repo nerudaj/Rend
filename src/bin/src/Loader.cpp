@@ -3,10 +3,9 @@
 #pragma warning(push, 0)
 #include <SFML/Audio.hpp>
 #pragma warning(pop)
+#include "Playlist.hpp"
 #include <TGUI/TGUI.hpp>
 #include <nlohmann/json.hpp>
-
-import Playlist;
 
 // Takes std::expected and throws exception if it contains error
 #define THROW_ON_ERROR(expr)                                                   \

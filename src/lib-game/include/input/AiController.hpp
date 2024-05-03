@@ -1,6 +1,6 @@
 #pragma once
 
-import ControllerInterface;
+#include "ControllerInterface.hpp"
 
 class [[nodiscard]] AiController final : public ControllerInterface
 {
