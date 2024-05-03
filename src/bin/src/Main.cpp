@@ -11,6 +11,7 @@ import Audio;
 import Input;
 import Resources;
 import Error;
+import Gui;
 
 CmdParameters processCmdParameters(int argc, char* argv[])
 {
@@ -113,8 +114,23 @@ int main(int argc, char* argv[])
     window.getWindowContext().setFramerateLimit(60);
 
     dgm::App app(window);
-    auto&& gui = mem::Rc<tgui::Gui>();
-    gui->setTarget(window.getWindowContext());
+
+    auto&& gui = mem::Rc<Gui>();
+    gui->gui.setTarget(window.getWindowContext());
+
+    try
+    {
+        gui->theme->load((settings->cmdSettings.resourcesDir / "editor"
+                          / "TransparentGrey.txt")
+                             .string());
+        // tgui::Theme::setDefault(gui->theme);
+    }
+    catch (const std::exception& e)
+    {
+        std::cerr << std::format("error: Loading theme: {}\n", e.what());
+        throw;
+    }
+
     auto&& resmgr = mem::Rc<dgm::ResourceManager>();
 
     try
@@ -132,13 +148,15 @@ int main(int argc, char* argv[])
     auto&& jukebox =
         mem::Rc<Jukebox>(*resmgr, settings->cmdSettings.resourcesDir);
     jukebox->setVolume(settings->audio.musicVolume);
-    gui->setFont(resmgr->get<tgui::Font>("pico-8.ttf").value());
+    gui->gui.setFont(resmgr->get<tgui::Font>("pico-8.ttf").value());
 
     auto&& controller = mem::Rc<PhysicalController>(window.getWindowContext());
     controller->updateSettings(settings->input);
 
-    app.pushState<AppStateMainMenu>(
-        resmgr, gui, audioPlayer, jukebox, settings, controller);
+    auto&& dic = mem::Rc<DependencyContainer>(
+        audioPlayer, controller, gui, jukebox, resmgr, settings);
+
+    app.pushState<AppStateMainMenu>(dic);
     app.run();
 
     auto outWindowSettings = window.close();

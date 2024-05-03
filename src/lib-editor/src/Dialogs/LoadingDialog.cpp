@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Configs/Sizers.hpp>
 #include <Configs/Strings.hpp>
 #include <Dialogs/LoadingDialog.hpp>
 
@@ -9,7 +10,7 @@ void LoadingDialog::open(const std::string& text)
     modal->setSize("50%", "20%");
     modal->setPosition("25%", "40%");
     modal->setPositionLocked(true);
-    gui->addModal(modal, DIALOG_ID);
+    gui->add(modal, DIALOG_ID);
 
     auto label = tgui::Label::create(text);
     label->setSize({ "98%", "98%" });

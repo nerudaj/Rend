@@ -1,9 +1,9 @@
 #pragma once
 
-#include "Gui.hpp"
 #include "Interfaces/DialogInterfaces.hpp"
 
 import Memory;
+import Gui;
 
 class [[nodiscard]] LoadingDialog final
 {

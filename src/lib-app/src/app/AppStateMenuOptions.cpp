@@ -45,7 +45,7 @@ void AppStateMenuOptions::buildLayoutImpl()
     tabs->onTabSelect(
         [&](const tgui::String& tabname)
         {
-            auto panel = gui->get<tgui::Panel>("IdTabPanel");
+            auto panel = dic->gui->get<tgui::Panel>("IdTabPanel");
             panel->removeAllWidgets();
 
             auto&& builder = FormBuilder();
@@ -65,9 +65,9 @@ void AppStateMenuOptions::buildLayoutImpl()
         });
     basePanel->add(tabs);
 
-    gui->add(
+    dic->gui->add(
         LayoutBuilder::withBackgroundImage(
-            resmgr->get<sf::Texture>("menu_options.png").value().get())
+            dic->resmgr->get<sf::Texture>("menu_options.png").value().get())
             .withTitle(Strings::AppState::Options::TITLE, HeadingLevel::H1)
             .withContent(basePanel)
             .withBackButton(WidgetBuilder::createButton(
@@ -110,21 +110,21 @@ void AppStateMenuOptions::buildDisplayOptionsLayout(FormBuilder& builder)
             .addOption(
                 Strings::AppState::Options::USE_DITHERED_SHADES,
                 WidgetBuilder::createCheckbox(
-                    settings->display.useDitheredShadows,
+                    dic->settings->display.useDitheredShadows,
                     [this](bool value)
-                    { settings->display.useDitheredShadows = value; }))
+                    { dic->settings->display.useDitheredShadows = value; }))
             .addOption(
                 Strings::AppState::Options::SHOW_CROSSHAIR,
                 WidgetBuilder::createCheckbox(
-                    settings->display.showCrosshair,
+                    dic->settings->display.showCrosshair,
                     [this](bool value)
-                    { settings->display.showCrosshair = value; }))
+                    { dic->settings->display.showCrosshair = value; }))
             .addOption(
                 Strings::AppState::Options::FOV,
                 WidgetBuilder::createSlider(
-                    settings->display.fov,
-                    [this](float value) { settings->display.fov = value; },
-                    gui,
+                    dic->settings->display.fov,
+                    [this](float value) { dic->settings->display.fov = value; },
+                    dic->gui->gui,
                     fovFormatter,
                     0.6f,
                     1.2f,
@@ -132,9 +132,10 @@ void AppStateMenuOptions::buildDisplayOptionsLayout(FormBuilder& builder)
             .addOption(
                 Strings::AppState::Options::HUD_UI_SCALE,
                 WidgetBuilder::createSlider(
-                    settings->display.hudScale,
-                    [this](float value) { settings->display.hudScale = value; },
-                    gui,
+                    dic->settings->display.hudScale,
+                    [this](float value)
+                    { dic->settings->display.hudScale = value; },
+                    dic->gui->gui,
                     hudScaleFormatter,
                     1.f,
                     4.f,
@@ -146,31 +147,31 @@ void AppStateMenuOptions::buildAudioOptionsLayout(FormBuilder& builder)
     auto volumeFormatter = [](float vol)
     { return std::to_string(static_cast<int>(vol)); };
 
-    std::ignore =
-        builder
-            .addOption(
-                Strings::AppState::Options::SOUND_VOLUME,
-                WidgetBuilder::createSlider(
-                    settings->audio.soundVolume,
-                    [this](float value)
-                    {
-                        settings->audio.soundVolume = value;
-                        audioPlayer->setSoundVolume(
-                            settings->audio.soundVolume);
-                    },
-                    gui,
-                    volumeFormatter))
-            .addOption(
-                Strings::AppState::Options::MUSIC_VOLUME,
-                WidgetBuilder::createSlider(
-                    settings->audio.musicVolume,
-                    [this](float value)
-                    {
-                        settings->audio.musicVolume = value;
-                        jukebox->setVolume(settings->audio.musicVolume);
-                    },
-                    gui,
-                    volumeFormatter));
+    std::ignore = builder
+                      .addOption(
+                          Strings::AppState::Options::SOUND_VOLUME,
+                          WidgetBuilder::createSlider(
+                              dic->settings->audio.soundVolume,
+                              [this](float value)
+                              {
+                                  dic->settings->audio.soundVolume = value;
+                                  dic->audioPlayer->setSoundVolume(
+                                      dic->settings->audio.soundVolume);
+                              },
+                              dic->gui->gui,
+                              volumeFormatter))
+                      .addOption(
+                          Strings::AppState::Options::MUSIC_VOLUME,
+                          WidgetBuilder::createSlider(
+                              dic->settings->audio.musicVolume,
+                              [this](float value)
+                              {
+                                  dic->settings->audio.musicVolume = value;
+                                  dic->jukebox->setVolume(
+                                      dic->settings->audio.musicVolume);
+                              },
+                              dic->gui->gui,
+                              volumeFormatter));
 }
 
 void AppStateMenuOptions::buildInputOptionsLayout(FormBuilder& builder)
@@ -187,10 +188,10 @@ void AppStateMenuOptions::buildInputOptionsLayout(FormBuilder& builder)
             .addOption(
                 Strings::AppState::Options::MOUSE_SENSITIVITY,
                 WidgetBuilder::createSlider(
-                    settings->input.mouseSensitivity,
+                    dic->settings->input.mouseSensitivity,
                     [this](float value)
-                    { settings->input.mouseSensitivity = value; },
-                    gui,
+                    { dic->settings->input.mouseSensitivity = value; },
+                    dic->gui->gui,
                     sensitivityFormatter,
                     1.f,
                     50.f,
@@ -198,9 +199,10 @@ void AppStateMenuOptions::buildInputOptionsLayout(FormBuilder& builder)
             .addOption(
                 Strings::AppState::Options::TURN_SENSITIVITY,
                 WidgetBuilder::createSlider(
-                    settings->input.turnSpeed,
-                    [this](float value) { settings->input.turnSpeed = value; },
-                    gui,
+                    dic->settings->input.turnSpeed,
+                    [this](float value)
+                    { dic->settings->input.turnSpeed = value; },
+                    dic->gui->gui,
                     turnSpeedFormatter,
                     0.1f,
                     5.f,
@@ -208,10 +210,10 @@ void AppStateMenuOptions::buildInputOptionsLayout(FormBuilder& builder)
             .addOption(
                 Strings::AppState::Options::GAMEPAD_DEADZONE,
                 WidgetBuilder::createSlider(
-                    settings->input.gamepadDeadzone,
+                    dic->settings->input.gamepadDeadzone,
                     [this](float value)
-                    { settings->input.gamepadDeadzone = value; },
-                    gui,
+                    { dic->settings->input.gamepadDeadzone = value; },
+                    dic->gui->gui,
                     deadzoneFormatter,
                     0.f,
                     1.f,
@@ -219,9 +221,9 @@ void AppStateMenuOptions::buildInputOptionsLayout(FormBuilder& builder)
             .addOption(
                 Strings::AppState::Options::SWAP_ON_PICKUP,
                 WidgetBuilder::createCheckbox(
-                    settings->input.autoswapOnPickup,
+                    dic->settings->input.autoswapOnPickup,
                     [this](bool value)
-                    { settings->input.autoswapOnPickup = value; }),
+                    { dic->settings->input.autoswapOnPickup = value; }),
                 enteredFromGame);
 }
 
@@ -230,8 +232,8 @@ void AppStateMenuOptions::input()
     sf::Event event;
     while (app.window.pollEvent(event))
     {
-        gui->handleEvent(event);
+        dic->gui->gui.handleEvent(event);
     }
 
-    controller->update();
+    dic->controller->update();
 }

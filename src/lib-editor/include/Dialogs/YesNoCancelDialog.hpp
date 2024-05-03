@@ -1,9 +1,10 @@
 #pragma once
 
-#include "Gui.hpp"
 #include "Interfaces/DialogInterfaces.hpp"
 
-class YesNoCancelDialog : public YesNoCancelDialogInterface
+import Gui;
+
+class [[nodiscard]] YesNoCancelDialog final : public YesNoCancelDialogInterface
 {
     mem::Rc<Gui> gui;
     const std::string DIALOG_ID = "YesNoCancelDialog";
@@ -14,5 +15,5 @@ public:
         const std::string& text,
         std::function<void(UserChoice)> completedCallback) override;
 
-    YesNoCancelDialog(mem::Rc<Gui> gui) : gui(gui) {};
+    explicit YesNoCancelDialog(mem::Rc<Gui> gui) : gui(gui) {};
 };

@@ -16,7 +16,7 @@ void DialogInterface::open(std::function<void()> confirmCallback)
     modal->setPosition("35%", "25%");
     modal->onEscapeKeyPress([this](auto) { close(); });
     modal->onClose([this] { close(); });
-    gui->addModal(modal, DIALOG_ID);
+    gui->add(modal, DIALOG_ID);
 
     constexpr auto ROW_HEIGHT = 6_upercent;
     constexpr auto ROW_HEIGHT_STR = "6%";
@@ -196,11 +196,11 @@ void ModernDialogInterface::buildLayout(std::function<void()> confirmCallback)
     modal->setPosition("35%", "25%");
     modal->onEscapeKeyPress([this](auto) { close(); });
     modal->onClose([this] { close(); });
-    gui->addModal(modal, DIALOG_ID);
+    gui->add(modal, DIALOG_ID);
 
     auto panel = tgui::Panel::create({ "90%", "85%" });
     panel->setPosition({ "5%", "5%" });
-    panel->setRenderer(gui->theme.getRenderer("Panel"));
+    panel->setRenderer(gui->theme->getRenderer("Panel"));
     modal->add(panel);
 
     buildBottomButtons(modal, confirmCallback);

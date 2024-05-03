@@ -1,7 +1,8 @@
 #pragma once
 
 #include "DialogBase.hpp"
-#include "Gui.hpp"
+
+import Gui;
 
 class ResizeDialog final : public DialogInterface
 {

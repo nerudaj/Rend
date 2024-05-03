@@ -10,18 +10,14 @@ import Memory;
 import Network;
 import Input;
 import Options;
+import DependencyContainer;
 
 class [[nodiscard]] AppStateMapRotationWrapper final : public dgm::AppState
 {
 public:
     AppStateMapRotationWrapper(
         dgm::App& app,
-        mem::Rc<const dgm::ResourceManager> resmgr,
-        mem::Rc<tgui::Gui> gui,
-        mem::Rc<AppOptions> settings,
-        mem::Rc<AudioPlayer> audioPlayer,
-        mem::Rc<Jukebox> jukebox,
-        mem::Rc<PhysicalController> controller,
+        mem::Rc<DependencyContainer> dic,
         mem::Rc<Client> client,
         GameOptions gameSettings,
         const std::string& mapPackName,
@@ -39,12 +35,7 @@ private:
     std::optional<AppMessage> handleAppMessage(const AppMessage& message);
 
 private:
-    mem::Rc<const dgm::ResourceManager> resmgr;
-    mem::Rc<tgui::Gui> gui;
-    mem::Rc<AppOptions> settings;
-    mem::Rc<AudioPlayer> audioPlayer;
-    mem::Rc<Jukebox> jukebox;
-    mem::Rc<PhysicalController> controller;
+    mem::Rc<DependencyContainer> dic;
     mem::Rc<Client> client;
     GameOptions gameSettings;
     std::string mapPackName;

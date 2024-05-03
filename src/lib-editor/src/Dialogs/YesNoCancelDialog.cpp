@@ -1,5 +1,6 @@
 #include "Dialogs/YesNoCancelDialog.hpp"
 #include "Globals.hpp"
+#include <Configs/Sizers.hpp>
 #include <array>
 #include <utility>
 
@@ -20,7 +21,7 @@ void YesNoCancelDialog::open(
     modal->setPositionLocked(true);
     modal->onEscapeKeyPress(cancelDialog);
     modal->onClose(cancelDialog);
-    gui->addModal(modal, DIALOG_ID);
+    gui->add(modal, DIALOG_ID);
 
     auto label = tgui::Label::create(text);
     label->setSize({ "98%", "80%" });

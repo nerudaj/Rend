@@ -1,8 +1,10 @@
 #pragma once
 
-#include "Gui.hpp"
+#include <TGUI/Backend/SFML-Graphics.hpp>
+#include <TGUI/Tgui.hpp>
 
 import Memory;
+import Gui;
 
 class SidebarUserInterface
 {

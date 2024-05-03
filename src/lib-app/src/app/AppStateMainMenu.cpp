@@ -10,50 +10,36 @@ import GuiBuilder;
 
 void AppStateMainMenu::buildLayoutImpl()
 {
-    gui->add(LayoutBuilder::withBackgroundImage(
-                 resmgr->get<sf::Texture>("menu_title.png").value().get())
-                 .withTitle("rend", HeadingLevel::H1)
-                 .withContent(ButtonListBuilder()
-                                  .addButton(
-                                      Strings::AppState::MainMenu::PLAY,
-                                      [this] { goToGameSetup(); })
-                                  .addButton(
-                                      Strings::AppState::MainMenu::EDITOR,
-                                      [this]
-                                      {
-                                          app.pushState<AppStateServerWrapper>(
-                                              resmgr,
-                                              gui,
-                                              settings,
-                                              audioPlayer,
-                                              jukebox,
-                                              controller,
-                                              ServerWrapperTarget::Editor);
-                                      })
-                                  .addButton(
-                                      Strings::AppState::MainMenu::OPTIONS,
-                                      [this]
-                                      {
-                                          app.pushState<AppStateMenuOptions>(
-                                              gui,
-                                              resmgr,
-                                              audioPlayer,
-                                              jukebox,
-                                              settings,
-                                              controller);
-                                      })
-                                  .addButton(
-                                      Strings::AppState::MainMenu::EXIT,
-                                      [this] { app.exit(); })
-                                  .build())
-                 .withNoBackButton()
-                 .withNoSubmitButton()
-                 .build());
+    dic->gui->add(
+        LayoutBuilder::withBackgroundImage(
+            dic->resmgr->get<sf::Texture>("menu_title.png").value().get())
+            .withTitle("rend", HeadingLevel::H1)
+            .withContent(ButtonListBuilder()
+                             .addButton(
+                                 Strings::AppState::MainMenu::PLAY,
+                                 [this] { goToGameSetup(); })
+                             .addButton(
+                                 Strings::AppState::MainMenu::EDITOR,
+                                 [this] {
+                                     app.pushState<AppStateServerWrapper>(
+                                         dic, ServerWrapperTarget::Editor);
+                                 })
+                             .addButton(
+                                 Strings::AppState::MainMenu::OPTIONS,
+                                 [this]
+                                 { app.pushState<AppStateMenuOptions>(dic); })
+                             .addButton(
+                                 Strings::AppState::MainMenu::EXIT,
+                                 [this] { app.exit(); })
+                             .build())
+            .withNoBackButton()
+            .withNoSubmitButton()
+            .build());
 }
 
 void AppStateMainMenu::input()
 {
-    if (settings->cmdSettings.skipMainMenu)
+    if (dic->settings->cmdSettings.skipMainMenu)
     {
         goToGameSetup();
     }
@@ -63,20 +49,13 @@ void AppStateMainMenu::input()
     {
         if (event.type == sf::Event::Closed) app.exit();
 
-        gui->handleEvent(event);
+        dic->gui->gui.handleEvent(event);
     }
 
-    controller->update();
+    dic->controller->update();
 }
 
 void AppStateMainMenu::goToGameSetup()
 {
-    app.pushState<AppStateServerWrapper>(
-        resmgr,
-        gui,
-        settings,
-        audioPlayer,
-        jukebox,
-        controller,
-        ServerWrapperTarget::GameSetup);
+    app.pushState<AppStateServerWrapper>(dic, ServerWrapperTarget::GameSetup);
 }

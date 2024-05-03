@@ -14,42 +14,29 @@ import Audio;
 
 AppStateEditor::AppStateEditor(
     dgm::App& app,
-    mem::Rc<tgui::Gui> nativeGui,
-    mem::Rc<Gui> gui,
-    mem::Rc<const dgm::ResourceManager> resmgr,
-    mem::Rc<AppOptions> settings,
-    mem::Rc<AudioPlayer> audioPlayer,
-    mem::Rc<Jukebox> jukebox,
-    mem::Rc<PhysicalController> controller,
+    mem::Rc<DependencyContainer> dic,
     mem::Rc<ShortcutEngineInterface> shortcutEngine,
     mem::Rc<YesNoCancelDialogInterface> dialogConfirmExit,
     mem::Rc<ErrorInfoDialogInterface> dialogErrorInfo)
     : dgm::AppState(app)
-    , nativeGui(nativeGui)
-    , gui(gui)
-    , resmgr(resmgr)
-    , settings(settings)
-    , audioPlayer(audioPlayer)
-    , jukebox(jukebox)
-    , controller(controller)
+    , dic(dic)
     , shortcutEngine(shortcutEngine)
     , dialogConfirmExit(dialogConfirmExit)
     , dialogErrorInfo(dialogErrorInfo)
     , editor(mem::Box<NullEditor>())
-    , dialogNewLevel(gui)
-    , dialogLoadLevel(gui, settings->cmdSettings.resourcesDir)
+    , dialogNewLevel(dic->gui)
+    , dialogLoadLevel(dic->gui, dic->settings->cmdSettings.resourcesDir)
     , dialogSaveLevel(
-          gui, Filesystem::getLevelsDir(settings->cmdSettings.resourcesDir))
-    , dialogLoading(gui)
+          dic->gui,
+          Filesystem::getLevelsDir(dic->settings->cmdSettings.resourcesDir))
+    , dialogLoading(dic->gui)
 {
-    jukebox->stop();
+    dic->jukebox->stop();
 
     try
     {
-        gui->theme.load(
-            (settings->cmdSettings.resourcesDir / "editor/TransparentGrey.txt")
-                .string());
-        setupFont();
+        dic->gui->gui.setFont(
+            dic->resmgr->get<tgui::Font>("cruft.ttf").value().get());
     }
     catch (std::exception& e)
     {
@@ -57,17 +44,15 @@ AppStateEditor::AppStateEditor(
         throw;
     }
 
-    // Setup resources
-    gui->gui.setTarget(app.window.getWindowContext());
-
     buildLayout();
 
     updateWindowTitle();
 }
 
-void AppStateEditor::setupFont()
+AppStateEditor::~AppStateEditor()
 {
-    gui->gui.setFont(resmgr->get<tgui::Font>("cruft.ttf").value().get());
+    dic->gui->gui.setFont(
+        dic->resmgr->get<tgui::Font>("pico-8.ttf").value().get());
 }
 
 mem::Box<Editor>
@@ -133,7 +118,7 @@ void AppStateEditor::input()
 
         try
         {
-            gui->gui.handleEvent(event);
+            dic->gui->gui.handleEvent(event);
             editor->handleEvent(event, mousePos);
             shortcutEngine->handleEvent(event);
         }
@@ -174,10 +159,8 @@ void AppStateEditor::draw()
     canvas->display();
 
     // Whole window
-    gui->gui.draw();
+    dic->gui->draw();
 }
-
-AppStateEditor::~AppStateEditor() {}
 
 void AppStateEditor::buildLayout()
 {
@@ -205,7 +188,7 @@ AppStateEditor::AllowExecutionToken AppStateEditor::buildCanvasLayout(
     canvas->setSize(
         ("100% - " + SIDEBAR_WIDTH).c_str(), SIDEBAR_HEIGHT.c_str());
     canvas->setPosition(0.f, TOPBAR_HEIGHT.c_str());
-    gui->gui.add(canvas, "TilesetCanvas");
+    dic->gui->add(canvas, "TilesetCanvas");
     return AllowExecutionToken();
 }
 
@@ -216,7 +199,7 @@ tgui::MenuBar::Ptr AppStateEditor::buildMenuBarLayout(
 {
     auto menu = tgui::MenuBar::create();
     menu->setTextSize(TOPBAR_FONT_HEIGHT);
-    menu->setRenderer(gui->theme.getRenderer("MenuBar"));
+    menu->setRenderer(dic->gui->theme->getRenderer("MenuBar"));
     menu->setSize("100%", TOPBAR_HEIGHT.c_str());
     menu->addMenu(Strings::AppState::CTX_MENU_NAME);
 
@@ -256,7 +239,7 @@ tgui::MenuBar::Ptr AppStateEditor::buildMenuBarLayout(
         REDO, [this] { handleRedo(); }, sf::Keyboard::Y);
     addFileMenuItem(EXIT, [this] { handleExit(*dialogConfirmExit, false); });
 
-    gui->gui.add(menu, "TopMenuBar");
+    dic->gui->gui.add(menu, "TopMenuBar");
 
     return menu;
 }
@@ -272,7 +255,7 @@ void AppStateEditor::buildSidebarLayout(
     sidebar->setSize(SIDEBAR_WIDTH.c_str(), SIDEBAR_HEIGHT.c_str());
     sidebar->setPosition(
         ("100% - " + SIDEBAR_WIDTH).c_str(), TOPBAR_HEIGHT.c_str());
-    gui->gui.add(sidebar, "Sidebar");
+    dic->gui->add(sidebar, "Sidebar");
 }
 
 void AppStateEditor::newLevelDialogCallback()
@@ -301,7 +284,7 @@ void AppStateEditor::handleLoadLevel()
         [this]
         {
             loadLevel(Filesystem::getFullLevelPath(
-                          settings->cmdSettings.resourcesDir,
+                          dic->settings->cmdSettings.resourcesDir,
                           dialogLoadLevel.getMapPackName(),
                           dialogLoadLevel.getLevelName())
                           .string());
@@ -343,7 +326,7 @@ void AppStateEditor::handleSaveLevel(bool forceNewPath) noexcept
             [&]
             {
                 savePath = Filesystem::getFullLevelPath(
-                               settings->cmdSettings.resourcesDir,
+                               dic->settings->cmdSettings.resourcesDir,
                                dialogSaveLevel.getMapPackName(),
                                dialogSaveLevel.getLevelName())
                                .string();
@@ -387,7 +370,7 @@ void AppStateEditor::saveLevel()
 void AppStateEditor::handlePlayLevelWrapper(bool useBot)
 {
     dialogLoading.open(Strings::Dialog::Message::COMPUTING_DISTANCE_INDEX);
-    delayedActions.push([this, useBot]() { handlePlayLevel(useBot); });
+    delayedActions.push([this, useBot] { handlePlayLevel(useBot); });
     delayActionsForNumFrames = 1;
 }
 
@@ -421,16 +404,7 @@ void AppStateEditor::handlePlayLevel(bool useBot)
     client->readIncomingPackets([](auto) {});
 
     app.pushState<AppStateIngame>(
-        resmgr,
-        nativeGui,
-        settings,
-        audioPlayer,
-        jukebox,
-        controller,
-        client,
-        gameSettings,
-        lvd,
-        "launchedFromEditor"_true);
+        dic, client, gameSettings, lvd, "launchedFromEditor"_true);
 }
 
 void AppStateEditor::handleUndo()

@@ -30,44 +30,34 @@
 
 AppStateIngame::AppStateIngame(
     dgm::App& _app,
-    mem::Rc<const dgm::ResourceManager> _resmgr,
-    mem::Rc<tgui::Gui> _gui,
-    mem::Rc<AppOptions> _settings,
-    mem::Rc<AudioPlayer> _audioPlayer,
-    mem::Rc<Jukebox> _jukebox,
-    mem::Rc<PhysicalController> _controller,
+    mem::Rc<DependencyContainer> _dic,
     mem::Rc<Client> _client,
     GameOptions gameSettings,
     const LevelD& level,
     bool launchedFromEditor)
     : dgm::AppState(_app)
-    , resmgr(_resmgr)
-    , gui(_gui)
-    , settings(_settings)
+    , dic(_dic)
     , gameSettings(gameSettings)
-    , audioPlayer(_audioPlayer)
-    , jukebox(_jukebox)
-    , controller(_controller)
     , client(_client)
     , launchedFromEditor(launchedFromEditor)
-    , inputs(createInputs(_controller, gameSettings))
+    , inputs(createInputs(dic->controller, gameSettings))
     , scene(SceneBuilder::buildScene(level, gameSettings.players.size()))
     , eventQueue()
     , gameLoop(createGameLoop())
     , demoFileHandler(
-          settings->cmdSettings.demoFile,
-          settings->cmdSettings.playDemo ? DemoFileMode::Read
-                                         : DemoFileMode::Write)
+          dic->settings->cmdSettings.demoFile,
+          dic->settings->cmdSettings.playDemo ? DemoFileMode::Read
+                                              : DemoFileMode::Write)
     , camera(
           sf::FloatRect(0.f, 0.f, 1.f, 1.f),
           sf::Vector2f(sf::Vector2u(
-              settings->display.resolution.width,
-              settings->display.resolution.height)))
+              dic->settings->display.resolution.width,
+              dic->settings->display.resolution.height)))
 {
     app.window.getWindowContext().setFramerateLimit(60);
     lockMouse();
     createPlayers();
-    jukebox->playIngameSong();
+    dic->jukebox->playIngameSong();
     client->sendMapReadySignal();
 }
 
@@ -94,18 +84,17 @@ void AppStateIngame::input()
         {
             lockMouse();
         }
-        else if (controller->isEscapePressed())
+        else if (dic->controller->isEscapePressed())
         {
             if (launchedFromEditor)
                 app.popState();
             else
             {
                 unlockMouse();
-                app.pushState<AppStatePaused>(
-                    gui, resmgr, audioPlayer, jukebox, controller, settings);
+                app.pushState<AppStatePaused>(dic);
             }
         }
-        else if (controller->shouldTakeScreenshot())
+        else if (dic->controller->shouldTakeScreenshot())
         {
             const auto&& succeeded =
                 app.window.getScreenshot().saveToFile(std::format(
@@ -115,7 +104,7 @@ void AppStateIngame::input()
         }
     }
 
-    controller->update();
+    dic->controller->update();
 }
 
 void AppStateIngame::update()
@@ -236,11 +225,7 @@ void AppStateIngame::evaluateWinCondition()
         {
             unlockMouse();
             app.pushState<AppStateWinnerAnnounced>(
-                resmgr,
-                gui,
-                audioPlayer,
-                jukebox,
-                controller,
+                dic,
                 gameSettings,
                 scene.playerStates
                     | std::views::transform([](const PlayerState& state)
@@ -297,7 +282,7 @@ void AppStateIngame::createPlayers()
         else if (gameSettings.players[idx].kind == PlayerKind::LocalHuman)
         {
             scene.playerStates.back().autoswapOnPickup =
-                settings->input.autoswapOnPickup;
+                dic->settings->input.autoswapOnPickup;
         }
     }
 }
@@ -307,10 +292,10 @@ void AppStateIngame::propagateSettings()
     camera = mem::Box<dgm::Camera>(
         sf::FloatRect(0.f, 0.f, 1.f, 1.f),
         sf::Vector2f(sf::Vector2u(
-            settings->display.resolution.width,
-            settings->display.resolution.height)));
+            dic->settings->display.resolution.width,
+            dic->settings->display.resolution.height)));
 
-    controller->updateSettings(settings->input);
+    dic->controller->updateSettings(dic->settings->input);
 
     gameLoop = createGameLoop();
 }
@@ -320,11 +305,11 @@ mem::Box<GameLoop> AppStateIngame::createGameLoop()
     return mem::Box<GameLoop>(
         scene,
         eventQueue,
-        resmgr,
-        audioPlayer,
+        dic->resmgr,
+        dic->audioPlayer,
         gameSettings.players
             | std::views::transform([](const PlayerOptions& opts)
                                     { return opts.name; })
             | std::ranges::to<std::vector>(),
-        settings->display);
+        dic->settings->display);
 }

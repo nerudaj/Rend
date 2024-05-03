@@ -6,6 +6,7 @@ import Audio;
 import Input;
 import Network;
 import LobbySettings;
+import DependencyContainer;
 
 #include "GuiState.hpp"
 #include <Dialogs/MapPickerDialog.hpp>
@@ -19,14 +20,7 @@ class [[nodiscard]] AppStateGameSetup final
     , public GuiState
 {
 public:
-    AppStateGameSetup(
-        dgm::App& app,
-        mem::Rc<const dgm::ResourceManager> resmgr,
-        mem::Rc<tgui::Gui> gui,
-        mem::Rc<AppOptions> settings,
-        mem::Rc<AudioPlayer> audioPlayer,
-        mem::Rc<Jukebox> jukebox,
-        mem::Rc<PhysicalController> controller) noexcept;
+    AppStateGameSetup(dgm::App& app, mem::Rc<DependencyContainer> dic) noexcept;
 
 public:
     void input() override;
@@ -35,8 +29,7 @@ public:
 
     void draw() override
     {
-        gui->draw();
-        guiWithModals->gui.draw();
+        dic->gui->draw();
     }
 
 private:
@@ -65,16 +58,8 @@ private:
     void handleMapRotationUpdate();
 
 private:
-    mem::Rc<const dgm::ResourceManager> resmgr;
-    mem::Rc<tgui::Gui> gui;
-    mem::Rc<Gui> guiWithModals;
-    mem::Rc<AppOptions> settings;
-    mem::Rc<AudioPlayer> audioPlayer;
-    mem::Rc<Jukebox> jukebox;
-    mem::Rc<PhysicalController> controller;
     mem::Rc<Client> client;
     LobbySettings lobbySettings;
     std::vector<std::string> mapPackNames;
-    mem::Box<MapPickerDialog> mapPickerDialog = mem::Box<MapPickerDialog>(
-        guiWithModals, std::vector<MapSettingsForPicker> {});
+    mem::Box<MapPickerDialog> mapPickerDialog;
 };

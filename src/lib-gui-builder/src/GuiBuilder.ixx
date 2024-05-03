@@ -5,3 +5,4 @@ export import LayoutBuilder;
 export import FormBuilder;
 export import ButtonListBuilder;
 export import TguiHelper;
+export import Gui;

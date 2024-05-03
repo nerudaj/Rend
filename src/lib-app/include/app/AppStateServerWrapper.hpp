@@ -10,6 +10,7 @@ import Network;
 import Input;
 import Options;
 import AppMessage;
+import DependencyContainer;
 
 enum class [[nodiscard]] ServerWrapperTarget
 {
@@ -22,12 +23,7 @@ class [[nodiscard]] AppStateServerWrapper final : public dgm::AppState
 public:
     AppStateServerWrapper(
         dgm::App& app,
-        mem::Rc<const dgm::ResourceManager> resmgr,
-        mem::Rc<tgui::Gui> gui,
-        mem::Rc<AppOptions> settings,
-        mem::Rc<AudioPlayer> audioPlayer,
-        mem::Rc<Jukebox> jukebox,
-        mem::Rc<PhysicalController> controller,
+        mem::Rc<DependencyContainer> dic,
         ServerWrapperTarget target);
 
     ~AppStateServerWrapper();
@@ -46,12 +42,7 @@ private:
     void restoreFocusImpl(const std::string& message);
 
 private:
-    mem::Rc<const dgm::ResourceManager> resmgr;
-    mem::Rc<tgui::Gui> gui;
-    mem::Rc<AppOptions> settings;
-    mem::Rc<AudioPlayer> audioPlayer;
-    mem::Rc<Jukebox> jukebox;
-    mem::Rc<PhysicalController> controller;
+    mem::Rc<DependencyContainer> dic;
     std::atomic_bool serverEnabled;
     std::thread serverThread;
 };

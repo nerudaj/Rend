@@ -4,6 +4,7 @@ import Memory;
 import Options;
 import Audio;
 import Input;
+import DependencyContainer;
 
 #include "GuiState.hpp"
 #include <vector>
@@ -13,24 +14,13 @@ class [[nodiscard]] AppStateMainMenu final
     , public GuiState
 {
 public:
-    AppStateMainMenu(
-        dgm::App& app,
-        mem::Rc<const dgm::ResourceManager> resmgr,
-        mem::Rc<tgui::Gui> gui,
-        mem::Rc<AudioPlayer> audioPlayer,
-        mem::Rc<Jukebox> jukebox,
-        mem::Rc<AppOptions> settings,
-        mem::Rc<PhysicalController> controller)
+    AppStateMainMenu(dgm::App& app, mem::Rc<DependencyContainer> dic)
         : dgm::AppState(
             app, dgm::AppStateConfig { .clearColor = sf::Color::White })
-        , GuiState(gui, audioPlayer)
-        , resmgr(resmgr)
-        , jukebox(jukebox)
-        , settings(settings)
-        , controller(controller)
+        , GuiState(dic)
     {
         buildLayout();
-        jukebox->playTitleSong();
+        dic->jukebox->playTitleSong();
     }
 
 public:
@@ -40,7 +30,7 @@ public:
 
     void draw() override
     {
-        gui->draw();
+        dic->gui->draw();
     }
 
 private:
@@ -52,12 +42,6 @@ private:
     {
         app.window.getWindowContext().setTitle("Rend");
         GuiState::restoreFocus(app.window.getWindowContext());
-        jukebox->playTitleSong();
+        dic->jukebox->playTitleSong();
     }
-
-private:
-    mem::Rc<const dgm::ResourceManager> resmgr;
-    mem::Rc<Jukebox> jukebox;
-    mem::Rc<AppOptions> settings;
-    mem::Rc<PhysicalController> controller;
 };

@@ -4,6 +4,7 @@ import Memory;
 import Options;
 import Audio;
 import Input;
+import DependencyContainer;
 
 #include "GuiState.hpp"
 #include <DGM/classes/AppState.hpp>
@@ -18,25 +19,17 @@ class [[nodiscard]] AppStateScoreTable final
 public:
     AppStateScoreTable(
         dgm::App& app,
-        mem::Rc<const dgm::ResourceManager> resmgr,
-        mem::Rc<tgui::Gui> gui,
-        mem::Rc<AudioPlayer> audioPlayer,
-        mem::Rc<Jukebox> jukebox,
-        mem::Rc<PhysicalController> controller,
+        mem::Rc<DependencyContainer> dic,
         const GameOptions& gameSettings,
         dgm::UniversalReference<std::vector<int>> auto&& scores)
         : dgm::AppState(
             app, dgm::AppStateConfig { .clearColor = sf::Color::White })
-        , GuiState(gui, audioPlayer)
-        , resmgr(resmgr)
-        , gui(gui)
-        , jukebox(jukebox)
-        , controller(controller)
+        , GuiState(dic)
         , gameSettings(gameSettings)
         , scores(std::forward<decltype(scores)>(scores))
     {
         buildLayout();
-        jukebox->playInterludeSong();
+        dic->jukebox->playInterludeSong();
     }
 
 public:
@@ -46,17 +39,13 @@ public:
 
     void draw() override
     {
-        gui->draw();
+        dic->gui->draw();
     }
 
 private:
     void buildLayoutImpl() override;
 
 private:
-    mem::Rc<const dgm::ResourceManager> resmgr;
-    mem::Rc<tgui::Gui> gui;
-    mem::Rc<Jukebox> jukebox;
-    mem::Rc<PhysicalController> controller;
     GameOptions gameSettings;
     std::vector<int> scores;
     float transitionTimeout = 4.f; // seconds

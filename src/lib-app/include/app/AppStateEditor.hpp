@@ -8,7 +8,6 @@
 #include "Dialogs/NewLevelDialog.hpp"
 #include "Dialogs/SaveLevelDialog.hpp"
 #include "Editor/Editor.hpp"
-#include "Gui.hpp"
 #include "Interfaces/DialogInterfaces.hpp"
 #include "Interfaces/EditorInterface.hpp"
 #include "Interfaces/PlaytestLauncherInterface.hpp"
@@ -26,19 +25,14 @@ import Options;
 import Audio;
 import Input;
 import Network;
+import DependencyContainer;
 
 class [[nodiscard]] AppStateEditor final : public dgm::AppState
 {
 public:
     AppStateEditor(
         dgm::App& app,
-        mem::Rc<tgui::Gui> nativeGui,
-        mem::Rc<Gui> gui,
-        mem::Rc<const dgm::ResourceManager> resmgr,
-        mem::Rc<AppOptions> settings,
-        mem::Rc<AudioPlayer> audioPlayer,
-        mem::Rc<Jukebox> jukebox,
-        mem::Rc<PhysicalController> controller,
+        mem::Rc<DependencyContainer> dic,
         mem::Rc<ShortcutEngineInterface> shortcutEngine,
         mem::Rc<YesNoCancelDialogInterface> dialogConfirmExit,
         mem::Rc<ErrorInfoDialogInterface> dialogErrorInfo);
@@ -53,7 +47,7 @@ public:
 protected:
     virtual void restoreFocusImpl(const std::string&)
     {
-        jukebox->stop();
+        dic->jukebox->stop();
         dialogLoading.close();
     }
 
@@ -109,32 +103,24 @@ protected: // Callback handlers
     void handleExit(YesNoCancelDialogInterface& dialoConfirmExit, bool exitApp);
 
 protected:
-    void setupFont();
-
     [[nodiscard]] mem::Box<Editor>
     startEditor(unsigned levelWidth, unsigned levelHeight);
 
     [[nodiscard]] mem::Box<Editor> startEditor(const LevelD& level)
     {
         return mem::Box<Editor>(
-            gui,
+            dic->gui,
             canvas,
             onStateChanged,
             commandQueue,
             shortcutEngine,
             levelMetadata,
             level,
-            settings->cmdSettings.resourcesDir / "graphics");
+            dic->settings->cmdSettings.resourcesDir / "graphics");
     }
 
 protected:
-    mem::Rc<tgui::Gui> nativeGui;
-    mem::Rc<Gui> gui;
-    mem::Rc<const dgm::ResourceManager> resmgr;
-    mem::Rc<AppOptions> settings;
-    mem::Rc<AudioPlayer> audioPlayer;
-    mem::Rc<Jukebox> jukebox;
-    mem::Rc<PhysicalController> controller;
+    mem::Rc<DependencyContainer> dic;
     mem::Rc<ShortcutEngineInterface> shortcutEngine;
     mem::Rc<YesNoCancelDialogInterface> dialogConfirmExit;
     mem::Rc<ErrorInfoDialogInterface> dialogErrorInfo;

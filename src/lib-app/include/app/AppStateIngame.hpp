@@ -23,18 +23,14 @@ import Input;
 import Memory;
 import Network;
 import Options;
+import DependencyContainer;
 
 class [[nodiscard]] AppStateIngame final : public dgm::AppState
 {
 public:
     AppStateIngame(
         dgm::App& app,
-        mem::Rc<const dgm::ResourceManager> resmgr,
-        mem::Rc<tgui::Gui> gui,
-        mem::Rc<AppOptions> settings,
-        mem::Rc<AudioPlayer> audioPlayer,
-        mem::Rc<Jukebox> jukebox,
-        mem::Rc<PhysicalController> controller,
+        mem::Rc<DependencyContainer> dic,
         mem::Rc<Client> client,
         GameOptions gameSettings,
         const LevelD& level,
@@ -102,13 +98,8 @@ private:
     mem::Box<GameLoop> createGameLoop();
 
 protected:
-    mem::Rc<const dgm::ResourceManager> resmgr;
-    mem::Rc<tgui::Gui> gui;
-    mem::Rc<AppOptions> settings;
+    mem::Rc<DependencyContainer> dic;
     GameOptions gameSettings;
-    mem::Rc<AudioPlayer> audioPlayer;
-    mem::Rc<Jukebox> jukebox;
-    mem::Rc<PhysicalController> controller;
     mem::Rc<Client> client;
     mem::Rc<EventQueue> eventQueue;
     bool launchedFromEditor;

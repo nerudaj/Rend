@@ -6,6 +6,7 @@ import Options;
 import Audio;
 import FormBuilder;
 import Input;
+import DependencyContainer;
 
 class [[nodiscard]] AppStateMenuOptions final
     : public dgm::AppState
@@ -14,12 +15,7 @@ class [[nodiscard]] AppStateMenuOptions final
 public:
     AppStateMenuOptions(
         dgm::App& app,
-        mem::Rc<tgui::Gui> gui,
-        mem::Rc<const dgm::ResourceManager> resmgr,
-        mem::Rc<AudioPlayer> audioPlayer,
-        mem::Rc<Jukebox> jukebox,
-        mem::Rc<AppOptions> settings,
-        mem::Rc<PhysicalController> controller,
+        mem::Rc<DependencyContainer> dic,
         bool enteredFromGame = false)
         : dgm::AppState(
             app,
@@ -27,11 +23,7 @@ public:
                 .clearColor = sf::Color::White,
                 .shouldUpdateUnderlyingState = enteredFromGame,
             })
-        , GuiState(gui, audioPlayer)
-        , resmgr(resmgr)
-        , jukebox(jukebox)
-        , settings(settings)
-        , controller(controller)
+        , GuiState(dic)
         , enteredFromGame(enteredFromGame)
     {
         buildLayout();
@@ -44,7 +36,7 @@ public:
 
     void draw() override
     {
-        gui->draw();
+        dic->gui->draw();
     }
 
 private:
@@ -59,9 +51,5 @@ private:
     }
 
 private:
-    mem::Rc<const dgm::ResourceManager> resmgr;
-    mem::Rc<Jukebox> jukebox;
-    mem::Rc<AppOptions> settings;
-    mem::Rc<PhysicalController> controller;
     bool enteredFromGame;
 };

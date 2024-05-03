@@ -14,21 +14,9 @@ void serverLoop(Server server, std::atomic_bool& serverEnabled)
 }
 
 AppStateServerWrapper::AppStateServerWrapper(
-    dgm::App& app,
-    mem::Rc<const dgm::ResourceManager> resmgr,
-    mem::Rc<tgui::Gui> gui,
-    mem::Rc<AppOptions> settings,
-    mem::Rc<AudioPlayer> audioPlayer,
-    mem::Rc<Jukebox> jukebox,
-    mem::Rc<PhysicalController> controller,
-    ServerWrapperTarget target)
+    dgm::App& app, mem::Rc<DependencyContainer> dic, ServerWrapperTarget target)
     : dgm::AppState(app)
-    , resmgr(resmgr)
-    , gui(gui)
-    , settings(settings)
-    , audioPlayer(audioPlayer)
-    , jukebox(jukebox)
-    , controller(controller)
+    , dic(dic)
     , serverEnabled(true)
     , serverThread(
           serverLoop,
@@ -42,23 +30,15 @@ AppStateServerWrapper::AppStateServerWrapper(
     {
         using enum ServerWrapperTarget;
     case GameSetup:
-        app.pushState<AppStateGameSetup>(
-            resmgr, gui, settings, audioPlayer, jukebox, controller);
+        app.pushState<AppStateGameSetup>(dic);
         break;
     case Editor: {
-        auto _gui = mem::Rc<Gui>();
         app.pushState<AppStateEditor>(
-            gui,
-            _gui,
-            resmgr,
-            settings,
-            audioPlayer,
-            jukebox,
-            controller,
-            mem::Rc<ShortcutEngine>([_gui]
-                                    { return _gui->isAnyModalOpened(); }),
-            mem::Rc<YesNoCancelDialog>(_gui),
-            mem::Rc<ErrorInfoDialog>(_gui));
+            dic,
+            mem::Rc<ShortcutEngine>([dic]
+                                    { return dic->gui->isAnyModalOpened(); }),
+            mem::Rc<YesNoCancelDialog>(dic->gui),
+            mem::Rc<ErrorInfoDialog>(dic->gui));
         break;
     }
     }

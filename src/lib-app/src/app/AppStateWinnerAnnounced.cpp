@@ -14,7 +14,7 @@ void AppStateWinnerAnnounced::input()
         }
     }
 
-    controller->update();
+    dic->controller->update();
 }
 
 void AppStateWinnerAnnounced::update()
@@ -22,14 +22,7 @@ void AppStateWinnerAnnounced::update()
     transitionTimeout -= app.time.getDeltaTime();
     if (transitionTimeout <= 0.f)
     {
-        app.pushState<AppStateScoreTable>(
-            resmgr,
-            gui,
-            audioPlayer,
-            jukebox,
-            controller,
-            gameSettings,
-            scores);
+        app.pushState<AppStateScoreTable>(dic, gameSettings, scores);
     }
 }
 
@@ -47,5 +40,5 @@ void AppStateWinnerAnnounced::buildLayoutImpl()
     label->setPosition({ "0%", "30%" });
     label->setHorizontalAlignment(tgui::Label::HorizontalAlignment::Center);
     label->setVerticalAlignment(tgui::Label::VerticalAlignment::Center);
-    gui->add(label);
+    dic->gui->add(label);
 }

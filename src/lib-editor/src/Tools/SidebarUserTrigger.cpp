@@ -8,7 +8,7 @@ void SidebarUserTrigger::buildSidebarInternal(tgui::Group::Ptr& sidebar)
 
     auto cbtn = tgui::Button::create("Circular\nTrigger");
     cbtn->setTextSize(0);
-    cbtn->setRenderer(gui->theme.getRenderer("Button"));
+    cbtn->setRenderer(gui->theme->getRenderer("Button"));
     cbtn->setSize(BUTTON_SIZE, BUTTON_SIZE);
     cbtn->setPosition(OFFSET, OFFSET);
     cbtn->onClick([this] { changePen(PenType::Circle); });
@@ -18,7 +18,7 @@ void SidebarUserTrigger::buildSidebarInternal(tgui::Group::Ptr& sidebar)
 
     auto rbtn = tgui::Button::create("Rectangular\nTrigger");
     rbtn->setTextSize(0);
-    rbtn->setRenderer(gui->theme.getRenderer("Button"));
+    rbtn->setRenderer(gui->theme->getRenderer("Button"));
     rbtn->setSize(BUTTON_SIZE, BUTTON_SIZE);
     rbtn->setPosition(OFFSET, 2 * OFFSET + BUTTON_SIZE);
     rbtn->onClick([this] { changePen(PenType::Rectangle); });

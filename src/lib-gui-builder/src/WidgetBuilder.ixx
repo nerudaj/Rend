@@ -63,7 +63,7 @@ public:
     static [[nodiscard]] tgui::Panel::Ptr createSlider(
         float value,
         std::function<void(float)> onChange,
-        mem::Rc<tgui::Gui> gui,
+        tgui::Gui& gui,
         std::function<std::string(float)> valueFormatter,
         float lo = 0.f,
         float hi = 100.f,

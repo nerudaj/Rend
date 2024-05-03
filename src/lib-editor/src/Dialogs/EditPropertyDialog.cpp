@@ -10,7 +10,7 @@ void EditPropertyDialog::open(
     modal->setSize("50%", "80%");
     modal->setPosition("25%", "10%");
     modal->setResizable(true);
-    gui->addModal(modal, DIALOG_ID);
+    gui->add(modal, DIALOG_ID);
 
     // Create scrollable group inside of the window
     auto group = tgui::Panel::create();

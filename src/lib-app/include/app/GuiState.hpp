@@ -10,13 +10,12 @@ import Memory;
 import Audio;
 import AppMessage;
 import CoreTypes;
+import DependencyContainer;
 
 class [[nodiscard]] GuiState
 {
 protected:
-    [[nodiscard]] GuiState(
-        mem::Rc<tgui::Gui> gui, mem::Rc<AudioPlayer> audioPlayer) noexcept
-        : gui(gui), audioPlayer(audioPlayer)
+    [[nodiscard]] GuiState(mem::Rc<DependencyContainer> dic) noexcept : dic(dic)
     {
     }
 
@@ -27,13 +26,13 @@ protected:
 
     void buildLayout()
     {
-        gui->removeAllWidgets();
+        dic->gui->gui.removeAllWidgets();
         buildLayoutImpl();
     }
 
     void restoreFocus(sf::RenderWindow& window)
     {
-        gui->setWindow(window);
+        dic->gui->gui.setWindow(window);
         buildLayout();
     }
 
@@ -52,6 +51,5 @@ protected:
     }
 
 protected:
-    mem::Rc<tgui::Gui> gui;
-    mem::Rc<AudioPlayer> audioPlayer;
+    mem::Rc<DependencyContainer> dic;
 };

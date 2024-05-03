@@ -1,5 +1,6 @@
 #include "Dialogs/ErrorInfoDialog.hpp"
 #include "Globals.hpp"
+#include <Configs/Sizers.hpp>
 #include <Configs/Strings.hpp>
 
 void ErrorInfoDialog::open(const std::string& text)
@@ -10,7 +11,7 @@ void ErrorInfoDialog::open(const std::string& text)
     modal->setPositionLocked(true);
 
     modal->onClose([&] { gui->closeModal(DIALOG_ID); });
-    gui->addModal(modal, DIALOG_ID);
+    gui->add(modal, DIALOG_ID);
 
     auto label = tgui::Label::create(text);
     label->setSize({ "98%", "98%" });

@@ -16,10 +16,10 @@ void AppStateScoreTable::input()
             app.exit();
         }
 
-        gui->handleEvent(event);
+        dic->gui->gui.handleEvent(event);
     }
 
-    controller->update();
+    dic->controller->update();
 }
 
 [[nodiscard]] static tgui::Label::Ptr
@@ -81,9 +81,11 @@ void AppStateScoreTable::buildLayoutImpl()
         panel->add(row);
     }
 
-    gui->add(
+    dic->gui->add(
         LayoutBuilder::withBackgroundImage(
-            resmgr->get<sf::Texture>("menu_intermission.png").value().get())
+            dic->resmgr->get<sf::Texture>("menu_intermission.png")
+                .value()
+                .get())
             .withTitle(Strings::AppState::Scores::TITLE, HeadingLevel::H1)
             .withContent(panel)
             .withBackButton(WidgetBuilder::createButton(

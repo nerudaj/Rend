@@ -7,7 +7,7 @@ void SidebarUserInterface::buildSidebar()
 
     // Back panel of the sidebar
     auto sidebgr = tgui::Panel::create({ "100%", "100%" });
-    sidebgr->setRenderer(gui->theme.getRenderer("Panel"));
+    sidebgr->setRenderer(gui->theme->getRenderer("Panel"));
     sidebar->add(sidebgr);
 
     // The rest is up to actual tool

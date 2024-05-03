@@ -136,7 +136,7 @@ WidgetBuilder::createCheckbox(bool checked, std::function<void(bool)> onChange)
 tgui::Panel::Ptr WidgetBuilder::createSlider(
     float value,
     std::function<void(float)> onChange,
-    mem::Rc<tgui::Gui> gui,
+    tgui::Gui& gui,
     std::function<std::string(float)> valueFormatter,
     float lo,
     float hi,
@@ -149,7 +149,7 @@ tgui::Panel::Ptr WidgetBuilder::createSlider(
     auto&& dummyLabel = tgui::Label::create(valueFormatter(hi + step));
     dummyLabel->setTextSize(Sizers::GetMenuBarTextHeight());
     dummyLabel->setAutoSize(true);
-    gui->add(dummyLabel, "DummyLabel");
+    gui.add(dummyLabel, "DummyLabel");
     auto size = dummyLabel->getSizeLayout();
 
     auto&& valueLabel = tgui::Label::create(valueFormatter(value));
@@ -168,14 +168,14 @@ tgui::Panel::Ptr WidgetBuilder::createSlider(
     slider->setStep(step);
     slider->setValue(value);
     slider->onValueChange(
-        [gui, ID, onChange, valueFormatter](float value)
+        [&gui, ID, onChange, valueFormatter](float value)
         {
-            gui->get<tgui::Label>(ID)->setText(valueFormatter(value));
+            gui.get<tgui::Label>(ID)->setText(valueFormatter(value));
             onChange(value);
         });
     result->add(slider);
 
-    gui->remove(gui->get<tgui::Label>("DummyLabel"));
+    gui.remove(gui.get<tgui::Label>("DummyLabel"));
 
     return result;
 }

@@ -4,6 +4,7 @@ import Memory;
 import Options;
 import Audio;
 import Input;
+import DependencyContainer;
 
 #include "GuiState.hpp"
 #include <DGM/classes/AppState.hpp>
@@ -18,21 +19,13 @@ class [[nodiscard]] AppStateWinnerAnnounced final
 public:
     AppStateWinnerAnnounced(
         dgm::App& app,
-        mem::Rc<const dgm::ResourceManager> resmgr,
-        mem::Rc<tgui::Gui> gui,
-        mem::Rc<AudioPlayer> audioPlayer,
-        mem::Rc<Jukebox> jukebox,
-        mem::Rc<PhysicalController> controller,
+        mem::Rc<DependencyContainer> dic,
         const GameOptions& gameSettings,
         dgm::UniversalReference<std::vector<int>> auto&& scores)
         // TODO: should update underlying state as well
         : dgm::AppState(
             app, dgm::AppStateConfig { .shouldDrawUnderlyingState = true })
-        , GuiState(gui, audioPlayer)
-        , resmgr(resmgr)
-        , gui(gui)
-        , jukebox(jukebox)
-        , controller(controller)
+        , GuiState(dic)
         , gameSettings(gameSettings)
         , scores(std::forward<decltype(scores)>(scores))
     {
@@ -46,7 +39,7 @@ public:
 
     void draw() override
     {
-        gui->draw();
+        dic->gui->draw();
     }
 
 private:
@@ -58,10 +51,6 @@ private:
     }
 
 private:
-    mem::Rc<const dgm::ResourceManager> resmgr;
-    mem::Rc<tgui::Gui> gui;
-    mem::Rc<Jukebox> jukebox;
-    mem::Rc<PhysicalController> controller;
     GameOptions gameSettings;
     std::vector<int> scores;
     float transitionTimeout = 3.f; // seconds

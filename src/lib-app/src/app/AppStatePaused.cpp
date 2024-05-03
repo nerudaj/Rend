@@ -6,7 +6,7 @@ import AppMessage;
 
 void AppStatePaused::buildLayoutImpl()
 {
-    gui->add(
+    dic->gui->add(
         LayoutBuilder::withNoBackgroundImage()
             .withTitle(Strings::AppState::Pause::TITLE, HeadingLevel::H1)
             .withContent(
@@ -16,17 +16,7 @@ void AppStatePaused::buildLayoutImpl()
                         [&] { app.popState(); })
                     .addButton(
                         Strings::AppState::MainMenu::OPTIONS,
-                        [&]
-                        {
-                            app.pushState<AppStateMenuOptions>(
-                                gui,
-                                resmgr,
-                                audioPlayer,
-                                jukebox,
-                                settings,
-                                controller,
-                                true);
-                        })
+                        [&] { app.pushState<AppStateMenuOptions>(dic, true); })
                     .addButton(
                         Strings::AppState::Pause::TO_MENU,
                         [&] { app.popState(PopIfNotMainMenu::serialize()); })
@@ -49,13 +39,13 @@ void AppStatePaused::input()
         {
             app.exit();
         }
-        else if (controller->isEscapePressed())
+        else if (dic->controller->isEscapePressed())
         {
             app.popState();
         }
 
-        gui->handleEvent(event);
+        dic->gui->gui.handleEvent(event);
     }
 
-    controller->update();
+    dic->controller->update();
 }

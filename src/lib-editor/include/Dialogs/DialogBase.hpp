@@ -1,14 +1,17 @@
 #pragma once
 
-#include "Gui.hpp"
+#include <TGUI/Backend/SFML-Graphics.hpp>
+#include <TGUI/Tgui.hpp>
 #include <expected>
 #include <functional>
+#include <string>
 #include <variant>
 #include <vector>
 
 import Memory;
 import Literals;
 import Error;
+import Gui;
 
 struct OptionInput
 {

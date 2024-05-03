@@ -9,7 +9,7 @@ void SidebarUserWithSprites::buildSidebarInternal(tgui::Group::Ptr& sidebar)
 
     // + button
     auto addbtn = tgui::Button::create("+");
-    addbtn->setRenderer(gui->theme.getRenderer("Button"));
+    addbtn->setRenderer(gui->theme->getRenderer("Button"));
     addbtn->setSize(BUTTON_SIZE, BUTTON_SIZE);
     addbtn->setPosition(OFFSET, OFFSET);
     addbtn->onClick([this] { buildSpriteIdSelectionModal(); });
@@ -59,7 +59,7 @@ void SidebarUserWithSprites::buildSpriteIdSelectionModal()
     auto modal = gui->createNewChildWindow("Tile Selection");
     modal->setSize("70%", "70%");
     modal->setPosition("15%", "15%");
-    gui->addModal(modal, DIALOG_ID);
+    gui->add(modal, DIALOG_ID);
 
     modal->onClose(close);
 

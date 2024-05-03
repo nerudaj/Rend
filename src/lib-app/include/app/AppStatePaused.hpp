@@ -4,29 +4,19 @@
 
 import Options;
 import Input;
+import DependencyContainer;
 
 class [[nodiscard]] AppStatePaused final
     : public dgm::AppState
     , public GuiState
 {
 public:
-    AppStatePaused(
-        dgm::App& app,
-        mem::Rc<tgui::Gui> gui,
-        mem::Rc<const dgm::ResourceManager> resmgr,
-        mem::Rc<AudioPlayer> audioPlayer,
-        mem::Rc<Jukebox> jukebox,
-        mem::Rc<PhysicalController> controller,
-        mem::Rc<AppOptions> settings)
+    AppStatePaused(dgm::App& app, mem::Rc<DependencyContainer> dic)
         : dgm::AppState(
             app,
             dgm::AppStateConfig { .shouldUpdateUnderlyingState = true,
                                   .shouldDrawUnderlyingState = true })
-        , GuiState(gui, audioPlayer)
-        , resmgr(resmgr)
-        , jukebox(jukebox)
-        , controller(controller)
-        , settings(settings)
+        , GuiState(dic)
     {
         buildLayout();
     }
@@ -38,7 +28,7 @@ public:
 
     void draw() override
     {
-        gui->draw();
+        dic->gui->draw();
     }
 
 private:
@@ -49,10 +39,4 @@ private:
         if (PopIfPause::canDeserializeFrom(message)) app.popState();
         GuiState::restoreFocus(app.window.getWindowContext());
     }
-
-private:
-    mem::Rc<const dgm::ResourceManager> resmgr;
-    mem::Rc<Jukebox> jukebox;
-    mem::Rc<PhysicalController> controller;
-    mem::Rc<AppOptions> settings;
 };

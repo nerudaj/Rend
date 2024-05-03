@@ -11,31 +11,17 @@ import WidgetBuilder;
 import LayoutBuilder;
 
 AppStateGameSetup::AppStateGameSetup(
-    dgm::App& app,
-    mem::Rc<const dgm::ResourceManager> resmgr,
-    mem::Rc<tgui::Gui> gui,
-    mem::Rc<AppOptions> settings,
-    mem::Rc<AudioPlayer> audioPlayer,
-    mem::Rc<Jukebox> jukebox,
-    mem::Rc<PhysicalController> controller) noexcept
+    dgm::App& app, mem::Rc<DependencyContainer> dic) noexcept
     : AppState(app, dgm::AppStateConfig { .clearColor = sf::Color::White })
-    , GuiState(gui, audioPlayer)
-    , resmgr(resmgr)
-    , gui(gui)
-    , settings(settings)
-    , audioPlayer(audioPlayer)
-    , jukebox(jukebox)
-    , controller(controller)
+    , GuiState(dic)
     , client(mem::Rc<Client>("127.0.0.1", 10666ui16))
     , lobbySettings(LobbySettings {
-          .fraglimit = static_cast<int>(settings->cmdSettings.fraglimit),
-          .playerCount = settings->cmdSettings.playerCount })
+          .fraglimit = static_cast<int>(dic->settings->cmdSettings.fraglimit),
+          .playerCount = dic->settings->cmdSettings.playerCount })
     , mapPackNames(Filesystem::getLevelPackNames(
-          Filesystem::getLevelsDir(settings->cmdSettings.resourcesDir)))
+          Filesystem::getLevelsDir(dic->settings->cmdSettings.resourcesDir)))
+    , mapPickerDialog(dic->gui, std::vector<MapSettingsForPicker>())
 {
-    guiWithModals->gui.setTarget(app.window.getWindowContext());
-    guiWithModals->gui.setFont(
-        resmgr->get<tgui::Font>("pico-8.ttf").value().get());
     selectMapPack(mapPackNames.front());
     buildLayout();
     client->sendLobbyUpdate(lobbySettings);
@@ -43,9 +29,9 @@ AppStateGameSetup::AppStateGameSetup(
 
 void AppStateGameSetup::input()
 {
-    if (settings->cmdSettings.skipMainMenu)
+    if (dic->settings->cmdSettings.skipMainMenu)
     {
-        settings->cmdSettings.skipMainMenu = false;
+        dic->settings->cmdSettings.skipMainMenu = false;
         startGame();
     }
 
@@ -57,20 +43,19 @@ void AppStateGameSetup::input()
             app.exit();
         }
 
-        guiWithModals->gui.handleEvent(event);
-        gui->handleEvent(event);
+        dic->gui->gui.handleEvent(event);
     }
 
-    controller->update();
+    dic->controller->update();
     client->readIncomingPackets(std::bind(
         &AppStateGameSetup::handleNetworkUpdate, this, std::placeholders::_1));
 }
 
 void AppStateGameSetup::buildLayoutImpl()
 {
-    gui->add(
+    dic->gui->add(
         LayoutBuilder::withBackgroundImage(
-            resmgr->get<sf::Texture>("menu_setup.png").value().get())
+            dic->resmgr->get<sf::Texture>("menu_setup.png").value().get())
             .withTitle(Strings::AppState::GameSetup::TITLE, HeadingLevel::H1)
             .withContent(
                 FormBuilder()
@@ -146,12 +131,7 @@ void AppStateGameSetup::startGame()
     if (maplist.empty()) throw std::runtime_error("No map selected!");
 
     app.pushState<AppStateMapRotationWrapper>(
-        resmgr,
-        gui,
-        settings,
-        audioPlayer,
-        jukebox,
-        controller,
+        dic,
         client,
         GameOptions { .players = createPlayerSettings(),
                       .fraglimit =
@@ -187,7 +167,7 @@ void AppStateGameSetup::selectMapPack(const std::string& packname)
     lobbySettings.packname = packname;
     lobbySettings.mapSettings =
         Filesystem::getLevelNames(
-            Filesystem::getLevelsDir(settings->cmdSettings.resourcesDir),
+            Filesystem::getLevelsDir(dic->settings->cmdSettings.resourcesDir),
             packname)
         | std::views::transform(
             [](const std::string& name)
@@ -207,7 +187,7 @@ void AppStateGameSetup::selectMapPackAndSendUpdate(const std::string& packname)
 void AppStateGameSetup::openMapPicker()
 {
     mapPickerDialog = mem::Box<MapPickerDialog>(
-        guiWithModals,
+        dic->gui,
         lobbySettings.mapSettings
             | std::views::transform(
                 [](auto s) {
