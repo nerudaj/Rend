@@ -1,3 +1,4 @@
+#include "AudioPlayer.hpp"
 #include "Stubs/AudioPlayerStub.hpp"
 #include "TestHelpers/SceneBuilder.hpp"
 #include <builder/SceneBuilder.hpp>

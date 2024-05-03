@@ -1,8 +1,7 @@
+#include "Server.hpp"
 #include <format>
 #include <functional>
 #include <thread>
-
-import Network;
 
 std::atomic_bool serverEnabled = true;
 
