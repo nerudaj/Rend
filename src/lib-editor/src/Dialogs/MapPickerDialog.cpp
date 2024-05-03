@@ -1,3 +1,5 @@
+#include "FormBuilder.hpp"
+#include "WidgetBuilder.hpp"
 #include <Configs/Strings.hpp>
 #include <Dialogs/MapPickerDialog.hpp>
 

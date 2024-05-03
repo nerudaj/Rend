@@ -1,7 +1,7 @@
 #include "app/AppStatePaused.hpp"
+#include "GuiBuilder.hpp"
 #include "app/AppStateMenuOptions.hpp"
 
-import GuiBuilder;
 import AppMessage;
 
 void AppStatePaused::buildLayoutImpl()

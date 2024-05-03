@@ -4,9 +4,9 @@ import Memory;
 import Options;
 import Audio;
 import Input;
-import DependencyContainer;
 
 #include "GuiState.hpp"
+#include "utils/DependencyContainer.hpp"
 #include <vector>
 
 class [[nodiscard]] AppStateMainMenu final

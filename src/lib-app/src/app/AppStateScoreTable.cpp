@@ -1,9 +1,8 @@
+#include "GuiBuilder.hpp"
 #include <Configs/Sizers.hpp>
 #include <Configs/Strings.hpp>
 #include <app/AppStateScoreTable.hpp>
 
-import WidgetBuilder;
-import LayoutBuilder;
 import AppMessage;
 
 void AppStateScoreTable::input()

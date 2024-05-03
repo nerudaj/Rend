@@ -1,12 +1,12 @@
 #pragma once
 
 #include "DialogBase.hpp"
+#include "FormBuilder.hpp"
 #include "MetadataDialogBase.hpp"
 #include <DGM/dgm.hpp>
 #include <LevelMetadata.hpp>
 
 import Memory;
-import FormBuilder;
 
 class [[nodiscard]] EditMetadataDialog final
     : protected ModernDialogInterface

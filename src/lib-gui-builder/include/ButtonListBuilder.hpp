@@ -1,4 +1,4 @@
-module;
+#pragma once
 
 #include <TGUI/Backend/SFML-Graphics.hpp>
 #include <TGUI/TGUI.hpp>
@@ -6,9 +6,7 @@ module;
 #include <string>
 #include <vector>
 
-export module ButtonListBuilder;
-
-export class [[nodiscard]] ButtonListBuilder final
+class [[nodiscard]] ButtonListBuilder final
 {
 public:
     ButtonListBuilder() = default;

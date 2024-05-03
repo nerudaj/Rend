@@ -4,9 +4,9 @@ import Memory;
 import Options;
 import Audio;
 import Input;
-import DependencyContainer;
 
 #include "GuiState.hpp"
+#include "utils/DependencyContainer.hpp"
 #include <DGM/classes/AppState.hpp>
 #include <DGM/classes/Traits.hpp>
 #include <TGUI/Backend/SFML-Graphics.hpp>

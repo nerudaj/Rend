@@ -1,3 +1,4 @@
+#include "GuiBuilder.hpp"
 #include <LevelD.hpp>
 #include <app/AppStateIngame.hpp>
 #include <app/AppStateMapRotationWrapper.hpp>

@@ -1,9 +1,8 @@
 #include "Dialogs/LoadLevelDialog.hpp"
 #include "Configs/Strings.hpp"
+#include "GuiBuilder.hpp"
 
 import Resources;
-import FormBuilder;
-import WidgetBuilder;
 
 constexpr const char* SELECT_PACK_ID = "SelectPackId";
 constexpr const char* SELECT_LEVEL_ID = "SelectLevelId";

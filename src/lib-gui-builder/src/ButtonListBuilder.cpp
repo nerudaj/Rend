@@ -1,9 +1,8 @@
+#include "ButtonListBuilder.hpp"
+#include "WidgetBuilder.hpp"
 #include <Configs/Sizers.hpp>
 #include <TGUI/Backend/SFML-Graphics.hpp>
 #include <TGUI/TGUI.hpp>
-
-import ButtonListBuilder;
-import WidgetBuilder;
 
 ButtonListBuilder& ButtonListBuilder::addButton(
     const std::string& label, std::function<void(void)> onClick)

@@ -1,12 +1,11 @@
 #include "app/AppStateMainMenu.hpp"
 #include "Configs/Strings.hpp"
+#include "GuiBuilder.hpp"
 #include "Utilities/TguiHelper.hpp"
 #include "app/AppStateIngame.hpp"
 #include "app/AppStateMenuOptions.hpp"
 #include "settings/GameTitle.hpp"
 #include <app/AppStateServerWrapper.hpp>
-
-import GuiBuilder;
 
 void AppStateMainMenu::buildLayoutImpl()
 {

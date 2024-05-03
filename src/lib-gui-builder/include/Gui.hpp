@@ -1,4 +1,4 @@
-module;
+#pragma once
 
 #include <TGUI/Backend/SFML-Graphics.hpp>
 #include <TGUI/Tgui.hpp>
@@ -6,9 +6,7 @@ module;
 #include <set>
 #include <string>
 
-export module Gui;
-
-export class [[nodiscard]] Gui final
+class [[nodiscard]] Gui final
 {
 public:
     tgui::ChildWindow::Ptr createNewChildWindow(const std::string& title);

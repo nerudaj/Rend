@@ -1,4 +1,4 @@
-module;
+#pragma once
 
 #include <TGUI/Backend/SFML-Graphics.hpp>
 #include <TGUI/TGUI.hpp>
@@ -6,9 +6,7 @@ module;
 #include <tuple>
 #include <vector>
 
-export module FormBuilder;
-
-export class [[nodiscard]] FormBuilder final
+class [[nodiscard]] FormBuilder final
 {
 public:
     FormBuilder() = default;

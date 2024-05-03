@@ -6,9 +6,9 @@ import Audio;
 import Input;
 import Network;
 import LobbySettings;
-import DependencyContainer;
 
 #include "GuiState.hpp"
+#include "utils/DependencyContainer.hpp"
 #include <Dialogs/MapPickerDialog.hpp>
 #include <TGUI/Backend/SFML-Graphics.hpp>
 #include <TGUI/TGUI.hpp>

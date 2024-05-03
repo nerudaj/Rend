@@ -1,6 +1,5 @@
 #include "Tools/SidebarUserItem.hpp"
-
-import TguiHelper;
+#include "TguiHelper.hpp"
 
 void SidebarUserItem::configure(
     const std::vector<PathRectPair>& textureClipPairs)

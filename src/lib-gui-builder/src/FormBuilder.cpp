@@ -1,9 +1,8 @@
+#include "FormBuilder.hpp"
+#include "WidgetBuilder.hpp"
 #include <Configs/Sizers.hpp>
 #include <TGUI/Backend/SFML-Graphics.hpp>
 #include <TGUI/TGUI.hpp>
-
-import FormBuilder;
-import WidgetBuilder;
 
 FormBuilder& FormBuilder::addOption(
     const std::string& labelText, tgui::Widget::Ptr widget, bool disabled)

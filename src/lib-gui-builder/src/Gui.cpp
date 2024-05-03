@@ -1,10 +1,9 @@
+#include "Gui.hpp"
 #include "Configs/Sizers.hpp"
 #include <TGUI/Backend/SFML-Graphics.hpp>
 #include <TGUI/Tgui.hpp>
 #include <filesystem>
 #include <ranges>
-
-import Gui;
 
 tgui::ChildWindow::Ptr Gui::createNewChildWindow(const std::string& title)
 {

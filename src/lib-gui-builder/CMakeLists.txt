@@ -7,9 +7,17 @@ file (
 
 project ( lib-gui-builder )
 
-glob_modules ( SRCS )
+glob_sources_and_headers ( SRCS HDRS )
 
-add_library ( ${PROJECT_NAME} ${SRCS} )
+add_library (
+	${PROJECT_NAME} STATIC
+	${SRCS} ${HDRS}
+	"${CMAKE_CURRENT_SOURCE_DIR}/.clang-format"
+)
+
+target_include_directories ( ${PROJECT_NAME}
+	PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/include"
+)
 
 target_link_libraries ( ${PROJECT_NAME} lib-memory Dep_tgui Dep_dgm Dep_sfml lib-defines )
 

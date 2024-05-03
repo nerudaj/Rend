@@ -1,7 +1,6 @@
 #include "Dialogs/EditMetadataDialog.hpp"
+#include "WidgetBuilder.hpp"
 #include <Configs/Strings.hpp>
-
-import WidgetBuilder;
 
 EditMetadataDialog::EditMetadataDialog(mem::Rc<Gui> gui)
     : ModernDialogInterface(

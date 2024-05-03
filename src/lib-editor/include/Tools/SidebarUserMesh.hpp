@@ -1,11 +1,10 @@
 #pragma once
 
+#include "TguiHelper.hpp"
 #include "Tools/SidebarUserWithSprites.hpp"
 #include <DGM/classes/Clip.hpp>
 #include <SFML/Graphics/Texture.hpp>
 #include <filesystem>
-
-import TguiHelper;
 
 class SidebarUserMesh : public SidebarUserWithSprites
 {

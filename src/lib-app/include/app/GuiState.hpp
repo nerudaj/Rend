@@ -1,5 +1,6 @@
 #pragma once
 
+#include "utils/DependencyContainer.hpp"
 #include <Configs/Sizers.hpp>
 #include <Configs/Strings.hpp>
 #include <DGM/dgm.hpp>
@@ -10,7 +11,6 @@ import Memory;
 import Audio;
 import AppMessage;
 import CoreTypes;
-import DependencyContainer;
 
 class [[nodiscard]] GuiState
 {

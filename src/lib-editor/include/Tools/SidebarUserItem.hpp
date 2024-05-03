@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Gui.hpp"
 #include "Tools/SidebarUserWithSprites.hpp"
 #include <LevelItemId.hpp>
 #include <SFML/Graphics/Rect.hpp>
@@ -10,7 +11,6 @@
 #include <vector>
 
 import Memory;
-import Gui;
 
 class SidebarUserItem : public SidebarUserWithSprites
 {

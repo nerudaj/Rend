@@ -1,7 +1,6 @@
 #pragma once
 
-import FormBuilder;
-
+#include "FormBuilder.hpp"
 #include <LevelTheme.hpp>
 
 class [[nodiscard]] MetadataDialogBase

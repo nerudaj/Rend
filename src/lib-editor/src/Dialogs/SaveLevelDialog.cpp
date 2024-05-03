@@ -1,10 +1,10 @@
 ﻿#include "Dialogs/SaveLevelDialog.hpp"
 #include "Configs/Strings.hpp"
+#include "GuiBuilder.hpp"
 
 constexpr const char* PACK_NAME_ID = "PackNameId";
 constexpr const char* LEVEL_NAME_ID = "LevelNameId";
 
-import GuiBuilder;
 import Resources;
 
 NewSaveLevelDialog::NewSaveLevelDialog(

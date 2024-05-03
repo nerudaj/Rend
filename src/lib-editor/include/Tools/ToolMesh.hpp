@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Gui.hpp"
 #include "Interfaces/PenUserInterface.hpp"
 #include "Interfaces/ToolInterface.hpp"
 #include "LevelMesh/DrawableLeveldMesh.hpp"

@@ -1,7 +1,6 @@
 #include "Dialogs/MetadataDialogBase.hpp"
+#include "WidgetBuilder.hpp"
 #include <Configs/Strings.hpp>
-
-import WidgetBuilder;
 
 void MetadataDialogBase::addAttributesToFormular(FormBuilder& builder)
 {

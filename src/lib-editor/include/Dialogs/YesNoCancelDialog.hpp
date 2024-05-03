@@ -1,8 +1,7 @@
 #pragma once
 
+#include "Gui.hpp"
 #include "Interfaces/DialogInterfaces.hpp"
-
-import Gui;
 
 class [[nodiscard]] YesNoCancelDialog final : public YesNoCancelDialogInterface
 {

@@ -1,8 +1,6 @@
 #include "Dialogs/NewLevelDialog.hpp"
+#include "GuiBuilder.hpp"
 #include <Configs/Strings.hpp>
-
-import WidgetBuilder;
-import FormBuilder;
 
 ModernNewLevelDialog::ModernNewLevelDialog(mem::Rc<Gui> gui)
     : ModernDialogInterface(

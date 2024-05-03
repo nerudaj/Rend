@@ -13,6 +13,7 @@
 #include "Interfaces/PlaytestLauncherInterface.hpp"
 #include "Interfaces/ShortcutEngineInterface.hpp"
 #include "Utilities/ClickPreventer.hpp"
+#include "utils/DependencyContainer.hpp"
 #include <DGM/dgm.hpp>
 #include <LevelMetadata.hpp>
 #include <TGUI/Backend/SFML-Graphics.hpp>
@@ -25,7 +26,6 @@ import Options;
 import Audio;
 import Input;
 import Network;
-import DependencyContainer;
 
 class [[nodiscard]] AppStateEditor final : public dgm::AppState
 {

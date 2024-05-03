@@ -1,5 +1,6 @@
 #pragma once
 
+#include "Gui.hpp"
 #include "Interfaces/ToolInterface.hpp"
 #include "ToolProperties/ItemToolProperty.hpp"
 #include "Tools/SidebarUserItem.hpp"

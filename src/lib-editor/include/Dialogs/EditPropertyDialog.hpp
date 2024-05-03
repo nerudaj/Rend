@@ -2,12 +2,12 @@
 
 #include "Dialogs/DialogBuilderHelper.hpp"
 #include "Dialogs/FormValidatorToken.hpp"
+#include "Gui.hpp"
 #include "Interfaces/ToolInterface.hpp"
 #include "Interfaces/ToolPropertyInterface.hpp"
 #include <functional>
 
 import Memory;
-import Gui;
 
 class EditPropertyDialog final
 {

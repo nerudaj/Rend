@@ -1,5 +1,6 @@
 #pragma once
 
+#include "utils/DependencyContainer.hpp"
 #include <TGUI/Backend/SFML-Graphics.hpp>
 #include <TGUI/TGUI.hpp>
 #include <dgm/dgm.hpp>
@@ -10,7 +11,6 @@ import Memory;
 import Network;
 import Input;
 import Options;
-import DependencyContainer;
 
 class [[nodiscard]] AppStateMapRotationWrapper final : public dgm::AppState
 {

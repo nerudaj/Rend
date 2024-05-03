@@ -1,18 +1,15 @@
-module;
+#pragma once
 
 #include <TGUI/Backend/SFML-Graphics.hpp>
 #include <TGUI/TGUI.hpp>
 #include <functional>
 #include <string>
 
-export module WidgetBuilder;
-
 import Memory;
 
-export const tgui::Color PANEL_BACKGROUND_COLOR =
-    tgui::Color(255, 255, 255, 64);
+const tgui::Color PANEL_BACKGROUND_COLOR = tgui::Color(255, 255, 255, 64);
 
-export class WidgetBuilder final
+class WidgetBuilder final
 {
 private:
     static [[nodiscard]] tgui::Label::Ptr createLabelInternal(

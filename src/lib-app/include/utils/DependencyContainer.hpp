@@ -1,16 +1,14 @@
-module;
+#pragma once
 
+#include "Gui.hpp"
 #include <DGM/classes/ResourceManager.hpp>
 
-export module DependencyContainer;
-
 import Audio;
-import Gui;
 import Memory;
 import Options;
 import Input;
 
-export struct [[nodiscard]] DependencyContainer final
+struct [[nodiscard]] DependencyContainer final
 {
     mem::Rc<AudioPlayer> audioPlayer;
     mem::Rc<PhysicalController> controller;

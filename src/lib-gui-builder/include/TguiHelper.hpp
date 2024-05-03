@@ -1,12 +1,10 @@
-module;
+#pragma once
 
 #include <SFML/Graphics.hpp>
 #include <TGUI/Backend/SFML-Graphics.hpp>
 #include <TGUI/TGUI.hpp>
 
-export module TguiHelper;
-
-export class TguiHelper final
+class TguiHelper final
 {
 public:
     [[nodiscard]] static tgui::Texture

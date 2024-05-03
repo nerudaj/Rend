@@ -1,14 +1,9 @@
-module;
+#pragma once
 
 #include <TGUI/Backend/SFML-Graphics.hpp>
 #include <TGUI/TGUI.hpp>
 
-export module LayoutBuilder;
-
-export import TguiHelper;
-export import WidgetBuilder;
-
-export class [[nodiscard]] FinalizedLayoutBuilder final
+class [[nodiscard]] FinalizedLayoutBuilder final
 {
 public:
     FinalizedLayoutBuilder(tgui::Panel::Ptr container) : container(container) {}
@@ -23,7 +18,7 @@ private:
     tgui::Panel::Ptr container;
 };
 
-export class [[nodiscard]] LayoutBuilderWithContentAndBackButton final
+class [[nodiscard]] LayoutBuilderWithContentAndBackButton final
 {
 public:
     LayoutBuilderWithContentAndBackButton(tgui::Panel::Ptr container)
@@ -43,7 +38,7 @@ private:
     tgui::Panel::Ptr container;
 };
 
-export class [[nodiscard]] LayoutBuilderWithContent final
+class [[nodiscard]] LayoutBuilderWithContent final
 {
 public:
     LayoutBuilderWithContent(tgui::Panel::Ptr container) : container(container)
@@ -63,7 +58,7 @@ private:
     tgui::Panel::Ptr container;
 };
 
-export class [[nodiscard]] LayoutBuilderWithBackgroundAndTitle final
+class [[nodiscard]] LayoutBuilderWithBackgroundAndTitle final
 {
 public:
     LayoutBuilderWithBackgroundAndTitle(tgui::Panel::Ptr container)
@@ -78,9 +73,13 @@ private:
     tgui::Panel::Ptr container;
 };
 
-export enum class [[nodiscard]] HeadingLevel { H1, H2 };
+enum class [[nodiscard]] HeadingLevel
+{
+    H1,
+    H2
+};
 
-export class [[nodiscard]] LayoutBuilderWithBackground final
+class [[nodiscard]] LayoutBuilderWithBackground final
 {
 public:
     LayoutBuilderWithBackground(tgui::Panel::Ptr container)
@@ -96,7 +95,7 @@ private:
     tgui::Panel::Ptr container;
 };
 
-export class [[nodiscard]] LayoutBuilder final
+class [[nodiscard]] LayoutBuilder final
 {
 public:
     static LayoutBuilderWithBackground

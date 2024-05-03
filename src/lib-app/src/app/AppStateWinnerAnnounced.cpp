@@ -1,7 +1,6 @@
+#include "GuiBuilder.hpp"
 #include <app/AppStateScoreTable.hpp>
 #include <app/AppStateWinnerAnnounced.hpp>
-
-import WidgetBuilder;
 
 void AppStateWinnerAnnounced::input()
 {

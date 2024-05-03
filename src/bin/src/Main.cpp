@@ -1,4 +1,6 @@
+#include "Gui.hpp"
 #include "Loader.hpp"
+#include "utils/DependencyContainer.hpp"
 #include <DGM/dgm.hpp>
 #include <app/AppStateMainMenu.hpp>
 #include <core/Scene.hpp>
@@ -11,7 +13,6 @@ import Audio;
 import Input;
 import Resources;
 import Error;
-import Gui;
 
 CmdParameters processCmdParameters(int argc, char* argv[])
 {
@@ -21,7 +22,7 @@ CmdParameters processCmdParameters(int argc, char* argv[])
         ("s,skip-menu", "Start game directly")
         ("r,resource-dir", "Path to resources", cxxopts::value<std::string>())
         ("m,map", "Map name", cxxopts::value<std::string>())
-    ("d,demofile", "Path to demo file", cxxopts::value<std::string>())
+        ("d,demofile", "Path to demo file", cxxopts::value<std::string>())
         ("p,play-demo", "Whether to replay demo file")
         ("c,count", "Number of players (1-4)", cxxopts::value<unsigned>())
         ("l,limit", "Fraglimit", cxxopts::value<unsigned>());

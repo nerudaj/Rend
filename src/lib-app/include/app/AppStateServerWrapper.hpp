@@ -1,3 +1,4 @@
+#include "utils/DependencyContainer.hpp"
 #include <DGM/dgm.hpp>
 #include <TGUI/Backend/SFML-Graphics.hpp>
 #include <TGUI/TGUI.hpp>
@@ -10,7 +11,6 @@ import Network;
 import Input;
 import Options;
 import AppMessage;
-import DependencyContainer;
 
 enum class [[nodiscard]] ServerWrapperTarget
 {

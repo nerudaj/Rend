@@ -6,6 +6,7 @@
 #include "engine/GameRulesEngine.hpp"
 #include "engine/PhysicsEngine.hpp"
 #include "engine/RenderingEngine.hpp"
+#include "utils/DependencyContainer.hpp"
 #include <DGM/dgm.hpp>
 #include <GameLoop.hpp>
 #include <LevelD.hpp>
@@ -23,7 +24,6 @@ import Input;
 import Memory;
 import Network;
 import Options;
-import DependencyContainer;
 
 class [[nodiscard]] AppStateIngame final : public dgm::AppState
 {

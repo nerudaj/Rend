@@ -1,10 +1,10 @@
 #pragma once
 
+#include "Gui.hpp"
 #include "Interfaces/SidebarUserInterface.hpp"
 #include "Tools/ToolPenHistory.hpp"
 
 import Memory;
-import Gui;
 
 class SidebarUserWithSprites : public SidebarUserInterface
 {

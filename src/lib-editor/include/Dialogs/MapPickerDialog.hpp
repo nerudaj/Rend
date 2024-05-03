@@ -3,9 +3,6 @@
 #include <Dialogs/DialogBase.hpp>
 #include <vector>
 
-import FormBuilder;
-import WidgetBuilder;
-
 struct MapSettingsForPicker
 {
     std::string name;
