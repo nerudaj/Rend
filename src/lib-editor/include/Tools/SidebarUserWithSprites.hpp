@@ -3,13 +3,12 @@
 #include "Gui.hpp"
 #include "Interfaces/SidebarUserInterface.hpp"
 #include "Tools/ToolPenHistory.hpp"
+#include <Memory.hpp>
 
-import Memory;
-
-class SidebarUserWithSprites : public SidebarUserInterface
+class [[nodiscard]] SidebarUserWithSprites : public SidebarUserInterface
 {
 public:
-    SidebarUserWithSprites(mem::Rc<Gui> gui) noexcept
+    explicit SidebarUserWithSprites(mem::Rc<Gui> gui) noexcept
         : SidebarUserInterface(gui)
     {
     }

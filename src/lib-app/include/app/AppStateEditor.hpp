@@ -16,12 +16,11 @@
 #include "utils/DependencyContainer.hpp"
 #include <DGM/dgm.hpp>
 #include <LevelMetadata.hpp>
+#include <Memory.hpp>
 #include <TGUI/Backend/SFML-Graphics.hpp>
 #include <TGUI/TGUI.hpp>
 #include <optional>
 #include <stack>
-
-import Memory;
 
 class [[nodiscard]] AppStateEditor final : public dgm::AppState
 {

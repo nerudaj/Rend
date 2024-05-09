@@ -1,13 +1,12 @@
 #pragma once
 
 #include "Dialogs/DialogBase.hpp"
+#include <Memory.hpp>
 #include <filesystem>
 #include <functional>
 #include <string>
 
-import Memory;
-
-enum class UserChoice
+enum class [[nodiscard]] UserChoice
 {
     Confirmed = 0,
     Denied,

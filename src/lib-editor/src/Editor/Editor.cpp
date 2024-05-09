@@ -4,6 +4,8 @@
 #include "Configs/Strings.hpp"
 #include "JsonHelper.hpp"
 #include "Utilities/Utilities.hpp"
+#include <Filesystem.hpp>
+#include <TexturePath.hpp>
 #include <filesystem>
 #include <fstream>
 
@@ -16,9 +18,6 @@ const std::vector<bool> DEFAULT_BLOCKS = { false, false, false, false,
                                            false, true,  true,  true,
                                            true,  true,  true,  true,
                                            true,  true,  true,  true };
-
-import TexturePath;
-import Resources;
 
 Editor::Editor(
     mem::Rc<Gui> _gui,

@@ -2,11 +2,10 @@
 #include "TestHelpers/LeveldBuilder.hpp"
 #include "TestHelpers/TestAssets.hpp"
 #include "Tools/LayerController.hpp"
+#include <Memory.hpp>
 #include <TestHelpers/NullCallback.hpp>
 #include <Tools/ToolItem.hpp>
 #include <catch.hpp>
-
-import Memory;
 
 LevelD createLevelWithSpawns(unsigned spawnCount)
 {

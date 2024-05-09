@@ -2,8 +2,7 @@
 
 #include "Gui.hpp"
 #include "Interfaces/DialogInterfaces.hpp"
-
-import Memory;
+#include <Memory.hpp>
 
 class [[nodiscard]] LoadingDialog final
 {

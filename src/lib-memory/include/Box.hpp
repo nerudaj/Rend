@@ -1,11 +1,9 @@
-module;
+#pragma once
 
 #include <concepts>
 #include <stdexcept>
 
-export module Box;
-
-export namespace mem
+namespace mem
 {
 	/**
 	 *  Memory safe version of std::unique_ptr

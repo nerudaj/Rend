@@ -5,12 +5,11 @@
 #include "GuiState.hpp"
 #include "utils/DependencyContainer.hpp"
 #include <Dialogs/MapPickerDialog.hpp>
+#include <Memory.hpp>
 #include <TGUI/Backend/SFML-Graphics.hpp>
 #include <TGUI/TGUI.hpp>
 #include <dgm/classes/AppState.hpp>
 #include <dgm/classes/ResourceManager.hpp>
-
-import Memory;
 
 class [[nodiscard]] AppStateGameSetup final
     : public dgm::AppState

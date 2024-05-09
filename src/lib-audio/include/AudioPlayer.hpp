@@ -4,10 +4,9 @@
 #include <DGM/DGM.hpp>
 #include <SFML/Audio.hpp>
 #pragma warning(pop)
-#include <vector>
 #include "AudioPlayerInterface.hpp"
-
-import Memory;
+#include <Memory.hpp>
+#include <vector>
 
 constexpr const unsigned CHANNEL_COUNT = 10;
 

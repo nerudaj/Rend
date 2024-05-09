@@ -5,8 +5,7 @@
 #include "MetadataDialogBase.hpp"
 #include <DGM/dgm.hpp>
 #include <LevelMetadata.hpp>
-
-import Memory;
+#include <Memory.hpp>
 
 class [[nodiscard]] EditMetadataDialog final
     : protected ModernDialogInterface

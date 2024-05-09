@@ -4,10 +4,9 @@
 #include <SFML/Network.hpp>
 #pragma warning(pop)
 #include "ServerMessage.hpp"
+#include <Error.hpp>
+#include <Memory.hpp>
 #include <functional>
-
-import Error;
-import Memory;
 
 struct PlayerConfig
 {

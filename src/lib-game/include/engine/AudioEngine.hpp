@@ -3,11 +3,10 @@
 #include "AudioPlayerInterface.hpp"
 #include "events/AudioEvents.hpp"
 #include <DGM/DGM.hpp>
+#include <Memory.hpp>
 #include <core/Scene.hpp>
 
-import Memory;
-
-class AudioEngine final
+class [[nodiscard]] AudioEngine final
 {
 public:
     [[nodiscard]] AudioEngine(

@@ -4,19 +4,18 @@
 #include "core/Types.hpp"
 #include "events/GameRuleEvents.hpp"
 #include <DGM/DGM.hpp>
+#include <Memory.hpp>
 #include <events/EventQueue.hpp>
 #include <utils/Hitscanner.hpp>
 
-import Memory;
-
-struct GiveResult
+struct [[nodiscard]] GiveResult final
 {
     bool given = true;
     bool removePickup = true;
     bool playSound = true;
 };
 
-class GameRulesEngine final
+class [[nodiscard]] GameRulesEngine final
 {
 public:
     [[nodiscard]] GameRulesEngine(

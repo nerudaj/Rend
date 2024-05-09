@@ -1,11 +1,10 @@
 #pragma once
 
+#include <Literals.hpp>
 #include <core/Enums.hpp>
 #include <core/Scene.hpp>
 
-import Literals;
-
-struct Script
+struct [[nodiscard]] Script final
 {
     ScriptId id = ScriptId::NoAction;
     const std::string sound = "";
@@ -15,7 +14,7 @@ struct Script
     int damage = 0;
 };
 
-struct AnimationFrame
+struct [[nodiscard]] AnimationFrame final
 {
     SpriteId spriteId = SpriteId::ErrorRender;
     std::size_t duration = 10; // in ticks
@@ -24,7 +23,7 @@ struct AnimationFrame
 
 using AnimationClip = std::vector<AnimationFrame>;
 
-struct AnimationState
+struct [[nodiscard]] AnimationState final
 {
     AnimationClip clip;
     AnimationStateId transition = AnimationStateId::Idle;
@@ -32,7 +31,7 @@ struct AnimationState
 
 using EntityStates = std::map<AnimationStateId, AnimationState>;
 
-struct EntityProperties
+struct [[nodiscard]] EntityProperties final
 {
     float radius = 0_px;
     float speed = 0.f;

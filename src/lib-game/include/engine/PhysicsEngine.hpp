@@ -2,12 +2,11 @@
 
 #include "core/Scene.hpp"
 #include <DGM/DGM.hpp>
+#include <Memory.hpp>
 #include <core/EntityDefinitionTypes.hpp>
 #include <events/EventQueue.hpp>
 
-import Memory;
-
-class PhysicsEngine final
+class [[nodiscard]] PhysicsEngine final
 {
 public:
     [[nodiscard]] PhysicsEngine(

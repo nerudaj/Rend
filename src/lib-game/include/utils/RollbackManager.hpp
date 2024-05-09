@@ -1,10 +1,9 @@
 #pragma once
 
+#include <Error.hpp>
 #include <format>
 #include <functional>
 #include <utils/RoundRobinBuffer.hpp>
-
-import Error;
 
 template<class T, size_t Capacity>
 class [[nodiscard]] RollbackManager final

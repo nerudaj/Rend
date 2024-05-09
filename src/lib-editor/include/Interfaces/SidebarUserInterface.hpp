@@ -1,12 +1,11 @@
 #pragma once
 
 #include "Gui.hpp"
+#include <Memory.hpp>
 #include <TGUI/Backend/SFML-Graphics.hpp>
 #include <TGUI/Tgui.hpp>
 
-import Memory;
-
-class SidebarUserInterface
+class [[nodiscard]] SidebarUserInterface
 {
 public:
     SidebarUserInterface(mem::Rc<Gui> gui) noexcept : gui(gui) {}

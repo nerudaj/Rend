@@ -1,10 +1,9 @@
 #pragma once
 
 #include "Interfaces/CommandInterface.hpp"
+#include <Memory.hpp>
 
-import Memory;
-
-class UndoableCommandInterface : public CommandInterface
+class [[nodiscard]] UndoableCommandInterface : public CommandInterface
 {
 public:
     [[nodiscard]] virtual mem::Box<CommandInterface> getInverse() const = 0;

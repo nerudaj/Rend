@@ -1,8 +1,7 @@
+#include <ai/UtilityAi.hpp>
 #include <core/EntityDefinitions.hpp>
 #include <engine/AiEngine.hpp>
 #include <utils/MathHelpers.hpp>
-
-import UtilityAi;
 
 void AiEngine::update(const float deltaTime)
 {

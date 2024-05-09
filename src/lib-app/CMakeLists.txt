@@ -2,11 +2,6 @@ cmake_minimum_required ( VERSION 3.19 )
 
 project ( lib-app )
 
-configure_file (
-	"${CMAKE_CURRENT_SOURCE_DIR}/include/settings/GameTitle.hpp.in"
-	"${CMAKE_CURRENT_SOURCE_DIR}/include/settings/GameTitle.hpp"
-)
-
 get_latest_clang_format()
 glob_sources_and_headers( HEADERS SOURCES )
 

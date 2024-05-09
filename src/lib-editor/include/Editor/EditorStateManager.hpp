@@ -2,13 +2,12 @@
 
 #include "Editor/EditorState.hpp"
 #include "Interfaces/ToolInterface.hpp"
+#include <Memory.hpp>
 #include <functional>
 #include <map>
 #include <vector>
 
-import Memory;
-
-class EditorStateManager
+class [[nodiscard]] EditorStateManager final
 {
 private:
     std::map<EditorState, mem::Box<ToolInterface>> statesToTools;

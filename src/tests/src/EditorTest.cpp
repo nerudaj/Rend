@@ -2,12 +2,11 @@
 #include "TestHelpers/NullCallback.hpp"
 #include "TestHelpers/TestAssets.hpp"
 #include <Editor/Editor.hpp>
+#include <Memory.hpp>
 #include <TGUI/Backend/SFML-Graphics.hpp>
 #include <TGUI/TGUI.hpp>
 #include <catch.hpp>
 #include <fakeit.hpp>
-
-import Memory;
 
 using namespace fakeit;
 

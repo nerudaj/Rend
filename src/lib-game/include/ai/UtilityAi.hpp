@@ -1,13 +1,11 @@
-module;
+#pragma once
 
 #include <core/Constants.hpp>
 #include <core/EntityDefinitions.hpp>
 #include <core/Enums.hpp>
 #include <core/Types.hpp>
 
-export module UtilityAi;
-
-export class UtilityAi
+class UtilityAi
 {
 public:
     [[nodiscard]] static int getPickupScore(

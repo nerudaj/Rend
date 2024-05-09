@@ -1,12 +1,10 @@
-module;
+#pragma once
 
 #include <LevelTheme.hpp>
 #include <stdexcept>
 #include <string>
 
-export module TexturePath;
-
-export class TexturePath final
+class TexturePath final
 {
 public:
     static [[nodiscard]] std::string getTilesetName(TexturePack packId)

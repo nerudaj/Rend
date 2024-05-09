@@ -2,10 +2,10 @@
 
 #include <core/Scene.hpp>
 
-class EngineCommonBase
+class [[nodiscard]] EngineCommonBase
 {
 public:
-    EngineCommonBase(Scene& scene) noexcept : scene(scene) {}
+    explicit EngineCommonBase(Scene& scene) noexcept : scene(scene) {}
 
     virtual ~EngineCommonBase() = default;
 

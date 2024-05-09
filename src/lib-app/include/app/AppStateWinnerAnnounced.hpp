@@ -1,12 +1,11 @@
 #pragma once
 
-import Memory;
-
 #include "GameSettings.hpp"
 #include "GuiState.hpp"
 #include "utils/DependencyContainer.hpp"
 #include <DGM/classes/AppState.hpp>
 #include <DGM/classes/Traits.hpp>
+#include <Memory.hpp>
 #include <TGUI/Backend/SFML-Graphics.hpp>
 #include <TGUI/TGUI.hpp>
 
@@ -20,7 +19,6 @@ public:
         mem::Rc<DependencyContainer> dic,
         const GameOptions& gameSettings,
         dgm::UniversalReference<std::vector<int>> auto&& scores)
-        // TODO: should update underlying state as well
         : dgm::AppState(
             app, dgm::AppStateConfig { .shouldDrawUnderlyingState = true })
         , GuiState(dic)

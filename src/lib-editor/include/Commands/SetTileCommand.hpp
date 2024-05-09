@@ -4,9 +4,8 @@
 #include "Interfaces/UndoableCommandInterface.hpp"
 #include "LevelMesh/DrawableLeveldMesh.hpp"
 #include "Utilities/InitGuard.hpp"
+#include <Memory.hpp>
 #include <SFML/System/Vector2.hpp>
-
-import Memory;
 
 class SetTileCommand final : public UndoableCommandInterface
 {

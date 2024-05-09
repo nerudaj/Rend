@@ -4,12 +4,11 @@
 #include "Editor/Editor.hpp"
 #include "Editor/NullEditor.hpp"
 #include "app/AppStateIngame.hpp"
+#include <Filesystem.hpp>
 #include <LevelMetadata.hpp>
 #include <atomic>
 #include <cmath>
 #include <expected>
-
-import Resources;
 
 AppStateEditor::AppStateEditor(
     dgm::App& app,

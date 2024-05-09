@@ -1,9 +1,8 @@
 #include "GuiBuilder.hpp"
+#include "utils/AppMessage.hpp"
 #include <Configs/Sizers.hpp>
 #include <Configs/Strings.hpp>
 #include <app/AppStateScoreTable.hpp>
-
-import AppMessage;
 
 void AppStateScoreTable::input()
 {

@@ -4,9 +4,8 @@
 #include "Interfaces/UndoableCommandInterface.hpp"
 #include "Utilities/InitGuard.hpp"
 #include <LevelD.hpp>
+#include <Memory.hpp>
 #include <SFML/System/Vector2.hpp>
-
-import Memory;
 
 template<TriggerOrThing ObjectType>
 class SetObjectPropertyCommand : public UndoableCommandInterface

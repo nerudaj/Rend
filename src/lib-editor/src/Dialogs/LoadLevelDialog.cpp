@@ -1,8 +1,7 @@
 #include "Dialogs/LoadLevelDialog.hpp"
 #include "Configs/Strings.hpp"
 #include "GuiBuilder.hpp"
-
-import Resources;
+#include <Filesystem.hpp>
 
 constexpr const char* SELECT_PACK_ID = "SelectPackId";
 constexpr const char* SELECT_LEVEL_ID = "SelectLevelId";

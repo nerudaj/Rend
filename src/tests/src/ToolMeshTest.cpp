@@ -4,9 +4,8 @@
 #include "TestHelpers/NullCallback.hpp"
 #include "TestHelpers/TestAssets.hpp"
 #include "Tools/LayerController.hpp"
+#include <Memory.hpp>
 #include <catch.hpp>
-
-import Memory;
 
 TEST_CASE("[ToolMesh]")
 {

@@ -15,10 +15,9 @@
 #include "Tools/ToolItem.hpp"
 #include "Tools/ToolMesh.hpp"
 #include <DGM/dgm.hpp>
+#include <Memory.hpp>
 #include <TGUI/Backend/SFML-Graphics.hpp>
 #include <TGUI/TGUI.hpp>
-
-import Memory;
 
 class [[nodiscard]] Editor final : public EditorInterface
 {

@@ -1,10 +1,9 @@
 #pragma once
 
+#include <Error.hpp>
 #include <cstdint>
 #include <expected>
 #include <string>
-
-import Error;
 
 using PlayerIdType = std::uint8_t;
 using ChecksumType = std::uint64_t;

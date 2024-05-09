@@ -3,6 +3,8 @@
 #include "utils/HudMessage.hpp"
 #include <DGM/dgm.hpp>
 #include <LevelTheme.hpp>
+#include <Memory.hpp>
+#include <ai/AiEnums.hpp>
 #include <array>
 #include <bitset>
 #include <core/Constants.hpp>
@@ -14,16 +16,13 @@
 #include <utils/DistanceIndex.hpp>
 #include <utils/SemanticTypes.hpp>
 
-import Memory;
-import AiEnums;
-
-struct HitscanResult
+struct [[nodiscard]] HitscanResult final
 {
     sf::Vector2f impactPosition;
     std::optional<EntityIndexType> impactedEntityIdx = std::nullopt;
 };
 
-struct AnimationContext
+struct [[nodiscard]] AnimationContext final
 {
     SpriteId spriteClipIndex;
     AnimationStateId animationStateId = AnimationStateId::Idle;
@@ -32,7 +31,7 @@ struct AnimationContext
         lastAnimationUpdate; // number of ticks since last animation update
 };
 
-struct Entity
+struct [[nodiscard]] Entity final
 {
     EntityType typeId;
     AnimationContext animationContext;

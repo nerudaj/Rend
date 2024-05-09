@@ -1,13 +1,18 @@
-module;
+#pragma once
 
 #include <map>
 #include <string>
 
-export module AiEnums;
+enum class [[nodiscard]] AiTopState
+{
+    BootstrapAlive,
+    Alive,
+    BootstrapDead,
+    Dead
+};
 
-export enum class AiTopState { BootstrapAlive, Alive, BootstrapDead, Dead };
-
-export enum class AiState {
+enum class [[nodiscard]] AiState
+{
     ChoosingGatherLocation,
     Gathering,
     GatheringAfterHurt,
@@ -37,14 +42,14 @@ export enum class AiState {
     ExecutingDelayedTransition,
 };
 
-export const std::map<AiTopState, std::string> TOP_STATES_TO_STRING = {
+const std::map<AiTopState, std::string> TOP_STATES_TO_STRING = {
     { AiTopState::BootstrapAlive, "BootstrapAlive" },
     { AiTopState::Alive, "Alive" },
     { AiTopState::BootstrapDead, "BootstrapDead" },
     { AiTopState::Dead, "Dead" }
 };
 
-export const std::map<AiState, std::string> AI_STATE_TO_STRING = {
+const std::map<AiState, std::string> AI_STATE_TO_STRING = {
     { AiState::ChoosingGatherLocation, "ChoosingGatherLocation" },
     { AiState::Gathering, "Gathering" },
     { AiState::GatheringAfterHurt, "GatheringAfterHurt" },
@@ -69,7 +74,8 @@ export const std::map<AiState, std::string> AI_STATE_TO_STRING = {
     { AiState::ExecutingDelayedTransition, "ExecutingDelayedTransition" },
 };
 
-export enum class AiPersonality {
+enum class [[nodiscard]] AiPersonality
+{
     Default,
     Tank,     // ignores hurt
     Flash,    // no targetting timer,

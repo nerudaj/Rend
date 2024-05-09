@@ -7,14 +7,13 @@
 #include "Interfaces/ToolPropertyInterface.hpp"
 #include "Utilities/Rect.hpp"
 #include <DGM/dgm.hpp>
+#include <Error.hpp>
 #include <LevelD.hpp>
 #include <TGUI/Backend/SFML-Graphics.hpp>
 #include <TGUI/TGUI.hpp>
 #include <expected>
 #include <nlohmann/json.hpp>
 #include <optional>
-
-import Error;
 
 using ExpectedPropertyPtr =
     std::expected<mem::Box<ToolPropertyInterface>, BaseError>;

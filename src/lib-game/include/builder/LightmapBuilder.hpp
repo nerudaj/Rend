@@ -8,7 +8,7 @@
 #include <queue>
 #include <type_traits>
 
-struct LightPoint
+struct [[nodiscard]] LightPoint final
 {
     MeshItrType x, y;
     LightType lightLevel;

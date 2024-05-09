@@ -1,13 +1,12 @@
 #include "engine/GameRulesEngine.hpp"
 #include "events/EventQueue.hpp"
 #include <Configs/Strings.hpp>
+#include <CoreTypes.hpp>
 #include <builder/SceneBuilder.hpp>
 #include <core/EntityDefinitions.hpp>
 #include <utils/MathHelpers.hpp>
 
 #pragma region EventHandling
-
-import CoreTypes;
 
 void GameRulesEngine::operator()(const PickablePickedUpGameEvent& e)
 {

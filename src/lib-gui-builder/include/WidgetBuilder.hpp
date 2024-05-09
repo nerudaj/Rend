@@ -1,11 +1,10 @@
 #pragma once
 
+#include <Memory.hpp>
 #include <TGUI/Backend/SFML-Graphics.hpp>
 #include <TGUI/TGUI.hpp>
 #include <functional>
 #include <string>
-
-import Memory;
 
 const tgui::Color PANEL_BACKGROUND_COLOR = tgui::Color(255, 255, 255, 64);
 

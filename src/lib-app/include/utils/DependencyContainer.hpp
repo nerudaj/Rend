@@ -6,8 +6,7 @@
 #include "Jukebox.hpp"
 #include "PhysicalController.hpp"
 #include <DGM/classes/ResourceManager.hpp>
-
-import Memory;
+#include <Memory.hpp>
 
 struct [[nodiscard]] DependencyContainer final
 {

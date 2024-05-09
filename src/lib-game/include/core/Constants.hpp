@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Literals.hpp>
 #include <SFML/Graphics/Color.hpp>
 #include <SFML/System/Vector2.hpp>
 #include <array>
@@ -8,8 +9,6 @@
 #include <map>
 #include <numbers>
 #include <utils/SemanticTypes.hpp>
-
-import Literals;
 
 // Movement
 constinit const float PLAYER_RADIAL_SPEED = 88.f; // degrees per second

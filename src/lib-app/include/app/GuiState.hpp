@@ -1,15 +1,14 @@
 #pragma once
 
+#include "utils/AppMessage.hpp"
 #include "utils/DependencyContainer.hpp"
 #include <Configs/Sizers.hpp>
 #include <Configs/Strings.hpp>
+#include <CoreTypes.hpp>
 #include <DGM/dgm.hpp>
+#include <Memory.hpp>
 #include <TGUI/Backend/SFML-Graphics.hpp>
 #include <TGUI/TGUI.hpp>
-
-import Memory;
-import AppMessage;
-import CoreTypes;
 
 class [[nodiscard]] GuiState
 {
@@ -25,7 +24,7 @@ protected:
 
     void buildLayout()
     {
-        dic->gui->gui.removeAllWidgets();
+        dic->gui->removeAllWidgets();
         buildLayoutImpl();
     }
 

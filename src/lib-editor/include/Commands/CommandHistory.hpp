@@ -1,12 +1,10 @@
 #pragma once
 
 #include "Interfaces/UndoableCommandInterface.hpp"
-#include <memory>
+#include <Memory.hpp>
 #include <vector>
 
-import Memory;
-
-class CommandHistory final
+class [[nodiscard]] CommandHistory final
 {
     std::vector<mem::Rc<UndoableCommandInterface>> commands;
     unsigned index = 0;

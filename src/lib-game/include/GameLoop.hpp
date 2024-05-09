@@ -2,6 +2,7 @@
 
 #include "AudioPlayer.hpp"
 #include <DGM/dgm.hpp>
+#include <Memory.hpp>
 #include <core/Scene.hpp>
 #include <engine/AiEngine.hpp>
 #include <engine/AnimationEngine.hpp>
@@ -11,8 +12,6 @@
 #include <engine/RenderingEngine.hpp>
 #include <events/EventQueue.hpp>
 #include <ranges>
-
-import Memory;
 
 class [[nodiscard]] GameLoop final
 {

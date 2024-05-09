@@ -2,13 +2,12 @@
 #include "builder/VertexArrayBuilder.hpp"
 #include <Configs/Sizers.hpp>
 #include <Configs/Strings.hpp>
+#include <TexturePath.hpp>
 #include <builder/RenderContextBuilder.hpp>
 #include <core/EntityDefinitions.hpp>
 #include <numbers>
 #include <ranges>
 #include <utils/MathHelpers.hpp>
-
-import TexturePath;
 
 [[nodiscard]] static std::pair<std::uint8_t, bool> getRotatedSpriteClipId(
     const sf::Vector2f& cameraDir,

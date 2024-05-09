@@ -1,15 +1,14 @@
 #include "Gui.hpp"
 #include "Loader.hpp"
 #include "utils/DependencyContainer.hpp"
+#include <Configs/Strings.hpp>
 #include <DGM/dgm.hpp>
+#include <Error.hpp>
+#include <Filesystem.hpp>
+#include <Memory.hpp>
 #include <app/AppStateMainMenu.hpp>
 #include <core/Scene.hpp>
 #include <cxxopts.hpp>
-#include <settings/GameTitle.hpp>
-
-import Memory;
-import Resources;
-import Error;
 
 CmdParameters processCmdParameters(int argc, char* argv[])
 {
@@ -102,7 +101,7 @@ int main(int argc, char* argv[])
         .resolution = sf::Vector2u(
             settings->display.resolution.width,
             settings->display.resolution.height),
-        .title = GAME_TITLE,
+        .title = Strings::CAPTITLE,
         .useFullscreen = settings->display.isFullscreen
     };
 

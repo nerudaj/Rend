@@ -1,12 +1,10 @@
-module;
+#pragma once
 
 #include <concepts>
 #include <stdexcept>
 #include <memory>
 
-export module Rc;
-
-export namespace mem
+namespace mem
 {
 	/**
 	 *  \brief Single-threaded smart pointer with following properties:
@@ -23,7 +21,7 @@ export namespace mem
 	 *  * Null dereference
 	 */
 	template<class T>
-	class Rc
+	class [[nodiscard]] Rc final
 	{
 	public:
 		Rc(std::nullptr_t) = delete;

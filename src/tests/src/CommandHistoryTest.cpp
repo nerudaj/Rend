@@ -1,21 +1,22 @@
 #include "Commands/CommandHistory.hpp"
+#include <Memory.hpp>
 #include <catch.hpp>
 
-import Memory;
-
-struct TestBlackboard
+struct [[nodiscard]] TestBlackboard final
 {
     unsigned execCalled = 0;
     unsigned getInverseCalled = 0;
 };
 
-class TestCommand : public UndoableCommandInterface
+class [[nodiscard]] TestCommand final : public UndoableCommandInterface
 {
 protected:
     TestBlackboard& board;
 
 public:
-    TestCommand(TestBlackboard& testBlackboard) : board(testBlackboard) {}
+    explicit TestCommand(TestBlackboard& testBlackboard) : board(testBlackboard)
+    {
+    }
 
 public:
     void exec() override

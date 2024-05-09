@@ -6,25 +6,24 @@
 #include "render/Raycaster.hpp"
 #include <DGM/DGM.hpp>
 #include <LevelD.hpp>
+#include <Memory.hpp>
 
-import Memory;
-
-struct ClippableTexture
+struct [[nodiscard]] ClippableTexture final
 {
     const sf::Texture& texture;
     dgm::Clip clipping;
 };
 
-struct ClippableRect
+struct [[nodiscard]] ClippableRect final
 {
     sf::RectangleShape sprite;
     dgm::Clip clipping;
 };
 
-class RenderingEngine final
+class [[nodiscard]] RenderingEngine final
 {
 public:
-    [[nodiscard]] RenderingEngine(
+    RenderingEngine(
         const DisplayOptions& settings,
         const dgm::ResourceManager& resmgr,
         Scene& scene);

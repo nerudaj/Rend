@@ -1,12 +1,10 @@
-module;
+#pragma once
 
 #include <type_traits>
+#include "Box.hpp"
+#include "Rc.hpp"
 
-export module Traits;
-
-import Box;
-
-export namespace mem
+namespace mem
 {
 	template<class T>
 	struct IsBox : std::false_type
@@ -21,6 +19,6 @@ export namespace mem
 	{};
 
 	template<class T>
-	struct IsRc<Box<T>> : std::true_type
+	struct IsRc<Rc<T>> : std::true_type
 	{};
 }

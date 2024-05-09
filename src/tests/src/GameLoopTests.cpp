@@ -1,5 +1,6 @@
 #include "TestHelpers/SceneBuilder.hpp"
 #include <GameLoop.hpp>
+#include <Memory.hpp>
 #include <builder/SceneBuilder.hpp>
 #include <catch.hpp>
 #include <core/Scene.hpp>
@@ -20,8 +21,6 @@ public:
     bool soundTriggered = false;
     unsigned playedSoundCount = 0;
 };
-
-import Memory;
 
 TEST_CASE("[GameRuleEngine]")
 {

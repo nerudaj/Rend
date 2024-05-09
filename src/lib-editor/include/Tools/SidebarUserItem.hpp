@@ -3,6 +3,7 @@
 #include "Gui.hpp"
 #include "Tools/SidebarUserWithSprites.hpp"
 #include <LevelItemId.hpp>
+#include <Memory.hpp>
 #include <SFML/Graphics/Rect.hpp>
 #include <SFML/Graphics/Sprite.hpp>
 #include <SFML/Graphics/Texture.hpp>
@@ -10,12 +11,10 @@
 #include <utility>
 #include <vector>
 
-import Memory;
-
-class SidebarUserItem : public SidebarUserWithSprites
+class [[nodiscard]] SidebarUserItem final : public SidebarUserWithSprites
 {
 public:
-    struct ItemRenderData
+    struct [[nodiscard]] ItemRenderData final
     {
         sf::Texture texture;
         tgui::Texture guiTexture;
@@ -23,7 +22,7 @@ public:
         sf::Sprite sprite;
     };
 
-    struct PathRectPair
+    struct [[nodiscard]] PathRectPair final
     {
         std::filesystem::path texturePath;
         sf::IntRect clip;

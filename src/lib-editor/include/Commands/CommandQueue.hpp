@@ -2,12 +2,11 @@
 
 #include "Commands/CommandHistory.hpp"
 #include "Interfaces/UndoableCommandInterface.hpp"
+#include <Memory.hpp>
 #include <memory>
 #include <queue>
 
-import Memory;
-
-class CommandQueue final
+class [[nodiscard]] CommandQueue final
 {
 protected:
     mem::Rc<CommandHistory> history;
@@ -29,7 +28,7 @@ public:
 
     void processAll();
 
-    [[nodiscard]] bool isEmpty() const noexcept
+    [[nodiscard]] bool isEmpty() const noexcept(noexcept(commands.empty()))
     {
         return commands.empty();
     }

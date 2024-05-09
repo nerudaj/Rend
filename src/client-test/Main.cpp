@@ -1,9 +1,8 @@
 #include "Client.hpp"
+#include <Memory.hpp>
 #include <SFML/Network.hpp>
 #include <format>
 #include <iostream>
-
-import Memory;
 
 struct A
 {

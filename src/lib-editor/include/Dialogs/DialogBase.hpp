@@ -1,6 +1,9 @@
 #pragma once
 
 #include "Gui.hpp"
+#include <Error.hpp>
+#include <Literals.hpp>
+#include <Memory.hpp>
 #include <TGUI/Backend/SFML-Graphics.hpp>
 #include <TGUI/Tgui.hpp>
 #include <expected>
@@ -9,50 +12,46 @@
 #include <variant>
 #include <vector>
 
-import Memory;
-import Literals;
-import Error;
-
-struct OptionInput
+struct [[nodiscard]] OptionInput final
 {
     std::string label;
     std::string id;
     std::string value;
 };
 
-struct OptionDeferredInput
+struct [[nodiscard]] OptionDeferredInput final
 {
     std::string label;
     std::string id;
     std::function<std::string()> value;
 };
 
-struct OptionInputWithButton
+struct [[nodiscard]] OptionInputWithButton final
 {
     OptionInput base;
     std::function<void(void)> buttonCallback = [] {};
 };
 
-struct OptionDeferredInputWithButton
+struct [[nodiscard]] OptionDeferredInputWithButton final
 {
     OptionDeferredInput base;
     std::function<void(void)> buttonCallback = [] {};
 };
 
-struct OptionCheckbox
+struct [[nodiscard]] OptionCheckbox final
 {
     std::string label;
     std::string id;
     bool defaultValue = false;
 };
 
-struct OptionText
+struct [[nodiscard]] OptionText final
 {
     std::string text;
     unsigned rowsToAllocate;
 };
 
-struct OptionDropdown
+struct [[nodiscard]] OptionDropdown final
 {
     std::string label;
     std::string id;

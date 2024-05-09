@@ -1,6 +1,5 @@
+#include <Memory.hpp>
 #include <catch.hpp>
-
-import Memory;
 
 class Base
 {

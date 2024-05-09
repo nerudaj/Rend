@@ -1,16 +1,17 @@
-cmake_minimum_required ( VERSION 3.19 )
+cmake_minimum_required ( VERSION 3.26 )
 
-file (
-	COPY "${CMAKE_BINARY_DIR}/.clang-format"
-	DESTINATION "${CMAKE_CURRENT_SOURCE_DIR}"
-)
+get_latest_clang_format()
 
 project ( lib-misc )
 
-glob_modules ( SRCS )
+glob_sources_and_headers ( SRCS HDRS )
 
-add_library ( ${PROJECT_NAME} ${SRCS} )
+add_library (
+	${PROJECT_NAME} INTERFACE
+	${SRCS} ${HDRS}
+	"${CMAKE_CURRENT_SOURCE_DIR}/.clang-format"
+)
 
-target_link_libraries ( ${PROJECT_NAME} )
-
-autoset_target_compile_options ( ${PROJECT_NAME} FALSE )
+target_include_directories ( ${PROJECT_NAME}
+	INTERFACE "${CMAKE_CURRENT_SOURCE_DIR}/include"
+)

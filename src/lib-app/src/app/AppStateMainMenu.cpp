@@ -4,7 +4,6 @@
 #include "Utilities/TguiHelper.hpp"
 #include "app/AppStateIngame.hpp"
 #include "app/AppStateMenuOptions.hpp"
-#include "settings/GameTitle.hpp"
 #include <app/AppStateServerWrapper.hpp>
 
 void AppStateMainMenu::buildLayoutImpl()
@@ -12,7 +11,7 @@ void AppStateMainMenu::buildLayoutImpl()
     dic->gui->add(
         LayoutBuilder::withBackgroundImage(
             dic->resmgr->get<sf::Texture>("menu_title.png").value().get())
-            .withTitle("rend", HeadingLevel::H1)
+            .withTitle(Strings::TITLE, HeadingLevel::H1)
             .withContent(ButtonListBuilder()
                              .addButton(
                                  Strings::AppState::MainMenu::PLAY,

@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Literals.hpp>
 #include <core/EntityDefinitionTypes.hpp>
 #include <map>
 #include <utils/SemanticTypes.hpp>

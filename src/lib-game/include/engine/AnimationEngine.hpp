@@ -1,14 +1,13 @@
 #pragma once
 
+#include <Memory.hpp>
 #include <core/EntityDefinitionTypes.hpp>
 #include <core/Scene.hpp>
 #include <engine/EngineCommonBase.hpp>
 #include <events/AnimationEvents.hpp>
 #include <events/EventQueue.hpp>
 
-import Memory;
-
-class AnimationEngine final : public EngineCommonBase
+class [[nodiscard]] AnimationEngine final : public EngineCommonBase
 {
 public:
     [[nodiscard]] AnimationEngine(

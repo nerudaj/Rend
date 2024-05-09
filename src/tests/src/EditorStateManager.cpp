@@ -2,12 +2,11 @@
 #include "TestHelpers/NullCallback.hpp"
 #include "Tools/LayerController.hpp"
 #include <Editor/EditorStateManager.hpp>
+#include <Memory.hpp>
 #include <Shortcuts/ShortcutEngine.hpp>
 #include <TGUI/Backend/SFML-Graphics.hpp>
 #include <TGUI/TGUI.hpp>
 #include <catch.hpp>
-
-import Memory;
 
 class ToolMock : public ToolInterface
 {

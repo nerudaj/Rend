@@ -1,14 +1,14 @@
 #pragma once
 
+#include "ai/AiEnums.hpp"
 #include <DGM/fsm.hpp>
+#include <Memory.hpp>
 #include <core/Enums.hpp>
 #include <core/Scene.hpp>
 #include <ranges>
 #include <utils/Hitscanner.hpp>
 
-import Memory;
-
-class AiEngine final
+class [[nodiscard]] AiEngine final
 {
 public:
     [[nodiscard]] AiEngine(Scene& scene);

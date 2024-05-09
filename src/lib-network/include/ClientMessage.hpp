@@ -1,9 +1,9 @@
 #pragma once
 
+#include "ClientMessageType.hpp"
+#include "NetworkTypes.hpp"
 #include <SFML/Network.hpp>
 #include <string>
-
-#include "ClientMessageType.hpp"
 
 struct [[nodiscard]] ClientMessage final
 {

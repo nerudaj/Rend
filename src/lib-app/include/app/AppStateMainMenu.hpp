@@ -1,9 +1,8 @@
 #pragma once
 
-import Memory;
-
 #include "GuiState.hpp"
 #include "utils/DependencyContainer.hpp"
+#include <Memory.hpp>
 #include <vector>
 
 class [[nodiscard]] AppStateMainMenu final

@@ -3,10 +3,9 @@
 #include "DialogBase.hpp"
 #include "MetadataDialogBase.hpp"
 #include <LevelTheme.hpp>
+#include <Memory.hpp>
 #include <string>
 #include <vector>
-
-import Memory;
 
 class [[nodiscard]] ModernNewLevelDialog final
     : public ModernDialogInterface

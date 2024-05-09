@@ -3,10 +3,10 @@
 #include "Interfaces/UndoableCommandInterface.hpp"
 #include "LevelMesh/DrawableLeveldMesh.hpp"
 #include "Utilities/InitGuard.hpp"
+#include <Memory.hpp>
 
-import Memory;
-
-class SetTilePropertyCommand : public UndoableCommandInterface
+class [[nodiscard]] SetTilePropertyCommand final
+    : public UndoableCommandInterface
 {
 public:
     SetTilePropertyCommand(

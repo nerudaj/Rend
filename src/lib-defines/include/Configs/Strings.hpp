@@ -160,6 +160,9 @@ namespace Strings
         RAWSTRING TEXTURES_COUNTRY = "Countryside";
         RAWSTRING TEXTURES_NEON = "Neon";
     } // namespace Level
+
+    RAWSTRING TITLE = "rend";
+    RAWSTRING CAPTITLE = "Rend";
 } // namespace Strings
 
 #undef RAWSTRING

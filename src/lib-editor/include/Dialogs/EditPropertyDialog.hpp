@@ -5,11 +5,10 @@
 #include "Gui.hpp"
 #include "Interfaces/ToolInterface.hpp"
 #include "Interfaces/ToolPropertyInterface.hpp"
+#include <Memory.hpp>
 #include <functional>
 
-import Memory;
-
-class EditPropertyDialog final
+class [[nodiscard]] EditPropertyDialog final
 {
 public:
     [[nodiscard]] EditPropertyDialog(mem::Rc<Gui> gui) noexcept : gui(gui) {}

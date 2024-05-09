@@ -1,11 +1,10 @@
 ﻿#include "Dialogs/SaveLevelDialog.hpp"
 #include "Configs/Strings.hpp"
 #include "GuiBuilder.hpp"
+#include <Filesystem.hpp>
 
 constexpr const char* PACK_NAME_ID = "PackNameId";
 constexpr const char* LEVEL_NAME_ID = "LevelNameId";
-
-import Resources;
 
 NewSaveLevelDialog::NewSaveLevelDialog(
     mem::Rc<Gui> gui, const std::filesystem::path& levelsDir)

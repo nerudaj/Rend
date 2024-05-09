@@ -40,6 +40,11 @@ public:
         gui.draw();
     }
 
+    void removeAllWidgets()
+    {
+        gui.removeAllWidgets();
+    }
+
 public:
     tgui::Gui gui;
     std::shared_ptr<tgui::Theme> theme = tgui::Theme::create();
