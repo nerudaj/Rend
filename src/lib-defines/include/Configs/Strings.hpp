@@ -78,7 +78,10 @@ namespace Strings
         namespace PeerLobby
         {
             RAWSTRING TITLE = "lobby";
-        }
+            RAWSTRING READY = "ready";
+            RAWSTRING PNAME = "player name";
+            RAWSTRING IS_READY = "is ready";
+        } // namespace PeerLobby
 
         namespace Pause
         {

@@ -47,7 +47,15 @@ private:
 
     ExpectedLog handleReportedInput(const ClientMessage& message);
 
-    ExpectedLog handleLobbySettingsUpdate(const ClientMessage& message);
+    ExpectedLog handlePeerSettingsUpdate(
+        const ClientMessage& message,
+        const sf::IpAddress& address,
+        unsigned short port);
+
+    ExpectedLog handleLobbySettingsUpdate(
+        const ClientMessage& message,
+        const sf::IpAddress& address,
+        unsigned short port);
 
     ExpectedLog
     handleDisconnection(const sf::IpAddress& address, unsigned short port);
@@ -55,15 +63,17 @@ private:
     ExpectSuccess
     denyNewPeer(const sf::IpAddress& address, unsigned short port);
 
-    [[nodiscard]] bool isAdmin(const sf::IpAddress& address) const noexcept
+    [[nodiscard]] bool
+    isAdmin(const sf::IpAddress& address, unsigned short port) const noexcept
     {
-        return isRegistered(address)
-               && registeredClients.at(address.toInteger()).id == 0u;
+        return isRegistered(address, port)
+               && registeredClients.at(peerToId(address, port)).id == 0u;
     }
 
-    [[nodiscard]] bool isRegistered(const sf::IpAddress& address) const noexcept
+    [[nodiscard]] bool isRegistered(
+        const sf::IpAddress& address, unsigned short port) const noexcept
     {
-        return registeredClients.contains(address.toInteger());
+        return registeredClients.contains(peerToId(address, port));
     }
 
     void updateMapEndedStatuses();
@@ -84,6 +94,12 @@ private:
             [](auto&& client) { return client.second.ready; });
     }
 
+    [[nodiscard]] sf::Uint64 static peerToId(
+        const sf::IpAddress& address, unsigned short port)
+    {
+        return sf::Uint64(address.toInteger()) + (sf::Uint64(port) << 32);
+    }
+
 private:
     struct ClientConnectionInfo
     {
@@ -96,7 +112,7 @@ private:
     const unsigned short MAX_CLIENT_COUNT;
     const bool ACCEPT_RECONNECTS;
     mem::Box<sf::UdpSocket> socket;
-    std::map<sf::Uint32, ClientConnectionInfo> registeredClients;
+    std::map<sf::Uint64, ClientConnectionInfo> registeredClients;
     ServerUpdateData updateData;
     size_t sequence = 0;
     size_t mapReadyCounter = 0;

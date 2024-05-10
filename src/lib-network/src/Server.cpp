@@ -1,9 +1,9 @@
+#include "Server.hpp"
 #include <format>
 #include <iostream>
 #include <nlohmann/json.hpp>
 #include <print>
 #include <stdexcept>
-#include "Server.hpp"
 
 Server::Server(ServerConfiguration config)
     : MAX_CLIENT_COUNT(config.maxClientCount)
@@ -83,9 +83,9 @@ ExpectedLog Server::handleMessage(
     case ConnectionRequest:
         return handleNewConnection(address, port);
     case PeerSettingsUpdate:
-        return std::unexpected("Dunno how to handle PeerSettingsUpdate");
+        return handlePeerSettingsUpdate(message, address, port);
     case GameSettingsUpdate:
-        return handleLobbySettingsUpdate(message);
+        return handleLobbySettingsUpdate(message, address, port);
     case CommitLobby:
         return handleLobbyCommited(address, port);
     case MapLoaded:
@@ -107,7 +107,7 @@ ExpectedLog Server::handleMessage(
 ExpectedLog
 Server::handleNewConnection(const sf::IpAddress& address, unsigned short port)
 {
-    if (isRegistered(address) && !ACCEPT_RECONNECTS)
+    if (isRegistered(address, port) && !ACCEPT_RECONNECTS)
     {
         if (auto&& result = denyNewPeer(address, port); !result)
             return std::unexpected(result.error());
@@ -151,8 +151,9 @@ Server::handleNewConnection(const sf::IpAddress& address, unsigned short port)
             port));
     }
 
-    registeredClients[address.toInteger()] =
+    registeredClients[peerToId(address, port)] =
         ClientConnectionInfo { .id = newId, .address = address, .port = port };
+    updateData.clients.push_back(ClientData {});
 
     return std::format(
         "Registered new client at {}:{} with ID: {}",
@@ -164,7 +165,7 @@ Server::handleNewConnection(const sf::IpAddress& address, unsigned short port)
 ExpectedLog
 Server::handleLobbyCommited(const sf::IpAddress& address, unsigned short port)
 {
-    if (!isAdmin(address))
+    if (!isAdmin(address, port))
         return std::unexpected(std::format(
             "handleLobbyCommited: Unauthorized attempt for access from {}:{}",
             address.toString(),
@@ -183,7 +184,7 @@ Server::handleLobbyCommited(const sf::IpAddress& address, unsigned short port)
 ExpectedLog
 Server::handleMapReady(const sf::IpAddress& address, unsigned short port)
 {
-    if (!isRegistered(address))
+    if (!isRegistered(address, port))
     {
         return std::unexpected(std::format(
             "handleMapReady: Unauthorized attempt for access from {}:{}",
@@ -191,7 +192,7 @@ Server::handleMapReady(const sf::IpAddress& address, unsigned short port)
             port));
     }
 
-    registeredClients.at(address.toInteger()).ready = true;
+    registeredClients.at(peerToId(address, port)).ready = true;
 
     updateData.peersReady = areAllPeersReady();
 
@@ -205,13 +206,13 @@ Server::handleMapReady(const sf::IpAddress& address, unsigned short port)
 ExpectedLog
 Server::handleMapEnded(const sf::IpAddress& address, unsigned short port)
 {
-    if (!isRegistered(address))
+    if (!isRegistered(address, port))
         return std::unexpected(std::format(
             "handleMapEnded: Unauthorized attempt for access from {}:{}",
             address.toString(),
             port));
 
-    registeredClients.at(address.toInteger()).ready = false;
+    registeredClients.at(peerToId(address, port)).ready = false;
     updateMapEndedStatuses();
 
     return std::format(
@@ -251,8 +252,53 @@ ExpectedLog Server::handleReportedInput(const ClientMessage& message)
 #endif
 }
 
-ExpectedLog Server::handleLobbySettingsUpdate(const ClientMessage& message)
+ExpectedLog Server::handlePeerSettingsUpdate(
+    const ClientMessage& message,
+    const sf::IpAddress& address,
+    unsigned short port)
 {
+    if (!isRegistered(address, port))
+    {
+        return std::unexpected(std::format(
+            "handlePeerSettingsUpdate: Unauthorized attempt for access from "
+            "{}:{}",
+            address.toString(),
+            port));
+    }
+
+    try
+    {
+        updateData.clients[message.clientId] =
+            nlohmann::json::parse(message.jsonData);
+    }
+    catch (const std::exception& e)
+    {
+        return std::unexpected(std::format(
+            "Could not parse peer settings update json '{}', from client {}, "
+            "with error: {}",
+            message.jsonData,
+            message.clientId,
+            e.what()));
+    }
+
+    return std::format(
+        "Processed peer update from client {}, json {}",
+        message.clientId,
+        message.jsonData);
+}
+
+ExpectedLog Server::handleLobbySettingsUpdate(
+    const ClientMessage& message,
+    const sf::IpAddress& address,
+    unsigned short port)
+{
+    if (!isAdmin(address, port))
+        return std::unexpected(std::format(
+            "handleLobbySettingsUpdate: Unauthorized attempt for access from "
+            "{}:{}",
+            address.toString(),
+            port));
+
     try
     {
         updateData.lobbySettings = nlohmann::json::parse(message.jsonData);
@@ -277,13 +323,15 @@ ExpectedLog Server::handleLobbySettingsUpdate(const ClientMessage& message)
 ExpectedLog
 Server::handleDisconnection(const sf::IpAddress& address, unsigned short port)
 {
-    if (!isRegistered(address))
+    if (!isRegistered(address, port))
         return std::unexpected(std::format(
             "handleDisconnection: Unauthorized attempt for access from {}:{}",
             address.toString(),
             port));
 
-    registeredClients.erase(address.toInteger());
+    auto&& id = peerToId(address, port);
+    updateData.clients.at(registeredClients.at(id).id).active = false;
+    registeredClients.erase(id);
 
     return std::format(
         "Client {}:{} disconnected. Game active? {}",

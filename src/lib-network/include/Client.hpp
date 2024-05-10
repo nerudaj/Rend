@@ -8,10 +8,13 @@
 #include <Memory.hpp>
 #include <functional>
 
-struct PlayerConfig
+/* DELETEME:
+struct [[nodiscard]] PlayerConfig final
 {
     std::string name;
-};
+    bool isReady;
+    bool hasAutoswapOnPickup;
+};*/
 
 using HandleNetworkUpdate = std::function<void(const ServerUpdateData&)>;
 
@@ -35,6 +38,8 @@ public:
     sendUpdate(size_t tick, const std::vector<InputSchema>& inputs);
 
     ExpectSuccess sendLobbyUpdate(const LobbySettings& lobbySettings);
+
+    ExpectSuccess sendPeerUpdate(const ClientData& peerUpdate);
 
     ExpectSuccess sendMapEnded();
 

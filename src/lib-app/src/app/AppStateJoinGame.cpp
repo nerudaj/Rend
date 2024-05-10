@@ -1,5 +1,6 @@
 #include "app/AppStateJoinGame.hpp"
 #include "LayoutBuilder.hpp"
+#include "app/AppStatePeerLobby.hpp"
 #include "utils/AppMessage.hpp"
 #include "utils/InputHandler.hpp"
 #include <Configs/Strings.hpp>
@@ -37,20 +38,18 @@ void AppStateJoinGame::buildLayout()
 
 void AppStateJoinGame::restoreFocusImpl(const std::string& message)
 {
-    handleAppMessage<decltype(this)>(app, message);
     buildLayout();
+    handleAppMessage<decltype(this)>(app, message);
 }
 
 void AppStateJoinGame::tryToJoin()
 {
     try
     {
-        auto&& ipaddr = sf::IpAddress(ipAddressInput);
-        // TODO: spawn game setup
+        app.pushState<AppStatePeerLobby>(dic, ipAddressInput);
     }
-    catch (...)
+    catch (const std::exception& e)
     {
-        // Change to modal warning windows
-        throw;
+        warningDialog.open(e.what());
     }
 }

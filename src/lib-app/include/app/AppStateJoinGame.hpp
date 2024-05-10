@@ -1,6 +1,7 @@
 #pragma once
 
 #include <DGM/dgm.hpp>
+#include <Dialogs/ErrorInfoDialog.hpp>
 #include <Memory.hpp>
 #include <utils/DependencyContainer.hpp>
 
@@ -8,7 +9,7 @@ class [[nodiscard]] AppStateJoinGame final : public dgm::AppState
 {
 public:
     AppStateJoinGame(dgm::App& app, mem::Rc<DependencyContainer> dic)
-        : dgm::AppState(app), dic(dic)
+        : dgm::AppState(app), dic(dic), warningDialog(dic->gui)
     {
         buildLayout();
     }
@@ -33,4 +34,5 @@ private:
 private:
     mem::Rc<DependencyContainer> dic;
     std::string ipAddressInput = "127.0.0.1";
+    ErrorInfoDialog warningDialog;
 };

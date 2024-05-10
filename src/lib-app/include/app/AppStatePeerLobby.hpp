@@ -11,11 +11,7 @@ public:
     AppStatePeerLobby(
         dgm::App& app,
         mem::Rc<DependencyContainer> dic,
-        const sf::IpAddress& hostAddress)
-        : dgm::AppState(app), dic(dic), client(hostAddress, 10666)
-    {
-        buildLayout();
-    }
+        const sf::IpAddress& hostAddress);
 
 public:
     void input() override;
@@ -32,7 +28,12 @@ private:
 
     void restoreFocusImpl(const std::string& message) override;
 
+    void handleLobbyUpdate(const ServerUpdateData& update);
+
 private:
     mem::Rc<DependencyContainer> dic;
-    Client client;
+    mem::Rc<Client> client;
+    ClientData myPeerData;
+    std::vector<ClientData> connectedPeers;
+    LobbySettings lobbySettings;
 };

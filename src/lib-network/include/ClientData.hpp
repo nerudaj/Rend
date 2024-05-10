@@ -5,9 +5,11 @@
 
 struct [[nodiscard]] ClientData final
 {
-	bool active = true;
-	std::string name;
-	// TODO: settings like swap on pickup
+    bool active = true;
+    std::string name = "player";
+    bool isReady = true;
+    bool hasAutoswapOnPickup = false;
 };
 
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(ClientData, active, name);
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(
+    ClientData, active, name, isReady, hasAutoswapOnPickup);

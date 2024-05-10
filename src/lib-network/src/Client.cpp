@@ -101,6 +101,16 @@ ExpectSuccess Client::sendLobbyUpdate(const LobbySettings& lobbySettings)
         "Could not send lobby update");
 }
 
+ExpectSuccess Client::sendPeerUpdate(const ClientData& peerUpdate)
+{
+    return trySendPacket(
+        ClientMessage { .type = ClientMessageType::PeerSettingsUpdate,
+                        .clientId = myClientId,
+                        .jsonData = nlohmann::json(peerUpdate).dump() }
+            .toPacket(),
+        "Could not send peer update");
+}
+
 ExpectSuccess Client::sendMapEnded()
 {
     return trySendPacket(
