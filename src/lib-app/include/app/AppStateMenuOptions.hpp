@@ -39,6 +39,7 @@ private:
     void buildDisplayOptionsLayout(FormBuilder& builder);
     void buildAudioOptionsLayout(FormBuilder& builder);
     void buildInputOptionsLayout(FormBuilder& builder);
+    void handleTabSelected(const tgui::String& selectedTabName);
 
 private:
     mem::Rc<DependencyContainer> dic;

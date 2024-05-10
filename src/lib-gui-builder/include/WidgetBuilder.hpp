@@ -78,6 +78,11 @@ public:
         std::function<void(tgui::String)> onChange,
         const std::string& regexValidator = "");
 
+    static [[nodiscard]] tgui::Panel::Ptr createTabbedContent(
+        const std::vector<std::string>& tabLabels,
+        const std::string& contentPanelId,
+        std::function<void(const tgui::String&)> onTabChange);
+
     static [[nodiscard]] constexpr std::string getNumericValidator() noexcept
     {
         return "[1-9][0-9]*";
