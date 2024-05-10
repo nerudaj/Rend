@@ -68,6 +68,18 @@ namespace Strings
             RAWSTRING DOTDOTDOT = "...";
         } // namespace GameSetup
 
+        namespace JoinGame
+        {
+            RAWSTRING TITLE = "join game";
+            RAWSTRING CONFIRM = "join";
+            RAWSTRING INPUT_IP = "input host's ip address";
+        } // namespace JoinGame
+
+        namespace PeerLobby
+        {
+            RAWSTRING TITLE = "lobby";
+        }
+
         namespace Pause
         {
             RAWSTRING TITLE = "pause";
