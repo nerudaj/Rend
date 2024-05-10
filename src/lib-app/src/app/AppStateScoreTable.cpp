@@ -10,19 +10,6 @@ void AppStateScoreTable::input()
     InputHandler::handleUiStateInputWithoutGoBackOption(app, *dic);
 }
 
-[[nodiscard]] static tgui::Label::Ptr
-createCell(const std::string& str, unsigned column)
-{
-    auto label = tgui::Label::create(str);
-    label->getRenderer()->setTextColor(tgui::Color::Black);
-    label->setSize({ "50%", "100%" });
-    label->setPosition({ column == 0 ? "0%" : "50%", "0%" });
-    label->setTextSize(Sizers::GetMenuBarTextHeight());
-    label->setHorizontalAlignment(tgui::Label::HorizontalAlignment::Center);
-    label->setVerticalAlignment(tgui::Label::VerticalAlignment::Center);
-    return label;
-}
-
 void AppStateScoreTable::buildLayout()
 {
     struct [[nodiscard]] PlayerScore final
@@ -46,27 +33,12 @@ void AppStateScoreTable::buildLayout()
         [](const PlayerScore& a, const PlayerScore& b) -> bool
         { return a.score >= b.score; });
 
-    auto&& panel = WidgetBuilder::createPanel();
-
-    // Add heading
+    auto&& tableBuilder =
+        TableBuilder().withHeading({ Strings::AppState::Scores::PLAYER_TH,
+                                     Strings::AppState::Scores::SCORE_TH });
+    for (auto&& score : orderedScores)
     {
-        auto row = WidgetBuilder::getStandardizedRow(tgui::Color::White);
-        row->setPosition({ "0%", "0%" });
-        row->add(createCell(Strings::AppState::Scores::PLAYER_TH, 0));
-        row->add(createCell(Strings::AppState::Scores::SCORE_TH, 1));
-        panel->add(row);
-    }
-
-    // Add results
-    for (auto&& [idx, score] : std::views::enumerate(orderedScores))
-    {
-        auto color = idx % 2 == 0 ? tgui::Color(255, 255, 255, 128)
-                                  : tgui::Color(255, 255, 255, 192);
-        auto row = WidgetBuilder::getStandardizedRow(color);
-        row->setPosition({ "0%", row->getSize().y * (idx + 1) });
-        row->add(createCell(score.name, 0));
-        row->add(createCell(std::to_string(score.score), 1));
-        panel->add(row);
+        tableBuilder.addRow({ score.name, std::to_string(score.score) });
     }
 
     dic->gui->rebuildWith(
@@ -75,7 +47,7 @@ void AppStateScoreTable::buildLayout()
                 .value()
                 .get())
             .withTitle(Strings::AppState::Scores::TITLE, HeadingLevel::H1)
-            .withContent(panel)
+            .withContent(tableBuilder.build())
             .withBackButton(WidgetBuilder::createButton(
                 Strings::AppState::MainMenu::BACK_TO_MENU,
                 [this] { app.popState(PopIfNotMainMenu::serialize()); }))
