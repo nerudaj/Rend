@@ -8,10 +8,8 @@
 #include "engine/GameRulesEngine.hpp"
 #include "engine/PhysicsEngine.hpp"
 #include "engine/RenderingEngine.hpp"
-#include "utils/AppMessage.hpp"
 #include "utils/DemoFileHandler.hpp"
 #include "utils/DependencyContainer.hpp"
-#include <CoreTypes.hpp>
 #include <DGM/dgm.hpp>
 #include <GameLoop.hpp>
 #include <LevelD.hpp>
@@ -49,23 +47,7 @@ public:
     virtual void draw() override;
 
 private:
-    void restoreFocusImpl(const std::string& message) override
-    {
-        if (auto&& msg = deserializeAppMessage(message); msg.has_value())
-        {
-            std::visit(
-                overloaded { [&](const PopIfNotMainMenu&)
-                             { app.popState(message); },
-                             [&](const PopIfNotMapRotationWrapper&)
-                             { app.popState(message); },
-                             [](const PopIfPause&) {} },
-                msg.value());
-        }
-
-        app.window.getWindowContext().setFramerateLimit(60);
-        propagateSettings();
-        lockMouse();
-    }
+    void restoreFocusImpl(const std::string& message) override;
 
     struct FrameState
     {

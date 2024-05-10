@@ -1,6 +1,7 @@
 #include "app/AppStateIngame.hpp"
 #include "app/AppStatePaused.hpp"
 #include "app/AppStateWinnerAnnounced.hpp"
+#include "utils/AppMessage.hpp"
 #include <builder/SceneBuilder.hpp>
 #include <events/EventQueue.hpp>
 
@@ -134,6 +135,15 @@ void AppStateIngame::draw()
 {
     app.window.getWindowContext().setView(camera->getCurrentView());
     gameLoop->renderTo(app.window);
+}
+
+void AppStateIngame::restoreFocusImpl(const std::string& message)
+{
+    handleAppMessage<decltype(this)>(app, message);
+
+    app.window.getWindowContext().setFramerateLimit(60);
+    propagateSettings();
+    lockMouse();
 }
 
 void AppStateIngame::handleNetworkUpdate(const ServerUpdateData& update)

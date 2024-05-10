@@ -2,10 +2,13 @@
 #include "GuiBuilder.hpp"
 #include "app/AppStateMenuOptions.hpp"
 #include "utils/AppMessage.hpp"
+#include "utils/InputHandler.hpp"
+#include <Configs/Strings.hpp>
+#include <CoreTypes.hpp>
 
-void AppStatePaused::buildLayoutImpl()
+void AppStatePaused::buildLayout()
 {
-    dic->gui->add(
+    dic->gui->rebuildWith(
         LayoutBuilder::withNoBackgroundImage()
             .withTitle(Strings::AppState::Pause::TITLE, HeadingLevel::H1)
             .withContent(
@@ -27,24 +30,13 @@ void AppStatePaused::buildLayoutImpl()
             .build());
 }
 
+void AppStatePaused::restoreFocusImpl(const std::string& message)
+{
+    buildLayout();
+    handleAppMessage<decltype(this)>(app, message);
+}
+
 void AppStatePaused::input()
 {
-    if (!hasFocus) return;
-
-    sf::Event event;
-    while (app.window.pollEvent(event))
-    {
-        if (event.type == sf::Event::Closed)
-        {
-            app.exit();
-        }
-        else if (dic->controller->isEscapePressed())
-        {
-            app.popState();
-        }
-
-        dic->gui->gui.handleEvent(event);
-    }
-
-    dic->controller->update();
+    InputHandler::handleUiStateWithFocus(hasFocus, app, *dic);
 }

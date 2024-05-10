@@ -35,6 +35,12 @@ public:
         gui.add(widget, id);
     }
 
+    void rebuildWith(const tgui::Widget::Ptr& layout)
+    {
+        removeAllWidgets();
+        add(layout);
+    }
+
     void draw()
     {
         gui.draw();

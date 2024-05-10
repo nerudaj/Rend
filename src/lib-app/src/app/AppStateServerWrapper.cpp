@@ -53,8 +53,5 @@ AppStateServerWrapper::~AppStateServerWrapper()
 
 void AppStateServerWrapper::restoreFocusImpl(const std::string& message)
 {
-    if (PopIfNotMainMenu::canDeserializeFrom(message))
-    {
-        app.popState(message);
-    }
+    handleAppMessage<decltype(this)>(app, message);
 }

@@ -1,5 +1,6 @@
 #include "GuiBuilder.hpp"
 #include "LobbySettings.hpp"
+#include "utils/InputHandler.hpp"
 #include <Configs/Strings.hpp>
 #include <Filesystem.hpp>
 #include <LevelD.hpp>
@@ -11,7 +12,7 @@
 AppStateGameSetup::AppStateGameSetup(
     dgm::App& app, mem::Rc<DependencyContainer> dic) noexcept
     : AppState(app, dgm::AppStateConfig { .clearColor = sf::Color::White })
-    , GuiState(dic)
+    , dic(dic)
     , client(mem::Rc<Client>("127.0.0.1", 10666ui16))
     , lobbySettings(LobbySettings {
           .fraglimit = static_cast<int>(dic->settings->cmdSettings.fraglimit),
@@ -33,25 +34,15 @@ void AppStateGameSetup::input()
         startGame();
     }
 
-    sf::Event event;
-    while (app.window.pollEvent(event))
-    {
-        if (event.type == sf::Event::Closed)
-        {
-            app.exit();
-        }
+    InputHandler::handleUiStateInput(app, *dic);
 
-        dic->gui->gui.handleEvent(event);
-    }
-
-    dic->controller->update();
     client->readIncomingPackets(std::bind(
         &AppStateGameSetup::handleNetworkUpdate, this, std::placeholders::_1));
 }
 
-void AppStateGameSetup::buildLayoutImpl()
+void AppStateGameSetup::buildLayout()
 {
-    dic->gui->add(
+    dic->gui->rebuildWith(
         LayoutBuilder::withBackgroundImage(
             dic->resmgr->get<sf::Texture>("menu_setup.png").value().get())
             .withTitle(Strings::AppState::GameSetup::TITLE, HeadingLevel::H1)
@@ -100,6 +91,12 @@ void AppStateGameSetup::buildLayoutImpl()
                 Strings::AppState::MainMenu::PLAY,
                 std::bind(&AppStateGameSetup::commitLobby, this)))
             .build());
+}
+
+void AppStateGameSetup::restoreFocusImpl(const std::string& message)
+{
+    buildLayout();
+    handleAppMessage<decltype(this)>(app, message);
 }
 
 void AppStateGameSetup::commitLobby()

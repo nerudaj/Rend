@@ -1,6 +1,7 @@
 #include "app/AppStateMenuOptions.hpp"
 #include "GuiBuilder.hpp"
 #include "Utilities/TguiHelper.hpp"
+#include "utils/InputHandler.hpp"
 #include <Configs/Sizers.hpp>
 #include <Configs/Strings.hpp>
 #include <format>
@@ -22,7 +23,7 @@ std::string getWindowResolutionAsString(const dgm::Window& window)
     return std::to_string(size.x) + "x" + std::to_string(size.y);
 }
 
-void AppStateMenuOptions::buildLayoutImpl()
+void AppStateMenuOptions::buildLayout()
 {
     auto&& basePanel = WidgetBuilder::createPanel();
 
@@ -63,7 +64,7 @@ void AppStateMenuOptions::buildLayoutImpl()
         });
     basePanel->add(tabs);
 
-    dic->gui->add(
+    dic->gui->rebuildWith(
         LayoutBuilder::withBackgroundImage(
             dic->resmgr->get<sf::Texture>("menu_options.png").value().get())
             .withTitle(Strings::AppState::Options::TITLE, HeadingLevel::H1)
@@ -98,7 +99,10 @@ void AppStateMenuOptions::buildDisplayOptionsLayout(FormBuilder& builder)
                         app.window.changeResolution(NUM_RESOLUTIONS[idx]);
 
                         // Force gui to update viewport and resolution
-                        restoreFocusImpl();
+                        dic->gui->gui.setWindow(app.window.getWindowContext());
+
+                        warningDialog.open(Strings::AppState::Options::
+                                               RESOLUTION_CHANGE_WARNING);
                     }))
             .addOption(
                 Strings::AppState::Options::FULLSCREEN,
@@ -227,11 +231,5 @@ void AppStateMenuOptions::buildInputOptionsLayout(FormBuilder& builder)
 
 void AppStateMenuOptions::input()
 {
-    sf::Event event;
-    while (app.window.pollEvent(event))
-    {
-        dic->gui->gui.handleEvent(event);
-    }
-
-    dic->controller->update();
+    InputHandler::handleUiStateInput(app, *dic);
 }

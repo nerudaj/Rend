@@ -1,17 +1,15 @@
 #pragma once
 
 #include "GameSettings.hpp"
-#include "GuiState.hpp"
 #include "utils/DependencyContainer.hpp"
 #include <DGM/classes/AppState.hpp>
 #include <DGM/classes/Traits.hpp>
+#include <Literals.hpp>
 #include <Memory.hpp>
 #include <TGUI/Backend/SFML-Graphics.hpp>
 #include <TGUI/TGUI.hpp>
 
-class [[nodiscard]] AppStateWinnerAnnounced final
-    : public dgm::AppState
-    , public GuiState
+class [[nodiscard]] AppStateWinnerAnnounced final : public dgm::AppState
 {
 public:
     AppStateWinnerAnnounced(
@@ -21,7 +19,7 @@ public:
         dgm::UniversalReference<std::vector<int>> auto&& scores)
         : dgm::AppState(
             app, dgm::AppStateConfig { .shouldDrawUnderlyingState = true })
-        , GuiState(dic)
+        , dic(dic)
         , gameSettings(gameSettings)
         , scores(std::forward<decltype(scores)>(scores))
     {
@@ -39,15 +37,13 @@ public:
     }
 
 private:
-    void buildLayoutImpl() override;
+    void buildLayout();
 
-    void restoreFocusImpl(const std::string& message) override
-    {
-        handleRestoreMessage(app, message);
-    }
+    void restoreFocusImpl(const std::string& message) override;
 
 private:
+    mem::Rc<DependencyContainer> dic;
     GameOptions gameSettings;
     std::vector<int> scores;
-    float transitionTimeout = 3.f; // seconds
+    float transitionTimeout = 3_seconds;
 };

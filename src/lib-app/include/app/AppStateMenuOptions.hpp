@@ -1,12 +1,10 @@
 #pragma once
 
 #include "GuiBuilder.hpp"
-#include "GuiState.hpp"
 #include "utils/DependencyContainer.hpp"
+#include <Dialogs/ErrorInfoDialog.hpp>
 
-class [[nodiscard]] AppStateMenuOptions final
-    : public dgm::AppState
-    , public GuiState
+class [[nodiscard]] AppStateMenuOptions final : public dgm::AppState
 {
 public:
     AppStateMenuOptions(
@@ -19,8 +17,9 @@ public:
                 .clearColor = sf::Color::White,
                 .shouldUpdateUnderlyingState = enteredFromGame,
             })
-        , GuiState(dic)
+        , dic(dic)
         , enteredFromGame(enteredFromGame)
+        , warningDialog(dic->gui)
     {
         buildLayout();
     }
@@ -36,16 +35,13 @@ public:
     }
 
 private:
-    void buildLayoutImpl() override;
+    void buildLayout();
     void buildDisplayOptionsLayout(FormBuilder& builder);
     void buildAudioOptionsLayout(FormBuilder& builder);
     void buildInputOptionsLayout(FormBuilder& builder);
 
-    void restoreFocusImpl(const std::string& = "") override
-    {
-        GuiState::restoreFocus(app.window.getWindowContext());
-    }
-
 private:
+    mem::Rc<DependencyContainer> dic;
     bool enteredFromGame;
+    ErrorInfoDialog warningDialog;
 };

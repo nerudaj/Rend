@@ -1,23 +1,13 @@
 #include "GuiBuilder.hpp"
 #include "utils/AppMessage.hpp"
+#include "utils/InputHandler.hpp"
 #include <Configs/Sizers.hpp>
 #include <Configs/Strings.hpp>
 #include <app/AppStateScoreTable.hpp>
 
 void AppStateScoreTable::input()
 {
-    sf::Event event;
-    while (app.window.pollEvent(event))
-    {
-        if (event.type == sf::Event::Closed)
-        {
-            app.exit();
-        }
-
-        dic->gui->gui.handleEvent(event);
-    }
-
-    dic->controller->update();
+    InputHandler::handleUiStateInputWithoutGoBackOption(app, *dic);
 }
 
 [[nodiscard]] static tgui::Label::Ptr
@@ -33,9 +23,9 @@ createCell(const std::string& str, unsigned column)
     return label;
 }
 
-void AppStateScoreTable::buildLayoutImpl()
+void AppStateScoreTable::buildLayout()
 {
-    struct PlayerScore
+    struct [[nodiscard]] PlayerScore final
     {
         std::string name;
         int score;
@@ -79,7 +69,7 @@ void AppStateScoreTable::buildLayoutImpl()
         panel->add(row);
     }
 
-    dic->gui->add(
+    dic->gui->rebuildWith(
         LayoutBuilder::withBackgroundImage(
             dic->resmgr->get<sf::Texture>("menu_intermission.png")
                 .value()

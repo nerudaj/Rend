@@ -36,20 +36,5 @@ void AppStateMapRotationWrapper::input()
 
 void AppStateMapRotationWrapper::restoreFocusImpl(const std::string& message)
 {
-    deserializeAppMessage(message).and_then(std::bind(
-        &AppStateMapRotationWrapper::handleAppMessage,
-        this,
-        std::placeholders::_1));
-}
-
-std::optional<AppMessage>
-AppStateMapRotationWrapper::handleAppMessage(const AppMessage& message)
-{
-    std::visit(
-        overloaded { [&](const PopIfNotMainMenu&)
-                     { app.popState(PopIfNotMainMenu::serialize()); },
-                     [](const PopIfNotMapRotationWrapper&) {},
-                     [](const PopIfPause&) {} },
-        message);
-    return message;
+    handleAppMessage<decltype(this)>(app, message);
 }

@@ -29,7 +29,6 @@ public:
 
 private:
     void restoreFocusImpl(const std::string& message) override;
-    std::optional<AppMessage> handleAppMessage(const AppMessage& message);
 
 private:
     mem::Rc<DependencyContainer> dic;
