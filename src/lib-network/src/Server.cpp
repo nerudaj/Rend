@@ -51,7 +51,7 @@ void Server::update()
     {
         packet = ServerMessage { .type = ServerMessageType::Update,
                                  .sequence = sequence,
-                                 .clientId = client.id,
+                                 .clientId = client.idx,
                                  .payload = payload }
                      .toPacket();
 
@@ -61,7 +61,7 @@ void Server::update()
             std::cout << "Server:error "
                       << std::format(
                              "Could not send response to client {} at {}:{}",
-                             client.id,
+                             client.idx,
                              client.address.toInteger(),
                              client.port)
                       << std::endl;
@@ -152,7 +152,7 @@ Server::handleNewConnection(const sf::IpAddress& address, unsigned short port)
     }
 
     registeredClients[peerToId(address, port)] =
-        ClientConnectionInfo { .id = newId, .address = address, .port = port };
+        ClientConnectionInfo { .idx = newId, .address = address, .port = port };
     updateData.clients.push_back(ClientData {});
 
     return std::format(
@@ -175,7 +175,7 @@ Server::handleLobbyCommited(const sf::IpAddress& address, unsigned short port)
 
     for (auto&& [key, client] : registeredClients)
     {
-        client.ready = false;
+        client.isMapReady = false;
     }
 
     return "Lobby was commited";
@@ -192,9 +192,9 @@ Server::handleMapReady(const sf::IpAddress& address, unsigned short port)
             port));
     }
 
-    registeredClients.at(peerToId(address, port)).ready = true;
+    registeredClients.at(peerToId(address, port)).isMapReady = true;
 
-    updateData.peersReady = areAllPeersReady();
+    updateData.mapReady = isMapLoadedForAllPeers();
 
     return std::format(
         "Map ready accepted from {}:{}, all peers ready? {}",
@@ -212,8 +212,11 @@ Server::handleMapEnded(const sf::IpAddress& address, unsigned short port)
             address.toString(),
             port));
 
-    registeredClients.at(peerToId(address, port)).ready = false;
-    updateMapEndedStatuses();
+    auto&& registeredClient = registeredClients.at(peerToId(address, port));
+    registeredClient.isMapReady = false;
+    registeredClient.isReady = false;
+    updateData.clients[registeredClient.idx].isReady = false;
+    updateGlobalReadyStatuses();
 
     return std::format(
         "Client {}:{} send map ended. Game active? {}",
@@ -270,6 +273,8 @@ ExpectedLog Server::handlePeerSettingsUpdate(
     {
         updateData.clients[message.clientId] =
             nlohmann::json::parse(message.jsonData);
+        registeredClients.at(peerToId(address, port)).isReady =
+            updateData.clients[message.clientId].isReady;
     }
     catch (const std::exception& e)
     {
@@ -280,6 +285,8 @@ ExpectedLog Server::handlePeerSettingsUpdate(
             message.clientId,
             e.what()));
     }
+
+    updateGlobalReadyStatuses();
 
     return std::format(
         "Processed peer update from client {}, json {}",
@@ -330,7 +337,7 @@ Server::handleDisconnection(const sf::IpAddress& address, unsigned short port)
             port));
 
     auto&& id = peerToId(address, port);
-    updateData.clients.at(registeredClients.at(id).id).active = false;
+    updateData.clients.at(registeredClients.at(id).idx).active = false;
     registeredClients.erase(id);
 
     return std::format(
@@ -357,8 +364,9 @@ Server::denyNewPeer(const sf::IpAddress& address, unsigned short port)
     return ReturnFlag::Success;
 }
 
-void Server::updateMapEndedStatuses()
+void Server::updateGlobalReadyStatuses()
 {
+    updateData.mapReady = isMapLoadedForAllPeers();
     updateData.peersReady = areAllPeersReady();
     updateData.lobbyCommited = !isNoPeerReady();
 }

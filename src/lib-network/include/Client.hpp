@@ -32,6 +32,8 @@ public:
 
     ExpectSuccess sendMapReadySignal();
 
+    ExpectSuccess sendPeerReadySignal();
+
     ExpectSuccess commitLobby();
 
     ExpectSuccess

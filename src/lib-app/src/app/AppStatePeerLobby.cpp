@@ -36,7 +36,10 @@ void AppStatePeerLobby::buildLayout()
         TableBuilder().withHeading({ Strings::AppState::PeerLobby::PNAME,
                                      Strings::AppState::PeerLobby::IS_READY });
     for (auto&& peer : connectedPeers)
-        table.addRow({ peer.name, "-" });
+        table.addRow({ peer.name,
+                       peer.isReady
+                           ? Strings::AppState::PeerLobby::READY
+                           : Strings::AppState::PeerLobby::NOT_READY });
 
     dic->gui->rebuildWith(
         LayoutBuilder()
@@ -48,7 +51,7 @@ void AppStatePeerLobby::buildLayout()
                 Strings::AppState::MainMenu::BACK, [&] { app.popState(); }))
             .withSubmitButton(WidgetBuilder::createButton(
                 Strings::AppState::PeerLobby::READY,
-                [&] { client->sendMapReadySignal(); }))
+                [&] { client->sendPeerReadySignal(); }))
             .build());
 }
 
@@ -66,6 +69,6 @@ void AppStatePeerLobby::handleLobbyUpdate(const ServerUpdateData& update)
 
     if (update.lobbyCommited && update.peersReady)
     {
-        // TODO:
+        // TODO: spawn game
     }
 }

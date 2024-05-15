@@ -1,30 +1,31 @@
 #pragma once
 
+#include "ClientData.hpp"
+#include "InputData.hpp"
+#include "LobbySettings.hpp"
+#include "ServerMessageType.hpp"
 #include <SFML/Network.hpp>
 #include <nlohmann/json.hpp>
 #include <string>
-#include "ServerMessageType.hpp"
-#include "ClientData.hpp"
-#include "LobbySettings.hpp"
-#include "InputData.hpp"
-
 
 struct [[nodiscard]] ServerUpdateData final
 {
-	bool lobbyCommited = false;
-	bool peersReady = false;
-	LobbySettings lobbySettings;
-	std::vector<ClientData> clients;
-	std::vector<InputData> inputs;
+    bool lobbyCommited = false;
+    bool peersReady = false;
+    bool mapReady = false;
+    LobbySettings lobbySettings;
+    std::vector<ClientData> clients;
+    std::vector<InputData> inputs;
 };
 
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(
-	ServerUpdateData,
-	lobbyCommited,
-	peersReady,
-	lobbySettings,
-	clients,
-	inputs);
+    ServerUpdateData,
+    lobbyCommited,
+    peersReady,
+    mapReady,
+    lobbySettings,
+    clients,
+    inputs);
 
 struct [[nodiscard]] ServerMessage final
 {

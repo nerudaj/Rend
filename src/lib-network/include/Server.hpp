@@ -67,7 +67,7 @@ private:
     isAdmin(const sf::IpAddress& address, unsigned short port) const noexcept
     {
         return isRegistered(address, port)
-               && registeredClients.at(peerToId(address, port)).id == 0u;
+               && registeredClients.at(peerToId(address, port)).idx == 0u;
     }
 
     [[nodiscard]] bool isRegistered(
@@ -76,14 +76,22 @@ private:
         return registeredClients.contains(peerToId(address, port));
     }
 
-    void updateMapEndedStatuses();
+    void updateGlobalReadyStatuses();
+
+    [[nodiscard]] constexpr bool isMapLoadedForAllPeers() const noexcept
+    {
+        return std::all_of(
+            registeredClients.begin(),
+            registeredClients.end(),
+            [](auto&& client) { return client.second.isMapReady; });
+    }
 
     [[nodiscard]] constexpr bool areAllPeersReady() const noexcept
     {
         return std::all_of(
             registeredClients.begin(),
             registeredClients.end(),
-            [](auto&& client) { return client.second.ready; });
+            [](auto&& client) { return client.second.isReady; });
     }
 
     [[nodiscard]] constexpr bool isNoPeerReady() const noexcept
@@ -91,7 +99,7 @@ private:
         return std::none_of(
             registeredClients.begin(),
             registeredClients.end(),
-            [](auto&& client) { return client.second.ready; });
+            [](auto&& client) { return client.second.isMapReady; });
     }
 
     [[nodiscard]] sf::Uint64 static peerToId(
@@ -103,10 +111,11 @@ private:
 private:
     struct ClientConnectionInfo
     {
-        PlayerIdType id;
+        PlayerIdType idx;
         sf::IpAddress address;
         unsigned short port;
-        bool ready = false;
+        bool isReady = false;
+        bool isMapReady = false;
     };
 
     const unsigned short MAX_CLIENT_COUNT;

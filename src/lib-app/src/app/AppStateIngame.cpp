@@ -148,7 +148,7 @@ void AppStateIngame::restoreFocusImpl(const std::string& message)
 
 void AppStateIngame::handleNetworkUpdate(const ServerUpdateData& update)
 {
-    ready = update.peersReady;
+    ready = update.mapReady;
 
     for (auto&& inputData : update.inputs)
     {
