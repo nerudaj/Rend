@@ -24,6 +24,7 @@ namespace Strings
         namespace MainMenu
         {
             RAWSTRING PLAY = "play";
+            RAWSTRING JOIN = "join game";
             RAWSTRING EDITOR = "editor";
             RAWSTRING OPTIONS = "options";
             RAWSTRING EXIT = "exit";
@@ -51,6 +52,9 @@ namespace Strings
             RAWSTRING GAMEPAD_DEADZONE = "gamepad deadzone";
             RAWSTRING SWAP_ON_PICKUP = "autoswap weapon on pickup";
             RAWSTRING HUD_UI_SCALE = "hud ui scale";
+            RAWSTRING RESOLUTION_CHANGE_WARNING =
+                "it is recommended to restart the game after changing "
+                "resolution to prevent visual artifacts in the game.";
         } // namespace Options
 
         namespace GameSetup
@@ -64,6 +68,22 @@ namespace Strings
             RAWSTRING DOTDOTDOT = "...";
         } // namespace GameSetup
 
+        namespace JoinGame
+        {
+            RAWSTRING TITLE = "join game";
+            RAWSTRING CONFIRM = "join";
+            RAWSTRING INPUT_IP = "input host's ip address";
+        } // namespace JoinGame
+
+        namespace PeerLobby
+        {
+            RAWSTRING TITLE = "lobby";
+            RAWSTRING READY = "ready";
+            RAWSTRING NOT_READY = "not ready";
+            RAWSTRING PNAME = "player name";
+            RAWSTRING IS_READY = "is ready";
+        } // namespace PeerLobby
+
         namespace Pause
         {
             RAWSTRING TITLE = "pause";
@@ -76,6 +96,7 @@ namespace Strings
             RAWSTRING TITLE = "results";
             RAWSTRING PLAYER_TH = "player";
             RAWSTRING SCORE_TH = "score";
+            RAWSTRING WON = "won";
         } // namespace Scores
     }     // namespace AppState
 

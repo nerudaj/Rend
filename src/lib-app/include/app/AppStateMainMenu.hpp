@@ -1,19 +1,16 @@
 #pragma once
 
-#include "GuiState.hpp"
 #include "utils/DependencyContainer.hpp"
 #include <Memory.hpp>
 #include <vector>
 
-class [[nodiscard]] AppStateMainMenu final
-    : public dgm::AppState
-    , public GuiState
+class [[nodiscard]] AppStateMainMenu final : public dgm::AppState
 {
 public:
     AppStateMainMenu(dgm::App& app, mem::Rc<DependencyContainer> dic)
         : dgm::AppState(
             app, dgm::AppStateConfig { .clearColor = sf::Color::White })
-        , GuiState(dic)
+        , dic(dic)
     {
         buildLayout();
         dic->jukebox->playTitleSong();
@@ -32,12 +29,10 @@ public:
 private:
     void goToGameSetup();
 
-    void buildLayoutImpl() override;
+    void buildLayout();
 
-    void restoreFocusImpl(const std::string&) override
-    {
-        app.window.getWindowContext().setTitle("Rend");
-        GuiState::restoreFocus(app.window.getWindowContext());
-        dic->jukebox->playTitleSong();
-    }
+    void restoreFocusImpl(const std::string&) override;
+
+private:
+    mem::Rc<DependencyContainer> dic;
 };

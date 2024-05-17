@@ -46,68 +46,62 @@ Client::readIncomingPackets(HandleNetworkUpdate handleUpdateCallback)
 
 ExpectSuccess Client::sendMapReadySignal()
 {
-    auto&& packet = ClientMessage { .type = ClientMessageType::MapLoaded,
-                                    .clientId = myClientId }
-                        .toPacket();
-    if (socket->send(packet, remoteAddress, remotePort)
-        != sf::Socket::Status::Done)
-    {
-        return std::unexpected(
-            std::format("Could not send MapLoaded message to server"));
-    }
-
-    return ReturnFlag::Success;
+    return trySendPacket(
+        ClientMessage { .type = ClientMessageType::ReportMapReady,
+                        .clientId = myClientId }
+            .toPacket(),
+        "Could not send map ready signal");
 }
 
-ExpectSuccess Client::commitLobby()
+ExpectSuccess Client::sendPeerReadySignal()
 {
-    auto&& packet = ClientMessage { .type = ClientMessageType::CommitLobby,
-                                    .clientId = myClientId }
-                        .toPacket();
-    if (socket->send(packet, remoteAddress, remotePort)
-        != sf::Socket::Status::Done)
-    {
-        return std::unexpected(std::format("Could not commit lobby"));
-    }
-
-    return ReturnFlag::Success;
+    return trySendPacket(
+        ClientMessage { .type = ClientMessageType::ReportPeerReady,
+                        .clientId = myClientId }
+            .toPacket(),
+        "Could not send peer ready signal");
 }
 
-ExpectSuccess
-Client::sendUpdate(size_t tick, const std::vector<InputSchema>& inputs)
+ExpectSuccess Client::sendMapEndedSignal()
 {
-    auto&& packet =
+    return trySendPacket(
+        ClientMessage { .type = ClientMessageType::ReportMapEnded,
+                        .clientId = myClientId }
+            .toPacket(),
+        "Sending map ended failed");
+}
+
+ExpectSuccess Client::sendCurrentFrameInputs(
+    size_t tick, const std::vector<InputSchema>& inputs)
+{
+    return trySendPacket(
         ClientMessage { .type = ClientMessageType::ReportInput,
                         .clientId = myClientId,
                         .jsonData = nlohmann::json(inputs[myClientId]).dump(),
                         .tick = tick }
-            .toPacket();
-    if (socket->send(packet, remoteAddress, remotePort)
-        != sf::Socket::Status::Done)
-    {
-        return std::unexpected(std::format("Could not send input update"));
-    }
-
-    return ReturnFlag::Success;
+            .toPacket(),
+        "Could not send input update");
 }
 
-ExpectSuccess Client::sendLobbyUpdate(const LobbySettings& lobbySettings)
+ExpectSuccess
+Client::sendLobbySettingsUpdate(const LobbySettings& lobbySettings)
 {
     return trySendPacket(
-        ClientMessage { .type = ClientMessageType::GameSettingsUpdate,
+        ClientMessage { .type = ClientMessageType::LobbySettingsUpdate,
                         .clientId = myClientId,
                         .jsonData = nlohmann::json(lobbySettings).dump() }
             .toPacket(),
         "Could not send lobby update");
 }
 
-ExpectSuccess Client::sendMapEnded()
+ExpectSuccess Client::sendPeerSettingsUpdate(const ClientData& peerUpdate)
 {
     return trySendPacket(
-        ClientMessage { .type = ClientMessageType::MapEnded,
-                        .clientId = myClientId }
+        ClientMessage { .type = ClientMessageType::PeerSettingsUpdate,
+                        .clientId = myClientId,
+                        .jsonData = nlohmann::json(peerUpdate).dump() }
             .toPacket(),
-        "Sending map ended failed");
+        "Could not send peer update");
 }
 
 ExpectSuccess Client::bindToAnyPort()
@@ -123,7 +117,7 @@ ExpectSuccess Client::bindToAnyPort()
     return ReturnFlag::Success;
 }
 
-std::expected<PlayerIdType, ErrorMessage> Client::registerToServer()
+std::expected<PlayerIdxType, ErrorMessage> Client::registerToServer()
 {
     if (auto&& result = sendConnectPacket(); !result)
         return std::unexpected(result.error());

@@ -1,6 +1,7 @@
 #include "app/AppStateIngame.hpp"
 #include "app/AppStatePaused.hpp"
 #include "app/AppStateWinnerAnnounced.hpp"
+#include "utils/AppMessage.hpp"
 #include <builder/SceneBuilder.hpp>
 #include <events/EventQueue.hpp>
 
@@ -136,9 +137,18 @@ void AppStateIngame::draw()
     gameLoop->renderTo(app.window);
 }
 
+void AppStateIngame::restoreFocusImpl(const std::string& message)
+{
+    handleAppMessage<decltype(this)>(app, message);
+
+    app.window.getWindowContext().setFramerateLimit(60);
+    propagateSettings();
+    lockMouse();
+}
+
 void AppStateIngame::handleNetworkUpdate(const ServerUpdateData& update)
 {
-    ready = update.peersReady;
+    ready = update.state == ServerState::GameInProgress;
 
     for (auto&& inputData : update.inputs)
     {
@@ -166,7 +176,7 @@ AppStateIngame::FrameState AppStateIngame::snapshotInputsIntoNewFrameState()
         state.inputs[0] = InputSchema {};
     }
 
-    client->sendUpdate(lastTick, state.inputs);
+    client->sendCurrentFrameInputs(lastTick, state.inputs);
 
     // TODO: remove the following line. It just disables local input and routes
     // it through network
@@ -226,6 +236,7 @@ void AppStateIngame::evaluateWinCondition()
             unlockMouse();
             app.pushState<AppStateWinnerAnnounced>(
                 dic,
+                client,
                 gameSettings,
                 scene.playerStates
                     | std::views::transform([](const PlayerState& state)

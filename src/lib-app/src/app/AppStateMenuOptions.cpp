@@ -1,6 +1,7 @@
 #include "app/AppStateMenuOptions.hpp"
 #include "GuiBuilder.hpp"
 #include "Utilities/TguiHelper.hpp"
+#include "utils/InputHandler.hpp"
 #include <Configs/Sizers.hpp>
 #include <Configs/Strings.hpp>
 #include <format>
@@ -22,57 +23,26 @@ std::string getWindowResolutionAsString(const dgm::Window& window)
     return std::to_string(size.x) + "x" + std::to_string(size.y);
 }
 
-void AppStateMenuOptions::buildLayoutImpl()
+void AppStateMenuOptions::buildLayout()
 {
-    auto&& basePanel = WidgetBuilder::createPanel();
+    auto&& tabs = WidgetBuilder::createTabbedContent(
+        { Strings::AppState::Options::DISPLAY,
+          Strings::AppState::Options::AUDIO,
+          Strings::AppState::Options::INPUT },
+        "IdOptionsTabPanel",
+        [&](const tgui::String& tabname) { handleTabSelected(tabname); });
 
-    auto&& panel = WidgetBuilder::createPanel(
-        { "100%",
-          ("100% - " + std::to_string(Sizers::getBaseContainerHeight()))
-              .c_str() });
-    panel->setPosition({ "0%", Sizers::getBaseContainerHeight() });
-
-    basePanel->add(panel, "IdTabPanel");
-
-    auto&& tabs = tgui::Tabs::create();
-    tabs->setSize({ "100%", Sizers::getBaseContainerHeight() });
-    tabs->setTextSize(Sizers::getBaseTextSize());
-    tabs->add(Strings::AppState::Options::DISPLAY);
-    tabs->add(Strings::AppState::Options::AUDIO);
-    tabs->add(Strings::AppState::Options::INPUT);
-    tabs->onTabSelect(
-        [&](const tgui::String& tabname)
-        {
-            auto panel = dic->gui->get<tgui::Panel>("IdTabPanel");
-            panel->removeAllWidgets();
-
-            auto&& builder = FormBuilder();
-            if (tabname == Strings::AppState::Options::DISPLAY)
-            {
-                buildDisplayOptionsLayout(builder);
-            }
-            else if (tabname == Strings::AppState::Options::AUDIO)
-            {
-                buildAudioOptionsLayout(builder);
-            }
-            else if (tabname == Strings::AppState::Options::INPUT)
-            {
-                buildInputOptionsLayout(builder);
-            }
-            panel->add(builder.build(PANEL_BACKGROUND_COLOR));
-        });
-    basePanel->add(tabs);
-
-    dic->gui->add(
+    dic->gui->rebuildWith(
         LayoutBuilder::withBackgroundImage(
             dic->resmgr->get<sf::Texture>("menu_options.png").value().get())
             .withTitle(Strings::AppState::Options::TITLE, HeadingLevel::H1)
-            .withContent(basePanel)
+            .withContent(tabs)
             .withBackButton(WidgetBuilder::createButton(
                 Strings::AppState::MainMenu::BACK, [this] { app.popState(); }))
             .withNoSubmitButton()
             .build());
-    tabs->select(Strings::AppState::Options::DISPLAY);
+
+    handleTabSelected(Strings::AppState::Options::DISPLAY);
 }
 
 void AppStateMenuOptions::buildDisplayOptionsLayout(FormBuilder& builder)
@@ -98,7 +68,10 @@ void AppStateMenuOptions::buildDisplayOptionsLayout(FormBuilder& builder)
                         app.window.changeResolution(NUM_RESOLUTIONS[idx]);
 
                         // Force gui to update viewport and resolution
-                        restoreFocusImpl();
+                        dic->gui->gui.setWindow(app.window.getWindowContext());
+
+                        warningDialog.open(Strings::AppState::Options::
+                                               RESOLUTION_CHANGE_WARNING);
                     }))
             .addOption(
                 Strings::AppState::Options::FULLSCREEN,
@@ -225,13 +198,28 @@ void AppStateMenuOptions::buildInputOptionsLayout(FormBuilder& builder)
                 enteredFromGame);
 }
 
+void AppStateMenuOptions::handleTabSelected(const tgui::String& selectedTabName)
+{
+    auto panel = dic->gui->get<tgui::Panel>("IdOptionsTabPanel");
+    panel->removeAllWidgets();
+
+    auto&& builder = FormBuilder();
+    if (selectedTabName == Strings::AppState::Options::DISPLAY)
+    {
+        buildDisplayOptionsLayout(builder);
+    }
+    else if (selectedTabName == Strings::AppState::Options::AUDIO)
+    {
+        buildAudioOptionsLayout(builder);
+    }
+    else if (selectedTabName == Strings::AppState::Options::INPUT)
+    {
+        buildInputOptionsLayout(builder);
+    }
+    panel->add(builder.build(PANEL_BACKGROUND_COLOR));
+}
+
 void AppStateMenuOptions::input()
 {
-    sf::Event event;
-    while (app.window.pollEvent(event))
-    {
-        dic->gui->gui.handleEvent(event);
-    }
-
-    dic->controller->update();
+    InputHandler::handleUiStateInput(app, *dic);
 }

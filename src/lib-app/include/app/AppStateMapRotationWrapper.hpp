@@ -2,7 +2,6 @@
 
 #include "Client.hpp"
 #include "GameSettings.hpp"
-#include "utils/AppMessage.hpp"
 #include "utils/DependencyContainer.hpp"
 #include <Memory.hpp>
 #include <TGUI/Backend/SFML-Graphics.hpp>
@@ -29,7 +28,6 @@ public:
 
 private:
     void restoreFocusImpl(const std::string& message) override;
-    std::optional<AppMessage> handleAppMessage(const AppMessage& message);
 
 private:
     mem::Rc<DependencyContainer> dic;

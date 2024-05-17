@@ -396,7 +396,7 @@ void AppStateEditor::handlePlayLevel(bool useBot)
     lvd.loadFromFile(savePath.string());
 
     auto&& client = mem::Rc<Client>("127.0.0.1", 10666ui16);
-    if (auto&& result = client->commitLobby(); !result)
+    if (auto&& result = client->sendPeerReadySignal(); !result)
         throw std::runtime_error(result.error());
 
     client->readIncomingPackets([](auto) {});

@@ -2,7 +2,6 @@
 
 #include "Client.hpp"
 #include "GameSettings.hpp"
-#include "GuiState.hpp"
 #include "utils/DependencyContainer.hpp"
 #include <Dialogs/MapPickerDialog.hpp>
 #include <Memory.hpp>
@@ -11,9 +10,7 @@
 #include <dgm/classes/AppState.hpp>
 #include <dgm/classes/ResourceManager.hpp>
 
-class [[nodiscard]] AppStateGameSetup final
-    : public dgm::AppState
-    , public GuiState
+class [[nodiscard]] AppStateGameSetup final : public dgm::AppState
 {
 public:
     AppStateGameSetup(dgm::App& app, mem::Rc<DependencyContainer> dic) noexcept;
@@ -29,13 +26,9 @@ public:
     }
 
 private:
-    void restoreFocusImpl(const std::string& message) override
-    {
-        handleRestoreMessage(app, message);
-        GuiState::restoreFocus(app.window.getWindowContext());
-    }
+    void restoreFocusImpl(const std::string& message) override;
 
-    void buildLayoutImpl() override;
+    void buildLayout();
 
     void commitLobby();
 
@@ -54,6 +47,7 @@ private:
     void handleMapRotationUpdate();
 
 private:
+    mem::Rc<DependencyContainer> dic;
     mem::Rc<Client> client;
     LobbySettings lobbySettings;
     std::vector<std::string> mapPackNames;

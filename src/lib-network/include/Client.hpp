@@ -8,11 +8,6 @@
 #include <Memory.hpp>
 #include <functional>
 
-struct PlayerConfig
-{
-    std::string name;
-};
-
 using HandleNetworkUpdate = std::function<void(const ServerUpdateData&)>;
 
 class [[nodiscard]] Client final
@@ -25,23 +20,26 @@ public:
         disconnect();
     }
 
+public:
     ExpectSuccess readIncomingPackets(HandleNetworkUpdate handleUpdateCallback);
 
     ExpectSuccess sendMapReadySignal();
 
-    ExpectSuccess commitLobby();
+    ExpectSuccess sendPeerReadySignal();
+
+    ExpectSuccess sendMapEndedSignal();
 
     ExpectSuccess
-    sendUpdate(size_t tick, const std::vector<InputSchema>& inputs);
+    sendCurrentFrameInputs(size_t tick, const std::vector<InputSchema>& inputs);
 
-    ExpectSuccess sendLobbyUpdate(const LobbySettings& lobbySettings);
+    ExpectSuccess sendLobbySettingsUpdate(const LobbySettings& lobbySettings);
 
-    ExpectSuccess sendMapEnded();
+    ExpectSuccess sendPeerSettingsUpdate(const ClientData& peerUpdate);
 
 private:
     ExpectSuccess bindToAnyPort();
 
-    std::expected<PlayerIdType, ErrorMessage> registerToServer();
+    std::expected<PlayerIdxType, ErrorMessage> registerToServer();
 
     ExpectSuccess sendConnectPacket();
 
@@ -65,5 +63,5 @@ private:
     unsigned short remotePort;
     mem::Box<sf::UdpSocket> socket;
     unsigned short myPort;
-    PlayerIdType myClientId;
+    PlayerIdxType myClientId;
 };

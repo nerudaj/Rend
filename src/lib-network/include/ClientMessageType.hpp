@@ -2,13 +2,14 @@
 
 #include <cstdint>
 
-enum class [[nodiscard]] ClientMessageType : uint8_t {
+enum class [[nodiscard]] ClientMessageType : uint8_t
+{
     ConnectionRequest,
     PeerSettingsUpdate,
-    GameSettingsUpdate,
-    CommitLobby,
-    MapLoaded,
+    LobbySettingsUpdate,
+    ReportPeerReady,
+    ReportMapReady,
     ReportInput,
-    MapEnded,
+    ReportMapEnded,
     Disconnect
 };

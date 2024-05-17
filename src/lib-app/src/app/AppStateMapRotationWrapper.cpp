@@ -1,4 +1,5 @@
 #include "GuiBuilder.hpp"
+#include "utils/AppMessage.hpp"
 #include <Filesystem.hpp>
 #include <LevelD.hpp>
 #include <app/AppStateIngame.hpp>
@@ -36,20 +37,5 @@ void AppStateMapRotationWrapper::input()
 
 void AppStateMapRotationWrapper::restoreFocusImpl(const std::string& message)
 {
-    deserializeAppMessage(message).and_then(std::bind(
-        &AppStateMapRotationWrapper::handleAppMessage,
-        this,
-        std::placeholders::_1));
-}
-
-std::optional<AppMessage>
-AppStateMapRotationWrapper::handleAppMessage(const AppMessage& message)
-{
-    std::visit(
-        overloaded { [&](const PopIfNotMainMenu&)
-                     { app.popState(PopIfNotMainMenu::serialize()); },
-                     [](const PopIfNotMapRotationWrapper&) {},
-                     [](const PopIfPause&) {} },
-        message);
-    return message;
+    handleAppMessage<AppStateMapRotationWrapper>(app, message);
 }

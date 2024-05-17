@@ -1,41 +1,21 @@
 #include "GuiBuilder.hpp"
 #include "utils/AppMessage.hpp"
+#include "utils/InputHandler.hpp"
 #include <Configs/Sizers.hpp>
 #include <Configs/Strings.hpp>
 #include <app/AppStateScoreTable.hpp>
 
 void AppStateScoreTable::input()
 {
-    sf::Event event;
-    while (app.window.pollEvent(event))
-    {
-        if (event.type == sf::Event::Closed)
-        {
-            app.exit();
-        }
+    InputHandler::handleUiStateInputWithoutGoBackOption(app, *dic);
 
-        dic->gui->gui.handleEvent(event);
-    }
-
-    dic->controller->update();
+    client->readIncomingPackets(std::bind(
+        &AppStateScoreTable::handleNetworkUpdate, this, std::placeholders::_1));
 }
 
-[[nodiscard]] static tgui::Label::Ptr
-createCell(const std::string& str, unsigned column)
+void AppStateScoreTable::buildLayout()
 {
-    auto label = tgui::Label::create(str);
-    label->getRenderer()->setTextColor(tgui::Color::Black);
-    label->setSize({ "50%", "100%" });
-    label->setPosition({ column == 0 ? "0%" : "50%", "0%" });
-    label->setTextSize(Sizers::GetMenuBarTextHeight());
-    label->setHorizontalAlignment(tgui::Label::HorizontalAlignment::Center);
-    label->setVerticalAlignment(tgui::Label::VerticalAlignment::Center);
-    return label;
-}
-
-void AppStateScoreTable::buildLayoutImpl()
-{
-    struct PlayerScore
+    struct [[nodiscard]] PlayerScore final
     {
         std::string name;
         int score;
@@ -56,42 +36,34 @@ void AppStateScoreTable::buildLayoutImpl()
         [](const PlayerScore& a, const PlayerScore& b) -> bool
         { return a.score >= b.score; });
 
-    auto&& panel = WidgetBuilder::createPanel();
-
-    // Add heading
+    auto&& tableBuilder =
+        TableBuilder().withHeading({ Strings::AppState::Scores::PLAYER_TH,
+                                     Strings::AppState::Scores::SCORE_TH });
+    for (auto&& score : orderedScores)
     {
-        auto row = WidgetBuilder::getStandardizedRow(tgui::Color::White);
-        row->setPosition({ "0%", "0%" });
-        row->add(createCell(Strings::AppState::Scores::PLAYER_TH, 0));
-        row->add(createCell(Strings::AppState::Scores::SCORE_TH, 1));
-        panel->add(row);
+        tableBuilder.addRow({ score.name, std::to_string(score.score) });
     }
 
-    // Add results
-    for (auto&& [idx, score] : std::views::enumerate(orderedScores))
-    {
-        auto color = idx % 2 == 0 ? tgui::Color(255, 255, 255, 128)
-                                  : tgui::Color(255, 255, 255, 192);
-        auto row = WidgetBuilder::getStandardizedRow(color);
-        row->setPosition({ "0%", row->getSize().y * (idx + 1) });
-        row->add(createCell(score.name, 0));
-        row->add(createCell(std::to_string(score.score), 1));
-        panel->add(row);
-    }
-
-    dic->gui->add(
+    dic->gui->rebuildWith(
         LayoutBuilder::withBackgroundImage(
             dic->resmgr->get<sf::Texture>("menu_intermission.png")
                 .value()
                 .get())
             .withTitle(Strings::AppState::Scores::TITLE, HeadingLevel::H1)
-            .withContent(panel)
+            .withContent(tableBuilder.build())
             .withBackButton(WidgetBuilder::createButton(
                 Strings::AppState::MainMenu::BACK_TO_MENU,
                 [this] { app.popState(PopIfNotMainMenu::serialize()); }))
             .withSubmitButton(WidgetBuilder::createButton(
                 Strings::AppState::MainMenu::NEXT_MAP,
-                [this]
-                { app.popState(PopIfNotMapRotationWrapper::serialize()); }))
+                [this] { client->sendPeerReadySignal(); }))
             .build());
+}
+
+void AppStateScoreTable::handleNetworkUpdate(const ServerUpdateData& update)
+{
+    if (update.state == ServerState::MapLoading)
+    {
+        app.popState(PopIfNotMapRotationWrapper::serialize());
+    }
 }

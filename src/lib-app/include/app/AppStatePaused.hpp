@@ -1,11 +1,9 @@
 #pragma once
 
-#include "GuiState.hpp"
 #include "utils/DependencyContainer.hpp"
+#include <DGM/dgm.hpp>
 
-class [[nodiscard]] AppStatePaused final
-    : public dgm::AppState
-    , public GuiState
+class [[nodiscard]] AppStatePaused final : public dgm::AppState
 {
 public:
     AppStatePaused(dgm::App& app, mem::Rc<DependencyContainer> dic)
@@ -13,7 +11,7 @@ public:
             app,
             dgm::AppStateConfig { .shouldUpdateUnderlyingState = true,
                                   .shouldDrawUnderlyingState = true })
-        , GuiState(dic)
+        , dic(dic)
     {
         buildLayout();
     }
@@ -29,11 +27,10 @@ public:
     }
 
 private:
-    void buildLayoutImpl() override;
+    void buildLayout();
 
-    void restoreFocusImpl(const std::string& message) override
-    {
-        if (PopIfPause::canDeserializeFrom(message)) app.popState();
-        GuiState::restoreFocus(app.window.getWindowContext());
-    }
+    void restoreFocusImpl(const std::string& message) override;
+
+private:
+    mem::Rc<DependencyContainer> dic;
 };

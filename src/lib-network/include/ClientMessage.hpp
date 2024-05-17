@@ -8,8 +8,8 @@
 struct [[nodiscard]] ClientMessage final
 {
     ClientMessageType type;
-    PlayerIdType clientId;
-    std::string jsonData; // either map configuration JSON or input JSON
+    PlayerIdxType clientId; // TODO: remove?
+    std::string jsonData;   // either map configuration JSON or input JSON
     size_t tick;
 
     static ClientMessage fromPacket(sf::Packet& packet)

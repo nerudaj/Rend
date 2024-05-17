@@ -1,9 +1,22 @@
+#include "Server.hpp"
 #include <format>
 #include <iostream>
 #include <nlohmann/json.hpp>
 #include <print>
+#include <source_location>
 #include <stdexcept>
-#include "Server.hpp"
+
+#define CHECK_REGISTRATION(addr, port)                                         \
+    if (!isRegistered(addr, port))                                             \
+    {                                                                          \
+        auto&& fnName =                                                        \
+            std::string(std::source_location::current().function_name());      \
+        return std::unexpected(std::format(                                    \
+            "{}: Unauthorized attempt for access from {}:{}",                  \
+            fnName,                                                            \
+            addr.toString(),                                                   \
+            port));                                                            \
+    }
 
 Server::Server(ServerConfiguration config)
     : MAX_CLIENT_COUNT(config.maxClientCount)
@@ -46,12 +59,14 @@ void Server::update()
 
     if (!shouldUpdate) return;
 
+    updateData.state = computeNewState();
+
     auto&& payload = nlohmann::json(updateData).dump();
     for (auto&& [key, client] : registeredClients)
     {
         packet = ServerMessage { .type = ServerMessageType::Update,
                                  .sequence = sequence,
-                                 .clientId = client.id,
+                                 .clientId = client.idx,
                                  .payload = payload }
                      .toPacket();
 
@@ -61,7 +76,7 @@ void Server::update()
             std::cout << "Server:error "
                       << std::format(
                              "Could not send response to client {} at {}:{}",
-                             client.id,
+                             client.idx,
                              client.address.toInteger(),
                              client.port)
                       << std::endl;
@@ -83,17 +98,17 @@ ExpectedLog Server::handleMessage(
     case ConnectionRequest:
         return handleNewConnection(address, port);
     case PeerSettingsUpdate:
-        return std::unexpected("Dunno how to handle PeerSettingsUpdate");
-    case GameSettingsUpdate:
-        return handleLobbySettingsUpdate(message);
-    case CommitLobby:
-        return handleLobbyCommited(address, port);
-    case MapLoaded:
+        return handlePeerSettingsUpdate(message, address, port);
+    case LobbySettingsUpdate:
+        return handleLobbySettingsUpdate(message, address, port);
+    case ReportPeerReady:
+        return handlePeerReady(address, port);
+    case ReportMapReady:
         return handleMapReady(address, port);
+    case ReportMapEnded:
+        return handleMapEnded(address, port);
     case ReportInput:
         return handleReportedInput(message);
-    case MapEnded:
-        return handleMapEnded(address, port);
     case Disconnect:
         return handleDisconnection(address, port);
     default:
@@ -107,7 +122,7 @@ ExpectedLog Server::handleMessage(
 ExpectedLog
 Server::handleNewConnection(const sf::IpAddress& address, unsigned short port)
 {
-    if (isRegistered(address) && !ACCEPT_RECONNECTS)
+    if (isRegistered(address, port) && !ACCEPT_RECONNECTS)
     {
         if (auto&& result = denyNewPeer(address, port); !result)
             return std::unexpected(result.error());
@@ -127,7 +142,7 @@ Server::handleNewConnection(const sf::IpAddress& address, unsigned short port)
             address.toString(),
             port);
     }
-    else if (updateData.lobbyCommited)
+    else if (updateData.state != ServerState::Lobby)
     {
         if (auto&& result = denyNewPeer(address, port); !result)
             return std::unexpected(result.error());
@@ -137,10 +152,29 @@ Server::handleNewConnection(const sf::IpAddress& address, unsigned short port)
             port);
     }
 
-    auto&& newId = static_cast<PlayerIdType>(registeredClients.size());
+    const auto&& newIdx = [](std::vector<ClientData>& clients) -> PlayerIdxType
+    {
+        auto&& itr = std::ranges::find_if(
+            clients,
+            [](const ClientData& client)
+            { return client.state == ClientState::Disconnected; });
+
+        if (itr == clients.end())
+        {
+            clients.push_back(ClientData());
+            return clients.size() - 1;
+        }
+        *itr = ClientData();
+        return std::distance(clients.begin(), itr);
+    }(updateData.clients);
+
+    registeredClients[peerToId(address, port)] = ClientConnectionInfo {
+        .idx = newIdx, .address = address, .port = port
+    };
+
     auto&& packet =
         ServerMessage { .type = ServerMessageType::ConnectionAccepted,
-                        .clientId = newId }
+                        .clientId = newIdx }
             .toPacket();
 
     if (socket->send(packet, address, port) != sf::Socket::Status::Done)
@@ -151,20 +185,17 @@ Server::handleNewConnection(const sf::IpAddress& address, unsigned short port)
             port));
     }
 
-    registeredClients[address.toInteger()] =
-        ClientConnectionInfo { .id = newId, .address = address, .port = port };
-
     return std::format(
         "Registered new client at {}:{} with ID: {}",
         address.toString(),
         port,
-        newId);
+        newIdx);
 }
 
-ExpectedLog
+/*ExpectedLog
 Server::handleLobbyCommited(const sf::IpAddress& address, unsigned short port)
 {
-    if (!isAdmin(address))
+    if (!isAdmin(address, port))
         return std::unexpected(std::format(
             "handleLobbyCommited: Unauthorized attempt for access from {}:{}",
             address.toString(),
@@ -174,51 +205,43 @@ Server::handleLobbyCommited(const sf::IpAddress& address, unsigned short port)
 
     for (auto&& [key, client] : registeredClients)
     {
-        client.ready = false;
+        client.isMapReady = false;
     }
 
     return "Lobby was commited";
+}*/
+
+ExpectedLog
+Server::handlePeerReady(const sf::IpAddress& address, unsigned short port)
+{
+    CHECK_REGISTRATION(address, port);
+
+    getClient(address, port).state = ClientState::ConnectedAndReady;
+
+    return std::format(
+        "Peer ready accepted from {}:{}", address.toString(), port);
 }
 
 ExpectedLog
 Server::handleMapReady(const sf::IpAddress& address, unsigned short port)
 {
-    if (!isRegistered(address))
-    {
-        return std::unexpected(std::format(
-            "handleMapReady: Unauthorized attempt for access from {}:{}",
-            address.toString(),
-            port));
-    }
+    CHECK_REGISTRATION(address, port);
 
-    registeredClients.at(address.toInteger()).ready = true;
-
-    updateData.peersReady = areAllPeersReady();
+    getClient(address, port).state = ClientState::ConnectedAndMapReady;
 
     return std::format(
-        "Map ready accepted from {}:{}, all peers ready? {}",
-        address.toString(),
-        port,
-        updateData.peersReady);
+        "Map ready accepted from {}:{}", address.toString(), port);
 }
 
 ExpectedLog
 Server::handleMapEnded(const sf::IpAddress& address, unsigned short port)
 {
-    if (!isRegistered(address))
-        return std::unexpected(std::format(
-            "handleMapEnded: Unauthorized attempt for access from {}:{}",
-            address.toString(),
-            port));
+    CHECK_REGISTRATION(address, port);
 
-    registeredClients.at(address.toInteger()).ready = false;
-    updateMapEndedStatuses();
+    getClient(address, port).state = ClientState::Connected;
 
     return std::format(
-        "Client {}:{} send map ended. Game active? {}",
-        address.toString(),
-        port,
-        updateData.lobbyCommited);
+        "Map ready accepted from {}:{}", address.toString(), port);
 }
 
 ExpectedLog Server::handleReportedInput(const ClientMessage& message)
@@ -251,8 +274,47 @@ ExpectedLog Server::handleReportedInput(const ClientMessage& message)
 #endif
 }
 
-ExpectedLog Server::handleLobbySettingsUpdate(const ClientMessage& message)
+ExpectedLog Server::handlePeerSettingsUpdate(
+    const ClientMessage& message,
+    const sf::IpAddress& address,
+    unsigned short port)
 {
+    CHECK_REGISTRATION(address, port);
+
+    try
+    {
+        auto&& data = ClientData(nlohmann::json::parse(message.jsonData));
+        getClient(address, port).name = data.name;
+        getClient(address, port).hasAutoswapOnPickup = data.hasAutoswapOnPickup;
+    }
+    catch (const std::exception& e)
+    {
+        return std::unexpected(std::format(
+            "Could not parse peer settings update json '{}', from client {}, "
+            "with error: {}",
+            message.jsonData,
+            message.clientId,
+            e.what()));
+    }
+
+    return std::format(
+        "Processed peer update from client {}, json {}",
+        message.clientId,
+        message.jsonData);
+}
+
+ExpectedLog Server::handleLobbySettingsUpdate(
+    const ClientMessage& message,
+    const sf::IpAddress& address,
+    unsigned short port)
+{
+    if (!isAdmin(address, port))
+        return std::unexpected(std::format(
+            "handleLobbySettingsUpdate: Unauthorized attempt for access from "
+            "{}:{}",
+            address.toString(),
+            port));
+
     try
     {
         updateData.lobbySettings = nlohmann::json::parse(message.jsonData);
@@ -277,19 +339,14 @@ ExpectedLog Server::handleLobbySettingsUpdate(const ClientMessage& message)
 ExpectedLog
 Server::handleDisconnection(const sf::IpAddress& address, unsigned short port)
 {
-    if (!isRegistered(address))
-        return std::unexpected(std::format(
-            "handleDisconnection: Unauthorized attempt for access from {}:{}",
-            address.toString(),
-            port));
+    CHECK_REGISTRATION(address, port);
 
-    registeredClients.erase(address.toInteger());
+    auto&& id = peerToId(address, port);
+    updateData.clients.at(registeredClients.at(id).idx).state =
+        ClientState::Disconnected;
+    registeredClients.erase(id);
 
-    return std::format(
-        "Client {}:{} disconnected. Game active? {}",
-        address.toString(),
-        port,
-        updateData.lobbyCommited);
+    return std::format("Client {}:{} disconnected", address.toString(), port);
 }
 
 ExpectSuccess
@@ -309,8 +366,26 @@ Server::denyNewPeer(const sf::IpAddress& address, unsigned short port)
     return ReturnFlag::Success;
 }
 
-void Server::updateMapEndedStatuses()
+ServerState Server::computeNewState()
 {
-    updateData.peersReady = areAllPeersReady();
-    updateData.lobbyCommited = !isNoPeerReady();
+    if (getConnectedClientsOnly().empty())
+    {
+        return ServerState::Lobby;
+    }
+
+    if (updateData.state == ServerState::Lobby && areAllPeersReady())
+    {
+        return ServerState::MapLoading;
+    }
+    else if (
+        updateData.state == ServerState::MapLoading && isMapLoadedForAllPeers())
+    {
+        return ServerState::GameInProgress;
+    }
+    else if (updateData.state == ServerState::GameInProgress && isNoPeerReady())
+    {
+        return ServerState::Lobby;
+    }
+
+    return updateData.state;
 }

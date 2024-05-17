@@ -1,5 +1,7 @@
 #include "GuiBuilder.hpp"
 #include "LobbySettings.hpp"
+#include "utils/AppMessage.hpp"
+#include "utils/InputHandler.hpp"
 #include <Configs/Strings.hpp>
 #include <Filesystem.hpp>
 #include <LevelD.hpp>
@@ -11,7 +13,7 @@
 AppStateGameSetup::AppStateGameSetup(
     dgm::App& app, mem::Rc<DependencyContainer> dic) noexcept
     : AppState(app, dgm::AppStateConfig { .clearColor = sf::Color::White })
-    , GuiState(dic)
+    , dic(dic)
     , client(mem::Rc<Client>("127.0.0.1", 10666ui16))
     , lobbySettings(LobbySettings {
           .fraglimit = static_cast<int>(dic->settings->cmdSettings.fraglimit),
@@ -22,7 +24,7 @@ AppStateGameSetup::AppStateGameSetup(
 {
     selectMapPack(mapPackNames.front());
     buildLayout();
-    client->sendLobbyUpdate(lobbySettings);
+    client->sendLobbySettingsUpdate(lobbySettings);
 }
 
 void AppStateGameSetup::input()
@@ -33,25 +35,15 @@ void AppStateGameSetup::input()
         startGame();
     }
 
-    sf::Event event;
-    while (app.window.pollEvent(event))
-    {
-        if (event.type == sf::Event::Closed)
-        {
-            app.exit();
-        }
+    InputHandler::handleUiStateInput(app, *dic);
 
-        dic->gui->gui.handleEvent(event);
-    }
-
-    dic->controller->update();
     client->readIncomingPackets(std::bind(
         &AppStateGameSetup::handleNetworkUpdate, this, std::placeholders::_1));
 }
 
-void AppStateGameSetup::buildLayoutImpl()
+void AppStateGameSetup::buildLayout()
 {
-    dic->gui->add(
+    dic->gui->rebuildWith(
         LayoutBuilder::withBackgroundImage(
             dic->resmgr->get<sf::Texture>("menu_setup.png").value().get())
             .withTitle(Strings::AppState::GameSetup::TITLE, HeadingLevel::H1)
@@ -65,7 +57,7 @@ void AppStateGameSetup::buildLayoutImpl()
                             [this](std::size_t idx)
                             {
                                 lobbySettings.playerCount = idx + 1;
-                                client->sendLobbyUpdate(lobbySettings);
+                                client->sendLobbySettingsUpdate(lobbySettings);
                             }))
                     .addOption(
                         Strings::AppState::GameSetup::SELECT_PACK,
@@ -90,7 +82,7 @@ void AppStateGameSetup::buildLayoutImpl()
                                 if (newValue.empty()) return;
                                 lobbySettings.fraglimit =
                                     std::stoi(std::string(newValue));
-                                client->sendLobbyUpdate(lobbySettings);
+                                client->sendLobbySettingsUpdate(lobbySettings);
                             },
                             WidgetBuilder::getNumericValidator()))
                     .build(PANEL_BACKGROUND_COLOR))
@@ -102,9 +94,15 @@ void AppStateGameSetup::buildLayoutImpl()
             .build());
 }
 
+void AppStateGameSetup::restoreFocusImpl(const std::string& message)
+{
+    buildLayout();
+    handleAppMessage<AppStateGameSetup>(app, message);
+}
+
 void AppStateGameSetup::commitLobby()
 {
-    auto&& result = client->commitLobby();
+    auto&& result = client->sendPeerReadySignal();
     if (!result) throw std::runtime_error(result.error());
 }
 
@@ -112,7 +110,7 @@ void AppStateGameSetup::handleNetworkUpdate(const ServerUpdateData& update)
 {
     lobbySettings = update.lobbySettings;
 
-    if (update.lobbyCommited)
+    if (update.state == ServerState::MapLoading)
     {
         startGame();
     }
@@ -179,7 +177,7 @@ void AppStateGameSetup::selectMapPack(const std::string& packname)
 void AppStateGameSetup::selectMapPackAndSendUpdate(const std::string& packname)
 {
     selectMapPack(packname);
-    client->sendLobbyUpdate(lobbySettings);
+    client->sendLobbySettingsUpdate(lobbySettings);
 }
 
 void AppStateGameSetup::openMapPicker()
@@ -205,5 +203,5 @@ void AppStateGameSetup::handleMapRotationUpdate()
                 return MapSettings { s.name, s.enabled };
             })
         | std::ranges::to<std::vector>();
-    client->sendLobbyUpdate(lobbySettings);
+    client->sendLobbySettingsUpdate(lobbySettings);
 }
