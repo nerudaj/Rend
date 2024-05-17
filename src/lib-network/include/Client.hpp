@@ -21,6 +21,11 @@ public:
     }
 
 public:
+    [[nodiscard]] PlayerIdxType getMyIndex() const noexcept
+    {
+        return myClientId;
+    }
+
     ExpectSuccess readIncomingPackets(HandleNetworkUpdate handleUpdateCallback);
 
     ExpectSuccess sendMapReadySignal();

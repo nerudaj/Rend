@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Client.hpp"
-#include "GameSettings.hpp"
+#include "app/AppStateLobbyBase.hpp"
 #include "utils/DependencyContainer.hpp"
 #include <Dialogs/MapPickerDialog.hpp>
 #include <Memory.hpp>
@@ -10,7 +10,7 @@
 #include <dgm/classes/AppState.hpp>
 #include <dgm/classes/ResourceManager.hpp>
 
-class [[nodiscard]] AppStateGameSetup final : public dgm::AppState
+class [[nodiscard]] AppStateGameSetup final : public AppStateLobbyBase
 {
 public:
     AppStateGameSetup(dgm::App& app, mem::Rc<DependencyContainer> dic) noexcept;
@@ -26,17 +26,10 @@ public:
     }
 
 private:
+    void buildLayoutGameSetupImpl(tgui::Panel::Ptr target) override;
+
+private:
     void restoreFocusImpl(const std::string& message) override;
-
-    void buildLayout();
-
-    void commitLobby();
-
-    void handleNetworkUpdate(const ServerUpdateData& update);
-
-    void startGame();
-
-    [[nodiscard]] std::vector<PlayerOptions> createPlayerSettings() const;
 
     void selectMapPack(const std::string& packname);
 
@@ -47,9 +40,6 @@ private:
     void handleMapRotationUpdate();
 
 private:
-    mem::Rc<DependencyContainer> dic;
-    mem::Rc<Client> client;
-    LobbySettings lobbySettings;
     std::vector<std::string> mapPackNames;
     mem::Box<MapPickerDialog> mapPickerDialog;
 };

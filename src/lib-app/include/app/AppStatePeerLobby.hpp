@@ -1,11 +1,12 @@
 #pragma once
 
+#include "app/AppStateLobbyBase.hpp"
 #include "utils/DependencyContainer.hpp"
 #include <Client.hpp>
 #include <DGM/dgm.hpp>
 #include <SFML/Network.hpp>
 
-class [[nodiscard]] AppStatePeerLobby final : public dgm::AppState
+class [[nodiscard]] AppStatePeerLobby final : public AppStateLobbyBase
 {
 public:
     AppStatePeerLobby(
@@ -24,16 +25,8 @@ public:
     }
 
 private:
-    void buildLayout();
-
-    void restoreFocusImpl(const std::string& message) override;
-
-    void handleLobbyUpdate(const ServerUpdateData& update);
+    void buildLayoutGameSetupImpl(tgui::Panel::Ptr target) override;
 
 private:
-    mem::Rc<DependencyContainer> dic;
-    mem::Rc<Client> client;
-    ClientData myPeerData;
-    std::vector<ClientData> connectedPeers;
-    LobbySettings lobbySettings;
+    void restoreFocusImpl(const std::string& message) override;
 };

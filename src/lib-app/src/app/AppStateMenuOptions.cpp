@@ -28,7 +28,8 @@ void AppStateMenuOptions::buildLayout()
     auto&& tabs = WidgetBuilder::createTabbedContent(
         { Strings::AppState::Options::DISPLAY,
           Strings::AppState::Options::AUDIO,
-          Strings::AppState::Options::INPUT },
+          Strings::AppState::Options::INPUT,
+          Strings::AppState::Options::PLAYER },
         "IdOptionsTabPanel",
         [&](const tgui::String& tabname) { handleTabSelected(tabname); });
 
@@ -154,48 +155,71 @@ void AppStateMenuOptions::buildInputOptionsLayout(FormBuilder& builder)
     auto deadzoneFormatter = [](float val)
     { return std::format("{:.2f}", val); };
 
-    std::ignore =
-        builder
-            .addOption(
-                Strings::AppState::Options::MOUSE_SENSITIVITY,
-                WidgetBuilder::createSlider(
-                    dic->settings->input.mouseSensitivity,
-                    [this](float value)
-                    { dic->settings->input.mouseSensitivity = value; },
-                    dic->gui->gui,
-                    sensitivityFormatter,
-                    1.f,
-                    50.f,
-                    1.f))
-            .addOption(
-                Strings::AppState::Options::TURN_SENSITIVITY,
-                WidgetBuilder::createSlider(
-                    dic->settings->input.turnSpeed,
-                    [this](float value)
-                    { dic->settings->input.turnSpeed = value; },
-                    dic->gui->gui,
-                    turnSpeedFormatter,
-                    0.1f,
-                    5.f,
-                    0.1f))
-            .addOption(
-                Strings::AppState::Options::GAMEPAD_DEADZONE,
-                WidgetBuilder::createSlider(
-                    dic->settings->input.gamepadDeadzone,
-                    [this](float value)
-                    { dic->settings->input.gamepadDeadzone = value; },
-                    dic->gui->gui,
-                    deadzoneFormatter,
-                    0.f,
-                    1.f,
-                    0.01f))
-            .addOption(
-                Strings::AppState::Options::SWAP_ON_PICKUP,
-                WidgetBuilder::createCheckbox(
-                    dic->settings->input.autoswapOnPickup,
-                    [this](bool value)
-                    { dic->settings->input.autoswapOnPickup = value; }),
-                enteredFromGame);
+    std::ignore = builder
+                      .addOption(
+                          Strings::AppState::Options::MOUSE_SENSITIVITY,
+                          WidgetBuilder::createSlider(
+                              dic->settings->input.mouseSensitivity,
+                              [this](float value) {
+                                  dic->settings->input.mouseSensitivity = value;
+                              },
+                              dic->gui->gui,
+                              sensitivityFormatter,
+                              1.f,
+                              50.f,
+                              1.f))
+                      .addOption(
+                          Strings::AppState::Options::TURN_SENSITIVITY,
+                          WidgetBuilder::createSlider(
+                              dic->settings->input.turnSpeed,
+                              [this](float value)
+                              { dic->settings->input.turnSpeed = value; },
+                              dic->gui->gui,
+                              turnSpeedFormatter,
+                              0.1f,
+                              5.f,
+                              0.1f))
+                      .addOption(
+                          Strings::AppState::Options::GAMEPAD_DEADZONE,
+                          WidgetBuilder::createSlider(
+                              dic->settings->input.gamepadDeadzone,
+                              [this](float value)
+                              { dic->settings->input.gamepadDeadzone = value; },
+                              dic->gui->gui,
+                              deadzoneFormatter,
+                              0.f,
+                              1.f,
+                              0.01f));
+}
+
+void AppStateMenuOptions::buildPlayerOptionsLayout(
+    FormBuilder& builder,
+    mem::Rc<DependencyContainer>& dic,
+    bool changesDisabled,
+    std::function<void(void)> onChanged)
+{
+    std::ignore = builder
+                      .addOption(
+                          Strings::AppState::Options::PLAYER_NAME,
+                          WidgetBuilder::createTextInput(
+                              dic->settings->player.name,
+                              [&, onChanged](const tgui::String& text)
+                              {
+                                  dic->settings->player.name =
+                                      text.toStdString();
+                                  onChanged();
+                              }),
+                          changesDisabled)
+                      .addOption(
+                          Strings::AppState::Options::SWAP_ON_PICKUP,
+                          WidgetBuilder::createCheckbox(
+                              dic->settings->input.autoswapOnPickup,
+                              [&, onChanged](bool value)
+                              {
+                                  dic->settings->input.autoswapOnPickup = value;
+                                  onChanged();
+                              }),
+                          changesDisabled);
 }
 
 void AppStateMenuOptions::handleTabSelected(const tgui::String& selectedTabName)
@@ -215,6 +239,10 @@ void AppStateMenuOptions::handleTabSelected(const tgui::String& selectedTabName)
     else if (selectedTabName == Strings::AppState::Options::INPUT)
     {
         buildInputOptionsLayout(builder);
+    }
+    else if (selectedTabName == Strings::AppState::Options::PLAYER)
+    {
+        buildPlayerOptionsLayout(builder, dic, enteredFromGame);
     }
     panel->add(builder.build(PANEL_BACKGROUND_COLOR));
 }

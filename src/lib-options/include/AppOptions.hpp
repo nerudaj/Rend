@@ -1,17 +1,19 @@
 #pragma once
 
-#include <nlohmann/json.hpp>
 #include "AudioOptions.hpp"
-#include "InputOptions.hpp"
-#include "DisplayOptions.hpp"
 #include "CmdParameters.hpp"
+#include "DisplayOptions.hpp"
+#include "InputOptions.hpp"
+#include "UserOptions.hpp"
+#include <nlohmann/json.hpp>
 
 struct AppOptions
 {
-	AudioOptions audio;
-	InputOptions input;
-	DisplayOptions display;
-	CmdParameters cmdSettings;
+    AudioOptions audio;
+    InputOptions input;
+    DisplayOptions display;
+    UserOptions player;
+    CmdParameters cmdSettings;
 };
 
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(AppOptions, audio, input, display);
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(AppOptions, audio, input, player, display);

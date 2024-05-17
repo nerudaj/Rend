@@ -34,11 +34,18 @@ public:
         dic->gui->draw();
     }
 
+    static void buildPlayerOptionsLayout(
+        FormBuilder& builder,
+        mem::Rc<DependencyContainer>& dic,
+        bool changesDisabled,
+        std::function<void(void)> onChanged = [] {});
+
 private:
     void buildLayout();
     void buildDisplayOptionsLayout(FormBuilder& builder);
     void buildAudioOptionsLayout(FormBuilder& builder);
     void buildInputOptionsLayout(FormBuilder& builder);
+
     void handleTabSelected(const tgui::String& selectedTabName);
 
 private:

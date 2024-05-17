@@ -39,6 +39,7 @@ namespace Strings
             RAWSTRING DISPLAY = "display";
             RAWSTRING AUDIO = "audio";
             RAWSTRING INPUT = "input";
+            RAWSTRING PLAYER = "player";
             RAWSTRING FULLSCREEN = "fullscreen";
             RAWSTRING SET_RESOLUTION = "resolution";
             RAWSTRING USE_DITHERED_SHADES = "dithered shadows";
@@ -55,6 +56,7 @@ namespace Strings
             RAWSTRING RESOLUTION_CHANGE_WARNING =
                 "it is recommended to restart the game after changing "
                 "resolution to prevent visual artifacts in the game.";
+            RAWSTRING PLAYER_NAME = "player name";
         } // namespace Options
 
         namespace GameSetup
@@ -82,6 +84,9 @@ namespace Strings
             RAWSTRING NOT_READY = "not ready";
             RAWSTRING PNAME = "player name";
             RAWSTRING IS_READY = "is ready";
+            RAWSTRING GAME_SETUP = "game setup";
+            RAWSTRING PLAYER_SETUP = "player setup";
+            RAWSTRING PLAYERS = "players";
         } // namespace PeerLobby
 
         namespace Pause

@@ -12,18 +12,12 @@
 
 AppStateGameSetup::AppStateGameSetup(
     dgm::App& app, mem::Rc<DependencyContainer> dic) noexcept
-    : AppState(app, dgm::AppStateConfig { .clearColor = sf::Color::White })
-    , dic(dic)
-    , client(mem::Rc<Client>("127.0.0.1", 10666ui16))
-    , lobbySettings(LobbySettings {
-          .fraglimit = static_cast<int>(dic->settings->cmdSettings.fraglimit),
-          .playerCount = dic->settings->cmdSettings.playerCount })
+    : AppStateLobbyBase(app, dic, mem::Rc<Client>("127.0.0.1", 10666ui16))
     , mapPackNames(Filesystem::getLevelPackNames(
           Filesystem::getLevelsDir(dic->settings->cmdSettings.resourcesDir)))
     , mapPickerDialog(dic->gui, std::vector<MapSettingsForPicker>())
 {
     selectMapPack(mapPackNames.front());
-    buildLayout();
     client->sendLobbySettingsUpdate(lobbySettings);
 }
 
@@ -41,121 +35,51 @@ void AppStateGameSetup::input()
         &AppStateGameSetup::handleNetworkUpdate, this, std::placeholders::_1));
 }
 
-void AppStateGameSetup::buildLayout()
+void AppStateGameSetup::buildLayoutGameSetupImpl(tgui::Panel::Ptr target)
 {
-    dic->gui->rebuildWith(
-        LayoutBuilder::withBackgroundImage(
-            dic->resmgr->get<sf::Texture>("menu_setup.png").value().get())
-            .withTitle(Strings::AppState::GameSetup::TITLE, HeadingLevel::H1)
-            .withContent(
-                FormBuilder()
-                    .addOption(
-                        Strings::AppState::GameSetup::PLAYER_COUNT,
-                        WidgetBuilder::createDropdown(
-                            { "1", "2", "3", "4" },
-                            std::to_string(lobbySettings.playerCount),
-                            [this](std::size_t idx)
-                            {
-                                lobbySettings.playerCount = idx + 1;
-                                client->sendLobbySettingsUpdate(lobbySettings);
-                            }))
-                    .addOption(
-                        Strings::AppState::GameSetup::SELECT_PACK,
-                        WidgetBuilder::createDropdown(
-                            mapPackNames,
-                            lobbySettings.packname,
-                            [this](std::size_t idx) {
-                                selectMapPackAndSendUpdate(
-                                    mapPackNames.at(idx));
-                            }))
-                    .addOption(
-                        Strings::AppState::GameSetup::SELECT_MAPS,
-                        WidgetBuilder::createButton(
-                            Strings::AppState::GameSetup::DOTDOTDOT,
-                            std::bind(&AppStateGameSetup::openMapPicker, this)))
-                    .addOption(
-                        Strings::AppState::GameSetup::FRAGLIMIT,
-                        WidgetBuilder::createTextInput(
-                            std::to_string(lobbySettings.fraglimit),
-                            [this](const tgui::String& newValue)
-                            {
-                                if (newValue.empty()) return;
-                                lobbySettings.fraglimit =
-                                    std::stoi(std::string(newValue));
-                                client->sendLobbySettingsUpdate(lobbySettings);
-                            },
-                            WidgetBuilder::getNumericValidator()))
-                    .build(PANEL_BACKGROUND_COLOR))
-            .withBackButton(WidgetBuilder::createButton(
-                Strings::AppState::MainMenu::BACK, [this] { app.popState(); }))
-            .withSubmitButton(WidgetBuilder::createButton(
-                Strings::AppState::MainMenu::PLAY,
-                std::bind(&AppStateGameSetup::commitLobby, this)))
-            .build());
+    target->add(
+        FormBuilder()
+            .addOption(
+                Strings::AppState::GameSetup::PLAYER_COUNT, // TODO: max npcs
+                WidgetBuilder::createDropdown(
+                    { "1", "2", "3", "4" },
+                    std::to_string(lobbySettings.playerCount),
+                    [this](std::size_t idx)
+                    {
+                        lobbySettings.playerCount = idx + 1;
+                        client->sendLobbySettingsUpdate(lobbySettings);
+                    }))
+            .addOption(
+                Strings::AppState::GameSetup::SELECT_PACK,
+                WidgetBuilder::createDropdown(
+                    mapPackNames,
+                    lobbySettings.packname,
+                    [this](std::size_t idx)
+                    { selectMapPackAndSendUpdate(mapPackNames.at(idx)); }))
+            .addOption(
+                Strings::AppState::GameSetup::SELECT_MAPS,
+                WidgetBuilder::createButton(
+                    Strings::AppState::GameSetup::DOTDOTDOT,
+                    std::bind(&AppStateGameSetup::openMapPicker, this)))
+            .addOption(
+                Strings::AppState::GameSetup::FRAGLIMIT,
+                WidgetBuilder::createTextInput(
+                    std::to_string(lobbySettings.fraglimit),
+                    [this](const tgui::String& newValue)
+                    {
+                        if (newValue.empty()) return;
+                        lobbySettings.fraglimit =
+                            std::stoi(std::string(newValue));
+                        client->sendLobbySettingsUpdate(lobbySettings);
+                    },
+                    WidgetBuilder::getNumericValidator()))
+            .build(PANEL_BACKGROUND_COLOR));
 }
 
 void AppStateGameSetup::restoreFocusImpl(const std::string& message)
 {
     buildLayout();
     handleAppMessage<AppStateGameSetup>(app, message);
-}
-
-void AppStateGameSetup::commitLobby()
-{
-    auto&& result = client->sendPeerReadySignal();
-    if (!result) throw std::runtime_error(result.error());
-}
-
-void AppStateGameSetup::handleNetworkUpdate(const ServerUpdateData& update)
-{
-    lobbySettings = update.lobbySettings;
-
-    if (update.state == ServerState::MapLoading)
-    {
-        startGame();
-    }
-}
-
-void AppStateGameSetup::startGame()
-{
-    auto&& maplist =
-        lobbySettings.mapSettings
-        | std::views::filter([](const MapSettings& ms) { return ms.enabled; })
-        | std::views::transform([](const MapSettings& ms) { return ms.name; })
-        | std::ranges::to<std::vector>();
-
-    if (maplist.empty()) throw std::runtime_error("No map selected!");
-
-    app.pushState<AppStateMapRotationWrapper>(
-        dic,
-        client,
-        GameOptions { .players = createPlayerSettings(),
-                      .fraglimit =
-                          static_cast<unsigned>(lobbySettings.fraglimit) },
-        lobbySettings.packname,
-        maplist);
-}
-
-std::vector<PlayerOptions> AppStateGameSetup::createPlayerSettings() const
-{
-    const auto&& defaultPlayerNames = std::vector<std::string> {
-        "player",
-        "phobos",
-        "spartan",
-        "deimos",
-    };
-
-    return std::views::iota(0u, lobbySettings.playerCount)
-           | std::views::transform(
-               [&defaultPlayerNames](auto idx)
-               {
-                   return PlayerOptions { .kind = idx == 0u
-                                                      ? PlayerKind::LocalHuman
-                                                      : PlayerKind::LocalNpc,
-                                          .bindCamera = idx == 0,
-                                          .name = defaultPlayerNames[idx] };
-               })
-           | std::ranges::to<std::vector<PlayerOptions>>();
 }
 
 void AppStateGameSetup::selectMapPack(const std::string& packname)
