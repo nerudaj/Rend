@@ -12,14 +12,12 @@ AppStatePeerLobby::AppStatePeerLobby(
     : dgm::AppState(app)
     , dic(dic)
     , client(mem::Rc<Client>(hostAddress, 10666))
-    , myPeerData(ClientData { .active = true,
-                              .name = "player",
-                              .isReady = false,
+    , myPeerData(ClientData { .name = "player",
                               .hasAutoswapOnPickup =
                                   dic->settings->input.autoswapOnPickup })
 {
     buildLayout();
-    client->sendPeerUpdate(myPeerData);
+    client->sendPeerSettingsUpdate(myPeerData);
 }
 
 void AppStatePeerLobby::input()
@@ -37,7 +35,7 @@ void AppStatePeerLobby::buildLayout()
                                      Strings::AppState::PeerLobby::IS_READY });
     for (auto&& peer : connectedPeers)
         table.addRow({ peer.name,
-                       peer.isReady
+                       peer.state == ClientState::ConnectedAndReady
                            ? Strings::AppState::PeerLobby::READY
                            : Strings::AppState::PeerLobby::NOT_READY });
 
@@ -58,7 +56,7 @@ void AppStatePeerLobby::buildLayout()
 void AppStatePeerLobby::restoreFocusImpl(const std::string& message)
 {
     buildLayout();
-    handleAppMessage<decltype(this)>(app, message);
+    handleAppMessage<AppStatePeerLobby>(app, message);
 }
 
 void AppStatePeerLobby::handleLobbyUpdate(const ServerUpdateData& update)
@@ -67,7 +65,7 @@ void AppStatePeerLobby::handleLobbyUpdate(const ServerUpdateData& update)
     lobbySettings = update.lobbySettings;
     buildLayout();
 
-    if (update.lobbyCommited && update.peersReady)
+    if (update.state == ServerState::MapLoading)
     {
         // TODO: spawn game
     }

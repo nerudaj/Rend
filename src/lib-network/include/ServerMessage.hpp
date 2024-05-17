@@ -8,30 +8,35 @@
 #include <nlohmann/json.hpp>
 #include <string>
 
+enum class [[nodiscard]] ServerState
+{
+    Lobby,
+    MapLoading,
+    GameInProgress
+};
+
+NLOHMANN_JSON_SERIALIZE_ENUM(
+    ServerState,
+    { { ServerState::Lobby, "lobby" },
+      { ServerState::MapLoading, "mapLoading" },
+      { ServerState::GameInProgress, "gameInProgress" } });
+
 struct [[nodiscard]] ServerUpdateData final
 {
-    bool lobbyCommited = false;
-    bool peersReady = false;
-    bool mapReady = false;
+    ServerState state = ServerState::Lobby;
     LobbySettings lobbySettings;
     std::vector<ClientData> clients;
     std::vector<InputData> inputs;
 };
 
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(
-    ServerUpdateData,
-    lobbyCommited,
-    peersReady,
-    mapReady,
-    lobbySettings,
-    clients,
-    inputs);
+    ServerUpdateData, state, lobbySettings, clients, inputs);
 
 struct [[nodiscard]] ServerMessage final
 {
     ServerMessageType type;
     size_t sequence = 0;
-    PlayerIdType clientId;
+    PlayerIdxType clientId; // TODO: remove?
     std::string payload;
 
     static ServerMessage fromPacket(sf::Packet& packet)

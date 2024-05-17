@@ -15,7 +15,7 @@ void AppStateWinnerAnnounced::update()
     transitionTimeout -= app.time.getDeltaTime();
     if (transitionTimeout <= 0.f)
     {
-        app.pushState<AppStateScoreTable>(dic, gameSettings, scores);
+        app.pushState<AppStateScoreTable>(dic, client, gameSettings, scores);
     }
 }
 
@@ -39,5 +39,5 @@ void AppStateWinnerAnnounced::buildLayout()
 
 void AppStateWinnerAnnounced::restoreFocusImpl(const std::string& message)
 {
-    handleAppMessage<decltype(this)>(app, message);
+    handleAppMessage<AppStateWinnerAnnounced>(app, message);
 }

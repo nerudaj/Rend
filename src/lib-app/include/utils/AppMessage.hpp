@@ -50,20 +50,21 @@ void handleAppMessage(dgm::App& app, const std::string& message)
     auto&& msg = deserializeAppMessage(message);
     if (!msg) return;
     std::visit(
-        overloaded { [&](PopIfNotMainMenu)
-                     {
-                         if (!std::is_same_v<CallerState, AppStateMainMenu>)
-                             app.popState(message);
-                     },
-                     [&](PopIfNotMapRotationWrapper)
-                     {
-                         if (!std::is_same_v<CallerState, AppStateMainMenu>)
-                             app.popState(message);
-                     },
-                     [&](PopIfPause)
-                     {
-                         if (std::is_same_v<CallerState, AppStateMainMenu>)
-                             app.popState(message);
-                     } },
+        overloaded {
+            [&](PopIfNotMainMenu)
+            {
+                if (!std::is_same_v<CallerState, AppStateMainMenu>)
+                    app.popState(message);
+            },
+            [&](PopIfNotMapRotationWrapper)
+            {
+                if (!std::is_same_v<CallerState, AppStateMapRotationWrapper>)
+                    app.popState(message);
+            },
+            [&](PopIfPause)
+            {
+                if (std::is_same_v<CallerState, AppStatePaused>)
+                    app.popState(message);
+            } },
         msg.value());
 }

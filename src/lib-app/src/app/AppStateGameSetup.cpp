@@ -1,5 +1,6 @@
 #include "GuiBuilder.hpp"
 #include "LobbySettings.hpp"
+#include "utils/AppMessage.hpp"
 #include "utils/InputHandler.hpp"
 #include <Configs/Strings.hpp>
 #include <Filesystem.hpp>
@@ -23,7 +24,7 @@ AppStateGameSetup::AppStateGameSetup(
 {
     selectMapPack(mapPackNames.front());
     buildLayout();
-    client->sendLobbyUpdate(lobbySettings);
+    client->sendLobbySettingsUpdate(lobbySettings);
 }
 
 void AppStateGameSetup::input()
@@ -56,7 +57,7 @@ void AppStateGameSetup::buildLayout()
                             [this](std::size_t idx)
                             {
                                 lobbySettings.playerCount = idx + 1;
-                                client->sendLobbyUpdate(lobbySettings);
+                                client->sendLobbySettingsUpdate(lobbySettings);
                             }))
                     .addOption(
                         Strings::AppState::GameSetup::SELECT_PACK,
@@ -81,7 +82,7 @@ void AppStateGameSetup::buildLayout()
                                 if (newValue.empty()) return;
                                 lobbySettings.fraglimit =
                                     std::stoi(std::string(newValue));
-                                client->sendLobbyUpdate(lobbySettings);
+                                client->sendLobbySettingsUpdate(lobbySettings);
                             },
                             WidgetBuilder::getNumericValidator()))
                     .build(PANEL_BACKGROUND_COLOR))
@@ -96,12 +97,12 @@ void AppStateGameSetup::buildLayout()
 void AppStateGameSetup::restoreFocusImpl(const std::string& message)
 {
     buildLayout();
-    handleAppMessage<decltype(this)>(app, message);
+    handleAppMessage<AppStateGameSetup>(app, message);
 }
 
 void AppStateGameSetup::commitLobby()
 {
-    auto&& result = client->commitLobby();
+    auto&& result = client->sendPeerReadySignal();
     if (!result) throw std::runtime_error(result.error());
 }
 
@@ -109,7 +110,7 @@ void AppStateGameSetup::handleNetworkUpdate(const ServerUpdateData& update)
 {
     lobbySettings = update.lobbySettings;
 
-    if (update.lobbyCommited)
+    if (update.state == ServerState::MapLoading)
     {
         startGame();
     }
@@ -176,7 +177,7 @@ void AppStateGameSetup::selectMapPack(const std::string& packname)
 void AppStateGameSetup::selectMapPackAndSendUpdate(const std::string& packname)
 {
     selectMapPack(packname);
-    client->sendLobbyUpdate(lobbySettings);
+    client->sendLobbySettingsUpdate(lobbySettings);
 }
 
 void AppStateGameSetup::openMapPicker()
@@ -202,5 +203,5 @@ void AppStateGameSetup::handleMapRotationUpdate()
                 return MapSettings { s.name, s.enabled };
             })
         | std::ranges::to<std::vector>();
-    client->sendLobbyUpdate(lobbySettings);
+    client->sendLobbySettingsUpdate(lobbySettings);
 }

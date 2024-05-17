@@ -2,7 +2,6 @@
 
 #include "Client.hpp"
 #include "GameSettings.hpp"
-#include "utils/AppMessage.hpp"
 #include "utils/DependencyContainer.hpp"
 #include <Memory.hpp>
 #include <TGUI/Backend/SFML-Graphics.hpp>

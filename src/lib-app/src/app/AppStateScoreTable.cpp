@@ -8,6 +8,9 @@
 void AppStateScoreTable::input()
 {
     InputHandler::handleUiStateInputWithoutGoBackOption(app, *dic);
+
+    client->readIncomingPackets(std::bind(
+        &AppStateScoreTable::handleNetworkUpdate, this, std::placeholders::_1));
 }
 
 void AppStateScoreTable::buildLayout()
@@ -53,7 +56,14 @@ void AppStateScoreTable::buildLayout()
                 [this] { app.popState(PopIfNotMainMenu::serialize()); }))
             .withSubmitButton(WidgetBuilder::createButton(
                 Strings::AppState::MainMenu::NEXT_MAP,
-                [this]
-                { app.popState(PopIfNotMapRotationWrapper::serialize()); }))
+                [this] { client->sendPeerReadySignal(); }))
             .build());
+}
+
+void AppStateScoreTable::handleNetworkUpdate(const ServerUpdateData& update)
+{
+    if (update.state == ServerState::MapLoading)
+    {
+        app.popState(PopIfNotMapRotationWrapper::serialize());
+    }
 }

@@ -38,7 +38,6 @@ public:
         unlockMouse();
         client->readIncomingPackets(
             [](auto) {}); // there is at least one packet in pipeline
-        client->sendMapEnded();
     }
 
 public:
@@ -64,8 +63,6 @@ private:
     void simulateFrameFromState(const FrameState& state, bool skipAudio);
     void evaluateWinCondition();
     void restoreState(const FrameState& state);
-    void updateEngines();
-    void processEvents(bool skipAudio);
     void backupState(FrameState& state);
 
     void lockMouse();

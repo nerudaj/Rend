@@ -2,6 +2,7 @@
 
 #include "GameSettings.hpp"
 #include "utils/DependencyContainer.hpp"
+#include <Client.hpp>
 #include <DGM/classes/AppState.hpp>
 #include <DGM/classes/Traits.hpp>
 #include <Literals.hpp>
@@ -15,11 +16,13 @@ public:
     AppStateWinnerAnnounced(
         dgm::App& app,
         mem::Rc<DependencyContainer> dic,
+        mem::Rc<Client> client,
         const GameOptions& gameSettings,
         dgm::UniversalReference<std::vector<int>> auto&& scores)
         : dgm::AppState(
             app, dgm::AppStateConfig { .shouldDrawUnderlyingState = true })
         , dic(dic)
+        , client(client)
         , gameSettings(gameSettings)
         , scores(std::forward<decltype(scores)>(scores))
     {
@@ -43,6 +46,7 @@ private:
 
 private:
     mem::Rc<DependencyContainer> dic;
+    mem::Rc<Client> client;
     GameOptions gameSettings;
     std::vector<int> scores;
     float transitionTimeout = 3_seconds;

@@ -33,7 +33,7 @@ void AppStatePaused::buildLayout()
 void AppStatePaused::restoreFocusImpl(const std::string& message)
 {
     buildLayout();
-    handleAppMessage<decltype(this)>(app, message);
+    handleAppMessage<AppStatePaused>(app, message);
 }
 
 void AppStatePaused::input()

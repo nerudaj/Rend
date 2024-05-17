@@ -1,6 +1,5 @@
 #pragma once
 
-#include "utils/AppMessage.hpp"
 #include "utils/DependencyContainer.hpp"
 #include <DGM/dgm.hpp>
 

@@ -148,7 +148,7 @@ void AppStateIngame::restoreFocusImpl(const std::string& message)
 
 void AppStateIngame::handleNetworkUpdate(const ServerUpdateData& update)
 {
-    ready = update.mapReady;
+    ready = update.state == ServerState::GameInProgress;
 
     for (auto&& inputData : update.inputs)
     {
@@ -176,7 +176,7 @@ AppStateIngame::FrameState AppStateIngame::snapshotInputsIntoNewFrameState()
         state.inputs[0] = InputSchema {};
     }
 
-    client->sendUpdate(lastTick, state.inputs);
+    client->sendCurrentFrameInputs(lastTick, state.inputs);
 
     // TODO: remove the following line. It just disables local input and routes
     // it through network
@@ -236,6 +236,7 @@ void AppStateIngame::evaluateWinCondition()
             unlockMouse();
             app.pushState<AppStateWinnerAnnounced>(
                 dic,
+                client,
                 gameSettings,
                 scene.playerStates
                     | std::views::transform([](const PlayerState& state)

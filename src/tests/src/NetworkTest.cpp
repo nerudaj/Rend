@@ -61,9 +61,8 @@ TEST_CASE("Client info is correctly propagated", "[Network]")
         });
     REQUIRE(firstUpdateReceived);
 
-    client.sendPeerUpdate(ClientData {
+    client.sendPeerSettingsUpdate(ClientData {
         .name = "custom_player",
-        .isReady = true,
         .hasAutoswapOnPickup = true,
     });
     sleep(100u);
@@ -74,8 +73,7 @@ TEST_CASE("Client info is correctly propagated", "[Network]")
         {
             secondUpdateReceived = true;
             REQUIRE(update.clients.size() == 1u);
-            REQUIRE(update.clients.front().active);
-            REQUIRE(update.clients.front().isReady);
+            REQUIRE(update.clients.front().state == ClientState::Connected);
             REQUIRE(update.clients.front().name == "custom_player");
             REQUIRE(update.clients.front().hasAutoswapOnPickup);
         });
@@ -98,13 +96,11 @@ TEST_CASE("peersReady is correctly computed", "[Network]")
         [&](const ServerUpdateData& update)
         {
             firstUpdateReceived = true;
-            REQUIRE_FALSE(update.peersReady);
+            REQUIRE(update.state == ServerState::Lobby);
         });
     REQUIRE(firstUpdateReceived);
 
-    client.sendPeerUpdate(ClientData {
-        .isReady = true,
-    });
+    client.sendPeerReadySignal();
     sleep(100u);
 
     bool secondUpdateReceived = false;
@@ -112,7 +108,46 @@ TEST_CASE("peersReady is correctly computed", "[Network]")
         [&](const ServerUpdateData& update)
         {
             secondUpdateReceived = true;
-            REQUIRE(update.peersReady);
+            REQUIRE(
+                update.clients.front().state == ClientState::ConnectedAndReady);
+            REQUIRE(update.state == ServerState::MapLoading);
         });
     REQUIRE(secondUpdateReceived);
+}
+
+TEST_CASE("reconnection uses previously cleared ClientData", "[Network]")
+{
+    std::atomic_bool keepServerRunning = true;
+    auto&& thread = std::jthread(serverThread, std::ref(keepServerRunning));
+    auto&& killswitch = Killswitch(keepServerRunning);
+    sleep(100u);
+
+    {
+        auto&& client = Client("127.0.0.1", PORT);
+        sleep(100u);
+
+        bool firstUpdateReceived = false;
+        client.readIncomingPackets(
+            [&](const ServerUpdateData& update)
+            {
+                firstUpdateReceived = true;
+                REQUIRE(update.state == ServerState::Lobby);
+            });
+        REQUIRE(firstUpdateReceived);
+    }
+
+    {
+        auto&& client = Client("127.0.0.1", PORT);
+        sleep(100u);
+
+        bool firstUpdateReceived = false;
+        client.readIncomingPackets(
+            [&](const ServerUpdateData& update)
+            {
+                firstUpdateReceived = true;
+                REQUIRE(update.state == ServerState::Lobby);
+                REQUIRE(update.clients.size() == 1u);
+            });
+        REQUIRE(firstUpdateReceived);
+    }
 }

@@ -36,8 +36,11 @@ private:
     ExpectedLog
     handleNewConnection(const sf::IpAddress& address, unsigned short port);
 
+    // ExpectedLog
+    // handleLobbyCommited(const sf::IpAddress& address, unsigned short port);
+
     ExpectedLog
-    handleLobbyCommited(const sf::IpAddress& address, unsigned short port);
+    handlePeerReady(const sf::IpAddress& address, unsigned short port);
 
     ExpectedLog
     handleMapReady(const sf::IpAddress& address, unsigned short port);
@@ -76,30 +79,38 @@ private:
         return registeredClients.contains(peerToId(address, port));
     }
 
-    void updateGlobalReadyStatuses();
+    ServerState computeNewState();
 
-    [[nodiscard]] constexpr bool isMapLoadedForAllPeers() const noexcept
+    [[nodiscard]] constexpr auto getConnectedClientsOnly() const
     {
-        return std::all_of(
-            registeredClients.begin(),
-            registeredClients.end(),
-            [](auto&& client) { return client.second.isMapReady; });
+        return updateData.clients
+               | std::views::filter(
+                   [](const ClientData& client)
+                   { return client.state != ClientState::Disconnected; });
     }
 
-    [[nodiscard]] constexpr bool areAllPeersReady() const noexcept
+    [[nodiscard]] constexpr bool isMapLoadedForAllPeers() const
     {
-        return std::all_of(
-            registeredClients.begin(),
-            registeredClients.end(),
-            [](auto&& client) { return client.second.isReady; });
+        return std::ranges::all_of(
+            getConnectedClientsOnly(),
+            [](const ClientData& client)
+            { return client.state == ClientState::ConnectedAndMapReady; });
     }
 
-    [[nodiscard]] constexpr bool isNoPeerReady() const noexcept
+    [[nodiscard]] constexpr bool areAllPeersReady() const
     {
-        return std::none_of(
-            registeredClients.begin(),
-            registeredClients.end(),
-            [](auto&& client) { return client.second.isMapReady; });
+        return std::ranges::all_of(
+            getConnectedClientsOnly(),
+            [](const ClientData& client)
+            { return client.state == ClientState::ConnectedAndReady; });
+    }
+
+    [[nodiscard]] constexpr bool isNoPeerReady() const
+    {
+        return std::ranges::all_of(
+            getConnectedClientsOnly(),
+            [](const ClientData& client)
+            { return client.state == ClientState::Connected; });
     }
 
     [[nodiscard]] sf::Uint64 static peerToId(
@@ -108,14 +119,19 @@ private:
         return sf::Uint64(address.toInteger()) + (sf::Uint64(port) << 32);
     }
 
+    constexpr [[nodiscard]] ClientData&
+    getClient(const sf::IpAddress& address, unsigned short port)
+    {
+        return updateData.clients.at(
+            registeredClients.at(peerToId(address, port)).idx);
+    }
+
 private:
     struct ClientConnectionInfo
     {
-        PlayerIdType idx;
+        PlayerIdxType idx;
         sf::IpAddress address;
         unsigned short port;
-        bool isReady = false;
-        bool isMapReady = false;
     };
 
     const unsigned short MAX_CLIENT_COUNT;
@@ -123,6 +139,6 @@ private:
     mem::Box<sf::UdpSocket> socket;
     std::map<sf::Uint64, ClientConnectionInfo> registeredClients;
     ServerUpdateData updateData;
+    dgm::DynamicBuffer<ClientConnectionInfo, 8> registeredClients2;
     size_t sequence = 0;
-    size_t mapReadyCounter = 0;
 };

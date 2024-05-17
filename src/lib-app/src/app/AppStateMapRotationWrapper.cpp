@@ -1,4 +1,5 @@
 #include "GuiBuilder.hpp"
+#include "utils/AppMessage.hpp"
 #include <Filesystem.hpp>
 #include <LevelD.hpp>
 #include <app/AppStateIngame.hpp>
@@ -36,5 +37,5 @@ void AppStateMapRotationWrapper::input()
 
 void AppStateMapRotationWrapper::restoreFocusImpl(const std::string& message)
 {
-    handleAppMessage<decltype(this)>(app, message);
+    handleAppMessage<AppStateMapRotationWrapper>(app, message);
 }

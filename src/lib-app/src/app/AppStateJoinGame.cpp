@@ -39,7 +39,7 @@ void AppStateJoinGame::buildLayout()
 void AppStateJoinGame::restoreFocusImpl(const std::string& message)
 {
     buildLayout();
-    handleAppMessage<decltype(this)>(app, message);
+    handleAppMessage<AppStateJoinGame>(app, message);
 }
 
 void AppStateJoinGame::tryToJoin()
