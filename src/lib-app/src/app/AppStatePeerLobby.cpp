@@ -11,7 +11,6 @@ AppStatePeerLobby::AppStatePeerLobby(
     const sf::IpAddress& hostAddress)
     : AppStateLobbyBase(app, dic, mem::Rc<Client>(hostAddress, 10666))
 {
-    client->sendPeerSettingsUpdate(myPeerData);
 }
 
 void AppStatePeerLobby::input()

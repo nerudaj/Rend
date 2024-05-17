@@ -62,7 +62,7 @@ namespace Strings
         namespace GameSetup
         {
             RAWSTRING TITLE = "game setup";
-            RAWSTRING PLAYER_COUNT = "player count";
+            RAWSTRING MAX_NPCS = "maximum number of bots";
             RAWSTRING SELECT_PACK = "select map pack";
             RAWSTRING SELECT_MAPS = "configure map rotation";
             RAWSTRING FRAGLIMIT = "frag limit";

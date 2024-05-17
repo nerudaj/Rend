@@ -3,6 +3,7 @@
 #include "app/AppStateMenuOptions.hpp"
 #include <Configs/Strings.hpp>
 #include <GuiBuilder.hpp>
+#include <ranges>
 
 AppStateLobbyBase::AppStateLobbyBase(
     dgm::App& app, mem::Rc<DependencyContainer> dic, mem::Rc<Client> client)
@@ -14,8 +15,9 @@ AppStateLobbyBase::AppStateLobbyBase(
                                   dic->settings->player.autoswapOnPickup })
     , lobbySettings(LobbySettings {
           .fraglimit = static_cast<int>(dic->settings->cmdSettings.fraglimit),
-          .playerCount = dic->settings->cmdSettings.playerCount })
+          .maxNpcs = dic->settings->cmdSettings.maxNpcs })
 {
+    client->sendPeerSettingsUpdate(myPeerData);
 }
 
 void AppStateLobbyBase::handleNetworkUpdate(const ServerUpdateData& update)
@@ -55,13 +57,6 @@ void AppStateLobbyBase::startGame()
 
 std::vector<PlayerOptions> AppStateLobbyBase::createPlayerSettings()
 {
-    const auto&& defaultPlayerNames = std::vector<std::string> {
-        "---",
-        "phobos",
-        "spartan",
-        "deimos",
-    };
-
     auto&& playerOptions = std::vector<PlayerOptions>();
     for (auto&& [idx, connectedPeer] : std::views::enumerate(connectedPeers))
     {
@@ -73,6 +68,20 @@ std::vector<PlayerOptions> AppStateLobbyBase::createPlayerSettings()
         });
     }
 
+    const auto&& NPC_NAMES = std::vector<std::string> {
+        "phobos",
+        "spartan",
+        "deimos",
+    };
+
+    for (auto&& idx : std::views::iota(0u, lobbySettings.maxNpcs))
+    {
+        playerOptions.push_back(PlayerOptions {
+            .kind = PlayerKind::LocalNpc,
+            .bindCamera = false,
+            .name = NPC_NAMES.at(idx),
+        });
+    }
     // TODO: Add npcs
 
     return playerOptions;

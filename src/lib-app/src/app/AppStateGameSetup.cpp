@@ -40,13 +40,13 @@ void AppStateGameSetup::buildLayoutGameSetupImpl(tgui::Panel::Ptr target)
     target->add(
         FormBuilder()
             .addOption(
-                Strings::AppState::GameSetup::PLAYER_COUNT, // TODO: max npcs
+                Strings::AppState::GameSetup::MAX_NPCS,
                 WidgetBuilder::createDropdown(
-                    { "1", "2", "3", "4" },
-                    std::to_string(lobbySettings.playerCount),
+                    { "0", "1", "2", "3" },
+                    std::to_string(lobbySettings.maxNpcs),
                     [this](std::size_t idx)
                     {
-                        lobbySettings.playerCount = idx + 1;
+                        lobbySettings.maxNpcs = idx;
                         client->sendLobbySettingsUpdate(lobbySettings);
                     }))
             .addOption(

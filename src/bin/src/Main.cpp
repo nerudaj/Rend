@@ -36,8 +36,7 @@ CmdParameters processCmdParameters(int argc, char* argv[])
         result.demoFile = args["demofile"].as<std::string>();
     if (args.count("play-demo") > 0)
         result.playDemo = args["play-demo"].as<bool>();
-    if (args.count("count") > 0)
-        result.playerCount = args["count"].as<unsigned>();
+    if (args.count("count") > 0) result.maxNpcs = args["count"].as<unsigned>();
     if (args.count("limit") > 0)
         result.fraglimit = args["limit"].as<unsigned>();
 
@@ -92,9 +91,9 @@ int main(int argc, char* argv[])
     auto&& settings = mem::Rc<AppOptions>(loadAppSettings(CONFIG_FILE_PATH));
     settings->cmdSettings = processCmdParameters(argc, argv);
 
-    if (settings->cmdSettings.playerCount > 4)
+    if (settings->cmdSettings.maxNpcs > 3)
     {
-        throw std::runtime_error("Cannot have more than 4 players!");
+        throw std::runtime_error("Cannot have more than 3 bots!");
     }
 
     dgm::WindowSettings windowSettings = {
