@@ -14,6 +14,7 @@ public:
     using BufferIndexType = BufferType::BufferIndexType;
 
 public:
+    // insert until tick
     void insert(dgm::UniversalReference<T> auto&& item, size_t tick)
     {
         assert(buffer.isEmpty() || tick > endIterator.tick);
@@ -29,7 +30,7 @@ public:
     [[nodiscard]] constexpr std::expected<BufferIndexType, ErrorMessage>
     getIndexForTick(size_t tick) noexcept
     {
-        if (endIterator.tick < tick || (endIterator.tick - tick) >= Capacity)
+        if (isTickTooNew(tick) || isTickTooOld(tick))
             return std::unexpected(std::format(
                 "Requested index is not in buffer, endIterator.tick: {}, tick: "
                 "{}, Capacity: {}",
@@ -39,8 +40,6 @@ public:
 
         return endIterator.bufferIdx - (endIterator.tick - tick);
     }
-
-    // TODO: forEachItemSinceTickXYZ
 
     template<
         size_t HowMuchToUnroll = Capacity,
@@ -74,6 +73,16 @@ public:
     [[nodiscard]] constexpr bool isThisTheEndOfFrameZero() const noexcept
     {
         return buffer.getSize() == 1u;
+    }
+
+    [[nodiscard]] constexpr bool isTickTooOld(size_t tick) const noexcept
+    {
+        return endIterator.tick > tick && (endIterator.tick - tick) >= Capacity;
+    }
+
+    [[nodiscard]] constexpr bool isTickTooNew(size_t tick) const noexcept
+    {
+        return buffer.isEmpty() || tick > endIterator.tick;
     }
 
 private:

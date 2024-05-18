@@ -150,8 +150,20 @@ void AppStateIngame::handleNetworkUpdate(const ServerUpdateData& update)
 
     for (auto&& inputData : update.inputs)
     {
-        stateManager.get(inputData.tick).inputs.at(inputData.clientId) =
-            inputData.input;
+        if (stateManager.isTickTooOld(inputData.tick))
+        {
+            throw std::runtime_error(
+                "Got outdated input, game desynced, exiting");
+        }
+        else if (stateManager.isTickTooNew(inputData.tick))
+        {
+            futureInputs[inputData.tick][inputData.clientId] = inputData.input;
+        }
+        else
+        {
+            stateManager.get(inputData.tick).inputs.at(inputData.clientId) =
+                inputData.input;
+        }
     }
 }
 
@@ -168,16 +180,21 @@ AppStateIngame::FrameState AppStateIngame::snapshotInputsIntoNewFrameState()
                              })
                          | std::ranges::to<decltype(FrameState::inputs)>() };
 
+    if (futureInputs.contains(scene.tick))
+    {
+        for (auto&& [playerIdx, input] : futureInputs[scene.tick])
+        {
+            state.inputs.at(playerIdx) = input;
+        }
+        futureInputs.erase(scene.tick);
+    }
+
     if (!hasFocus)
     {
         state.inputs[client->getMyIndex()] = InputSchema {};
     }
 
     client->sendCurrentFrameInputs(lastTick, state.inputs);
-
-    // The following lines disables local input and drives everything throught
-    // the network
-    state.inputs[client->getMyIndex()] = InputSchema {};
 
     // TODO: rework demos
     /*if (settings->cmdSettings.playDemo)
@@ -190,10 +207,12 @@ AppStateIngame::FrameState AppStateIngame::snapshotInputsIntoNewFrameState()
         }
         state.inputs[0] = nlohmann::json::parse(line);
     }
-    else
-    {
-        demoFileHandler.writeLine(nlohmann::json(state.inputs[0]).dump());
-    }*/
+    else*/
+    demoFileHandler.writeLine(nlohmann::json(client->getMyIndex()).dump());
+
+    // The following lines disables local input and drives everything throught
+    // the network
+    state.inputs[client->getMyIndex()] = InputSchema {};
 
     return state;
 }
