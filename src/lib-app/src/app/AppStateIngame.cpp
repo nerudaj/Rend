@@ -19,10 +19,8 @@
             inputs.push_back(physicalController);
             break;
         case LocalNpc:
-            inputs.push_back(mem::Rc<AiController>());
-            break;
         case RemoteHuman:
-            throw std::runtime_error("unsupported controller");
+            inputs.push_back(mem::Rc<AiController>());
             break;
         }
     }
@@ -172,15 +170,14 @@ AppStateIngame::FrameState AppStateIngame::snapshotInputsIntoNewFrameState()
 
     if (!hasFocus)
     {
-        // FIXME: myClientId
-        state.inputs[0] = InputSchema {};
+        state.inputs[client->getMyIndex()] = InputSchema {};
     }
 
     client->sendCurrentFrameInputs(lastTick, state.inputs);
 
-    // TODO: remove the following line. It just disables local input and routes
-    // it through network
-    state.inputs[0] = InputSchema {};
+    // The following lines disables local input and drives everything throught
+    // the network
+    state.inputs[client->getMyIndex()] = InputSchema {};
 
     // TODO: rework demos
     /*if (settings->cmdSettings.playDemo)
