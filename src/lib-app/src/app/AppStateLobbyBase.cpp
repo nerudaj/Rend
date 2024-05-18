@@ -29,9 +29,13 @@ void AppStateLobbyBase::handleNetworkUpdate(const ServerUpdateData& update)
     {
         startGame();
     }
-    else
+    else if (currentTab == CurrentTab::None)
     {
         buildLayout();
+    }
+    else if (currentTab == CurrentTab::PlayerTable)
+    {
+        handleTabSelected(Strings::AppState::PeerLobby::PLAYERS);
     }
 }
 
@@ -82,7 +86,6 @@ std::vector<PlayerOptions> AppStateLobbyBase::createPlayerSettings()
             .name = NPC_NAMES.at(idx),
         });
     }
-    // TODO: Add npcs
 
     return playerOptions;
 }
@@ -144,19 +147,22 @@ void AppStateLobbyBase::buildLayoutPlayerTable(tgui::Panel::Ptr target)
 
 void AppStateLobbyBase::handleTabSelected(const tgui::String& tabname)
 {
-    auto panel = dic->gui->get<tgui::Panel>("IdLobbyTabPanel");
+    auto&& panel = dic->gui->get<tgui::Panel>("IdLobbyTabPanel");
     panel->removeAllWidgets();
 
     if (tabname == Strings::AppState::PeerLobby::GAME_SETUP)
     {
+        currentTab = CurrentTab::GameSetup;
         buildLayoutGameSetup(panel);
     }
     else if (tabname == Strings::AppState::PeerLobby::PLAYER_SETUP)
     {
+        currentTab = CurrentTab::PlayerSetup;
         buildLayoutPlayerSetup(panel);
     }
     else if (tabname == Strings::AppState::PeerLobby::PLAYERS)
     {
+        currentTab = CurrentTab::PlayerTable;
         buildLayoutPlayerTable(panel);
     }
 }

@@ -40,9 +40,18 @@ protected:
     virtual void buildLayoutGameSetupImpl(tgui::Panel::Ptr target) = 0;
 
 protected:
+    enum class [[nodiscard]] CurrentTab
+    {
+        None,
+        GameSetup,
+        PlayerSetup,
+        PlayerTable
+    };
+
     mem::Rc<DependencyContainer> dic;
     mem::Rc<Client> client;
     ClientData myPeerData;
     std::vector<ClientData> connectedPeers;
     LobbySettings lobbySettings;
+    CurrentTab currentTab = CurrentTab::None;
 };
