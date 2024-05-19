@@ -23,7 +23,10 @@ AppStateLobbyBase::AppStateLobbyBase(
 void AppStateLobbyBase::handleNetworkUpdate(const ServerUpdateData& update)
 {
     connectedPeers = update.clients;
-    lobbySettings = update.lobbySettings;
+    if (!update.lobbySettings.isEmpty())
+    {
+        lobbySettings = update.lobbySettings;
+    }
 
     if (update.state == ServerState::MapLoading)
     {
