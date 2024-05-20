@@ -4,6 +4,7 @@
 #include "utils/AppMessage.hpp"
 #include <builder/SceneBuilder.hpp>
 #include <events/EventQueue.hpp>
+#include <print>
 
 [[nodiscard]] static std::vector<mem::Rc<ControllerInterface>> createInputs(
     mem::Rc<PhysicalController> physicalController,
@@ -194,25 +195,10 @@ AppStateIngame::FrameState AppStateIngame::snapshotInputsIntoNewFrameState()
         state.inputs[client->getMyIndex()] = InputSchema {};
     }
 
-    client->sendCurrentFrameInputs(lastTick, state.inputs);
+    if (!state.inputs[client->getMyIndex()].isEmpty())
+        client->sendCurrentFrameInputs(lastTick, state.inputs);
 
-    // TODO: rework demos
-    /*if (settings->cmdSettings.playDemo)
-    {
-        auto line = demoFileHandler.getLine();
-        if (line.empty())
-        {
-            app.exit();
-            return state;
-        }
-        state.inputs[0] = nlohmann::json::parse(line);
-    }
-    else*/
-    demoFileHandler.writeLine(nlohmann::json(client->getMyIndex()).dump());
-
-    // The following lines disables local input and drives everything throught
-    // the network
-    state.inputs[client->getMyIndex()] = InputSchema {};
+    // NOTE: put code for demos here if applicable
 
     return state;
 }
