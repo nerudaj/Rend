@@ -72,7 +72,7 @@ std::vector<PlayerOptions> AppStateLobbyBase::createPlayerSettings()
                                                 : PlayerKind::RemoteHuman,
             .bindCamera = idx == client->getMyIndex(),
             .name = connectedPeer.name,
-        });
+            .autoswapOnPickup = connectedPeer.hasAutoswapOnPickup });
     }
 
     const auto&& NPC_NAMES = std::vector<std::string> {

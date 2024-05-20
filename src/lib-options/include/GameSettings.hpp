@@ -3,13 +3,19 @@
 #include <string>
 #include <vector>
 
-enum class PlayerKind { LocalHuman, LocalNpc, RemoteHuman };
+enum class PlayerKind
+{
+    LocalHuman,
+    LocalNpc,
+    RemoteHuman
+};
 
 struct PlayerOptions
 {
     PlayerKind kind = PlayerKind::LocalHuman;
     bool bindCamera = false;
     std::string name = "";
+    bool autoswapOnPickup = false;
 };
 
 struct GameOptions

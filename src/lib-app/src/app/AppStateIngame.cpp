@@ -306,10 +306,10 @@ void AppStateIngame::createPlayers()
                 AiBlackboard { .input = inputs[idx].castTo<AiController>(),
                                .personality = static_cast<AiPersonality>(idx),
                                .playerStateIdx = idx };
-        else if (gameSettings.players[idx].kind == PlayerKind::LocalHuman)
+        else if (gameSettings.players[idx].kind != PlayerKind::LocalNpc)
         {
             scene.playerStates.back().autoswapOnPickup =
-                dic->settings->input.autoswapOnPickup;
+                gameSettings.players[idx].autoswapOnPickup;
         }
     }
 }
