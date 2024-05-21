@@ -63,7 +63,6 @@ AppStateIngame::AppStateIngame(
 
 void AppStateIngame::input()
 {
-
     client->readIncomingPackets(std::bind(
         &AppStateIngame::handleNetworkUpdate, this, std::placeholders::_1));
 
@@ -149,8 +148,19 @@ void AppStateIngame::handleNetworkUpdate(const ServerUpdateData& update)
 {
     ready = update.state == ServerState::GameInProgress;
 
+    std::cout << std::format(
+        "Peer: Update in tick {}. Frame time: {}",
+        stateManager.getLastInsertedTick(),
+        app.time.getDeltaTime())
+              << std::endl;
     for (auto&& inputData : update.inputs)
     {
+        std::cout << std::format(
+            "\tInput for tick {} from client {}",
+            inputData.tick,
+            inputData.clientId)
+                  << std::endl;
+
         if (stateManager.isTickTooOld(inputData.tick))
         {
             throw std::runtime_error(
@@ -195,8 +205,7 @@ AppStateIngame::FrameState AppStateIngame::snapshotInputsIntoNewFrameState()
         state.inputs[client->getMyIndex()] = InputSchema {};
     }
 
-    if (!state.inputs[client->getMyIndex()].isEmpty())
-        client->sendCurrentFrameInputs(lastTick, state.inputs);
+    client->sendCurrentFrameInputs(lastTick, state.inputs);
 
     // NOTE: put code for demos here if applicable
 

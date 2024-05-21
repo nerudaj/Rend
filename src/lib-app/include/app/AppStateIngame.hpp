@@ -82,7 +82,7 @@ protected:
 
     std::vector<mem::Rc<ControllerInterface>> inputs;
     Scene scene;
-    RollbackManager<FrameState, 10> stateManager;
+    RollbackManager<FrameState, 20> stateManager;
     std::unordered_map<size_t, std::unordered_map<PlayerIdxType, InputSchema>>
         futureInputs; // indexed by tick
     mem::Box<GameLoop> gameLoop;

@@ -192,25 +192,6 @@ Server::handleNewConnection(const sf::IpAddress& address, unsigned short port)
         newIdx);
 }
 
-/*ExpectedLog
-Server::handleLobbyCommited(const sf::IpAddress& address, unsigned short port)
-{
-    if (!isAdmin(address, port))
-        return std::unexpected(std::format(
-            "handleLobbyCommited: Unauthorized attempt for access from {}:{}",
-            address.toString(),
-            port));
-
-    updateData.lobbyCommited = true;
-
-    for (auto&& [key, client] : registeredClients)
-    {
-        client.isMapReady = false;
-    }
-
-    return "Lobby was commited";
-}*/
-
 ExpectedLog
 Server::handlePeerReady(const sf::IpAddress& address, unsigned short port)
 {

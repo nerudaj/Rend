@@ -41,6 +41,11 @@ public:
         return endIterator.bufferIdx - (endIterator.tick - tick);
     }
 
+    [[nodiscard]] constexpr size_t getLastInsertedTick() const noexcept
+    {
+        return endIterator.tick;
+    }
+
     template<
         size_t HowMuchToUnroll = Capacity,
         class = std::enable_if<HowMuchToUnroll <= Capacity>>

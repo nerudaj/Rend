@@ -36,9 +36,6 @@ private:
     ExpectedLog
     handleNewConnection(const sf::IpAddress& address, unsigned short port);
 
-    // ExpectedLog
-    // handleLobbyCommited(const sf::IpAddress& address, unsigned short port);
-
     ExpectedLog
     handlePeerReady(const sf::IpAddress& address, unsigned short port);
 

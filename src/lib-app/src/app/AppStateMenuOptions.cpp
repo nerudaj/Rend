@@ -198,28 +198,28 @@ void AppStateMenuOptions::buildPlayerOptionsLayout(
     bool changesDisabled,
     std::function<void(void)> onChanged)
 {
-    std::ignore = builder
-                      .addOption(
-                          Strings::AppState::Options::PLAYER_NAME,
-                          WidgetBuilder::createTextInput(
-                              dic->settings->player.name,
-                              [&, onChanged](const tgui::String& text)
-                              {
-                                  dic->settings->player.name =
-                                      text.toStdString();
-                                  onChanged();
-                              }),
-                          changesDisabled)
-                      .addOption(
-                          Strings::AppState::Options::SWAP_ON_PICKUP,
-                          WidgetBuilder::createCheckbox(
-                              dic->settings->input.autoswapOnPickup,
-                              [&, onChanged](bool value)
-                              {
-                                  dic->settings->input.autoswapOnPickup = value;
-                                  onChanged();
-                              }),
-                          changesDisabled);
+    std::ignore =
+        builder
+            .addOption(
+                Strings::AppState::Options::PLAYER_NAME,
+                WidgetBuilder::createTextInput(
+                    dic->settings->player.name,
+                    [&, onChanged](const tgui::String& text)
+                    {
+                        dic->settings->player.name = text.toStdString();
+                        onChanged();
+                    }),
+                changesDisabled)
+            .addOption(
+                Strings::AppState::Options::SWAP_ON_PICKUP,
+                WidgetBuilder::createCheckbox(
+                    dic->settings->player.autoswapOnPickup,
+                    [&, onChanged](bool value)
+                    {
+                        dic->settings->player.autoswapOnPickup = value;
+                        onChanged();
+                    }),
+                changesDisabled);
 }
 
 void AppStateMenuOptions::handleTabSelected(const tgui::String& selectedTabName)

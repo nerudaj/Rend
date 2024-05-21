@@ -8,6 +8,7 @@
 
 void serverLoop(Server server, std::atomic_bool& serverEnabled)
 {
+    std::cout << "Server loop started" << std::endl;
     while (serverEnabled)
     {
         server.update();
