@@ -15,14 +15,10 @@ void GameLoop::renderTo(dgm::Window& window)
 
 bool GameLoop::isPointlimitReached(unsigned limit) const
 {
-    for (auto&& state : scene.playerStates)
-    {
-        if (state.inventory.score >= static_cast<int>(limit))
-        {
-            return true;
-        }
-    }
-    return false;
+    return std::ranges::any_of(
+        scene.playerStates,
+        [limit](const PlayerState& state)
+        { return state.inventory.score >= static_cast<int>(limit); });
 }
 
 void GameLoop::updateEngines(const float dt, const float realDt)

@@ -129,7 +129,7 @@ void AppStateIngame::update()
 
     evaluateWinCondition();
 
-    framerate.ensureFramerate();
+    framerate.ensureFramerate(artificialFrameDelay);
 }
 
 void AppStateIngame::draw()
@@ -148,6 +148,7 @@ void AppStateIngame::restoreFocusImpl(const std::string& message)
 
 void AppStateIngame::handleNetworkUpdate(const ServerUpdateData& update)
 {
+    artificialFrameDelay = {};
     ready = update.state == ServerState::GameInProgress;
 
     std::cout << std::format(
@@ -176,6 +177,15 @@ void AppStateIngame::handleNetworkUpdate(const ServerUpdateData& update)
         {
             stateManager.get(inputData.tick).inputs.at(inputData.clientId) =
                 inputData.input;
+
+            if (stateManager.isTickHalfwayTooOld(inputData.tick))
+            {
+                std::cout << std::format(
+                    "Tick is halfway too old, slowing down");
+                artificialFrameDelay =
+                    std::chrono::duration_cast<std::chrono::milliseconds>(
+                        std::chrono::microseconds(1'000'000 / FPS * 5));
+            }
         }
     }
 }

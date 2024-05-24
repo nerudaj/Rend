@@ -85,6 +85,12 @@ public:
         return endIterator.tick > tick && (endIterator.tick - tick) >= Capacity;
     }
 
+    [[nodiscard]] constexpr bool isTickHalfwayTooOld(size_t tick) const noexcept
+    {
+        return endIterator.tick > tick
+               && (endIterator.tick - tick) >= Capacity / 2u;
+    }
+
     [[nodiscard]] constexpr bool isTickTooNew(size_t tick) const noexcept
     {
         return buffer.isEmpty() || tick > endIterator.tick;

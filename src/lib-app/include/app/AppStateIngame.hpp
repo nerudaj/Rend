@@ -75,6 +75,8 @@ private:
     mem::Box<GameLoop> createGameLoop();
 
 protected:
+    constexpr static const unsigned ROLLBACK_WINDOW_SIZE = 20u;
+
     mem::Rc<DependencyContainer> dic;
     GameOptions gameSettings;
     mem::Rc<Client> client;
@@ -83,7 +85,7 @@ protected:
 
     std::vector<mem::Rc<ControllerInterface>> inputs;
     Scene scene;
-    RollbackManager<FrameState, 20> stateManager;
+    RollbackManager<FrameState, ROLLBACK_WINDOW_SIZE> stateManager;
     std::unordered_map<size_t, std::unordered_map<PlayerIdxType, InputSchema>>
         futureInputs; // indexed by tick
     mem::Box<GameLoop> gameLoop;
@@ -92,4 +94,5 @@ protected:
     bool ready = false;
     size_t lastTick = {};
     Framerate framerate = Framerate(FPS);
+    std::chrono::milliseconds artificialFrameDelay = {};
 };
