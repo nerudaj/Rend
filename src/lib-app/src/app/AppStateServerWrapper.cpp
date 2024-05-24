@@ -10,7 +10,7 @@
 
 void serverLoop(Server server, std::atomic_bool& serverEnabled)
 {
-    auto&& framerate = Framerate(FPS);
+    auto&& framerate = Framerate(FPS * 2);
     std::cout << "Server loop started" << std::endl;
     while (serverEnabled)
     {
