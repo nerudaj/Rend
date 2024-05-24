@@ -2,6 +2,7 @@ Rend 0.4.0 changelog:
 
 Bugfixes:
 * Screenshots are no longer black
+* FPS now correctly reflect real-life performance
 
 Gameplay:
 * Added a new 3-player map: "Shotgun Frenzy"

@@ -216,7 +216,7 @@ void AppStateIngame::simulateFrameFromState(
     const FrameState& state, bool skipAudio)
 {
     restoreState(state);
-    gameLoop->update(FRAME_TIME, skipAudio);
+    gameLoop->update(FRAME_TIME, app.time.getDeltaTime(), skipAudio);
     ++scene.tick;
 }
 

@@ -29,7 +29,7 @@ public:
         Scene& scene);
 
 public:
-    void update(const float deltaTime);
+    void update(const float deltaTime, const float realDelta);
 
     void renderTo(dgm::Window& window);
 

@@ -97,9 +97,9 @@ RenderingEngine::RenderingEngine(
             scene.level.skyboxTheme)));
 }
 
-void RenderingEngine::update(const float deltaTime)
+void RenderingEngine::update(const float deltaTime, const float realDelta)
 {
-    fpsCounter.update(deltaTime);
+    fpsCounter.update(realDelta);
 
     for (auto&& state : scene.playerStates)
     {

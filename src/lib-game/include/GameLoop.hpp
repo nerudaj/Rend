@@ -35,7 +35,7 @@ public:
     }
 
 public:
-    void update(const float dt, bool skipAudio);
+    void update(const float dt, const float realDt, bool skipAudio);
 
     void renderTo(dgm::Window& window);
 
@@ -47,7 +47,7 @@ public:
     [[nodiscard]] bool isPointlimitReached(unsigned limit) const;
 
 private:
-    void updateEngines(const float dt);
+    void updateEngines(const float dt, const float realDt);
 
     void processEvents(const bool skipAudio);
 
