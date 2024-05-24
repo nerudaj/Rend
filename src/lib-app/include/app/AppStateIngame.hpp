@@ -10,6 +10,7 @@
 #include "engine/RenderingEngine.hpp"
 #include "utils/DemoFileHandler.hpp"
 #include "utils/DependencyContainer.hpp"
+#include "utils/Framerate.hpp"
 #include <DGM/dgm.hpp>
 #include <GameLoop.hpp>
 #include <LevelD.hpp>
@@ -90,4 +91,5 @@ protected:
     mem::Box<dgm::Camera> camera;
     bool ready = false;
     size_t lastTick = {};
+    Framerate framerate = Framerate(FPS);
 };

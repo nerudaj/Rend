@@ -3,8 +3,10 @@
 #include "app/AppStateWinnerAnnounced.hpp"
 #include "utils/AppMessage.hpp"
 #include <builder/SceneBuilder.hpp>
+#include <chrono>
 #include <events/EventQueue.hpp>
 #include <print>
+#include <thread>
 
 [[nodiscard]] static std::vector<mem::Rc<ControllerInterface>> createInputs(
     mem::Rc<PhysicalController> physicalController,
@@ -54,7 +56,6 @@ AppStateIngame::AppStateIngame(
               dic->settings->display.resolution.width,
               dic->settings->display.resolution.height)))
 {
-    app.window.getWindowContext().setFramerateLimit(60);
     lockMouse();
     createPlayers();
     dic->jukebox->playIngameSong();
@@ -127,6 +128,8 @@ void AppStateIngame::update()
     ++lastTick;
 
     evaluateWinCondition();
+
+    framerate.ensureFramerate();
 }
 
 void AppStateIngame::draw()
@@ -139,7 +142,6 @@ void AppStateIngame::restoreFocusImpl(const std::string& message)
 {
     handleAppMessage<decltype(this)>(app, message);
 
-    app.window.getWindowContext().setFramerateLimit(60);
     propagateSettings();
     lockMouse();
 }

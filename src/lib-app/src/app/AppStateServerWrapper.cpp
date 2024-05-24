@@ -2,16 +2,20 @@
 #include "Dialogs/YesNoCancelDialog.hpp"
 #include "Server.hpp"
 #include "Shortcuts/ShortcutEngine.hpp"
+#include "utils/Framerate.hpp"
 #include <app/AppStateEditor.hpp>
 #include <app/AppStateGameSetup.hpp>
 #include <app/AppStateServerWrapper.hpp>
+#include <core/Constants.hpp>
 
 void serverLoop(Server server, std::atomic_bool& serverEnabled)
 {
+    auto&& framerate = Framerate(FPS);
     std::cout << "Server loop started" << std::endl;
     while (serverEnabled)
     {
         server.update();
+        framerate.ensureFramerate();
     }
 }
 
