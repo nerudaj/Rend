@@ -166,6 +166,8 @@ void AppStateIngame::handleNetworkUpdate(const ServerUpdateData& update)
 
         if (stateManager.isTickTooOld(inputData.tick))
         {
+            std::cout << std::format("Got outdated input, exiting")
+                      << std::endl;
             throw std::runtime_error(
                 "Got outdated input, game desynced, exiting");
         }
@@ -178,10 +180,14 @@ void AppStateIngame::handleNetworkUpdate(const ServerUpdateData& update)
             stateManager.get(inputData.tick).inputs.at(inputData.clientId) =
                 inputData.input;
 
+            // TODO: this is not ideal - this message might yield newer inputs
+            // for the same peer. I only need to slow down if any peer lags
+            // behind in their newest input
             if (stateManager.isTickHalfwayTooOld(inputData.tick))
             {
                 std::cout << std::format(
-                    "Tick is halfway too old, slowing down");
+                    "\t\tTick is halfway too old, slowing down")
+                          << std::endl;
                 artificialFrameDelay =
                     std::chrono::duration_cast<std::chrono::milliseconds>(
                         std::chrono::microseconds(1'000'000 / FPS * 5));
