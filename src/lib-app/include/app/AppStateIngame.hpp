@@ -60,6 +60,7 @@ private:
     };
 
     void handleNetworkUpdate(const ServerUpdateData& update);
+    void setCurrentFrameDelay(std::vector<size_t>&& oldestTicks);
     [[nodiscard]] FrameState snapshotInputsIntoNewFrameState();
     void simulateFrameFromState(const FrameState& state, bool skipAudio);
     void evaluateWinCondition();

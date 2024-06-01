@@ -148,8 +148,9 @@ void AppStateIngame::restoreFocusImpl(const std::string& message)
 
 void AppStateIngame::handleNetworkUpdate(const ServerUpdateData& update)
 {
-    artificialFrameDelay = {};
     ready = update.state == ServerState::GameInProgress;
+    auto&& oldestTicks = std::vector<size_t>(
+        update.clients.size(), std::numeric_limits<size_t>::max());
 
     dic->logger->log(
         "Peer: Update in tick {}. Frame time: {}",
@@ -164,29 +165,41 @@ void AppStateIngame::handleNetworkUpdate(const ServerUpdateData& update)
 
         if (stateManager.isTickTooOld(inputData.tick))
         {
-            dic->logger->log("Got outdated input, exiting");
             throw std::runtime_error(
                 "Got outdated input, game desynced, exiting");
+            dic->logger->log("\t\tGot outdated input, exiting");
         }
         else if (stateManager.isTickTooNew(inputData.tick))
         {
+            dic->logger->log(
+                "\t\tTick is too new, inserting into futureInputs");
             futureInputs[inputData.tick][inputData.clientId] = inputData.input;
         }
         else
         {
             stateManager.get(inputData.tick).inputs.at(inputData.clientId) =
                 inputData.input;
+            oldestTicks[inputData.clientId] =
+                std::min(oldestTicks[inputData.clientId], inputData.tick);
+        }
+    }
 
-            // TODO: this is not ideal - this message might yield newer inputs
-            // for the same peer. I only need to slow down if any peer lags
-            // behind in their newest input
-            if (stateManager.isTickHalfwayTooOld(inputData.tick))
-            {
-                dic->logger->log("\t\tTick is halfway too old, slowing down");
-                artificialFrameDelay =
-                    std::chrono::duration_cast<std::chrono::milliseconds>(
-                        std::chrono::microseconds(1'000'000 / FPS * 5));
-            }
+    setCurrentFrameDelay(std::move(oldestTicks));
+}
+
+void AppStateIngame::setCurrentFrameDelay(std::vector<size_t>&& oldestTicks)
+{
+    artificialFrameDelay = {};
+    for (auto&& tick : oldestTicks)
+    {
+        if (stateManager.isTickHalfwayTooOld(tick))
+        {
+            dic->logger->log(
+                "\t\tSlowing down, one of the updated clients is lagging "
+                "behind");
+            artificialFrameDelay =
+                std::chrono::duration_cast<std::chrono::milliseconds>(
+                    std::chrono::microseconds(1'000'000 / FPS * 5));
         }
     }
 }
