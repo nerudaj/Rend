@@ -59,13 +59,13 @@ AppStateIngame::AppStateIngame(
     lockMouse();
     createPlayers();
     dic->jukebox->playIngameSong();
-    client->sendMapReadySignal();
+    dic->logger->log(client->sendMapReadySignal());
 }
 
 void AppStateIngame::input()
 {
-    client->readIncomingPackets(std::bind(
-        &AppStateIngame::handleNetworkUpdate, this, std::placeholders::_1));
+    dic->logger->log(client->readIncomingPackets(std::bind(
+        &AppStateIngame::handleNetworkUpdate, this, std::placeholders::_1)));
 
     if (!hasFocus) return;
 
@@ -151,23 +151,20 @@ void AppStateIngame::handleNetworkUpdate(const ServerUpdateData& update)
     artificialFrameDelay = {};
     ready = update.state == ServerState::GameInProgress;
 
-    std::cout << std::format(
+    dic->logger->log(
         "Peer: Update in tick {}. Frame time: {}",
         stateManager.getLastInsertedTick(),
-        app.time.getDeltaTime())
-              << std::endl;
+        app.time.getDeltaTime());
     for (auto&& inputData : update.inputs)
     {
-        std::cout << std::format(
+        dic->logger->log(
             "\tInput for tick {} from client {}",
             inputData.tick,
-            inputData.clientId)
-                  << std::endl;
+            inputData.clientId);
 
         if (stateManager.isTickTooOld(inputData.tick))
         {
-            std::cout << std::format("Got outdated input, exiting")
-                      << std::endl;
+            dic->logger->log("Got outdated input, exiting");
             throw std::runtime_error(
                 "Got outdated input, game desynced, exiting");
         }
@@ -185,9 +182,7 @@ void AppStateIngame::handleNetworkUpdate(const ServerUpdateData& update)
             // behind in their newest input
             if (stateManager.isTickHalfwayTooOld(inputData.tick))
             {
-                std::cout << std::format(
-                    "\t\tTick is halfway too old, slowing down")
-                          << std::endl;
+                dic->logger->log("\t\tTick is halfway too old, slowing down");
                 artificialFrameDelay =
                     std::chrono::duration_cast<std::chrono::milliseconds>(
                         std::chrono::microseconds(1'000'000 / FPS * 5));
@@ -223,7 +218,7 @@ AppStateIngame::FrameState AppStateIngame::snapshotInputsIntoNewFrameState()
         state.inputs[client->getMyIndex()] = InputSchema {};
     }
 
-    client->sendCurrentFrameInputs(lastTick, state.inputs);
+    dic->logger->log(client->sendCurrentFrameInputs(lastTick, state.inputs));
 
     // NOTE: put code for demos here if applicable
 

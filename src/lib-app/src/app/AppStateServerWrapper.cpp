@@ -2,19 +2,24 @@
 #include "Dialogs/YesNoCancelDialog.hpp"
 #include "Server.hpp"
 #include "Shortcuts/ShortcutEngine.hpp"
+#include "logging/LoggerFactory.hpp"
 #include "utils/Framerate.hpp"
 #include <app/AppStateEditor.hpp>
 #include <app/AppStateGameSetup.hpp>
 #include <app/AppStateServerWrapper.hpp>
 #include <core/Constants.hpp>
 
-void serverLoop(Server server, std::atomic_bool& serverEnabled)
+void serverLoop(
+    Server server, bool enableDebug, std::atomic_bool& serverEnabled)
 {
+    auto&& logger =
+        LoggerFactory::createLogger(enableDebug, "./rend_server_log.txt");
     auto&& framerate = Framerate(FPS * 2);
-    std::cout << "Server loop started" << std::endl;
+    logger->log("Server loop started");
+
     while (serverEnabled)
     {
-        server.update();
+        server.update([&](auto&& str) { logger->log("{}", str); });
         framerate.ensureFramerate();
     }
 }
@@ -30,6 +35,7 @@ AppStateServerWrapper::AppStateServerWrapper(
               .port = 10666,
               .maxClientCount = 4,
               .acceptReconnects = target == ServerWrapperTarget::Editor }),
+          dic->settings->cmdSettings.enableDebug,
           std::ref(serverEnabled))
 {
     switch (target)

@@ -17,8 +17,8 @@ void AppStatePeerLobby::input()
 {
     InputHandler::handleUiStateInput(app, *dic);
 
-    client->readIncomingPackets(std::bind(
-        &AppStatePeerLobby::handleNetworkUpdate, this, std::placeholders::_1));
+    dic->logger->log(client->readIncomingPackets(std::bind(
+        &AppStatePeerLobby::handleNetworkUpdate, this, std::placeholders::_1)));
 }
 
 void AppStatePeerLobby::buildLayoutGameSetupImpl(tgui::Panel::Ptr target) {}

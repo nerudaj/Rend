@@ -31,7 +31,7 @@ Server::Server(ServerConfiguration config)
     std::println("Server: Listening on port {}", config.port);
 }
 
-void Server::update()
+void Server::update(std::function<void(const std::string&)> log)
 {
     socket->setBlocking(false);
     sf::IpAddress remoteAddress;
@@ -47,13 +47,12 @@ void Server::update()
 
         if (result)
         {
-            if (!result.value().empty())
-                std::cout << "Server: " << result.value() << std::endl;
+            if (!result.value().empty()) log(result.value());
             shouldUpdate = true;
         }
         else
         {
-            std::cout << "Server:error: " << result.error() << std::endl;
+            log("error:" + result.error());
         }
     }
 
@@ -73,13 +72,11 @@ void Server::update()
         if (socket->send(packet, client.address, client.port)
             != sf::Socket::Status::Done)
         {
-            std::cout << "Server:error "
-                      << std::format(
-                             "Could not send response to client {} at {}:{}",
-                             client.idx,
-                             client.address.toInteger(),
-                             client.port)
-                      << std::endl;
+            log(std::format(
+                "error: Could not send response to client {} at {}:{}",
+                client.idx,
+                client.address.toInteger(),
+                client.port));
         }
     }
 

@@ -32,3 +32,4 @@ The game has the following parameters:
  * `-r <path>` / `--resource-dir <path>` - Path is relative from the current working dir to inside of the `resources` folder
  * `-m <name>` / `--map <name>` - Name, including .lvd extension of a file inside `resources/levels` folder
  * `-l` / `--limit` - Set point limit for the game 
+ * `-d` / `--debug` - Enables debugging logic like logging

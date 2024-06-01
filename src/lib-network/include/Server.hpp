@@ -25,7 +25,7 @@ public:
     Server(ServerConfiguration config);
 
 public:
-    void update();
+    void update(std::function<void(const std::string&)> log);
 
 private:
     ExpectedLog handleMessage(

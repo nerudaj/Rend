@@ -1,5 +1,6 @@
 #include "Gui.hpp"
 #include "Loader.hpp"
+#include "logging/LoggerFactory.hpp"
 #include "utils/DependencyContainer.hpp"
 #include <Configs/Strings.hpp>
 #include <DGM/dgm.hpp>
@@ -18,7 +19,8 @@ CmdParameters processCmdParameters(int argc, char* argv[])
         ("s,skip-menu", "Start game directly")
         ("r,resource-dir", "Path to resources", cxxopts::value<std::string>())
         ("m,map", "Map name", cxxopts::value<std::string>())
-        ("l,limit", "Fraglimit", cxxopts::value<unsigned>());
+        ("l,limit", "Fraglimit", cxxopts::value<unsigned>())
+        ("d,debug", "Enable debug mode");
     // clang-format on
     auto args = options.parse(argc, argv);
 
@@ -31,6 +33,7 @@ CmdParameters processCmdParameters(int argc, char* argv[])
     if (args.count("map") > 0) result.mapname = args["map"].as<std::string>();
     if (args.count("limit") > 0)
         result.fraglimit = args["limit"].as<unsigned>();
+    if (args.count("debug") > 0) result.enableDebug = args["debug"].as<bool>();
 
     return result;
 }
@@ -140,7 +143,14 @@ int main(int argc, char* argv[])
     controller->updateSettings(settings->input);
 
     auto&& dic = mem::Rc<DependencyContainer>(
-        audioPlayer, controller, gui, jukebox, resmgr, settings);
+        audioPlayer,
+        controller,
+        gui,
+        jukebox,
+        resmgr,
+        settings,
+        LoggerFactory::createLogger(
+            settings->cmdSettings.enableDebug, "./rend_client_log.txt"));
 
     app.pushState<AppStateMainMenu>(dic);
     app.run();

@@ -17,7 +17,7 @@ AppStateLobbyBase::AppStateLobbyBase(
           .fraglimit = static_cast<int>(dic->settings->cmdSettings.fraglimit),
           .maxNpcs = dic->settings->cmdSettings.maxNpcs })
 {
-    client->sendPeerSettingsUpdate(myPeerData);
+    dic->logger->log(client->sendPeerSettingsUpdate(myPeerData));
 }
 
 void AppStateLobbyBase::handleNetworkUpdate(const ServerUpdateData& update)

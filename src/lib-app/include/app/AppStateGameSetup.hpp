@@ -39,6 +39,8 @@ private:
 
     void handleMapRotationUpdate();
 
+    void sendLobbyUpdate();
+
 private:
     std::vector<std::string> mapPackNames;
     mem::Box<MapPickerDialog> mapPickerDialog;
