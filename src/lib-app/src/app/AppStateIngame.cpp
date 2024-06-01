@@ -165,9 +165,8 @@ void AppStateIngame::handleNetworkUpdate(const ServerUpdateData& update)
 
         if (stateManager.isTickTooOld(inputData.tick))
         {
-            throw std::runtime_error(
-                "Got outdated input, game desynced, exiting");
             dic->logger->log("\t\tGot outdated input, exiting");
+            app.popState(ExceptionGameDisconnected::serialize());
         }
         else if (stateManager.isTickTooNew(inputData.tick))
         {

@@ -71,8 +71,8 @@ void AppStateMenuOptions::buildDisplayOptionsLayout(FormBuilder& builder)
                         // Force gui to update viewport and resolution
                         dic->gui->gui.setWindow(app.window.getWindowContext());
 
-                        warningDialog.open(Strings::AppState::Options::
-                                               RESOLUTION_CHANGE_WARNING);
+                        dic->warningDialog.open(Strings::AppState::Options::
+                                                    RESOLUTION_CHANGE_WARNING);
                     }))
             .addOption(
                 Strings::AppState::Options::FULLSCREEN,

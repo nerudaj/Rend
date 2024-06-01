@@ -150,7 +150,8 @@ int main(int argc, char* argv[])
         resmgr,
         settings,
         LoggerFactory::createLogger(
-            settings->cmdSettings.enableDebug, "./rend_client_log.txt"));
+            settings->cmdSettings.enableDebug, "./rend_client_log.txt"),
+        ErrorInfoDialog(gui));
 
     app.pushState<AppStateMainMenu>(dic);
     app.run();

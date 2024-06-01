@@ -189,6 +189,12 @@ namespace Strings
 
     RAWSTRING TITLE = "rend";
     RAWSTRING CAPTITLE = "Rend";
+
+    namespace Error
+    {
+        RAWSTRING DESYNCED =
+            "You were disconnected, because your game got desynced";
+    }
 } // namespace Strings
 
 #undef RAWSTRING

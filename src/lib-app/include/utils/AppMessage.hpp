@@ -3,6 +3,7 @@
 #include "app/AppStateMainMenu.hpp"
 #include "app/AppStateMapRotationWrapper.hpp"
 #include "app/AppStatePaused.hpp"
+#include <Configs/Strings.hpp>
 #include <CoreTypes.hpp>
 #include <optional>
 #include <string>
@@ -38,17 +39,28 @@ struct [[nodiscard]] PopIfNotMapRotationWrapper final
 {
 };
 
-using AppMessage =
-    std::variant<PopIfNotMainMenu, PopIfPause, PopIfNotMapRotationWrapper>;
+struct [[nodiscard]] ExceptionGameDisconnected final
+    : public CanDeserializeFrom<ExceptionGameDisconnected>
+{
+};
+
+using AppMessage = std::variant<
+    PopIfNotMainMenu,
+    PopIfPause,
+    PopIfNotMapRotationWrapper,
+    ExceptionGameDisconnected>;
 
 [[nodiscard]] std::optional<AppMessage>
 deserializeAppMessage(const std::string& str);
 
 template<class CallerState>
-void handleAppMessage(dgm::App& app, const std::string& message)
+std::optional<std::string>
+handleAppMessage(dgm::App& app, const std::string& message)
 {
     auto&& msg = deserializeAppMessage(message);
     if (!msg) return;
+
+    std::optional<std::string> result;
     std::visit(
         overloaded {
             [&](PopIfNotMainMenu)
@@ -65,6 +77,14 @@ void handleAppMessage(dgm::App& app, const std::string& message)
             {
                 if (std::is_same_v<CallerState, AppStatePaused>)
                     app.popState(message);
+            },
+            [&](ExceptionGameDisconnected)
+            {
+                if (!std::is_same_v<CallerState, AppStateMainMenu>)
+                    app.popState(message);
+                else
+                    result = Strings::Error::DESYNCED;
             } },
         msg.value());
+    return result;
 }

@@ -40,11 +40,14 @@ void AppStateMainMenu::buildLayout()
             .build());
 }
 
-void AppStateMainMenu::restoreFocusImpl(const std::string&)
+void AppStateMainMenu::restoreFocusImpl(const std::string& message)
 {
+    auto&& result = handleAppMessage<AppStateMainMenu>(app, message);
     app.window.getWindowContext().setTitle(Strings::CAPTITLE);
     dic->jukebox->playTitleSong();
     buildLayout();
+
+    if (result) dic->warningDialog.open(result.value());
 }
 
 void AppStateMainMenu::input()
