@@ -58,7 +58,7 @@ std::optional<std::string>
 handleAppMessage(dgm::App& app, const std::string& message)
 {
     auto&& msg = deserializeAppMessage(message);
-    if (!msg) return;
+    if (!msg) return std::nullopt;
 
     std::optional<std::string> result;
     std::visit(

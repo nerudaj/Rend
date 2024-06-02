@@ -82,6 +82,7 @@ namespace Strings
             RAWSTRING TITLE = "lobby";
             RAWSTRING READY = "ready";
             RAWSTRING NOT_READY = "not ready";
+            RAWSTRING DISCONNECTED = "disconnected";
             RAWSTRING PNAME = "player name";
             RAWSTRING IS_READY = "is ready";
             RAWSTRING GAME_SETUP = "game setup";

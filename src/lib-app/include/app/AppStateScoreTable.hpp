@@ -24,10 +24,11 @@ public:
         , client(client)
         , gameSettings(gameSettings)
         , scores(std::forward<decltype(scores)>(scores))
+        , clientData(scores.size())
     {
         buildLayout();
         dic->jukebox->playInterludeSong();
-        client->sendMapEndedSignal();
+        dic->logger->log(client->sendMapEndedSignal());
     }
 
 public:
@@ -50,4 +51,5 @@ private:
     mem::Rc<Client> client;
     GameOptions gameSettings;
     std::vector<int> scores;
+    std::vector<ClientData> clientData;
 };

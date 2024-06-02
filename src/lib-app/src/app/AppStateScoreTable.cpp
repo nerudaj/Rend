@@ -9,8 +9,26 @@ void AppStateScoreTable::input()
 {
     InputHandler::handleUiStateInputWithoutGoBackOption(app, *dic);
 
-    client->readIncomingPackets(std::bind(
-        &AppStateScoreTable::handleNetworkUpdate, this, std::placeholders::_1));
+    dic->logger->log(client->readIncomingPackets(std::bind(
+        &AppStateScoreTable::handleNetworkUpdate,
+        this,
+        std::placeholders::_1)));
+}
+
+[[nodiscard]] constexpr std::string clientStateToString(ClientState state)
+{
+    switch (state)
+    {
+    case ClientState::Disconnected:
+        return Strings::AppState::PeerLobby::DISCONNECTED;
+    case ClientState::Connected:
+        return Strings::AppState::PeerLobby::NOT_READY;
+    case ClientState::ConnectedAndReady:
+    case ClientState::ConnectedAndMapReady:
+        return Strings::AppState::PeerLobby::READY;
+    default:
+        return "";
+    }
 }
 
 void AppStateScoreTable::buildLayout()
@@ -19,15 +37,17 @@ void AppStateScoreTable::buildLayout()
     {
         std::string name;
         int score;
+        ClientState state;
     };
 
     auto orderedScores =
-        std::views::zip(scores, gameSettings.players)
+        std::views::zip(scores, gameSettings.players, clientData)
         | std::views::transform(
-            [](const std::tuple<int, PlayerOptions>& t)
+            [](const std::tuple<int, PlayerOptions, ClientData>& t)
             {
                 return PlayerScore { .name = std::get<1>(t).name,
-                                     .score = std::get<0>(t) };
+                                     .score = std::get<0>(t),
+                                     .state = std::get<2>(t).state };
             })
         | std::ranges::to<std::vector>();
 
@@ -38,10 +58,13 @@ void AppStateScoreTable::buildLayout()
 
     auto&& tableBuilder =
         TableBuilder().withHeading({ Strings::AppState::Scores::PLAYER_TH,
-                                     Strings::AppState::Scores::SCORE_TH });
+                                     Strings::AppState::Scores::SCORE_TH,
+                                     Strings::AppState::PeerLobby::IS_READY });
     for (auto&& score : orderedScores)
     {
-        tableBuilder.addRow({ score.name, std::to_string(score.score) });
+        tableBuilder.addRow({ score.name,
+                              std::to_string(score.score),
+                              clientStateToString(score.state) });
     }
 
     dic->gui->rebuildWith(
@@ -56,12 +79,14 @@ void AppStateScoreTable::buildLayout()
                 [this] { app.popState(PopIfNotMainMenu::serialize()); }))
             .withSubmitButton(WidgetBuilder::createButton(
                 Strings::AppState::MainMenu::NEXT_MAP,
-                [this] { client->sendPeerReadySignal(); }))
+                [this] { dic->logger->log(client->sendPeerReadySignal()); }))
             .build());
 }
 
 void AppStateScoreTable::handleNetworkUpdate(const ServerUpdateData& update)
 {
+    clientData = update.clients;
+
     if (update.state == ServerState::MapLoading)
     {
         app.popState(PopIfNotMapRotationWrapper::serialize());
