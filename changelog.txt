@@ -6,6 +6,7 @@ Bugfixes:
 
 UX:
 * Added an option to show FPS
+* In-game score now shows offset from the first / second player's score
 
 Gameplay:
 * Added a new 3-player map: "Shotgun Frenzy"

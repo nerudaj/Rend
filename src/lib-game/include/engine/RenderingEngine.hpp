@@ -96,6 +96,8 @@ private:
     std::optional<std::pair<float, float>> cropSpriteIfObscured(
         int& leftColumn, int& rightColumn, float thingDistance);
 
+    int getScoreOffset(int score) const;
+
 private:
     const DisplayOptions settings;
     Scene& scene;
