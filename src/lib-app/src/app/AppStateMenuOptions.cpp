@@ -111,7 +111,13 @@ void AppStateMenuOptions::buildDisplayOptionsLayout(FormBuilder& builder)
                     hudScaleFormatter,
                     1.f,
                     4.f,
-                    0.5f));
+                    0.5f))
+            .addOption(
+                Strings::AppState::Options::SHOW_FPS,
+                WidgetBuilder::createCheckbox(
+                    dic->settings->display.showFps,
+                    [this](bool value)
+                    { dic->settings->display.showFps = value; }));
 }
 
 void AppStateMenuOptions::buildAudioOptionsLayout(FormBuilder& builder)

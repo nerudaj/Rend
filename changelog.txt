@@ -4,6 +4,9 @@ Bugfixes:
 * Screenshots are no longer black
 * FPS now correctly reflect real-life performance
 
+UX:
+* Added an option to show FPS
+
 Gameplay:
 * Added a new 3-player map: "Shotgun Frenzy"
 
