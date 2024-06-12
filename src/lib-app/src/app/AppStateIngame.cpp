@@ -56,6 +56,11 @@ AppStateIngame::AppStateIngame(
               dic->settings->display.resolution.width,
               dic->settings->display.resolution.height)))
 {
+    for (auto&& opts : gameSettings.players)
+    {
+        if (opts.kind != PlayerKind::LocalNpc) humanPlayerCount++;
+    }
+
     lockMouse();
     createPlayers();
     dic->jukebox->playIngameSong();
@@ -109,7 +114,11 @@ void AppStateIngame::input()
 
 void AppStateIngame::update()
 {
-    if (!ready) return;
+    if (shouldSkipUpdate())
+    {
+        dic->logger->log("Skipping frame update (ready={})", ready);
+        return;
+    }
 
     stateManager.insert(snapshotInputsIntoNewFrameState(), lastTick);
 
@@ -176,8 +185,9 @@ void AppStateIngame::handleNetworkUpdate(const ServerUpdateData& update)
         }
         else
         {
-            stateManager.get(inputData.tick).inputs.at(inputData.clientId) =
-                inputData.input;
+            auto& frame = stateManager.get(inputData.tick);
+            frame.inputs.at(inputData.clientId) = inputData.input;
+            frame.confirmedInputs.at(inputData.clientId) = true;
             oldestTicks[inputData.clientId] =
                 std::min(oldestTicks[inputData.clientId], inputData.tick);
         }
@@ -205,22 +215,24 @@ void AppStateIngame::setCurrentFrameDelay(std::vector<size_t>&& oldestTicks)
 
 AppStateIngame::FrameState AppStateIngame::snapshotInputsIntoNewFrameState()
 {
-    auto&& state =
-        FrameState { .inputs =
-                         inputs
-                         | std::views::transform(
-                             [](mem::Rc<ControllerInterface>& i) -> InputSchema
-                             {
-                                 i->update();
-                                 return i->getSnapshot();
-                             })
-                         | std::ranges::to<decltype(FrameState::inputs)>() };
+    auto&& state = FrameState {
+        .inputs = inputs
+                  | std::views::transform(
+                      [](mem::Rc<ControllerInterface>& i) -> InputSchema
+                      {
+                          i->update();
+                          return i->getSnapshot();
+                      })
+                  | std::ranges::to<decltype(FrameState::inputs)>(),
+        .confirmedInputs = std::vector<bool>(inputs.size(), false)
+    };
 
     if (futureInputs.contains(scene.tick))
     {
         for (auto&& [playerIdx, input] : futureInputs[scene.tick])
         {
             state.inputs.at(playerIdx) = input;
+            state.confirmedInputs.at(playerIdx) = true;
         }
         futureInputs.erase(scene.tick);
     }
@@ -293,6 +305,21 @@ void AppStateIngame::backupState(FrameState& state)
     state.markers = scene.markers.clone();
     state.states = scene.playerStates;
     state.cameraAnchorIdx = scene.camera.anchorIdx;
+}
+
+bool AppStateIngame::shouldSkipUpdate() const
+{
+    auto&& confirmedInputs = stateManager.getLatestState().confirmedInputs;
+    bool waitingForInputs = lastTick > 0
+                            && humanPlayerCount > std::accumulate(
+                                   confirmedInputs.begin(),
+                                   confirmedInputs.end(),
+                                   0u,
+                                   [](unsigned acc, bool val) {
+                                       return acc + static_cast<unsigned>(val);
+                                   });
+
+    return !ready || waitingForInputs;
 }
 
 void AppStateIngame::lockMouse()

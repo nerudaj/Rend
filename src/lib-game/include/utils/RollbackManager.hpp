@@ -27,6 +27,11 @@ public:
         return self.buffer[self.getIndexForTick(tick).value()];
     }
 
+    [[nodiscard]] constexpr auto&& getLatestState(this auto&& self) noexcept
+    {
+        return self.buffer[BufferIndexType(0)];
+    }
+
     [[nodiscard]] constexpr std::expected<BufferIndexType, ErrorMessage>
     getIndexForTick(size_t tick) noexcept
     {

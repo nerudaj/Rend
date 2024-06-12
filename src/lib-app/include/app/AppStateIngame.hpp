@@ -55,6 +55,7 @@ private:
         dgm::DynamicBuffer<Entity> things;
         dgm::DynamicBuffer<Marker> markers;
         std::vector<InputSchema> inputs;
+        std::vector<bool> confirmedInputs;
         std::vector<PlayerState> states;
         EntityIndexType cameraAnchorIdx;
     };
@@ -66,6 +67,7 @@ private:
     void evaluateWinCondition();
     void restoreState(const FrameState& state);
     void backupState(FrameState& state);
+    [[nodiscard]] bool shouldSkipUpdate() const;
 
     void lockMouse();
     void unlockMouse();
@@ -96,4 +98,5 @@ protected:
     size_t lastTick = {};
     Framerate framerate = Framerate(FPS);
     std::chrono::milliseconds artificialFrameDelay = {};
+    unsigned humanPlayerCount = 0;
 };
