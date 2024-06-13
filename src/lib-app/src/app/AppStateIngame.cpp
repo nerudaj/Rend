@@ -233,15 +233,12 @@ AppStateIngame::FrameState AppStateIngame::snapshotInputsIntoNewFrameState()
         .confirmedInputs = std::vector<bool>(inputs.size(), false)
     };
 
-    if (futureInputs.contains(scene.tick))
+    for (auto&& [playerIdx, input] : futureInputs[lastTick])
     {
-        for (auto&& [playerIdx, input] : futureInputs[scene.tick])
-        {
-            state.inputs.at(playerIdx) = input;
-            state.confirmedInputs.at(playerIdx) = true;
-        }
-        futureInputs.erase(scene.tick);
+        state.inputs.at(playerIdx) = input;
+        state.confirmedInputs.at(playerIdx) = true;
     }
+    futureInputs.erase(lastTick);
 
     if (!hasFocus)
     {
