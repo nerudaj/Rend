@@ -33,7 +33,7 @@ public:
     }
 
     [[nodiscard]] constexpr std::expected<BufferIndexType, ErrorMessage>
-    getIndexForTick(size_t tick) noexcept
+    getIndexForTick(size_t tick) const noexcept
     {
         if (isTickTooNew(tick) || isTickTooOld(tick))
             return std::unexpected(std::format(

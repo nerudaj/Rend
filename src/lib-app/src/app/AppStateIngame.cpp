@@ -69,8 +69,14 @@ AppStateIngame::AppStateIngame(
 
 void AppStateIngame::input()
 {
-    dic->logger->log(client->readIncomingPackets(std::bind(
-        &AppStateIngame::handleNetworkUpdate, this, std::placeholders::_1)));
+    // Loop until F-N is confirmed
+    do
+    {
+        dic->logger->log(client->readIncomingPackets(std::bind(
+            &AppStateIngame::handleNetworkUpdate,
+            this,
+            std::placeholders::_1)));
+    } while (!isFrameConfirmed());
 
     if (!hasFocus) return;
 
@@ -242,6 +248,10 @@ AppStateIngame::FrameState AppStateIngame::snapshotInputsIntoNewFrameState()
         state.inputs[client->getMyIndex()] = InputSchema {};
     }
 
+    dic->logger->log(
+        "Sending inputs for frame {} (client id {})",
+        lastTick,
+        client->getMyIndex());
     dic->logger->log(client->sendCurrentFrameInputs(lastTick, state.inputs));
 
     // NOTE: put code for demos here if applicable
@@ -319,7 +329,27 @@ bool AppStateIngame::shouldSkipUpdate() const
                                        return acc + static_cast<unsigned>(val);
                                    });
 
-    return !ready || waitingForInputs;
+    return !ready;
+    //    || waitingForInputs;
+}
+
+bool AppStateIngame::isFrameConfirmed() const
+{
+    constexpr const size_t WINDOW_SIZE = 1;
+    if (lastTick < WINDOW_SIZE) return true;
+
+    // NOTE: is last tick really in manager?
+    const auto& confirmations =
+        stateManager.get(lastTick - WINDOW_SIZE).confirmedInputs;
+
+    const auto sumConfirmed = std::accumulate(
+        confirmations.begin(),
+        confirmations.end(),
+        0u,
+        [](unsigned acc, bool val)
+        { return acc + static_cast<unsigned>(val); });
+
+    return humanPlayerCount == sumConfirmed;
 }
 
 void AppStateIngame::lockMouse()

@@ -68,6 +68,7 @@ private:
     void restoreState(const FrameState& state);
     void backupState(FrameState& state);
     [[nodiscard]] bool shouldSkipUpdate() const;
+    [[nodiscard]] bool isFrameConfirmed() const;
 
     void lockMouse();
     void unlockMouse();
