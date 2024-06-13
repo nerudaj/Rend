@@ -42,22 +42,18 @@ public:
     ExpectSuccess sendPeerSettingsUpdate(const ClientData& peerUpdate);
 
 private:
-    ExpectSuccess bindToAnyPort();
-
     std::expected<PlayerIdxType, ErrorMessage> registerToServer();
-
-    ExpectSuccess sendConnectPacket();
 
     std::expected<ServerMessage, ErrorMessage> getConnectResponse();
 
     ExpectSuccess
     trySendPacket(sf::Packet&& packet, const ErrorMessage& errorMessage)
     {
-        if (socket->send(packet, remoteAddress, remotePort)
-            != sf::Socket::Status::Done)
+        if (socket->send(packet) != sf::Socket::Status::Done)
         {
             return std::unexpected(errorMessage);
         }
+
         return ReturnFlag::Success;
     }
 
@@ -66,7 +62,7 @@ private:
 private:
     sf::IpAddress remoteAddress;
     unsigned short remotePort;
-    mem::Box<sf::UdpSocket> socket;
+    mem::Box<sf::TcpSocket> socket;
     unsigned short myPort;
     PlayerIdxType myClientId;
 };

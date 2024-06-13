@@ -10,17 +10,28 @@
 #include <core/Constants.hpp>
 
 void serverLoop(
-    Server server, bool enableDebug, std::atomic_bool& serverEnabled)
+    ServerConfiguration config,
+    bool enableDebug,
+    std::atomic_bool& serverEnabled)
 {
     auto&& logger =
         LoggerFactory::createLogger(enableDebug, "./rend_server_log.txt");
-    auto&& framerate = Framerate(FPS * 2);
-    logger->log("Server loop started");
 
-    while (serverEnabled)
+    try
     {
-        server.update([&](auto&& str) { logger->log("{}", str); });
-        framerate.ensureFramerate();
+        auto&& server = Server(config);
+        auto&& framerate = Framerate(FPS * 2);
+        logger->log("Server loop started");
+
+        while (serverEnabled)
+        {
+            server.update([&](auto&& str) { logger->log("{}", str); });
+            framerate.ensureFramerate();
+        }
+    }
+    catch (const std::exception& e)
+    {
+        logger->log("error: {}", e.what());
     }
 }
 
@@ -31,10 +42,10 @@ AppStateServerWrapper::AppStateServerWrapper(
     , serverEnabled(true)
     , serverThread(
           serverLoop,
-          Server(ServerConfiguration {
-              .port = 10666,
-              .maxClientCount = 4,
-              .acceptReconnects = target == ServerWrapperTarget::Editor }),
+          ServerConfiguration { .port = 10666,
+                                .maxClientCount = 4,
+                                .acceptReconnects =
+                                    target == ServerWrapperTarget::Editor },
           dic->settings->cmdSettings.enableDebug,
           std::ref(serverEnabled))
 {

@@ -11,9 +11,6 @@
 Client::Client(const sf::IpAddress& address, unsigned short port)
     : remoteAddress(address), remotePort(port)
 {
-    if (auto&& result = bindToAnyPort(); !result)
-        throw std::runtime_error(result.error());
-
     auto&& id = registerToServer();
     if (!id) throw std::runtime_error(id.error());
     myClientId = *id;
@@ -28,7 +25,7 @@ Client::readIncomingPackets(HandleNetworkUpdate handleUpdateCallback)
     sf::IpAddress address;
     unsigned short port;
 
-    while (socket->receive(packet, address, port) == sf::Socket::Status::Done)
+    while (socket->receive(packet) == sf::Socket::Status::Done)
     {
         auto&& message = ServerMessage::fromPacket(packet);
         if (message.type != ServerMessageType::Update)
@@ -104,38 +101,17 @@ ExpectSuccess Client::sendPeerSettingsUpdate(const ClientData& peerUpdate)
         "Could not send peer update");
 }
 
-ExpectSuccess Client::bindToAnyPort()
-{
-    if (socket->bind(sf::Socket::AnyPort) != sf::Socket::Status::Done)
-    {
-        return std::unexpected(std::format("Cannot bind socket to any port"));
-    }
-
-    myPort = socket->getLocalPort();
-    std::println("Socket bound to port {}", myPort);
-
-    return ReturnFlag::Success;
-}
-
 std::expected<PlayerIdxType, ErrorMessage> Client::registerToServer()
 {
-    if (auto&& result = sendConnectPacket(); !result)
-        return std::unexpected(result.error());
+    if (socket->connect(remoteAddress, remotePort, sf::seconds(3))
+        != sf::Socket::Status::Done)
+    {
+        return std::unexpected("Cannot connect to remote host");
+    }
 
     auto&& message = getConnectResponse();
     if (!message) return std::unexpected(message.error());
     return message->clientId;
-}
-
-ExpectSuccess Client::sendConnectPacket()
-{
-    return trySendPacket(
-        ClientMessage { .type = ClientMessageType::ConnectionRequest }
-            .toPacket(),
-        std::format(
-            "Could not send message to {}:{}",
-            remoteAddress.toString(),
-            remotePort));
 }
 
 std::expected<ServerMessage, ErrorMessage> Client::getConnectResponse()
@@ -144,7 +120,7 @@ std::expected<ServerMessage, ErrorMessage> Client::getConnectResponse()
     sf::IpAddress address;
     unsigned short port;
 
-    if (socket->receive(packet, address, port) != sf::Socket::Status::Done)
+    if (socket->receive(packet) != sf::Socket::Status::Done)
     {
         return std::unexpected(
             std::format("Got no response from remote server"));

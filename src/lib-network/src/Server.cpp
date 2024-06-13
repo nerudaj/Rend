@@ -22,29 +22,30 @@ Server::Server(ServerConfiguration config)
     : MAX_CLIENT_COUNT(config.maxClientCount)
     , ACCEPT_RECONNECTS(config.acceptReconnects)
 {
-    if (socket->bind(config.port) != sf::Socket::Status::Done)
+    if (listener->listen(config.port) != sf::Socket::Status::Done)
     {
         throw std::runtime_error(
             std::format("Server: Cannot bind socket to port {}", config.port));
     }
+    listener->setBlocking(false);
 
     std::println("Server: Listening on port {}", config.port);
 }
 
+Server::~Server()
+{
+    for (auto&& [id, client] : registeredClients)
+    {
+        client.socket->disconnect();
+    }
+}
+
 void Server::update(std::function<void(const std::string&)> log)
 {
-    socket->setBlocking(false);
-    sf::IpAddress remoteAddress;
-    unsigned short remotePort;
-    sf::Packet packet;
-
     bool shouldUpdate = false;
-    while (socket->receive(packet, remoteAddress, remotePort)
-           == sf::Socket::Status::Done)
-    {
-        auto&& result = handleMessage(
-            ClientMessage::fromPacket(packet), remoteAddress, remotePort);
 
+    auto resolveMessageResult = [&shouldUpdate, log](const ExpectedLog& result)
+    {
         if (result)
         {
             if (!result.value().empty()) log(result.value());
@@ -54,6 +55,24 @@ void Server::update(std::function<void(const std::string&)> log)
         {
             log("error:" + result.error());
         }
+    };
+
+    // Handle new connections
+    mem::Box<sf::TcpSocket> newConnection;
+    if (listener->accept(*newConnection) == sf::Socket::Status::Done)
+    {
+        resolveMessageResult(handleNewConnection(std::move(newConnection)));
+    }
+
+    // Handle messages from existing peers
+    sf::Packet packet;
+    for (auto&& [key, client] : registeredClients)
+    {
+        if (client.socket->receive(packet) != sf::Socket::Status::Done)
+            continue;
+
+        resolveMessageResult(handleMessage(
+            ClientMessage::fromPacket(packet), client.address, client.port));
     }
 
     if (!shouldUpdate) return;
@@ -69,8 +88,7 @@ void Server::update(std::function<void(const std::string&)> log)
                                  .payload = payload }
                      .toPacket();
 
-        if (socket->send(packet, client.address, client.port)
-            != sf::Socket::Status::Done)
+        if (client.socket->send(packet) != sf::Socket::Status::Done)
         {
             log(std::format(
                 "error: Could not send response to client {} at {}:{}",
@@ -92,8 +110,6 @@ ExpectedLog Server::handleMessage(
     switch (message.type)
     {
         using enum ClientMessageType;
-    case ConnectionRequest:
-        return handleNewConnection(address, port);
     case PeerSettingsUpdate:
         return handlePeerSettingsUpdate(message, address, port);
     case LobbySettingsUpdate:
@@ -116,12 +132,14 @@ ExpectedLog Server::handleMessage(
     }
 }
 
-ExpectedLog
-Server::handleNewConnection(const sf::IpAddress& address, unsigned short port)
+ExpectedLog Server::handleNewConnection(mem::Box<sf::TcpSocket>&& socket)
 {
+    auto&& address = socket->getRemoteAddress();
+    auto&& port = socket->getRemotePort();
+
     if (isRegistered(address, port) && !ACCEPT_RECONNECTS)
     {
-        if (auto&& result = denyNewPeer(address, port); !result)
+        if (auto&& result = denyNewPeer(std::move(socket)); !result)
             return std::unexpected(result.error());
         return std::format(
             "Could not register new peer at {}:{}, because it is already "
@@ -131,7 +149,7 @@ Server::handleNewConnection(const sf::IpAddress& address, unsigned short port)
     }
     else if (MAX_CLIENT_COUNT == registeredClients.size())
     {
-        if (auto&& result = denyNewPeer(address, port); !result)
+        if (auto&& result = denyNewPeer(std::move(socket)); !result)
             return std::unexpected(result.error());
         return std::format(
             "Could not register new peer at {}:{}, because limit of clients "
@@ -141,7 +159,7 @@ Server::handleNewConnection(const sf::IpAddress& address, unsigned short port)
     }
     else if (updateData.state != ServerState::Lobby)
     {
-        if (auto&& result = denyNewPeer(address, port); !result)
+        if (auto&& result = denyNewPeer(std::move(socket)); !result)
             return std::unexpected(result.error());
         return std::format(
             "Could not register new peer at {}:{}, game has started",
@@ -165,22 +183,25 @@ Server::handleNewConnection(const sf::IpAddress& address, unsigned short port)
         return std::distance(clients.begin(), itr);
     }(updateData.clients);
 
-    registeredClients[peerToId(address, port)] = ClientConnectionInfo {
-        .idx = newIdx, .address = address, .port = port
-    };
-
     auto&& packet =
         ServerMessage { .type = ServerMessageType::ConnectionAccepted,
                         .clientId = newIdx }
             .toPacket();
 
-    if (socket->send(packet, address, port) != sf::Socket::Status::Done)
+    if (socket->send(packet) != sf::Socket::Status::Done)
     {
         return std::unexpected(std::format(
             "Could not send ConnectionConfirmed to new peer at {}:{}",
             address.toString(),
             port));
     }
+
+    socket->setBlocking(false);
+    registeredClients[peerToId(address, port)] =
+        ClientConnectionInfo { .idx = newIdx,
+                               .address = address,
+                               .port = port,
+                               .socket = std::move(socket) };
 
     return std::format(
         "Registered new client at {}:{} with ID: {}",
@@ -327,18 +348,17 @@ Server::handleDisconnection(const sf::IpAddress& address, unsigned short port)
     return std::format("Client {}:{} disconnected", address.toString(), port);
 }
 
-ExpectSuccess
-Server::denyNewPeer(const sf::IpAddress& address, unsigned short port)
+ExpectSuccess Server::denyNewPeer(mem::Box<sf::TcpSocket>&& socket)
 {
     auto&& packet =
         ServerMessage { .type = ServerMessageType::ConnectionRefused }
             .toPacket();
-    if (socket->send(packet, address, port) != sf::Socket::Status::Done)
+    if (socket->send(packet) != sf::Socket::Status::Done)
     {
         return std::unexpected(std::format(
             "Failed to send ConnectionRefused to remote peer at {}:{}",
-            address.toString(),
-            port));
+            socket->getRemoteAddress().toString(),
+            socket->getRemotePort()));
     }
 
     return ReturnFlag::Success;

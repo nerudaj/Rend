@@ -4,7 +4,6 @@
 
 enum class [[nodiscard]] ClientMessageType : uint8_t
 {
-    ConnectionRequest,
     PeerSettingsUpdate,
     LobbySettingsUpdate,
     ReportPeerReady,
