@@ -332,7 +332,7 @@ bool AppStateIngame::shouldSkipUpdate() const
 
 bool AppStateIngame::isFrameConfirmed() const
 {
-    constexpr const size_t WINDOW_SIZE = 1;
+    constexpr const size_t WINDOW_SIZE = 19;
     if (lastTick < WINDOW_SIZE) return true;
 
     // NOTE: is last tick really in manager?
