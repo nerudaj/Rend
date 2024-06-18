@@ -72,7 +72,7 @@ void AppStateIngame::input()
     auto&& result = client->readPacketsUntil(
         std::bind(
             &AppStateIngame::handleNetworkUpdate, this, std::placeholders::_1),
-        std::bind_back(&AppStateIngame::isFrameConfirmed, this));
+        std::bind(&AppStateIngame::isFrameConfirmed, this));
     if (!result)
     {
         dic->logger->log(result);
