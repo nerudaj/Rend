@@ -177,10 +177,10 @@ ExpectedLog Server::handleNewConnection(mem::Box<sf::TcpSocket>&& socket)
         if (itr == clients.end())
         {
             clients.push_back(ClientData());
-            return clients.size() - 1;
+            return static_cast<PlayerIdxType>(clients.size() - 1);
         }
         *itr = ClientData();
-        return std::distance(clients.begin(), itr);
+        return static_cast<PlayerIdxType>(std::distance(clients.begin(), itr));
     }(updateData.clients);
 
     auto&& packet =

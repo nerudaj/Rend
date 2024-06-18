@@ -22,8 +22,6 @@ ExpectSuccess
 Client::readIncomingPackets(HandleNetworkUpdate handleUpdateCallback)
 {
     sf::Packet packet;
-    sf::IpAddress address;
-    unsigned short port;
 
     while (socket->receive(packet) == sf::Socket::Status::Done)
     {
@@ -37,6 +35,27 @@ Client::readIncomingPackets(HandleNetworkUpdate handleUpdateCallback)
 
         handleUpdateCallback(nlohmann::json::parse(message.payload));
     }
+
+    return ReturnFlag::Success;
+}
+
+ExpectSuccess Client::readPacketsUntil(
+    HandleNetworkUpdate handleUpdateCallback,
+    std::function<bool()> shouldStopReading,
+    sf::Time timeout)
+{
+    sf::Clock clock;
+
+    do
+    {
+        auto&& result = readIncomingPackets(handleUpdateCallback);
+        if (!result) return result;
+
+        if (clock.getElapsedTime() > timeout)
+        {
+            return std::unexpected("Packet reading timeouted");
+        }
+    } while (!shouldStopReading());
 
     return ReturnFlag::Success;
 }
@@ -117,8 +136,6 @@ std::expected<PlayerIdxType, ErrorMessage> Client::registerToServer()
 std::expected<ServerMessage, ErrorMessage> Client::getConnectResponse()
 {
     sf::Packet packet;
-    sf::IpAddress address;
-    unsigned short port;
 
     if (socket->receive(packet) != sf::Socket::Status::Done)
     {

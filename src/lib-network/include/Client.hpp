@@ -28,6 +28,11 @@ public:
 
     ExpectSuccess readIncomingPackets(HandleNetworkUpdate handleUpdateCallback);
 
+    ExpectSuccess readPacketsUntil(
+        HandleNetworkUpdate handleUpdateCallback,
+        std::function<bool()> shouldStopReading,
+        sf::Time timeout = sf::seconds(2));
+
     ExpectSuccess sendMapReadySignal();
 
     ExpectSuccess sendPeerReadySignal();
@@ -63,6 +68,5 @@ private:
     sf::IpAddress remoteAddress;
     unsigned short remotePort;
     mem::Box<sf::TcpSocket> socket;
-    unsigned short myPort;
     PlayerIdxType myClientId;
 };
