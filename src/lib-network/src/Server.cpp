@@ -68,6 +68,8 @@ void Server::update(std::function<void(const std::string&)> log)
     sf::Packet packet;
     for (auto&& [key, client] : registeredClients)
     {
+        // FIXME: what if registeredClient is removed in the middle of the loop?
+        // --> deferred removal (or indexed removal)
         if (client.socket->receive(packet) != sf::Socket::Status::Done)
             continue;
 

@@ -9,7 +9,8 @@ void serverLoop(Server server)
 {
     while (serverEnabled)
     {
-        server.update();
+        server.update([](const std::string& log)
+                      { std::cout << log << std::endl; });
     }
 }
 
