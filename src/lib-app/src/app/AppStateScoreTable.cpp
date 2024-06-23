@@ -91,4 +91,8 @@ void AppStateScoreTable::handleNetworkUpdate(const ServerUpdateData& update)
     {
         app.popState(PopIfNotMapRotationWrapper::serialize());
     }
+    else
+    {
+        buildLayout();
+    }
 }
