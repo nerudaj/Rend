@@ -33,6 +33,6 @@ private:
 
 private:
     mem::Rc<DependencyContainer> dic;
-    std::string ipAddressInput = "127.0.0.1";
+    std::string ipAddressInput = "192.168.0.1";
     ErrorInfoDialog warningDialog;
 };
