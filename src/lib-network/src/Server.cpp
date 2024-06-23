@@ -66,15 +66,21 @@ void Server::update(std::function<void(const std::string&)> log)
 
     // Handle messages from existing peers
     sf::Packet packet;
+    std::vector<sf::Uint64> clientKeysToRemove;
     for (auto&& [key, client] : registeredClients)
     {
-        // FIXME: what if registeredClient is removed in the middle of the loop?
-        // --> deferred removal (or indexed removal)
         if (client.socket->receive(packet) != sf::Socket::Status::Done)
             continue;
 
         resolveMessageResult(handleMessage(
             ClientMessage::fromPacket(packet), client.address, client.port));
+
+        if (client.disconnected) clientKeysToRemove.push_back(key);
+    }
+
+    for (auto&& clientKey : clientKeysToRemove)
+    {
+        registeredClients.erase(clientKey);
     }
 
     if (!shouldUpdate) return;
@@ -345,7 +351,7 @@ Server::handleDisconnection(const sf::IpAddress& address, unsigned short port)
     auto&& id = peerToId(address, port);
     updateData.clients.at(registeredClients.at(id).idx).state =
         ClientState::Disconnected;
-    registeredClients.erase(id);
+    registeredClients.at(id).disconnected = true;
 
     return std::format("Client {}:{} disconnected", address.toString(), port);
 }

@@ -125,10 +125,11 @@ private:
 private:
     struct ClientConnectionInfo
     {
-        PlayerIdxType idx;
+        PlayerIdxType idx = 0;
         sf::IpAddress address;
-        unsigned short port;
+        unsigned short port = 0;
         mem::Box<sf::TcpSocket> socket;
+        bool disconnected = false;
     };
 
     const unsigned short MAX_CLIENT_COUNT;
