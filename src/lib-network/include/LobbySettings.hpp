@@ -20,7 +20,7 @@ struct [[nodiscard]] LobbySettings final
     std::vector<MapSettings> mapSettings = {};
     std::vector<size_t> mapOrder = {};
     int fraglimit = 0;
-    unsigned maxNpcs = 0;
+    size_t maxNpcs = 0;
 
     [[nodiscard]] constexpr std::partial_ordering
     operator<=>(const LobbySettings&) const = default;

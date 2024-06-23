@@ -28,6 +28,11 @@ public:
 
     ExpectSuccess readIncomingPackets(HandleNetworkUpdate handleUpdateCallback);
 
+    ExpectSuccess readPacketsUntil(
+        HandleNetworkUpdate handleUpdateCallback,
+        std::function<bool()> shouldStopReading,
+        sf::Time timeout = sf::seconds(2));
+
     ExpectSuccess sendMapReadySignal();
 
     ExpectSuccess sendPeerReadySignal();
@@ -42,22 +47,18 @@ public:
     ExpectSuccess sendPeerSettingsUpdate(const ClientData& peerUpdate);
 
 private:
-    ExpectSuccess bindToAnyPort();
-
     std::expected<PlayerIdxType, ErrorMessage> registerToServer();
-
-    ExpectSuccess sendConnectPacket();
 
     std::expected<ServerMessage, ErrorMessage> getConnectResponse();
 
     ExpectSuccess
     trySendPacket(sf::Packet&& packet, const ErrorMessage& errorMessage)
     {
-        if (socket->send(packet, remoteAddress, remotePort)
-            != sf::Socket::Status::Done)
+        if (socket->send(packet) != sf::Socket::Status::Done)
         {
             return std::unexpected(errorMessage);
         }
+
         return ReturnFlag::Success;
     }
 
@@ -66,7 +67,6 @@ private:
 private:
     sf::IpAddress remoteAddress;
     unsigned short remotePort;
-    mem::Box<sf::UdpSocket> socket;
-    unsigned short myPort;
+    mem::Box<sf::TcpSocket> socket;
     PlayerIdxType myClientId;
 };

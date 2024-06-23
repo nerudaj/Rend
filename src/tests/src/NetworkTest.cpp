@@ -15,7 +15,8 @@ void serverThread(std::atomic_bool& keepServerRunning)
 
     while (keepServerRunning)
     {
-        server.update();
+        server.update([](const std::string& str)
+                      { std::cout << str << std::endl; });
     }
 }
 

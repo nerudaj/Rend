@@ -81,7 +81,7 @@ std::vector<PlayerOptions> AppStateLobbyBase::createPlayerSettings()
         "deimos",
     };
 
-    for (auto&& idx : std::views::iota(0u, lobbySettings.maxNpcs))
+    for (auto&& idx : std::views::iota(size_t { 0 }, lobbySettings.maxNpcs))
     {
         playerOptions.push_back(PlayerOptions {
             .kind = PlayerKind::LocalNpc,

@@ -11,9 +11,6 @@
 Client::Client(const sf::IpAddress& address, unsigned short port)
     : remoteAddress(address), remotePort(port)
 {
-    if (auto&& result = bindToAnyPort(); !result)
-        throw std::runtime_error(result.error());
-
     auto&& id = registerToServer();
     if (!id) throw std::runtime_error(id.error());
     myClientId = *id;
@@ -25,10 +22,8 @@ ExpectSuccess
 Client::readIncomingPackets(HandleNetworkUpdate handleUpdateCallback)
 {
     sf::Packet packet;
-    sf::IpAddress address;
-    unsigned short port;
 
-    while (socket->receive(packet, address, port) == sf::Socket::Status::Done)
+    while (socket->receive(packet) == sf::Socket::Status::Done)
     {
         auto&& message = ServerMessage::fromPacket(packet);
         if (message.type != ServerMessageType::Update)
@@ -40,6 +35,27 @@ Client::readIncomingPackets(HandleNetworkUpdate handleUpdateCallback)
 
         handleUpdateCallback(nlohmann::json::parse(message.payload));
     }
+
+    return ReturnFlag::Success;
+}
+
+ExpectSuccess Client::readPacketsUntil(
+    HandleNetworkUpdate handleUpdateCallback,
+    std::function<bool()> shouldStopReading,
+    sf::Time timeout)
+{
+    sf::Clock clock;
+
+    do
+    {
+        auto&& result = readIncomingPackets(handleUpdateCallback);
+        if (!result) return result;
+
+        if (clock.getElapsedTime() > timeout)
+        {
+            return std::unexpected("Packet reading timeouted");
+        }
+    } while (!shouldStopReading());
 
     return ReturnFlag::Success;
 }
@@ -104,47 +120,24 @@ ExpectSuccess Client::sendPeerSettingsUpdate(const ClientData& peerUpdate)
         "Could not send peer update");
 }
 
-ExpectSuccess Client::bindToAnyPort()
-{
-    if (socket->bind(sf::Socket::AnyPort) != sf::Socket::Status::Done)
-    {
-        return std::unexpected(std::format("Cannot bind socket to any port"));
-    }
-
-    myPort = socket->getLocalPort();
-    std::println("Socket bound to port {}", myPort);
-
-    return ReturnFlag::Success;
-}
-
 std::expected<PlayerIdxType, ErrorMessage> Client::registerToServer()
 {
-    if (auto&& result = sendConnectPacket(); !result)
-        return std::unexpected(result.error());
+    if (socket->connect(remoteAddress, remotePort, sf::seconds(3))
+        != sf::Socket::Status::Done)
+    {
+        return std::unexpected("Cannot connect to remote host");
+    }
 
     auto&& message = getConnectResponse();
     if (!message) return std::unexpected(message.error());
     return message->clientId;
 }
 
-ExpectSuccess Client::sendConnectPacket()
-{
-    return trySendPacket(
-        ClientMessage { .type = ClientMessageType::ConnectionRequest }
-            .toPacket(),
-        std::format(
-            "Could not send message to {}:{}",
-            remoteAddress.toString(),
-            remotePort));
-}
-
 std::expected<ServerMessage, ErrorMessage> Client::getConnectResponse()
 {
     sf::Packet packet;
-    sf::IpAddress address;
-    unsigned short port;
 
-    if (socket->receive(packet, address, port) != sf::Socket::Status::Done)
+    if (socket->receive(packet) != sf::Socket::Status::Done)
     {
         return std::unexpected(
             std::format("Got no response from remote server"));

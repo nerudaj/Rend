@@ -27,7 +27,7 @@ tgui::Panel::Ptr ButtonListBuilder::build()
     {
         auto&& button = WidgetBuilder::createButton(props.label, props.onClick);
         button->setSize({ "100%", Sizers::getBaseContainerHeight() * 1.5f });
-        button->setTextSize(Sizers::getBaseTextSize() * 2.f);
+        button->setTextSize(Sizers::getBaseTextSize() * 2u);
         button->setPosition(
             { "0%", Sizers::getBaseContainerHeight() * idx * 2.1f });
         panel->add(button);

@@ -42,7 +42,6 @@ void SidebarUserWithSprites::buildSidebarInternal(tgui::Group::Ptr& sidebar)
 
 void SidebarUserWithSprites::buildSpriteIdSelectionModal()
 {
-    constexpr float SCROLLBAR_WIDTH = 40.f;
     constexpr auto DIALOG_ID = "ToolSelection";
 
     if (gui->isAnyModalOpened()) return;
