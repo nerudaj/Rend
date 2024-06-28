@@ -222,7 +222,8 @@ tgui::EditBox::Ptr WidgetBuilder::createTextInput(
 tgui::Panel::Ptr WidgetBuilder::createTabbedContent(
     const std::vector<std::string>& tabLabels,
     const std::string& contentPanelId,
-    std::function<void(const tgui::String&)> onTabChange)
+    std::function<void(const tgui::String&)> onTabChange,
+    std::optional<std::string> tabsId)
 {
     auto&& finalPanel = WidgetBuilder::createPanel();
     auto&& tabs = tgui::Tabs::create();
@@ -243,7 +244,10 @@ tgui::Panel::Ptr WidgetBuilder::createTabbedContent(
     content->setPosition({ "0%", Sizers::getBaseContainerHeight() });
 
     tabs->onTabSelect(onTabChange);
-    finalPanel->add(tabs);
+    if (tabsId)
+        finalPanel->add(tabs, tabsId.value());
+    else
+        finalPanel->add(tabs);
     finalPanel->add(content, contentPanelId);
 
     return finalPanel;

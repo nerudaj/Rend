@@ -10,6 +10,7 @@ struct CmdParameters
     std::string mapname;
     std::filesystem::path demoFile = "demo.txt";
     bool playDemo = false;
-    unsigned maxNpcs = 3;
+    bool enableDebug = false;
+    size_t maxNpcs = 3;
     unsigned fraglimit = 15;
 };

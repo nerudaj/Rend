@@ -1,5 +1,6 @@
 #include "Gui.hpp"
 #include "Loader.hpp"
+#include "logging/LoggerFactory.hpp"
 #include "utils/DependencyContainer.hpp"
 #include <Configs/Strings.hpp>
 #include <DGM/dgm.hpp>
@@ -12,16 +13,14 @@
 
 CmdParameters processCmdParameters(int argc, char* argv[])
 {
-    cxxopts::Options options("MyProgram", "One line description of MyProgram");
+    cxxopts::Options options("Rend", "One line description of MyProgram");
     // clang-format off
     options.add_options()
         ("s,skip-menu", "Start game directly")
         ("r,resource-dir", "Path to resources", cxxopts::value<std::string>())
         ("m,map", "Map name", cxxopts::value<std::string>())
-        ("d,demofile", "Path to demo file", cxxopts::value<std::string>())
-        ("p,play-demo", "Whether to replay demo file")
-        ("c,count", "Number of players (1-4)", cxxopts::value<unsigned>())
-        ("l,limit", "Fraglimit", cxxopts::value<unsigned>());
+        ("l,limit", "Fraglimit", cxxopts::value<unsigned>())
+        ("d,debug", "Enable debug mode");
     // clang-format on
     auto args = options.parse(argc, argv);
 
@@ -32,13 +31,9 @@ CmdParameters processCmdParameters(int argc, char* argv[])
     if (args.count("resource-dir") > 0)
         result.resourcesDir = args["resource-dir"].as<std::string>();
     if (args.count("map") > 0) result.mapname = args["map"].as<std::string>();
-    if (args.count("demofile") > 0)
-        result.demoFile = args["demofile"].as<std::string>();
-    if (args.count("play-demo") > 0)
-        result.playDemo = args["play-demo"].as<bool>();
-    if (args.count("count") > 0) result.maxNpcs = args["count"].as<unsigned>();
     if (args.count("limit") > 0)
         result.fraglimit = args["limit"].as<unsigned>();
+    if (args.count("debug") > 0) result.enableDebug = args["debug"].as<bool>();
 
     return result;
 }
@@ -107,7 +102,6 @@ int main(int argc, char* argv[])
     tgui::Texture::setDefaultSmooth(false);
 
     dgm::Window window(windowSettings);
-    window.getWindowContext().setFramerateLimit(60);
 
     dgm::App app(window);
 
@@ -119,7 +113,6 @@ int main(int argc, char* argv[])
         gui->theme->load((settings->cmdSettings.resourcesDir / "editor"
                           / "TransparentGrey.txt")
                              .string());
-        // tgui::Theme::setDefault(gui->theme);
     }
     catch (const std::exception& e)
     {
@@ -150,7 +143,15 @@ int main(int argc, char* argv[])
     controller->updateSettings(settings->input);
 
     auto&& dic = mem::Rc<DependencyContainer>(
-        audioPlayer, controller, gui, jukebox, resmgr, settings);
+        audioPlayer,
+        controller,
+        gui,
+        jukebox,
+        resmgr,
+        settings,
+        LoggerFactory::createLogger(
+            settings->cmdSettings.enableDebug, "./rend_client_log.txt"),
+        ErrorInfoDialog(gui));
 
     app.pushState<AppStateMainMenu>(dic);
     app.run();

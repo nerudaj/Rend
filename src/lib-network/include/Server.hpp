@@ -23,9 +23,10 @@ class [[nodiscard]] Server final
 {
 public:
     Server(ServerConfiguration config);
+    ~Server();
 
 public:
-    void update();
+    void update(std::function<void(const std::string&)> log);
 
 private:
     ExpectedLog handleMessage(
@@ -33,11 +34,7 @@ private:
         const sf::IpAddress& address,
         unsigned short port);
 
-    ExpectedLog
-    handleNewConnection(const sf::IpAddress& address, unsigned short port);
-
-    // ExpectedLog
-    // handleLobbyCommited(const sf::IpAddress& address, unsigned short port);
+    ExpectedLog handleNewConnection(mem::Box<sf::TcpSocket>&& socket);
 
     ExpectedLog
     handlePeerReady(const sf::IpAddress& address, unsigned short port);
@@ -63,8 +60,7 @@ private:
     ExpectedLog
     handleDisconnection(const sf::IpAddress& address, unsigned short port);
 
-    ExpectSuccess
-    denyNewPeer(const sf::IpAddress& address, unsigned short port);
+    ExpectSuccess denyNewPeer(mem::Box<sf::TcpSocket>&& socket);
 
     [[nodiscard]] bool
     isAdmin(const sf::IpAddress& address, unsigned short port) const noexcept
@@ -129,16 +125,17 @@ private:
 private:
     struct ClientConnectionInfo
     {
-        PlayerIdxType idx;
+        PlayerIdxType idx = 0;
         sf::IpAddress address;
-        unsigned short port;
+        unsigned short port = 0;
+        mem::Box<sf::TcpSocket> socket;
+        bool disconnected = false;
     };
 
     const unsigned short MAX_CLIENT_COUNT;
     const bool ACCEPT_RECONNECTS;
-    mem::Box<sf::UdpSocket> socket;
+    mem::Box<sf::TcpListener> listener;
     std::map<sf::Uint64, ClientConnectionInfo> registeredClients;
     ServerUpdateData updateData;
-    dgm::DynamicBuffer<ClientConnectionInfo, 8> registeredClients2;
     size_t sequence = 0;
 };

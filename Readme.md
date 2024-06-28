@@ -31,6 +31,5 @@ The game has the following parameters:
  * `-s` / `--skip-menu` - Jumps directly into the game
  * `-r <path>` / `--resource-dir <path>` - Path is relative from the current working dir to inside of the `resources` folder
  * `-m <name>` / `--map <name>` - Name, including .lvd extension of a file inside `resources/levels` folder
- * `-d <file>` / `--demofile <file>` - Path to file that should be used for reading/writing demo inputs
- * `-p` / `--play-demo` - Specifies that the game inputs should be read from the demo file rather from the controller. Use this to replay games from demo.
  * `-l` / `--limit` - Set point limit for the game 
+ * `-d` / `--debug` - Enables debugging logic like logging

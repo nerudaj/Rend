@@ -29,7 +29,7 @@ public:
         Scene& scene);
 
 public:
-    void update(const float deltaTime);
+    void update(const float deltaTime, const float realDelta);
 
     void renderTo(dgm::Window& window);
 
@@ -95,6 +95,8 @@ private:
     /// <returns>left/right texture hints or nothing</returns>
     std::optional<std::pair<float, float>> cropSpriteIfObscured(
         int& leftColumn, int& rightColumn, float thingDistance);
+
+    int getScoreOffset(int score) const;
 
 private:
     const DisplayOptions settings;

@@ -97,9 +97,9 @@ RenderingEngine::RenderingEngine(
             scene.level.skyboxTheme)));
 }
 
-void RenderingEngine::update(const float deltaTime)
+void RenderingEngine::update(const float deltaTime, const float realDelta)
 {
-    fpsCounter.update(deltaTime);
+    fpsCounter.update(realDelta);
 
     for (auto&& state : scene.playerStates)
     {
@@ -388,7 +388,8 @@ void RenderingEngine::renderHudForWeaponSelection(
 void RenderingEngine::renderHudForScore(
     dgm::Window& window, const PlayerInventory& inventory)
 {
-    text.setString(std::to_string(inventory.score));
+    text.setString(std::format(
+        "{} ({:+})", inventory.score, getScoreOffset(inventory.score)));
     text.setPosition({ 10.f, 10.f });
     window.draw(text);
 }
@@ -678,4 +679,25 @@ std::optional<std::pair<float, float>> RenderingEngine::cropSpriteIfObscured(
         movedLeftColumnBy / static_cast<float>(originalWidth),
         1.f - movedRightColumnBy / static_cast<float>(originalWidth)
     };
+}
+
+int RenderingEngine::getScoreOffset(int score) const
+{
+    int bestScore = std::numeric_limits<int>::min();
+    int secondBestScore = std::numeric_limits<int>::min();
+
+    for (const auto& state : scene.playerStates)
+    {
+        if (state.inventory.score > bestScore)
+        {
+            secondBestScore = bestScore;
+            bestScore = state.inventory.score;
+        }
+        else if (state.inventory.score > secondBestScore)
+        {
+            secondBestScore = state.inventory.score;
+        }
+    }
+
+    return score == bestScore ? score - secondBestScore : score - bestScore;
 }

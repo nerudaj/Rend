@@ -12,13 +12,17 @@
 
 AppStateGameSetup::AppStateGameSetup(
     dgm::App& app, mem::Rc<DependencyContainer> dic) noexcept
-    : AppStateLobbyBase(app, dic, mem::Rc<Client>("127.0.0.1", 10666ui16))
+    : AppStateLobbyBase(
+        app,
+        dic,
+        mem::Rc<Client>("127.0.0.1", 10666ui16),
+        LobbyBaseConfig { .isHost = true })
     , mapPackNames(Filesystem::getLevelPackNames(
           Filesystem::getLevelsDir(dic->settings->cmdSettings.resourcesDir)))
     , mapPickerDialog(dic->gui, std::vector<MapSettingsForPicker>())
 {
     selectMapPack(mapPackNames.front());
-    client->sendLobbySettingsUpdate(lobbySettings);
+    sendLobbyUpdate();
 }
 
 void AppStateGameSetup::input()
@@ -31,8 +35,8 @@ void AppStateGameSetup::input()
 
     InputHandler::handleUiStateInput(app, *dic);
 
-    client->readIncomingPackets(std::bind(
-        &AppStateGameSetup::handleNetworkUpdate, this, std::placeholders::_1));
+    dic->logger->log(client->readIncomingPackets(std::bind(
+        &AppStateGameSetup::handleNetworkUpdate, this, std::placeholders::_1)));
 }
 
 void AppStateGameSetup::buildLayoutGameSetupImpl(tgui::Panel::Ptr target)
@@ -47,7 +51,7 @@ void AppStateGameSetup::buildLayoutGameSetupImpl(tgui::Panel::Ptr target)
                     [this](std::size_t idx)
                     {
                         lobbySettings.maxNpcs = idx;
-                        client->sendLobbySettingsUpdate(lobbySettings);
+                        sendLobbyUpdate();
                     }))
             .addOption(
                 Strings::AppState::GameSetup::SELECT_PACK,
@@ -70,7 +74,7 @@ void AppStateGameSetup::buildLayoutGameSetupImpl(tgui::Panel::Ptr target)
                         if (newValue.empty()) return;
                         lobbySettings.fraglimit =
                             std::stoi(std::string(newValue));
-                        client->sendLobbySettingsUpdate(lobbySettings);
+                        sendLobbyUpdate();
                     },
                     WidgetBuilder::getNumericValidator()))
             .build(PANEL_BACKGROUND_COLOR));
@@ -101,7 +105,7 @@ void AppStateGameSetup::selectMapPack(const std::string& packname)
 void AppStateGameSetup::selectMapPackAndSendUpdate(const std::string& packname)
 {
     selectMapPack(packname);
-    client->sendLobbySettingsUpdate(lobbySettings);
+    sendLobbyUpdate();
 }
 
 void AppStateGameSetup::openMapPicker()
@@ -127,5 +131,10 @@ void AppStateGameSetup::handleMapRotationUpdate()
                 return MapSettings { s.name, s.enabled };
             })
         | std::ranges::to<std::vector>();
-    client->sendLobbySettingsUpdate(lobbySettings);
+    sendLobbyUpdate();
+}
+
+void AppStateGameSetup::sendLobbyUpdate()
+{
+    dic->logger->log(client->sendLobbySettingsUpdate(lobbySettings));
 }

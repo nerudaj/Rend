@@ -3,6 +3,7 @@
 #include "app/AppStateMainMenu.hpp"
 #include "app/AppStateMapRotationWrapper.hpp"
 #include "app/AppStatePaused.hpp"
+#include <Configs/Strings.hpp>
 #include <CoreTypes.hpp>
 #include <optional>
 #include <string>
@@ -38,17 +39,34 @@ struct [[nodiscard]] PopIfNotMapRotationWrapper final
 {
 };
 
-using AppMessage =
-    std::variant<PopIfNotMainMenu, PopIfPause, PopIfNotMapRotationWrapper>;
+struct [[nodiscard]] ExceptionGameDisconnected final
+    : public CanDeserializeFrom<ExceptionGameDisconnected>
+{
+};
+
+struct [[nodiscard]] ExceptionServerOffline final
+    : public CanDeserializeFrom<ExceptionServerOffline>
+{
+};
+
+using AppMessage = std::variant<
+    PopIfNotMainMenu,
+    PopIfPause,
+    PopIfNotMapRotationWrapper,
+    ExceptionGameDisconnected,
+    ExceptionServerOffline>;
 
 [[nodiscard]] std::optional<AppMessage>
 deserializeAppMessage(const std::string& str);
 
 template<class CallerState>
-void handleAppMessage(dgm::App& app, const std::string& message)
+std::optional<std::string>
+handleAppMessage(dgm::App& app, const std::string& message)
 {
     auto&& msg = deserializeAppMessage(message);
-    if (!msg) return;
+    if (!msg) return std::nullopt;
+
+    std::optional<std::string> result;
     std::visit(
         overloaded {
             [&](PopIfNotMainMenu)
@@ -65,6 +83,21 @@ void handleAppMessage(dgm::App& app, const std::string& message)
             {
                 if (std::is_same_v<CallerState, AppStatePaused>)
                     app.popState(message);
+            },
+            [&](ExceptionGameDisconnected)
+            {
+                if (!std::is_same_v<CallerState, AppStateMainMenu>)
+                    app.popState(message);
+                else
+                    result = Strings::Error::DESYNCED;
+            },
+            [&](ExceptionServerOffline)
+            {
+                if (!std::is_same_v<CallerState, AppStateMainMenu>)
+                    app.popState(message);
+                else
+                    result = Strings::Error::SERVER_OFFLINE;
             } },
         msg.value());
+    return result;
 }

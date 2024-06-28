@@ -1,12 +1,19 @@
 #include "app/AppStateLobbyBase.hpp"
 #include "app/AppStateMapRotationWrapper.hpp"
 #include "app/AppStateMenuOptions.hpp"
+#include "utils/ClientStateToString.hpp"
+#include "utils/InputHandler.hpp"
 #include <Configs/Strings.hpp>
 #include <GuiBuilder.hpp>
 #include <ranges>
 
+constexpr const char* TABS_ID = "IdLobbyBaseTabs";
+
 AppStateLobbyBase::AppStateLobbyBase(
-    dgm::App& app, mem::Rc<DependencyContainer> dic, mem::Rc<Client> client)
+    dgm::App& app,
+    mem::Rc<DependencyContainer> dic,
+    mem::Rc<Client> client,
+    LobbyBaseConfig config)
     : dgm::AppState(app)
     , dic(dic)
     , client(client)
@@ -16,8 +23,9 @@ AppStateLobbyBase::AppStateLobbyBase(
     , lobbySettings(LobbySettings {
           .fraglimit = static_cast<int>(dic->settings->cmdSettings.fraglimit),
           .maxNpcs = dic->settings->cmdSettings.maxNpcs })
+    , config(config)
 {
-    client->sendPeerSettingsUpdate(myPeerData);
+    dic->logger->log(client->sendPeerSettingsUpdate(myPeerData));
 }
 
 void AppStateLobbyBase::handleNetworkUpdate(const ServerUpdateData& update)
@@ -72,16 +80,16 @@ std::vector<PlayerOptions> AppStateLobbyBase::createPlayerSettings()
                                                 : PlayerKind::RemoteHuman,
             .bindCamera = idx == client->getMyIndex(),
             .name = connectedPeer.name,
-        });
+            .autoswapOnPickup = connectedPeer.hasAutoswapOnPickup });
     }
 
     const auto&& NPC_NAMES = std::vector<std::string> {
-        "phobos",
-        "spartan",
-        "deimos",
+        "[bot] phobos",
+        "[bot] spartan",
+        "[bot] deimos",
     };
 
-    for (auto&& idx : std::views::iota(0u, lobbySettings.maxNpcs))
+    for (auto&& idx : std::views::iota(size_t { 0 }, lobbySettings.maxNpcs))
     {
         playerOptions.push_back(PlayerOptions {
             .kind = PlayerKind::LocalNpc,
@@ -95,12 +103,20 @@ std::vector<PlayerOptions> AppStateLobbyBase::createPlayerSettings()
 
 void AppStateLobbyBase::buildLayout()
 {
+    const auto tabLabels =
+        config.isHost ? std::vector<
+            std::string> { Strings::AppState::PeerLobby::GAME_SETUP,
+                           Strings::AppState::PeerLobby::PLAYER_SETUP,
+                           Strings::AppState::PeerLobby::PLAYERS }
+                      : std::vector<std::string> {
+                            Strings::AppState::PeerLobby::PLAYER_SETUP,
+                            Strings::AppState::PeerLobby::PLAYERS
+                        };
     auto&& tabs = WidgetBuilder::createTabbedContent(
-        { Strings::AppState::PeerLobby::GAME_SETUP,
-          Strings::AppState::PeerLobby::PLAYER_SETUP,
-          Strings::AppState::PeerLobby::PLAYERS },
+        tabLabels,
         "IdLobbyTabPanel",
-        [&](const tgui::String& tabname) { handleTabSelected(tabname); });
+        [&](const tgui::String& tabname) { handleTabSelected(tabname); },
+        TABS_ID);
 
     dic->gui->rebuildWith(
         LayoutBuilder::withBackgroundImage(
@@ -111,10 +127,16 @@ void AppStateLobbyBase::buildLayout()
                 Strings::AppState::MainMenu::BACK, [&] { app.popState(); }))
             .withSubmitButton(WidgetBuilder::createButton(
                 Strings::AppState::PeerLobby::READY,
-                [&] { client->sendPeerReadySignal(); }))
+                [&]
+                {
+                    selectTab(Strings::AppState::PeerLobby::PLAYERS);
+                    InputHandler::handleSendReady(app, *dic, client);
+                }))
             .build());
 
-    handleTabSelected(Strings::AppState::PeerLobby::GAME_SETUP);
+    handleTabSelected(
+        config.isHost ? Strings::AppState::PeerLobby::GAME_SETUP
+                      : Strings::AppState::PeerLobby::PLAYER_SETUP);
 }
 
 void AppStateLobbyBase::buildLayoutPlayerSetup(tgui::Panel::Ptr target)
@@ -136,14 +158,9 @@ void AppStateLobbyBase::buildLayoutPlayerSetup(tgui::Panel::Ptr target)
 
 void AppStateLobbyBase::buildLayoutPlayerTable(tgui::Panel::Ptr target)
 {
-    auto&& table =
-        TableBuilder().withHeading({ Strings::AppState::PeerLobby::PNAME,
-                                     Strings::AppState::PeerLobby::IS_READY });
+    auto&& table = TableBuilder().withNoHeading();
     for (auto&& peer : connectedPeers)
-        table.addRow({ peer.name,
-                       peer.state == ClientState::ConnectedAndReady
-                           ? Strings::AppState::PeerLobby::READY
-                           : Strings::AppState::PeerLobby::NOT_READY });
+        table.addRow({ peer.name, clientStateToString(peer.state) });
 
     target->add(table.build());
 }
@@ -168,4 +185,9 @@ void AppStateLobbyBase::handleTabSelected(const tgui::String& tabname)
         currentTab = CurrentTab::PlayerTable;
         buildLayoutPlayerTable(panel);
     }
+}
+
+void AppStateLobbyBase::selectTab(const tgui::String& tabname)
+{
+    dic->gui->get<tgui::Tabs>(TABS_ID)->select(tabname);
 }

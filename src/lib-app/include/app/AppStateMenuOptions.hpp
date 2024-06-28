@@ -2,7 +2,6 @@
 
 #include "GuiBuilder.hpp"
 #include "utils/DependencyContainer.hpp"
-#include <Dialogs/ErrorInfoDialog.hpp>
 
 class [[nodiscard]] AppStateMenuOptions final : public dgm::AppState
 {
@@ -19,7 +18,6 @@ public:
             })
         , dic(dic)
         , enteredFromGame(enteredFromGame)
-        , warningDialog(dic->gui)
     {
         buildLayout();
     }
@@ -51,5 +49,4 @@ private:
 private:
     mem::Rc<DependencyContainer> dic;
     bool enteredFromGame;
-    ErrorInfoDialog warningDialog;
 };

@@ -2,15 +2,36 @@
 #include "Dialogs/YesNoCancelDialog.hpp"
 #include "Server.hpp"
 #include "Shortcuts/ShortcutEngine.hpp"
+#include "logging/LoggerFactory.hpp"
+#include "utils/Framerate.hpp"
 #include <app/AppStateEditor.hpp>
 #include <app/AppStateGameSetup.hpp>
 #include <app/AppStateServerWrapper.hpp>
+#include <core/Constants.hpp>
 
-void serverLoop(Server server, std::atomic_bool& serverEnabled)
+void serverLoop(
+    ServerConfiguration config,
+    bool enableDebug,
+    std::atomic_bool& serverEnabled)
 {
-    while (serverEnabled)
+    auto&& logger =
+        LoggerFactory::createLogger(enableDebug, "./rend_server_log.txt");
+
+    try
     {
-        server.update();
+        auto&& server = Server(config);
+        auto&& framerate = Framerate(FPS * 2);
+        logger->log("Server loop started");
+
+        while (serverEnabled)
+        {
+            server.update([&](auto&& str) { logger->log("{}", str); });
+            framerate.ensureFramerate();
+        }
+    }
+    catch (const std::exception& e)
+    {
+        logger->log("error: {}", e.what());
     }
 }
 
@@ -21,10 +42,11 @@ AppStateServerWrapper::AppStateServerWrapper(
     , serverEnabled(true)
     , serverThread(
           serverLoop,
-          Server(ServerConfiguration {
-              .port = 10666,
-              .maxClientCount = 4,
-              .acceptReconnects = target == ServerWrapperTarget::Editor }),
+          ServerConfiguration { .port = 10666,
+                                .maxClientCount = 4,
+                                .acceptReconnects =
+                                    target == ServerWrapperTarget::Editor },
+          dic->settings->cmdSettings.enableDebug,
           std::ref(serverEnabled))
 {
     switch (target)

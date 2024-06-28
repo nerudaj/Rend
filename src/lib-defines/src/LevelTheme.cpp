@@ -24,6 +24,11 @@ std::string SkyboxThemeUtils::toString(SkyboxTheme skyboxTheme)
         return Strings::Level::SKYBOX_DAWNTIME;
     case Nightsky:
         return Strings::Level::SKYBOX_SPACE;
+
+    default:
+        throw std::runtime_error(std::format(
+            "Value {} is invalid for SkyboxTheme enum.",
+            std::to_underlying(skyboxTheme)));
     }
 }
 
@@ -58,6 +63,10 @@ std::string TexturePackUtils::toString(TexturePack levelTheme)
         return Strings::Level::TEXTURES_COUNTRY;
     case Neon:
         return Strings::Level::TEXTURES_NEON;
+    default:
+        throw std::runtime_error(std::format(
+            "Value {} is invalid for TexturePack enum.",
+            std::to_underlying(levelTheme)));
     }
 }
 

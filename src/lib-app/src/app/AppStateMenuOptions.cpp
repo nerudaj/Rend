@@ -71,8 +71,8 @@ void AppStateMenuOptions::buildDisplayOptionsLayout(FormBuilder& builder)
                         // Force gui to update viewport and resolution
                         dic->gui->gui.setWindow(app.window.getWindowContext());
 
-                        warningDialog.open(Strings::AppState::Options::
-                                               RESOLUTION_CHANGE_WARNING);
+                        dic->warningDialog.open(Strings::AppState::Options::
+                                                    RESOLUTION_CHANGE_WARNING);
                     }))
             .addOption(
                 Strings::AppState::Options::FULLSCREEN,
@@ -111,7 +111,13 @@ void AppStateMenuOptions::buildDisplayOptionsLayout(FormBuilder& builder)
                     hudScaleFormatter,
                     1.f,
                     4.f,
-                    0.5f));
+                    0.5f))
+            .addOption(
+                Strings::AppState::Options::SHOW_FPS,
+                WidgetBuilder::createCheckbox(
+                    dic->settings->display.showFps,
+                    [this](bool value)
+                    { dic->settings->display.showFps = value; }));
 }
 
 void AppStateMenuOptions::buildAudioOptionsLayout(FormBuilder& builder)
@@ -198,28 +204,28 @@ void AppStateMenuOptions::buildPlayerOptionsLayout(
     bool changesDisabled,
     std::function<void(void)> onChanged)
 {
-    std::ignore = builder
-                      .addOption(
-                          Strings::AppState::Options::PLAYER_NAME,
-                          WidgetBuilder::createTextInput(
-                              dic->settings->player.name,
-                              [&, onChanged](const tgui::String& text)
-                              {
-                                  dic->settings->player.name =
-                                      text.toStdString();
-                                  onChanged();
-                              }),
-                          changesDisabled)
-                      .addOption(
-                          Strings::AppState::Options::SWAP_ON_PICKUP,
-                          WidgetBuilder::createCheckbox(
-                              dic->settings->input.autoswapOnPickup,
-                              [&, onChanged](bool value)
-                              {
-                                  dic->settings->input.autoswapOnPickup = value;
-                                  onChanged();
-                              }),
-                          changesDisabled);
+    std::ignore =
+        builder
+            .addOption(
+                Strings::AppState::Options::PLAYER_NAME,
+                WidgetBuilder::createTextInput(
+                    dic->settings->player.name,
+                    [&, onChanged](const tgui::String& text)
+                    {
+                        dic->settings->player.name = text.toStdString();
+                        onChanged();
+                    }),
+                changesDisabled)
+            .addOption(
+                Strings::AppState::Options::SWAP_ON_PICKUP,
+                WidgetBuilder::createCheckbox(
+                    dic->settings->player.autoswapOnPickup,
+                    [&, onChanged](bool value)
+                    {
+                        dic->settings->player.autoswapOnPickup = value;
+                        onChanged();
+                    }),
+                changesDisabled);
 }
 
 void AppStateMenuOptions::handleTabSelected(const tgui::String& selectedTabName)

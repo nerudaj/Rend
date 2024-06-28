@@ -82,6 +82,7 @@ namespace Strings
             RAWSTRING TITLE = "lobby";
             RAWSTRING READY = "ready";
             RAWSTRING NOT_READY = "not ready";
+            RAWSTRING DISCONNECTED = "disconnected";
             RAWSTRING PNAME = "player name";
             RAWSTRING IS_READY = "is ready";
             RAWSTRING GAME_SETUP = "game setup";
@@ -189,6 +190,14 @@ namespace Strings
 
     RAWSTRING TITLE = "rend";
     RAWSTRING CAPTITLE = "Rend";
+
+    namespace Error
+    {
+        RAWSTRING DESYNCED =
+            "You were disconnected, because your game got desynced";
+        RAWSTRING SERVER_OFFLINE =
+            "You were disconnected, because server appears to be offline";
+    } // namespace Error
 } // namespace Strings
 
 #undef RAWSTRING

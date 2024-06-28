@@ -10,6 +10,7 @@
 #include "engine/RenderingEngine.hpp"
 #include "utils/DemoFileHandler.hpp"
 #include "utils/DependencyContainer.hpp"
+#include "utils/Framerate.hpp"
 #include <DGM/dgm.hpp>
 #include <GameLoop.hpp>
 #include <LevelD.hpp>
@@ -54,16 +55,19 @@ private:
         dgm::DynamicBuffer<Entity> things;
         dgm::DynamicBuffer<Marker> markers;
         std::vector<InputSchema> inputs;
+        std::vector<bool> confirmedInputs;
         std::vector<PlayerState> states;
         EntityIndexType cameraAnchorIdx;
     };
 
     void handleNetworkUpdate(const ServerUpdateData& update);
+    void setCurrentFrameDelay(std::vector<size_t>&& oldestTicks);
     [[nodiscard]] FrameState snapshotInputsIntoNewFrameState();
     void simulateFrameFromState(const FrameState& state, bool skipAudio);
     void evaluateWinCondition();
     void restoreState(const FrameState& state);
     void backupState(FrameState& state);
+    [[nodiscard]] bool isFrameConfirmed() const;
 
     void lockMouse();
     void unlockMouse();
@@ -74,6 +78,8 @@ private:
     mem::Box<GameLoop> createGameLoop();
 
 protected:
+    constexpr static const unsigned ROLLBACK_WINDOW_SIZE = 20u;
+
     mem::Rc<DependencyContainer> dic;
     GameOptions gameSettings;
     mem::Rc<Client> client;
@@ -82,7 +88,7 @@ protected:
 
     std::vector<mem::Rc<ControllerInterface>> inputs;
     Scene scene;
-    RollbackManager<FrameState, 10> stateManager;
+    RollbackManager<FrameState, ROLLBACK_WINDOW_SIZE> stateManager;
     std::unordered_map<size_t, std::unordered_map<PlayerIdxType, InputSchema>>
         futureInputs; // indexed by tick
     mem::Box<GameLoop> gameLoop;
@@ -90,4 +96,7 @@ protected:
     mem::Box<dgm::Camera> camera;
     bool ready = false;
     size_t lastTick = {};
+    Framerate framerate = Framerate(FPS);
+    std::chrono::milliseconds artificialFrameDelay = {};
+    unsigned humanPlayerCount = 0;
 };

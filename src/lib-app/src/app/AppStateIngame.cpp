@@ -3,7 +3,10 @@
 #include "app/AppStateWinnerAnnounced.hpp"
 #include "utils/AppMessage.hpp"
 #include <builder/SceneBuilder.hpp>
+#include <chrono>
 #include <events/EventQueue.hpp>
+#include <print>
+#include <thread>
 
 [[nodiscard]] static std::vector<mem::Rc<ControllerInterface>> createInputs(
     mem::Rc<PhysicalController> physicalController,
@@ -53,18 +56,28 @@ AppStateIngame::AppStateIngame(
               dic->settings->display.resolution.width,
               dic->settings->display.resolution.height)))
 {
-    app.window.getWindowContext().setFramerateLimit(60);
+    for (auto&& opts : gameSettings.players)
+    {
+        if (opts.kind != PlayerKind::LocalNpc) humanPlayerCount++;
+    }
+
     lockMouse();
     createPlayers();
     dic->jukebox->playIngameSong();
-    client->sendMapReadySignal();
+    dic->logger->log(client->sendMapReadySignal());
 }
 
 void AppStateIngame::input()
 {
-
-    client->readIncomingPackets(std::bind(
-        &AppStateIngame::handleNetworkUpdate, this, std::placeholders::_1));
+    auto&& result = client->readPacketsUntil(
+        std::bind(
+            &AppStateIngame::handleNetworkUpdate, this, std::placeholders::_1),
+        std::bind(&AppStateIngame::isFrameConfirmed, this));
+    if (!result)
+    {
+        dic->logger->log(result);
+        app.popState(ExceptionGameDisconnected::serialize());
+    }
 
     if (!hasFocus) return;
 
@@ -127,6 +140,8 @@ void AppStateIngame::update()
     ++lastTick;
 
     evaluateWinCondition();
+
+    framerate.ensureFramerate(artificialFrameDelay);
 }
 
 void AppStateIngame::draw()
@@ -139,7 +154,6 @@ void AppStateIngame::restoreFocusImpl(const std::string& message)
 {
     handleAppMessage<decltype(this)>(app, message);
 
-    app.window.getWindowContext().setFramerateLimit(60);
     propagateSettings();
     lockMouse();
 }
@@ -147,72 +161,100 @@ void AppStateIngame::restoreFocusImpl(const std::string& message)
 void AppStateIngame::handleNetworkUpdate(const ServerUpdateData& update)
 {
     ready = update.state == ServerState::GameInProgress;
+    auto&& oldestTicks = std::vector<size_t>(
+        update.clients.size(), std::numeric_limits<size_t>::max());
 
+    humanPlayerCount = 0;
+    for (const auto& client : update.clients)
+    {
+        if (client.state != ClientState::Disconnected) ++humanPlayerCount;
+    }
+
+    dic->logger->log(
+        "Peer: Update in tick {}. Frame time: {}",
+        stateManager.getLastInsertedTick(),
+        app.time.getDeltaTime());
     for (auto&& inputData : update.inputs)
     {
+        dic->logger->log(
+            "\tInput for tick {} from client {}",
+            inputData.tick,
+            inputData.clientId);
+
         if (stateManager.isTickTooOld(inputData.tick))
         {
-            throw std::runtime_error(
-                "Got outdated input, game desynced, exiting");
+            dic->logger->log("\t\tGot outdated input, exiting");
+            app.popState(ExceptionGameDisconnected::serialize());
         }
         else if (stateManager.isTickTooNew(inputData.tick))
         {
+            dic->logger->log(
+                "\t\tTick is too new, inserting into futureInputs");
             futureInputs[inputData.tick][inputData.clientId] = inputData.input;
         }
         else
         {
-            stateManager.get(inputData.tick).inputs.at(inputData.clientId) =
-                inputData.input;
+            auto& frame = stateManager.get(inputData.tick);
+            frame.inputs.at(inputData.clientId) = inputData.input;
+            frame.confirmedInputs.at(inputData.clientId) = true;
+            oldestTicks[inputData.clientId] =
+                std::min(oldestTicks[inputData.clientId], inputData.tick);
+        }
+    }
+
+    setCurrentFrameDelay(std::move(oldestTicks));
+}
+
+void AppStateIngame::setCurrentFrameDelay(std::vector<size_t>&& oldestTicks)
+{
+    artificialFrameDelay = {};
+    for (auto&& tick : oldestTicks)
+    {
+        if (stateManager.isTickHalfwayTooOld(tick))
+        {
+            dic->logger->log(
+                "\t\tSlowing down, one of the updated clients is lagging "
+                "behind");
+            artificialFrameDelay =
+                std::chrono::duration_cast<std::chrono::milliseconds>(
+                    std::chrono::microseconds(1'000'000 / FPS * 5));
         }
     }
 }
 
 AppStateIngame::FrameState AppStateIngame::snapshotInputsIntoNewFrameState()
 {
-    auto&& state =
-        FrameState { .inputs =
-                         inputs
-                         | std::views::transform(
-                             [](mem::Rc<ControllerInterface>& i) -> InputSchema
-                             {
-                                 i->update();
-                                 return i->getSnapshot();
-                             })
-                         | std::ranges::to<decltype(FrameState::inputs)>() };
+    auto&& state = FrameState {
+        .inputs = inputs
+                  | std::views::transform(
+                      [](mem::Rc<ControllerInterface>& i) -> InputSchema
+                      {
+                          i->update();
+                          return i->getSnapshot();
+                      })
+                  | std::ranges::to<decltype(FrameState::inputs)>(),
+        .confirmedInputs = std::vector<bool>(inputs.size(), false)
+    };
 
-    if (futureInputs.contains(scene.tick))
+    for (auto&& [playerIdx, input] : futureInputs[lastTick])
     {
-        for (auto&& [playerIdx, input] : futureInputs[scene.tick])
-        {
-            state.inputs.at(playerIdx) = input;
-        }
-        futureInputs.erase(scene.tick);
+        state.inputs.at(playerIdx) = input;
+        state.confirmedInputs.at(playerIdx) = true;
     }
+    futureInputs.erase(lastTick);
 
     if (!hasFocus)
     {
         state.inputs[client->getMyIndex()] = InputSchema {};
     }
 
-    client->sendCurrentFrameInputs(lastTick, state.inputs);
+    dic->logger->log(
+        "Sending inputs for frame {} (client id {})",
+        lastTick,
+        client->getMyIndex());
+    dic->logger->log(client->sendCurrentFrameInputs(lastTick, state.inputs));
 
-    // TODO: rework demos
-    /*if (settings->cmdSettings.playDemo)
-    {
-        auto line = demoFileHandler.getLine();
-        if (line.empty())
-        {
-            app.exit();
-            return state;
-        }
-        state.inputs[0] = nlohmann::json::parse(line);
-    }
-    else*/
-    demoFileHandler.writeLine(nlohmann::json(client->getMyIndex()).dump());
-
-    // The following lines disables local input and drives everything throught
-    // the network
-    state.inputs[client->getMyIndex()] = InputSchema {};
+    // NOTE: put code for demos here if applicable
 
     return state;
 }
@@ -221,7 +263,7 @@ void AppStateIngame::simulateFrameFromState(
     const FrameState& state, bool skipAudio)
 {
     restoreState(state);
-    gameLoop->update(FRAME_TIME, skipAudio);
+    gameLoop->update(FRAME_TIME, app.time.getDeltaTime(), skipAudio);
     ++scene.tick;
 }
 
@@ -275,6 +317,25 @@ void AppStateIngame::backupState(FrameState& state)
     state.cameraAnchorIdx = scene.camera.anchorIdx;
 }
 
+bool AppStateIngame::isFrameConfirmed() const
+{
+    constexpr const size_t WINDOW_SIZE = 19;
+    if (lastTick < WINDOW_SIZE) return true;
+
+    // NOTE: is last tick really in manager?
+    const auto& confirmations =
+        stateManager.get(lastTick - WINDOW_SIZE).confirmedInputs;
+
+    const auto sumConfirmed = std::accumulate(
+        confirmations.begin(),
+        confirmations.end(),
+        0u,
+        [](unsigned acc, bool val)
+        { return acc + static_cast<unsigned>(val); });
+
+    return humanPlayerCount == sumConfirmed;
+}
+
 void AppStateIngame::lockMouse()
 {
     auto& window = app.window.getWindowContext();
@@ -306,10 +367,10 @@ void AppStateIngame::createPlayers()
                 AiBlackboard { .input = inputs[idx].castTo<AiController>(),
                                .personality = static_cast<AiPersonality>(idx),
                                .playerStateIdx = idx };
-        else if (gameSettings.players[idx].kind == PlayerKind::LocalHuman)
+        else if (gameSettings.players[idx].kind != PlayerKind::LocalNpc)
         {
             scene.playerStates.back().autoswapOnPickup =
-                dic->settings->input.autoswapOnPickup;
+                gameSettings.players[idx].autoswapOnPickup;
         }
     }
 }

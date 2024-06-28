@@ -27,8 +27,13 @@ public:
         return self.buffer[self.getIndexForTick(tick).value()];
     }
 
+    [[nodiscard]] constexpr auto&& getLatestState(this auto&& self) noexcept
+    {
+        return self.buffer[BufferIndexType(0)];
+    }
+
     [[nodiscard]] constexpr std::expected<BufferIndexType, ErrorMessage>
-    getIndexForTick(size_t tick) noexcept
+    getIndexForTick(size_t tick) const noexcept
     {
         if (isTickTooNew(tick) || isTickTooOld(tick))
             return std::unexpected(std::format(
@@ -39,6 +44,11 @@ public:
                 Capacity));
 
         return endIterator.bufferIdx - (endIterator.tick - tick);
+    }
+
+    [[nodiscard]] constexpr size_t getLastInsertedTick() const noexcept
+    {
+        return endIterator.tick;
     }
 
     template<
@@ -78,6 +88,12 @@ public:
     [[nodiscard]] constexpr bool isTickTooOld(size_t tick) const noexcept
     {
         return endIterator.tick > tick && (endIterator.tick - tick) >= Capacity;
+    }
+
+    [[nodiscard]] constexpr bool isTickHalfwayTooOld(size_t tick) const noexcept
+    {
+        return endIterator.tick > tick
+               && (endIterator.tick - tick) >= Capacity / 2u;
     }
 
     [[nodiscard]] constexpr bool isTickTooNew(size_t tick) const noexcept
