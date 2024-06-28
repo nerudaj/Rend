@@ -25,16 +25,19 @@ void AppStateScoreTable::buildLayout()
         ClientState state;
     };
 
-    // NOTE: this zipping discards bots, they should be marked as ready, because
-    // clientData
-    auto orderedScores =
-        std::views::zip(scores, gameSettings.players, clientData)
+    auto&& orderedScores =
+        std::views::enumerate(std::views::zip(scores, gameSettings.players))
         | std::views::transform(
-            [](const std::tuple<int, PlayerOptions, ClientData>& t)
+            [&](const std::tuple<ptrdiff_t, std::tuple<int, PlayerOptions>>&
+                    params)
             {
+                auto&& [idx, t] = params;
                 return PlayerScore { .name = std::get<1>(t).name,
                                      .score = std::get<0>(t),
-                                     .state = std::get<2>(t).state };
+                                     .state =
+                                         clientData.size() > idx
+                                             ? clientData[idx].state
+                                             : ClientState::ConnectedAndReady };
             })
         | std::ranges::to<std::vector>();
 
