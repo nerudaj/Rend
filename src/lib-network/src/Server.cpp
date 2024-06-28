@@ -248,7 +248,7 @@ Server::handleMapEnded(const sf::IpAddress& address, unsigned short port)
     getClient(address, port).state = ClientState::Connected;
 
     return std::format(
-        "Map ready accepted from {}:{}", address.toString(), port);
+        "Map ended accepted from {}:{}", address.toString(), port);
 }
 
 ExpectedLog Server::handleReportedInput(const ClientMessage& message)
