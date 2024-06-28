@@ -13,7 +13,7 @@ Gameplay:
 * It is possible to play the game in online multiplayer!
 
 Known Issues:
-* Playing multiplayer with bots is currently desyncs the game, so don't use bots in online multiplayer
+* Playing multiplayer with bots tends to desync the game, so don't use bots in online multiplayer
 * Only play on local networks, preferably over LAN cable
 
 Rend 0.3.0 changelog:
