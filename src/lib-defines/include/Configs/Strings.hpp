@@ -195,7 +195,9 @@ namespace Strings
     {
         RAWSTRING DESYNCED =
             "You were disconnected, because your game got desynced";
-    }
+        RAWSTRING SERVER_OFFLINE =
+            "You were disconnected, because server appears to be offline";
+    } // namespace Error
 } // namespace Strings
 
 #undef RAWSTRING

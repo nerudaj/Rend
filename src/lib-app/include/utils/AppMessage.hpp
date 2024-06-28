@@ -44,11 +44,17 @@ struct [[nodiscard]] ExceptionGameDisconnected final
 {
 };
 
+struct [[nodiscard]] ExceptionServerOffline final
+    : public CanDeserializeFrom<ExceptionServerOffline>
+{
+};
+
 using AppMessage = std::variant<
     PopIfNotMainMenu,
     PopIfPause,
     PopIfNotMapRotationWrapper,
-    ExceptionGameDisconnected>;
+    ExceptionGameDisconnected,
+    ExceptionServerOffline>;
 
 [[nodiscard]] std::optional<AppMessage>
 deserializeAppMessage(const std::string& str);
@@ -84,6 +90,13 @@ handleAppMessage(dgm::App& app, const std::string& message)
                     app.popState(message);
                 else
                     result = Strings::Error::DESYNCED;
+            },
+            [&](ExceptionServerOffline)
+            {
+                if (!std::is_same_v<CallerState, AppStateMainMenu>)
+                    app.popState(message);
+                else
+                    result = Strings::Error::SERVER_OFFLINE;
             } },
         msg.value());
     return result;

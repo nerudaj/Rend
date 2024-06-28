@@ -66,7 +66,7 @@ void AppStateScoreTable::buildLayout()
                 [this] { app.popState(PopIfNotMainMenu::serialize()); }))
             .withSubmitButton(WidgetBuilder::createButton(
                 Strings::AppState::MainMenu::NEXT_MAP,
-                [this] { dic->logger->log(client->sendPeerReadySignal()); }))
+                [&] { InputHandler::handleSendReady(app, *dic, client); }))
             .build());
 }
 

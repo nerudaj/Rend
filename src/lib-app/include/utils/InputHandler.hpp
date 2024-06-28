@@ -1,5 +1,6 @@
 #pragma once
 
+#include "utils/AppMessage.hpp"
 #include "utils/DependencyContainer.hpp"
 #include <DGM/dgm.hpp>
 
@@ -23,6 +24,17 @@ public:
     {
         handleUiStateInputInternal(
             app, dic, InternalFlags { .handleGoBackCase = false });
+    }
+
+    static void handleSendReady(
+        dgm::App& app, DependencyContainer& dic, mem::Rc<Client> client)
+    {
+        auto result = client->sendPeerReadySignal();
+        if (!result)
+        {
+            dic.logger->log(result);
+            app.popState(ExceptionServerOffline::serialize());
+        }
     }
 
 private:

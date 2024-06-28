@@ -2,6 +2,7 @@
 #include "app/AppStateMapRotationWrapper.hpp"
 #include "app/AppStateMenuOptions.hpp"
 #include "utils/ClientStateToString.hpp"
+#include "utils/InputHandler.hpp"
 #include <Configs/Strings.hpp>
 #include <GuiBuilder.hpp>
 #include <ranges>
@@ -129,7 +130,7 @@ void AppStateLobbyBase::buildLayout()
                 [&]
                 {
                     selectTab(Strings::AppState::PeerLobby::PLAYERS);
-                    client->sendPeerReadySignal();
+                    InputHandler::handleSendReady(app, *dic, client);
                 }))
             .build());
 
