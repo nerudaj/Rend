@@ -84,9 +84,9 @@ std::vector<PlayerOptions> AppStateLobbyBase::createPlayerSettings()
     }
 
     const auto&& NPC_NAMES = std::vector<std::string> {
-        "phobos",
-        "spartan",
-        "deimos",
+        "[bot] phobos",
+        "[bot] spartan",
+        "[bot] deimos",
     };
 
     for (auto&& idx : std::views::iota(size_t { 0 }, lobbySettings.maxNpcs))
