@@ -12,7 +12,11 @@
 
 AppStateGameSetup::AppStateGameSetup(
     dgm::App& app, mem::Rc<DependencyContainer> dic) noexcept
-    : AppStateLobbyBase(app, dic, mem::Rc<Client>("127.0.0.1", 10666ui16))
+    : AppStateLobbyBase(
+        app,
+        dic,
+        mem::Rc<Client>("127.0.0.1", 10666ui16),
+        LobbyBaseConfig { .isHost = true })
     , mapPackNames(Filesystem::getLevelPackNames(
           Filesystem::getLevelsDir(dic->settings->cmdSettings.resourcesDir)))
     , mapPickerDialog(dic->gui, std::vector<MapSettingsForPicker>())

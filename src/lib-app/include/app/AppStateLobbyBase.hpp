@@ -6,13 +6,19 @@
 #include <DGM/dgm.hpp>
 #include <Memory.hpp>
 
+struct LobbyBaseConfig
+{
+    bool isHost = false;
+};
+
 class [[nodiscard]] AppStateLobbyBase : public dgm::AppState
 {
 public:
     AppStateLobbyBase(
         dgm::App& app,
         mem::Rc<DependencyContainer> dic,
-        mem::Rc<Client> client);
+        mem::Rc<Client> client,
+        LobbyBaseConfig config = {});
 
     virtual ~AppStateLobbyBase() = default;
 
@@ -36,6 +42,8 @@ protected:
 
     void handleTabSelected(const tgui::String& tabname);
 
+    void selectTab(const tgui::String& tabname);
+
 protected:
     virtual void buildLayoutGameSetupImpl(tgui::Panel::Ptr target) = 0;
 
@@ -54,4 +62,5 @@ protected:
     std::vector<ClientData> connectedPeers;
     LobbySettings lobbySettings;
     CurrentTab currentTab = CurrentTab::None;
+    LobbyBaseConfig config;
 };

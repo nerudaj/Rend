@@ -81,7 +81,8 @@ public:
     static [[nodiscard]] tgui::Panel::Ptr createTabbedContent(
         const std::vector<std::string>& tabLabels,
         const std::string& contentPanelId,
-        std::function<void(const tgui::String&)> onTabChange);
+        std::function<void(const tgui::String&)> onTabChange,
+        std::optional<std::string> tabsId = std::nullopt);
 
     static [[nodiscard]] constexpr std::string getNumericValidator() noexcept
     {

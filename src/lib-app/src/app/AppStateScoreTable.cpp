@@ -1,5 +1,6 @@
 #include "GuiBuilder.hpp"
 #include "utils/AppMessage.hpp"
+#include "utils/ClientStateToString.hpp"
 #include "utils/InputHandler.hpp"
 #include <Configs/Sizers.hpp>
 #include <Configs/Strings.hpp>
@@ -15,22 +16,6 @@ void AppStateScoreTable::input()
         std::placeholders::_1)));
 }
 
-[[nodiscard]] constexpr std::string clientStateToString(ClientState state)
-{
-    switch (state)
-    {
-    case ClientState::Disconnected:
-        return Strings::AppState::PeerLobby::DISCONNECTED;
-    case ClientState::Connected:
-        return Strings::AppState::PeerLobby::NOT_READY;
-    case ClientState::ConnectedAndReady:
-    case ClientState::ConnectedAndMapReady:
-        return Strings::AppState::PeerLobby::READY;
-    default:
-        return "";
-    }
-}
-
 void AppStateScoreTable::buildLayout()
 {
     struct [[nodiscard]] PlayerScore final
@@ -40,6 +25,8 @@ void AppStateScoreTable::buildLayout()
         ClientState state;
     };
 
+    // NOTE: this zipping discards bots, they should be marked as ready, because
+    // clientData
     auto orderedScores =
         std::views::zip(scores, gameSettings.players, clientData)
         | std::views::transform(

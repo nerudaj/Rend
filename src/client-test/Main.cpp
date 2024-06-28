@@ -14,5 +14,6 @@ struct A
 int main(int, char*[])
 {
     A a;
+    std::cin.get();
     return 0;
 }
