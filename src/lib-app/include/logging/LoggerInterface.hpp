@@ -11,10 +11,9 @@ public:
 
 public:
     template<class... Args>
-    void log(const char* fmt, Args... args)
+    void log(const char* fmt, Args&&... args)
     {
-        logImpl(std::vformat(
-            fmt, std::make_format_args(std::forward<Args>(args)...)));
+        logImpl(std::vformat(fmt, std::make_format_args(args...)));
     }
 
     template<class T>
