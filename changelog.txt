@@ -1,3 +1,7 @@
+Rend 0.5.0 changelog:
+UX:
+* Unused item properites were hidden in the editor
+
 Rend 0.4.0 changelog:
 
 Bugfixes:

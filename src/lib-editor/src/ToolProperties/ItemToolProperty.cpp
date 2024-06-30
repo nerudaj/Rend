@@ -36,18 +36,8 @@ void ItemToolProperty::fillEditDialogInternal(
     addOption(
         dst,
         formValidatorToken,
-        "Tag:",
-        "Value used to group related objects",
-        data.tag,
-        4,
-        true,
-        true);
-    addOption(
-        dst,
-        formValidatorToken,
         "Flags:",
         "16 bit value to alter behaviour of this object",
         data.flags,
-        5);
-    addOption(dst, "Metadata:", "Text field for custom data", data.metadata, 6);
+        3);
 }
