@@ -143,7 +143,10 @@ namespace Strings
             RAWSTRING LEVEL_NAME = "Level name";
             RAWSTRING ADD = "Add";
         } // namespace Body
-    }     // namespace Dialog
+
+        RAWSTRING SUBMIT_OK = "Ok";
+        RAWSTRING SUBMIT_CANCEL = "Cancel";
+    } // namespace Dialog
 
     namespace Editor
     {
@@ -167,7 +170,9 @@ namespace Strings
             RAWSTRING TEXTURE_PACK = "Texture pack";
             RAWSTRING AUTHOR = "Author name";
         } // namespace NewLevel
-    }     // namespace Editor
+
+        RAWSTRING EDIT_PROPERTIES = "Edit Properties";
+    } // namespace Editor
 
     namespace Game
     {

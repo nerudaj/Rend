@@ -1,40 +1,29 @@
 #pragma once
 
-#include "Dialogs/DialogBuilderHelper.hpp"
 #include "Dialogs/FormValidatorToken.hpp"
 #include "Gui.hpp"
-#include "Interfaces/ToolInterface.hpp"
+#include "Interfaces/DialogInterfaces.hpp"
 #include "Interfaces/ToolPropertyInterface.hpp"
 #include <Memory.hpp>
-#include <functional>
 
-class [[nodiscard]] EditPropertyDialog final
+class [[nodiscard]] EditPropertyDialog final : public ModernDialogInterface
 {
 public:
-    [[nodiscard]] EditPropertyDialog(mem::Rc<Gui> gui) noexcept : gui(gui) {}
+    EditPropertyDialog(
+        mem::Rc<Gui> gui, mem::Box<ToolPropertyInterface> property);
 
-public:
-    void
-    open(mem::Box<ToolPropertyInterface> property, ToolInterface& targetTool);
+    const ToolPropertyInterface& getProperty() const noexcept
+    {
+        return *property;
+    }
 
-    void close();
+protected:
+    void buildLayoutImpl(tgui::Panel::Ptr target) override;
 
-public:
-    static inline constexpr const char* DIALOG_ID = "EditPropertyDialog";
+    std::expected<ReturnFlag, ErrorMessage>
+    validateBeforeConfirmation() const override;
 
-private:
-    void buildBottomButtonBar(
-        tgui::ChildWindow::Ptr& modal, std::function<void(void)> submit);
-
-    tgui::Button::Ptr createButton(
-        const std::string& label,
-        const tgui::Layout2d& size,
-        const tgui::Layout2d& position,
-        std::function<void(void)> callback);
-
-private:
-    mem::Rc<Gui> gui;
+protected:
     FormValidatorToken formValidatorToken;
-    mem::Box<ToolPropertyInterface> currentProperty =
-        mem::Box<NullToolProperty2>();
+    mem::Box<ToolPropertyInterface> property;
 };

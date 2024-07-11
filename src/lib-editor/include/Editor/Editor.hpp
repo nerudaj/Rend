@@ -119,7 +119,8 @@ private: // Dependencies
     std::filesystem::path graphicsDir;
 
     ResizeDialog dialog = ResizeDialog(gui);
-    EditPropertyDialog editPropertyDialog = EditPropertyDialog(gui);
+    mem::Box<EditPropertyDialog> editPropertyDialog =
+        mem::Box<EditPropertyDialog>(gui, mem::Box<NullToolProperty2>());
     EditMetadataDialog editMetadataDialog = EditMetadataDialog(gui);
     Camera camera = Camera(canvas);
     EditorStateManager stateMgr;

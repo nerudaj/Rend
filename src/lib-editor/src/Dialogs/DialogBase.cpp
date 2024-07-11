@@ -1,5 +1,6 @@
 #include "Dialogs/DialogBase.hpp"
 #include "Globals.hpp"
+#include <Configs/Strings.hpp>
 
 template<class... Ts>
 struct overloaded : Ts...
@@ -210,7 +211,7 @@ void ModernDialogInterface::buildLayout(std::function<void()> confirmCallback)
 void ModernDialogInterface::buildBottomButtons(
     tgui::ChildWindow::Ptr modal, std::function<void()> confirmCallback)
 {
-    auto btn = tgui::Button::create("Ok");
+    auto btn = tgui::Button::create(Strings::Dialog::SUBMIT_OK);
     btn->setSize("20%", "8%");
     btn->setPosition("56%", "90%");
     btn->onClick(
@@ -229,7 +230,7 @@ void ModernDialogInterface::buildBottomButtons(
         });
     modal->add(btn);
 
-    btn = tgui::Button::create("Cancel");
+    btn = tgui::Button::create(Strings::Dialog::SUBMIT_CANCEL);
     btn->setSize("20%", "8%");
     btn->setPosition("78%", "90%");
     btn->onClick([this] { close(); });

@@ -196,7 +196,13 @@ void Editor::handleRmbClicked()
 
     if (!canOpenPropertyDialog() || !prop.has_value()) return;
 
-    editPropertyDialog.open(std::move(prop.value()), stateMgr.getActiveTool());
+    editPropertyDialog =
+        mem::Box<EditPropertyDialog>(gui, std::move(prop.value()));
+    editPropertyDialog->open(
+        [&] {
+            stateMgr.getActiveTool().setProperty(
+                editPropertyDialog->getProperty());
+        });
 }
 
 void Editor::handleChangedMetadata()
