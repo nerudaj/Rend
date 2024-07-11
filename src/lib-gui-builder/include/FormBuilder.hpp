@@ -15,10 +15,16 @@ public:
     ~FormBuilder() = default;
 
 public:
+    struct OptionConfig
+    {
+        bool disabled = false;
+        std::optional<std::string> tooltipText = {};
+    };
+
     [[nodiscard]] FormBuilder& addOption(
         const std::string& labelText,
         tgui::Widget::Ptr widget,
-        bool disabled = false);
+        OptionConfig config = {});
 
     [[nodiscard]] FormBuilder& addOptionWithWidgetId(
         const std::string& labelText,

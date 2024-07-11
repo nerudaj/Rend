@@ -5,9 +5,15 @@
 #include <TGUI/TGUI.hpp>
 
 FormBuilder& FormBuilder::addOption(
-    const std::string& labelText, tgui::Widget::Ptr widget, bool disabled)
+    const std::string& labelText, tgui::Widget::Ptr widget, OptionConfig config)
 {
-    widget->setEnabled(!disabled);
+    widget->setEnabled(!config.disabled);
+    config.tooltipText.and_then(
+        [&widget](const std::string& text)
+        {
+            widget->setToolTip(WidgetBuilder::createTextLabel(text));
+            return std::optional(text);
+        });
     rowsToBuild.push_back({ .label = labelText, .widget = widget });
     return *this;
 }

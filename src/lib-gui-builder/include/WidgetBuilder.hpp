@@ -78,6 +78,17 @@ public:
         std::function<void(tgui::String)> onChange,
         const std::string& regexValidator = "");
 
+    template<std::integral Number>
+    static [[nodiscard]] tgui::EditBox::Ptr
+    createNumericInput(Number value, std::function<void(Number)> onChange)
+    {
+        return createTextInput(
+            std::to_string(value),
+            [onChange](const tgui::String& newVal)
+            { onChange(std::stoul(newVal.toStdString())); },
+            getNumericValidator());
+    }
+
     static [[nodiscard]] tgui::Panel::Ptr createTabbedContent(
         const std::vector<std::string>& tabLabels,
         const std::string& contentPanelId,

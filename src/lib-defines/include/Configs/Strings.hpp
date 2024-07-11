@@ -146,7 +146,23 @@ namespace Strings
 
         RAWSTRING SUBMIT_OK = "Ok";
         RAWSTRING SUBMIT_CANCEL = "Cancel";
-    } // namespace Dialog
+
+        namespace EditProperty
+        {
+            RAWSTRING TILE_X = "Tile X:";
+            RAWSTRING TILE_X_TOOLTIP = "X coordinate of the tile";
+            RAWSTRING TILE_Y = "Tile Y:";
+            RAWSTRING TILE_Y_TOOLTIP = "Y coordinate of the tile";
+            RAWSTRING LAYER_ID = "Layer ID:";
+            RAWSTRING LAYER_ID_TOOLTIP = "In which layer is tile located";
+            RAWSTRING IS_IMPASSABLE = "Is impassable:";
+            RAWSTRING IS_IMPASSABLE_TOOLTIP =
+                "Whether this tile blocks the player";
+            RAWSTRING IS_DEFAULT_IMPASSABLE = "Impassable by default:";
+            RAWSTRING IS_DEFAULT_IMPASSABLE_TOOLTIP =
+                "Whether this type of tile is impassable by default";
+        } // namespace EditProperty
+    }     // namespace Dialog
 
     namespace Editor
     {

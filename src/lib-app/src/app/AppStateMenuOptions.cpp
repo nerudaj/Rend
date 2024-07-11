@@ -215,7 +215,7 @@ void AppStateMenuOptions::buildPlayerOptionsLayout(
                         dic->settings->player.name = text.toStdString();
                         onChanged();
                     }),
-                changesDisabled)
+                { .disabled = changesDisabled })
             .addOption(
                 Strings::AppState::Options::SWAP_ON_PICKUP,
                 WidgetBuilder::createCheckbox(
@@ -225,7 +225,7 @@ void AppStateMenuOptions::buildPlayerOptionsLayout(
                         dic->settings->player.autoswapOnPickup = value;
                         onChanged();
                     }),
-                changesDisabled);
+                { .disabled = changesDisabled });
 }
 
 void AppStateMenuOptions::handleTabSelected(const tgui::String& selectedTabName)

@@ -12,7 +12,7 @@ public:
     EditPropertyDialog(
         mem::Rc<Gui> gui, mem::Box<ToolPropertyInterface> property);
 
-    const ToolPropertyInterface& getProperty() const noexcept
+    [[nodiscard]] const ToolPropertyInterface& getProperty() const noexcept
     {
         return *property;
     }
