@@ -79,14 +79,16 @@ public:
         const std::string& regexValidator = "");
 
     template<std::integral Number>
-    static [[nodiscard]] tgui::EditBox::Ptr
-    createNumericInput(Number value, std::function<void(Number)> onChange)
+    static [[nodiscard]] tgui::EditBox::Ptr createNumericInput(
+        Number value,
+        std::function<void(Number)> onChange,
+        const std::string& validator = getUnsignedNumericValidator())
     {
         return createTextInput(
             std::to_string(value),
             [onChange](const tgui::String& newVal)
             { onChange(std::stoul(newVal.toStdString())); },
-            getNumericValidator());
+            validator);
     }
 
     static [[nodiscard]] tgui::Panel::Ptr createTabbedContent(
@@ -95,7 +97,17 @@ public:
         std::function<void(const tgui::String&)> onTabChange,
         std::optional<std::string> tabsId = std::nullopt);
 
-    static [[nodiscard]] constexpr std::string getNumericValidator() noexcept
+    static [[nodiscard]] tgui::Label::Ptr
+    createTooltip(const std::string& text);
+
+    static [[nodiscard]] constexpr std::string
+    getUnsignedNumericValidator() noexcept
+    {
+        return "(0|[1-9][0-9]*)";
+    }
+
+    static [[nodiscard]] constexpr std::string
+    getPositiveNumericValidator() noexcept
     {
         return "[1-9][0-9]*";
     }

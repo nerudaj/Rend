@@ -8,13 +8,9 @@ FormBuilder& FormBuilder::addOption(
     const std::string& labelText, tgui::Widget::Ptr widget, OptionConfig config)
 {
     widget->setEnabled(!config.disabled);
-    config.tooltipText.and_then(
-        [&widget](const std::string& text)
-        {
-            widget->setToolTip(WidgetBuilder::createTextLabel(text));
-            return std::optional(text);
-        });
-    rowsToBuild.push_back({ .label = labelText, .widget = widget });
+    rowsToBuild.push_back({ .label = labelText,
+                            .widget = widget,
+                            .tooltipText = config.tooltipText });
     return *this;
 }
 
@@ -55,6 +51,13 @@ tgui::Panel::Ptr FormBuilder::build(tgui::Color backgroundColor)
                          : WidgetBuilder::createOptionRow(
                              props.label, props.widget, props.widgetId);
         row->setPosition({ "0%", row->getSize().y * idx });
+
+        if (props.tooltipText.has_value())
+        {
+            row->setToolTip(
+                WidgetBuilder::createTooltip(props.tooltipText.value()));
+        }
+
         panel->add(row);
     }
 

@@ -76,7 +76,7 @@ void AppStateGameSetup::buildLayoutGameSetupImpl(tgui::Panel::Ptr target)
                             std::stoi(std::string(newValue));
                         sendLobbyUpdate();
                     },
-                    WidgetBuilder::getNumericValidator()))
+                    WidgetBuilder::getPositiveNumericValidator()))
             .build(PANEL_BACKGROUND_COLOR));
 }
 

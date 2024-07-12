@@ -46,6 +46,7 @@ private:
         tgui::Widget::Ptr widget;
         std::optional<std::string> widgetId = {};
         std::optional<tgui::Button::Ptr> submitBtn = {};
+        std::optional<std::string> tooltipText = {};
     };
 
     std::vector<RowProps> rowsToBuild;
