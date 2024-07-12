@@ -26,6 +26,8 @@ spawnRotationToString(SpawnRotation rot)
         return "Up";
     case UpRight:
         return "UpRight";
+    default:
+        throw std::runtime_error("Invalid value for SpawnRotation!");
     }
 }
 

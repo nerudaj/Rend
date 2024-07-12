@@ -48,10 +48,7 @@ public:
 
     void deleteMarkedObjects();
 
-    [[nodiscard]] sf::Vector2f getBestSpawnPosition() const noexcept;
-
-    [[nodiscard]] sf::Vector2f
-    getBestSpawnDirection(const sf::Vector2f& spawnPosition) const noexcept;
+    [[nodiscard]] const Spawn& getBestSpawn() const noexcept;
 
 private:
     void handlePlayer(Entity& thing, std::size_t id, const float dt);
