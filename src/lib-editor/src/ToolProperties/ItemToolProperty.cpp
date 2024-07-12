@@ -1,5 +1,4 @@
 #include "ToolProperties/ItemToolProperty.hpp"
-#include "Dialogs/DialogBuilderHelper.hpp"
 #include <Configs/Strings.hpp>
 #include <FormBuilder.hpp>
 #include <WidgetBuilder.hpp>

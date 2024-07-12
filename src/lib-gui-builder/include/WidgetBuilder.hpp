@@ -87,7 +87,13 @@ public:
         return createTextInput(
             std::to_string(value),
             [onChange](const tgui::String& newVal)
-            { onChange(std::stoul(newVal.toStdString())); },
+            {
+                auto converted = std::stoul(newVal.toStdString());
+                if (converted > std::numeric_limits<Number>::max())
+                    throw std::runtime_error(std::format(
+                        "Number is too big to fit {} bytes", sizeof(Number)));
+                onChange(static_cast<Number>(converted));
+            },
             validator);
     }
 
