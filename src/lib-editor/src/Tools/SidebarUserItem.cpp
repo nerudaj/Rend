@@ -69,7 +69,7 @@ void SidebarUserItem::drawSprite(
 {
     auto&& rd = renderData.at(spriteId);
 
-    auto position = sf::Vector2f(float(int(pos.x)), float(int(pos.y)));
+    auto position = sf::Vector2f(pos);
     rd.sprite.setColor(sf::Color(255, 255, 255, opacity));
     rd.sprite.setPosition(position);
     rd.sprite.setRotation(std::to_underlying(rotation) * 45.f);
@@ -78,6 +78,7 @@ void SidebarUserItem::drawSprite(
     canvas->draw(rd.sprite);
 
     // Outline for selected items
+    outline.setOrigin(rd.clip.width / 2.f, rd.clip.height / 2.f);
     if (selected)
     {
         outline.setPosition(position);
