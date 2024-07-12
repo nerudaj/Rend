@@ -17,6 +17,8 @@ public:
 
     void handleEvent(sf::Event& event) override;
 
+    void releaseSpecialKeys() override;
+
     void registerShortcut(
         const std::string& groupName,
         const ShortcutCombo& combo,

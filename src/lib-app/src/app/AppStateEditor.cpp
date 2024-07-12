@@ -369,6 +369,7 @@ void AppStateEditor::handlePlayLevelWrapper(bool useBot)
 {
     dialogLoading.open(Strings::Dialog::Message::COMPUTING_DISTANCE_INDEX);
     delayedActions.push([this, useBot] { handlePlayLevel(useBot); });
+    shortcutEngine->releaseSpecialKeys();
     delayActionsForNumFrames = 1;
 }
 

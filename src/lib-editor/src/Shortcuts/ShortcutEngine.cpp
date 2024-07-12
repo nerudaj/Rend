@@ -35,6 +35,12 @@ void ShortcutEngine::handleEvent(sf::Event& event)
     }
 }
 
+void ShortcutEngine::releaseSpecialKeys()
+{
+    ctrlIsPressed = false;
+    shiftIsPressed = false;
+}
+
 void ShortcutEngine::registerShortcut(
     const std::string& groupName,
     const ShortcutCombo& combo,

@@ -18,6 +18,8 @@ public:
         const ShortcutCombo& combo,
         std::function<void(void)> callback) = 0;
 
+    virtual void releaseSpecialKeys() {};
+
     // Removes all shortcuts registered with matching group name
     virtual void unregisterShortcutGroup(const std::string& groupName) = 0;
 };
