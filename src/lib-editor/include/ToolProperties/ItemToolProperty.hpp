@@ -16,9 +16,7 @@ public:
     }
 
 public:
-    void fillEditDialogInternal(
-        tgui::Panel::Ptr& panel,
-        FormValidatorToken& formValidatorToken) override;
+    void fillEditDialogInternal(tgui::ScrollablePanel::Ptr& panel) override;
 
 public:
     std::size_t itemId;

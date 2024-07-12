@@ -143,6 +143,34 @@ namespace Strings
             RAWSTRING LEVEL_NAME = "Level name";
             RAWSTRING ADD = "Add";
         } // namespace Body
+
+        RAWSTRING SUBMIT_OK = "Ok";
+        RAWSTRING SUBMIT_CANCEL = "Cancel";
+
+        namespace EditProperty
+        {
+            RAWSTRING TILE_X = "Tile X:";
+            RAWSTRING TILE_X_TOOLTIP = "X coordinate of the tile";
+            RAWSTRING TILE_Y = "Tile Y:";
+            RAWSTRING TILE_Y_TOOLTIP = "Y coordinate of the tile";
+            RAWSTRING LAYER_ID = "Layer ID:";
+            RAWSTRING LAYER_ID_TOOLTIP = "In which layer is tile located";
+            RAWSTRING IS_IMPASSABLE = "Is impassable:";
+            RAWSTRING IS_IMPASSABLE_TOOLTIP =
+                "Whether this tile blocks the player";
+            RAWSTRING IS_DEFAULT_IMPASSABLE = "Impassable by default:";
+            RAWSTRING IS_DEFAULT_IMPASSABLE_TOOLTIP =
+                "Whether this type of tile is impassable by default";
+            RAWSTRING ITEM_ID = "Item ID:";
+            RAWSTRING ITEM_ID_TOOLTIP = "Unique identifier of the object";
+            RAWSTRING ITEM_X = "X coordinate:";
+            RAWSTRING ITEM_POS_TOOLTIP =
+                "Measured in pixels from top-left corner";
+            RAWSTRING ITEM_Y = "Y coordinate:";
+            RAWSTRING ITEM_FLAGS = "Flags:";
+            RAWSTRING ITEM_FLAGS_TOOLTIP =
+                "16 bit value to alter behaviour of this object";
+        } // namespace EditProperty
     }     // namespace Dialog
 
     namespace Editor
@@ -167,7 +195,9 @@ namespace Strings
             RAWSTRING TEXTURE_PACK = "Texture pack";
             RAWSTRING AUTHOR = "Author name";
         } // namespace NewLevel
-    }     // namespace Editor
+
+        RAWSTRING EDIT_PROPERTIES = "Edit Properties";
+    } // namespace Editor
 
     namespace Game
     {

@@ -1,43 +1,36 @@
 #include "ToolProperties/ItemToolProperty.hpp"
-#include "Dialogs/DialogBuilderHelper.hpp"
+#include <Configs/Strings.hpp>
+#include <FormBuilder.hpp>
+#include <WidgetBuilder.hpp>
 
-void ItemToolProperty::fillEditDialogInternal(
-    tgui::Panel::Ptr& panel, FormValidatorToken& formValidatorToken)
+void ItemToolProperty::fillEditDialogInternal(tgui::ScrollablePanel::Ptr& panel)
 {
-    using namespace DialogBuilderHelper;
-
-    auto dst = tgui::ScrollablePanel::create();
-    panel->add(dst);
-
-    constexpr bool DISABLED = false;
-
-    addOption(
-        dst,
-        formValidatorToken,
-        "Item ID:",
-        "Unique identifier of the object",
-        data.id,
-        0,
-        DISABLED);
-    addOption(
-        dst,
-        formValidatorToken,
-        "X coordinate:",
-        "Measured in pixels from top-left corner",
-        data.x,
-        1);
-    addOption(
-        dst,
-        formValidatorToken,
-        "Y coordinate:",
-        "Measured in pixels from top-left corner",
-        data.y,
-        2);
-    addOption(
-        dst,
-        formValidatorToken,
-        "Flags:",
-        "16 bit value to alter behaviour of this object",
-        data.flags,
-        3);
+    panel->add(
+        FormBuilder()
+            .addOption(
+                Strings::Dialog::EditProperty::ITEM_ID,
+                WidgetBuilder::createNumericInput<uint32_t>(
+                    data.id, [](auto) {}),
+                { .disabled = true,
+                  .tooltipText =
+                      Strings::Dialog::EditProperty::ITEM_ID_TOOLTIP })
+            .addOption(
+                Strings::Dialog::EditProperty::ITEM_X,
+                WidgetBuilder::createNumericInput<uint32_t>(
+                    data.x, [&](auto x) { data.x = x; }),
+                { .tooltipText =
+                      Strings::Dialog::EditProperty::ITEM_POS_TOOLTIP })
+            .addOption(
+                Strings::Dialog::EditProperty::ITEM_Y,
+                WidgetBuilder::createNumericInput<uint32_t>(
+                    data.y, [&](auto y) { data.y = y; }),
+                { .tooltipText =
+                      Strings::Dialog::EditProperty::ITEM_POS_TOOLTIP })
+            .addOption(
+                Strings::Dialog::EditProperty::ITEM_FLAGS,
+                WidgetBuilder::createNumericInput<uint16_t>(
+                    data.flags, [&](auto f) { data.flags = f; }),
+                { .tooltipText =
+                      Strings::Dialog::EditProperty::ITEM_FLAGS_TOOLTIP })
+            .build());
 }

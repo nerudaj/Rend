@@ -252,3 +252,13 @@ tgui::Panel::Ptr WidgetBuilder::createTabbedContent(
 
     return finalPanel;
 }
+
+tgui::Label::Ptr WidgetBuilder::createTooltip(const std::string& text)
+{
+    auto label = tgui::Label::create(text);
+    label->getRenderer()->setBackgroundColor(sf::Color::White);
+    label->getRenderer()->setBorders(tgui::Borders::Outline(1));
+    label->getRenderer()->setBorderColor(sf::Color::Black);
+    label->setTextSize(Sizers::getBaseTextSize());
+    return label;
+}
