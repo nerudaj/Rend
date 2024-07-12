@@ -4,8 +4,7 @@
 #include <FormBuilder.hpp>
 #include <WidgetBuilder.hpp>
 
-void MeshToolProperty::fillEditDialogInternal(
-    tgui::Panel::Ptr& panel, FormValidatorToken& formValidatorToken)
+void MeshToolProperty::fillEditDialogInternal(tgui::ScrollablePanel::Ptr& panel)
 {
     panel->add(
         FormBuilder()

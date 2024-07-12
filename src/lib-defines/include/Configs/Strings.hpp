@@ -161,6 +161,15 @@ namespace Strings
             RAWSTRING IS_DEFAULT_IMPASSABLE = "Impassable by default:";
             RAWSTRING IS_DEFAULT_IMPASSABLE_TOOLTIP =
                 "Whether this type of tile is impassable by default";
+            RAWSTRING ITEM_ID = "Item ID:";
+            RAWSTRING ITEM_ID_TOOLTIP = "Unique identifier of the object";
+            RAWSTRING ITEM_X = "X coordinate:";
+            RAWSTRING ITEM_POS_TOOLTIP =
+                "Measured in pixels from top-left corner";
+            RAWSTRING ITEM_Y = "Y coordinate:";
+            RAWSTRING ITEM_FLAGS = "Flags:";
+            RAWSTRING ITEM_FLAGS_TOOLTIP =
+                "16 bit value to alter behaviour of this object";
         } // namespace EditProperty
     }     // namespace Dialog
 

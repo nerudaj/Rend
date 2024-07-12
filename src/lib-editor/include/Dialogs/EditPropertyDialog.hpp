@@ -20,10 +20,6 @@ public:
 protected:
     void buildLayoutImpl(tgui::Panel::Ptr target) override;
 
-    std::expected<ReturnFlag, ErrorMessage>
-    validateBeforeConfirmation() const override;
-
 protected:
-    FormValidatorToken formValidatorToken;
     mem::Box<ToolPropertyInterface> property;
 };

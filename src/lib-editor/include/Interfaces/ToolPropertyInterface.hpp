@@ -11,12 +11,11 @@ public:
     virtual ~ToolPropertyInterface() = default;
 
 public:
-    virtual void fillEditDialog(
-        tgui::Panel::Ptr& panel, FormValidatorToken& formValidatorToken) = 0;
+    virtual void fillEditDialog(tgui::Panel::Ptr& panel) = 0;
 };
 
 class NullToolProperty2 final : public ToolPropertyInterface
 {
 public:
-    void fillEditDialog(tgui::Panel::Ptr&, FormValidatorToken&) override {}
+    void fillEditDialog(tgui::Panel::Ptr&) override {}
 };

@@ -13,12 +13,5 @@ EditPropertyDialog::EditPropertyDialog(
 
 void EditPropertyDialog::buildLayoutImpl(tgui::Panel::Ptr target)
 {
-    property->fillEditDialog(target, formValidatorToken);
-}
-
-std::expected<ReturnFlag, ErrorMessage>
-EditPropertyDialog::validateBeforeConfirmation() const
-{
-    if (formValidatorToken.isValid()) return ReturnFlag::Success;
-    return std::unexpected("Some of the fields contain invalid values");
+    property->fillEditDialog(target);
 }

@@ -12,13 +12,10 @@ public:
     }
 
 public:
-    void fillEditDialog(
-        tgui::Panel::Ptr& panel,
-        FormValidatorToken& formValidatorToken) final override;
+    void fillEditDialog(tgui::Panel::Ptr& panel) final override;
 
 protected:
-    virtual void fillEditDialogInternal(
-        tgui::Panel::Ptr& panel, FormValidatorToken& formValidatorToken) = 0;
+    virtual void fillEditDialogInternal(tgui::ScrollablePanel::Ptr& panel) = 0;
 
 protected:
     tgui::Texture previewImage;

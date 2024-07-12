@@ -1,8 +1,7 @@
 #include "Interfaces/ToolPropertyWithImageInterface.hpp"
 #include <WidgetBuilder.hpp>
 
-void ToolPropertyWithImageInterface::fillEditDialog(
-    tgui::Panel::Ptr& panel, FormValidatorToken& formValidatorToken)
+void ToolPropertyWithImageInterface::fillEditDialog(tgui::Panel::Ptr& panel)
 {
     const float IMAGE_SIZE = panel->getSize().x / 4.f;
     constexpr unsigned VERTICAL_OFFSET = 20;
@@ -13,12 +12,13 @@ void ToolPropertyWithImageInterface::fillEditDialog(
     imagePanel->getRenderer()->setTextureBackground(previewImage);
     panel->add(imagePanel);
 
-    auto contentPanel = WidgetBuilder::createPanel(
+    auto contentPanel = tgui::ScrollablePanel::create(
         { "100%",
           ("100% - " + std::to_string(IMAGE_SIZE + VERTICAL_OFFSET * 2))
               .c_str() });
     contentPanel->setPosition({ 0, IMAGE_SIZE + VERTICAL_OFFSET * 2 });
+    contentPanel->getRenderer()->setBackgroundColor(tgui::Color::Transparent);
     panel->add(contentPanel);
 
-    fillEditDialogInternal(contentPanel, formValidatorToken);
+    fillEditDialogInternal(contentPanel);
 }
