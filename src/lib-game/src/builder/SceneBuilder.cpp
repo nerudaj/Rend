@@ -21,11 +21,45 @@ static sf::Vector2f getThingPosition(const LevelD::Thing& thing) noexcept
         static_cast<float>(thing.x), static_cast<float>(thing.y));
 }
 
-static std::vector<sf::Vector2f> createSpawns(const LevelD& level)
+static [[nodiscard]] sf::Vector2f
+spawnRotationToDirection(SpawnRotation rotation)
+{
+    switch (rotation)
+    {
+        using enum SpawnRotation;
+    case Right:
+        return dgm::Math::toUnit(sf::Vector2f(1.f, 0.f));
+    case DownRight:
+        return dgm::Math::toUnit(sf::Vector2f(1.f, 1.f));
+    case Down:
+        return dgm::Math::toUnit(sf::Vector2f(0.f, 1.f));
+    case DownLeft:
+        return dgm::Math::toUnit(sf::Vector2f(-1.f, 1.f));
+    case Left:
+        return dgm::Math::toUnit(sf::Vector2f(-1.f, 0.f));
+    case UpLeft:
+        return dgm::Math::toUnit(sf::Vector2f(-1.f, -1.f));
+    case Up:
+        return dgm::Math::toUnit(sf::Vector2f(0.f, -1.f));
+    case UpRight:
+        return dgm::Math::toUnit(sf::Vector2f(1.f, -1.f));
+    default:
+        throw std::runtime_error("Invalid value for SpawnRotation!");
+    }
+}
+
+static [[nodiscard]] std::vector<Spawn> createSpawns(const LevelD& level)
 {
     return level.things | std::views::filter(isSpawn)
-           | std::views::transform(getThingPosition)
-           | std::ranges::to<std::vector<sf::Vector2f>>();
+           | std::views::transform(
+               [](const LevelD::Thing& thing)
+               {
+                   return Spawn { .position = getThingPosition(thing),
+                                  .direction = spawnRotationToDirection(
+                                      static_cast<SpawnRotation>(
+                                          thing.flags)) };
+               })
+           | std::ranges::to<std::vector<Spawn>>();
 }
 
 [[nodiscard]] static EntityType

@@ -71,12 +71,11 @@ void GameRulesEngine::operator()(const PlayerRespawnedGameEvent& e)
 {
     const auto& marker =
         std::get<MarkerDeadPlayer>(scene.markers[e.markerIndex]);
-    const auto spawnPosition = getBestSpawnPosition();
-    const auto spawnDirection = getBestSpawnDirection(spawnPosition);
+    const auto& spawn = getBestSpawn();
 
     auto idx = scene.things.emplaceBack(SceneBuilder::createPlayer(
-        Position { spawnPosition },
-        Direction { spawnDirection },
+        Position { spawn.position },
+        Direction { spawn.direction },
         marker.stateIdx));
 
     auto& inventory = scene.playerStates[scene.things[idx].stateIdx].inventory;
@@ -257,6 +256,33 @@ void GameRulesEngine::deleteMarkedObjects()
         }
     }
     indicesToRemove.clear();
+}
+
+const Spawn& GameRulesEngine::getBestSpawn() const noexcept
+{
+    float bestDistance = 0.f;
+    std::size_t bestSpawnIdx = 0;
+    for (std::size_t i = 0; i < scene.spawns.size(); ++i)
+    {
+        float minDistance = INFINITY;
+        for (auto&& [thing, idx] : scene.things)
+        {
+            if (thing.typeId != EntityType::Player) continue;
+
+            minDistance = std::min(
+                minDistance,
+                dgm::Math::getSize(
+                    scene.spawns[i].position - thing.hitbox.getPosition()));
+        }
+
+        if (bestDistance < minDistance)
+        {
+            bestDistance = minDistance;
+            bestSpawnIdx = i;
+        }
+    }
+
+    return scene.spawns[bestSpawnIdx];
 }
 
 void GameRulesEngine::handlePlayer(
@@ -579,40 +605,6 @@ void GameRulesEngine::removeEntity(std::size_t index)
 
     scene.spatialIndex.removeFromLookup(index, thing.hitbox);
     indicesToRemove.push_back(index);
-}
-
-sf::Vector2f GameRulesEngine::getBestSpawnPosition() const noexcept
-{
-    float bestDistance = 0.f;
-    std::size_t bestSpawnIdx = 0;
-    for (std::size_t i = 0; i < scene.spawns.size(); ++i)
-    {
-        float minDistance = INFINITY;
-        for (auto&& [thing, idx] : scene.things)
-        {
-            if (thing.typeId != EntityType::Player) continue;
-
-            minDistance = std::min(
-                minDistance,
-                dgm::Math::getSize(
-                    scene.spawns[i] - thing.hitbox.getPosition()));
-        }
-
-        if (bestDistance < minDistance)
-        {
-            bestDistance = minDistance;
-            bestSpawnIdx = i;
-        }
-    }
-
-    return scene.spawns[bestSpawnIdx];
-}
-
-sf::Vector2f GameRulesEngine::getBestSpawnDirection(
-    const sf::Vector2f& spawnPosition) const noexcept
-{
-    return dgm::Math::toUnit(
-        scene.spatialIndex.getBoundingBox().getCenter() - spawnPosition);
 }
 
 #pragma endregion

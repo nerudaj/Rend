@@ -4,6 +4,7 @@
 #include <DGM/dgm.hpp>
 #include <LevelTheme.hpp>
 #include <Memory.hpp>
+#include <SpawnRotation.hpp>
 #include <ai/AiEnums.hpp>
 #include <array>
 #include <bitset>
@@ -120,6 +121,12 @@ struct CameraContext
     EntityIndexType anchorIdx = 0;
 };
 
+struct [[nodiscard]] Spawn final
+{
+    sf::Vector2f position;
+    sf::Vector2f direction;
+};
+
 // Add all game actors and objects to this struct as it is passed
 // between all engines and automatically created in AppStateIngame
 // using buildScene function
@@ -140,7 +147,7 @@ struct Scene
     DrawableLevel drawableLevel;
     dgm::SpatialIndex<EntityIndexType> spatialIndex;
     DistanceIndex distanceIndex;
-    std::vector<sf::Vector2f> spawns = {};
+    std::vector<Spawn> spawns = {};
     std::vector<sf::Vector2f> dummyAiDestinations = {};
     dgm::WorldNavMesh navmesh;
 };

@@ -170,6 +170,9 @@ namespace Strings
             RAWSTRING ITEM_FLAGS = "Flags:";
             RAWSTRING ITEM_FLAGS_TOOLTIP =
                 "16 bit value to alter behaviour of this object";
+            RAWSTRING ITEM_ROTATION = "Spawn rotation:";
+            RAWSTRING ITEM_ROTATION_TOOLTIP =
+                "Rotation is taken into account for player spawns";
         } // namespace EditProperty
     }     // namespace Dialog
 

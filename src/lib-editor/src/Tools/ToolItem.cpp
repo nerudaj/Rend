@@ -180,6 +180,7 @@ void ToolItem::drawTo(
             canvas,
             item.id,
             sf::Vector2i(item.x, item.y),
+            static_cast<SpawnRotation>(item.flags),
             selectedObjects.contains(index),
             opacity);
 

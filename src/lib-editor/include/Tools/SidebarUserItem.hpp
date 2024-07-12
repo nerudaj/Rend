@@ -7,6 +7,7 @@
 #include <SFML/Graphics/Rect.hpp>
 #include <SFML/Graphics/Sprite.hpp>
 #include <SFML/Graphics/Texture.hpp>
+#include <SpawnRotation.hpp>
 #include <filesystem>
 #include <utility>
 #include <vector>
@@ -49,6 +50,7 @@ public:
         tgui::CanvasSFML::Ptr& canvas,
         unsigned spriteId,
         const sf::Vector2i& position,
+        SpawnRotation rotation,
         bool selected,
         float opacity);
 
