@@ -3,6 +3,7 @@ Rend 0.5.0 changelog:
 Gameplay:
 * Look direction after respawning now depends on the rotation of the player spawn item
 	* This rotation can be configured in the editor
+* Added a new 4-player map: "Rocket Courtyard"
 
 UX:
 * Unused item properites were hidden in the editor
