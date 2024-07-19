@@ -6,6 +6,9 @@ Gameplay:
 
 UX:
 * Unused item properites were hidden in the editor
+* Official map pack was renamed to official_ffa (to indicate these are deathmatch maps)
+* Each map was renamed into format <number of players>_<name of the map> for better clarity
+	* Also the maps will now be sorted by the number of players they support
 
 Bugfixes:
 * Fixed a bug where certain shortcuts didn't work in the editor after leaving playtest
