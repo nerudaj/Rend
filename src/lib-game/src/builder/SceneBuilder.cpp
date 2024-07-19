@@ -108,12 +108,19 @@ convertLeveldItemIdToEntityType(LevelItemId id) noexcept
 [[nodiscard]] static auto
 createEntity(EntityType typeId, const sf::Vector2f& position)
 {
-    const auto& props = ENTITY_PROPERTIES.at(typeId);
-    return Entity { .typeId = typeId,
-                    .animationContext { .spriteClipIndex =
-                                            props.initialSpriteIndex },
-                    .hitbox = dgm::Circle(position, props.radius),
-                    .direction = { 1.f, 0.f } };
+    try
+    {
+        const auto& props = ENTITY_PROPERTIES.at(typeId);
+        return Entity { .typeId = typeId,
+                        .animationContext { .spriteClipIndex =
+                                                props.initialSpriteIndex },
+                        .hitbox = dgm::Circle(position, props.radius),
+                        .direction = { 1.f, 0.f } };
+    }
+    catch (const std::exception& e)
+    {
+        throw dgm::Exception(e.what());
+    }
 }
 
 [[nodiscard]] static auto createEntity(const LevelD::Thing& thing)

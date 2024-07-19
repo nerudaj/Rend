@@ -381,29 +381,36 @@ void AppStateEditor::handlePlayLevel(bool useBot)
         return;
     }
 
-    handleSaveLevel();
-
-    auto gameSettings = GameOptions { .players = { PlayerOptions {
-                                          .kind = PlayerKind::LocalHuman,
-                                          .bindCamera = true } },
-                                      .fraglimit = 99 };
-    if (useBot)
+    try
     {
-        gameSettings.players.push_back(PlayerOptions {
-            .kind = PlayerKind::LocalNpc, .bindCamera = false });
+        handleSaveLevel();
+
+        auto gameSettings = GameOptions { .players = { PlayerOptions {
+                                              .kind = PlayerKind::LocalHuman,
+                                              .bindCamera = true } },
+                                          .fraglimit = 99 };
+        if (useBot)
+        {
+            gameSettings.players.push_back(PlayerOptions {
+                .kind = PlayerKind::LocalNpc, .bindCamera = false });
+        }
+
+        auto lvd = LevelD {};
+        lvd.loadFromFile(savePath.string());
+
+        auto&& client = mem::Rc<Client>("127.0.0.1", 10666ui16);
+        if (auto&& result = client->sendPeerReadySignal(); !result)
+            throw std::runtime_error(result.error());
+
+        client->readIncomingPackets([](auto) {});
+
+        app.pushState<AppStateIngame>(
+            dic, client, gameSettings, lvd, "launchedFromEditor"_true);
     }
-
-    auto lvd = LevelD {};
-    lvd.loadFromFile(savePath.string());
-
-    auto&& client = mem::Rc<Client>("127.0.0.1", 10666ui16);
-    if (auto&& result = client->sendPeerReadySignal(); !result)
-        throw std::runtime_error(result.error());
-
-    client->readIncomingPackets([](auto) {});
-
-    app.pushState<AppStateIngame>(
-        dic, client, gameSettings, lvd, "launchedFromEditor"_true);
+    catch (const std::exception& e)
+    {
+        dialogErrorInfo->open(e.what());
+    }
 }
 
 void AppStateEditor::handleUndo()
