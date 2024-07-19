@@ -9,6 +9,7 @@ UX:
 
 Bugfixes:
 * Fixed a bug where certain shortcuts didn't work in the editor after leaving playtest
+* Fixed a possible crash when killing somebody with a projectile
 * Fixed a crash when flag was placed into the level (by hiding the unused flag item)
 
 Rend 0.4.0 changelog:

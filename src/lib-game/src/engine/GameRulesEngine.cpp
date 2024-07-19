@@ -28,7 +28,7 @@ void GameRulesEngine::operator()(const ProjectileCreatedGameEvent& e)
         e.originatorStateIdx));
 }
 
-void GameRulesEngine::operator()(const ProjectileDestroyedGameEvent& e)
+void GameRulesEngine::operator()(const ProjectileDestroyedGameEvent e)
 {
     const auto& projectile = scene.things[e.entityIndex];
     const auto& DEF = ENTITY_PROPERTIES.at(projectile.typeId);

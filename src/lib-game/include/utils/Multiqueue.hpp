@@ -32,10 +32,15 @@ template<IsVariant... Variants>
 class Multiqueue
 {
 public:
-
-public:
     using Queues = std::tuple<std::vector<Variants>...>;
 
+public:
+    Multiqueue()
+    {
+        reserveSpaceInQueues<0, Variants...>(queues);
+    }
+
+public:
     template<class T, class... Args>
         requires std::constructible_from<T, Args...>
     void emplace(Args&&... args)
@@ -89,6 +94,16 @@ private:
 
         return getIndex<DeducingFromBaseType, T, RestOfTheVariants...>(
             index + 1);
+    }
+
+    template<size_t I, class... Ts>
+    static void reserveSpaceInQueues(std::tuple<std::vector<Ts>...>& queues)
+    {
+        if constexpr (I < sizeof...(Ts))
+        {
+            std::get<I>(queues).reserve(128);
+            reserveSpaceInQueues<I + 1, Ts...>(queues);
+        }
     }
 
 private:

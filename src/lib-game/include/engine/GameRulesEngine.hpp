@@ -32,7 +32,7 @@ public:
 public: // Must visit on all related events
     void operator()(const PickablePickedUpGameEvent&);
     void operator()(const ProjectileCreatedGameEvent&);
-    void operator()(const ProjectileDestroyedGameEvent&);
+    void operator()(const ProjectileDestroyedGameEvent);
     void operator()(const EntityDestroyedGameEvent&);
     void operator()(const PlayerRespawnedGameEvent&);
     void operator()(const EffectSpawnedGameEvent&);
