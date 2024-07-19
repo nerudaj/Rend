@@ -6,7 +6,7 @@ enum class LevelItemId
     Unused1,
     Unused2,
     Unused3,
-    Flag,
+    UnusedFlag,
     Unused4,
     Unused5,
     Unused6,

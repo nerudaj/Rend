@@ -74,6 +74,7 @@ public: // SidebarUserWithSprites
         case Unused1:
         case Unused2:
         case Unused3:
+        case UnusedFlag:
         case Unused4:
         case Unused5:
         case Unused6:

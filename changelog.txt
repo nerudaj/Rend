@@ -6,7 +6,10 @@ Gameplay:
 
 UX:
 * Unused item properites were hidden in the editor
+
+Bugfixes:
 * Fixed a bug where certain shortcuts didn't work in the editor after leaving playtest
+* Fixed a crash when flag was placed into the level (by hiding the unused flag item)
 
 Rend 0.4.0 changelog:
 
