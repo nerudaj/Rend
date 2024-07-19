@@ -165,9 +165,9 @@ void AppStateIngame::handleNetworkUpdate(const ServerUpdateData& update)
         update.clients.size(), std::numeric_limits<size_t>::max());
 
     humanPlayerCount = 0;
-    for (const auto& client : update.clients)
+    for (const auto& clientData : update.clients)
     {
-        if (client.state != ClientState::Disconnected) ++humanPlayerCount;
+        if (clientData.state != ClientState::Disconnected) ++humanPlayerCount;
     }
 
     dic->logger->log(
