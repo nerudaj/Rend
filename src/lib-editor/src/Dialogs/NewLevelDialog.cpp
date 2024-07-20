@@ -3,7 +3,7 @@
 #include <Configs/Strings.hpp>
 
 ModernNewLevelDialog::ModernNewLevelDialog(mem::Rc<Gui> gui)
-    : ModernDialogInterface(
+    : DialogInterface(
         gui, "ModernNewLevelDialog", Strings::Dialog::Title::NEW_LEVEL)
 {
 }

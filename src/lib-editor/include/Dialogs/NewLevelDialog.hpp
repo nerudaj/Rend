@@ -1,6 +1,6 @@
 #pragma once
 
-#include "DialogBase.hpp"
+#include "DialogInterface.hpp"
 #include "MetadataDialogBase.hpp"
 #include <LevelTheme.hpp>
 #include <Memory.hpp>
@@ -8,7 +8,7 @@
 #include <vector>
 
 class [[nodiscard]] ModernNewLevelDialog final
-    : public ModernDialogInterface
+    : public DialogInterface
     , public MetadataDialogBase
 {
 public:

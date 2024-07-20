@@ -1,6 +1,6 @@
 #pragma once
 
-#include "DialogBase.hpp"
+#include "DialogInterface.hpp"
 #include "FormBuilder.hpp"
 #include "MetadataDialogBase.hpp"
 #include <DGM/dgm.hpp>
@@ -8,7 +8,7 @@
 #include <Memory.hpp>
 
 class [[nodiscard]] EditMetadataDialog final
-    : protected ModernDialogInterface
+    : protected DialogInterface
     , public MetadataDialogBase
 {
 public:

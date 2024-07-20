@@ -8,7 +8,7 @@ constexpr const char* SELECT_LEVEL_ID = "SelectLevelId";
 
 LoadLevelDialog::LoadLevelDialog(
     mem::Rc<Gui> gui, const std::filesystem::path& rootDir)
-    : ModernDialogInterface(
+    : DialogInterface(
         gui, "LoadLevelDialog", Strings::Dialog::Title::OPEN_LEVEL)
     , levelsDir(Filesystem::getLevelsDir(rootDir))
     , mapPackNames(Filesystem::getLevelPackNames(levelsDir))

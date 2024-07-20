@@ -10,7 +10,6 @@ struct EditorMockState
     unsigned saveToFileCallCounter = 0;
     unsigned loadFromFileCallCounter = 0;
     unsigned switchToolCallCounter = 0;
-    unsigned resizeDialogCallCounter = 0;
     unsigned shrinkToFitCallCounter = 0;
 };
 
@@ -51,11 +50,6 @@ public:
     virtual void switchTool(EditorState) override
     {
         state->switchToolCallCounter++;
-    }
-
-    virtual void resizeDialog() override
-    {
-        state->resizeDialogCallCounter++;
     }
 
     virtual void

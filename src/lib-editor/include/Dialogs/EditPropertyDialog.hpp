@@ -1,11 +1,11 @@
 #pragma once
 
+#include "Dialogs/DialogInterface.hpp"
 #include "Gui.hpp"
-#include "Interfaces/DialogInterfaces.hpp"
 #include "Interfaces/ToolPropertyInterface.hpp"
 #include <Memory.hpp>
 
-class [[nodiscard]] EditPropertyDialog final : public ModernDialogInterface
+class [[nodiscard]] EditPropertyDialog final : public DialogInterface
 {
 public:
     EditPropertyDialog(

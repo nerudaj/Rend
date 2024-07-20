@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Dialogs/DialogBase.hpp>
+#include <Dialogs/DialogInterface.hpp>
 #include <vector>
 
 struct MapSettingsForPicker
@@ -9,7 +9,7 @@ struct MapSettingsForPicker
     bool enabled;
 };
 
-class MapPickerDialog : public ModernDialogInterface
+class MapPickerDialog : public DialogInterface
 {
 public:
     MapPickerDialog(

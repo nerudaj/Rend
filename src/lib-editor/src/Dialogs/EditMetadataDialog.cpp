@@ -3,7 +3,7 @@
 #include <Configs/Strings.hpp>
 
 EditMetadataDialog::EditMetadataDialog(mem::Rc<Gui> gui)
-    : ModernDialogInterface(
+    : DialogInterface(
         gui, "EditMetadataDialog", Strings::Dialog::Title::EDIT_METADATA)
 {
 }
@@ -15,7 +15,7 @@ void EditMetadataDialog::open(
     texturePack = metadata.texturePack;
     author = metadata.author;
 
-    ModernDialogInterface::open(confirmCallback);
+    DialogInterface::open(confirmCallback);
 }
 
 void EditMetadataDialog::buildLayoutImpl(tgui::Panel::Ptr panel)

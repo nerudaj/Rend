@@ -5,7 +5,7 @@
 
 MapPickerDialog::MapPickerDialog(
     mem::Rc<Gui> gui, const std::vector<MapSettingsForPicker>& settings)
-    : ModernDialogInterface(
+    : DialogInterface(
         gui, "MapPickerDialogId", Strings::Dialog::Title::SELECT_MAPS)
     , maps(settings)
 {

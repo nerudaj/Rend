@@ -314,19 +314,6 @@ LevelD Editor::save()
     return result;
 }
 
-void Editor::resizeDialog()
-{
-    dialog.open(
-        [this]
-        {
-            commandQueue->push<ResizeCommand>(
-                *this,
-                dialog.getLevelWidth(),
-                dialog.getLevelHeight(),
-                dialog.isTranslationDisabled());
-        });
-}
-
 void Editor::resize(unsigned width, unsigned height, bool isTranslationDisabled)
 {
     stateMgr.forallStates(

@@ -1,9 +1,9 @@
 #pragma once
 
-#include "Dialogs/DialogBase.hpp"
+#include "Dialogs/DialogInterface.hpp"
 #include <filesystem>
 
-class [[nodiscard]] NewSaveLevelDialog final : public ModernDialogInterface
+class [[nodiscard]] NewSaveLevelDialog final : public DialogInterface
 {
 public:
     NewSaveLevelDialog(
