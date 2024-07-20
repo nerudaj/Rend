@@ -1,9 +1,9 @@
 #pragma once
 
-#include <Dialogs/DialogBase.hpp>
+#include <Dialogs/DialogInterface.hpp>
 #include <filesystem>
 
-class [[nodiscard]] LoadLevelDialog final : public ModernDialogInterface
+class [[nodiscard]] LoadLevelDialog final : public DialogInterface
 {
 public:
     LoadLevelDialog(mem::Rc<Gui> gui, const std::filesystem::path& rootDir);

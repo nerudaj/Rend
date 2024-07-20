@@ -4,7 +4,6 @@
 #include "Commands/CommandQueue.hpp"
 #include "Dialogs/EditMetadataDialog.hpp"
 #include "Dialogs/EditPropertyDialog.hpp"
-#include "Dialogs/ResizeLevelDialog.hpp"
 #include "Editor/EditorState.hpp"
 #include "Editor/EditorStateManager.hpp"
 #include "Globals.hpp"
@@ -44,8 +43,6 @@ public:
     virtual void switchTool(EditorState state) override;
 
     [[nodiscard]] virtual LevelD save() override;
-
-    virtual void resizeDialog() override;
 
     virtual void resize(
         unsigned width, unsigned height, bool isTranslationDisabled) override;
@@ -118,7 +115,6 @@ private: // Dependencies
     mem::Rc<LevelMetadata> levelMetadata;
     std::filesystem::path graphicsDir;
 
-    ResizeDialog dialog = ResizeDialog(gui);
     mem::Box<EditPropertyDialog> editPropertyDialog =
         mem::Box<EditPropertyDialog>(gui, mem::Box<NullToolProperty2>());
     EditMetadataDialog editMetadataDialog = EditMetadataDialog(gui);

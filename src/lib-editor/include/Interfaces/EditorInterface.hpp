@@ -18,8 +18,6 @@ public:
 
     virtual void switchTool(EditorState state) = 0;
 
-    virtual void resizeDialog() = 0;
-
     virtual void
     resize(unsigned width, unsigned height, bool isTranslationDisabled) = 0;
 

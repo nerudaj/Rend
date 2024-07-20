@@ -8,7 +8,7 @@ constexpr const char* LEVEL_NAME_ID = "LevelNameId";
 
 NewSaveLevelDialog::NewSaveLevelDialog(
     mem::Rc<Gui> gui, const std::filesystem::path& levelsDir)
-    : ModernDialogInterface(
+    : DialogInterface(
         gui, "SaveLevelDialogId", Strings::Dialog::Title::SAVE_LEVEL)
     , levelsDir(levelsDir)
     , mapPackNames(Filesystem::getLevelPackNames(levelsDir))

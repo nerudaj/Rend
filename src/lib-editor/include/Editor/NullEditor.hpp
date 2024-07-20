@@ -18,8 +18,6 @@ public:
 
     void switchTool(EditorState) override {}
 
-    void resizeDialog() override {}
-
     void resize(unsigned, unsigned, bool) override {}
 
     void shrinkToFit() override {}
