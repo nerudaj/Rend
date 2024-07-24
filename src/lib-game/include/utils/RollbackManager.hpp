@@ -80,6 +80,37 @@ public:
         }
     }
 
+    constexpr void forEachItemFromTick(
+        size_t tick,
+        std::function<void(T&, bool)> simulateCallback,
+        std::function<void(T&)> backupToCallback)
+    {
+        assert(buffer.getSize() >= 1u);
+        assert(tick <= getLastInsertedTick());
+
+        auto howMuchToUnroll =
+            std::max(size_t { 2 }, getLastInsertedTick() - tick);
+        assert(howMuchToUnroll <= Capacity);
+
+        const auto&& startIdx = buffer.getSize() < howMuchToUnroll
+                                    ? BufferIndexType(0)
+                                    : buffer.getSize() - howMuchToUnroll;
+        // Max index is always the next frame
+        const auto&& endIdx = buffer.getSize() - BufferIndexType(1);
+
+        for (auto idx = startIdx; idx < endIdx; ++idx)
+        {
+            // Write the simulated state into the next frame
+            simulateCallback(buffer[idx], idx + 1 == endIdx);
+            backupToCallback(buffer[idx + 1]);
+        }
+
+        if (isThisTheEndOfFrameZero())
+        {
+            backupToCallback(buffer.last());
+        }
+    }
+
     [[nodiscard]] constexpr bool isThisTheEndOfFrameZero() const noexcept
     {
         return buffer.getSize() == 1u;

@@ -98,5 +98,6 @@ protected:
     size_t lastTick = {};
     Framerate framerate = Framerate(FPS);
     std::chrono::milliseconds artificialFrameDelay = {};
+    size_t tickToRollbackTo = {};
     unsigned humanPlayerCount = 0;
 };

@@ -1,3 +1,7 @@
+Rend 0.5.1 changelog:
+
+* Increased performance on 3P/4P maps when multiple bots are in game
+
 Rend 0.5.0 changelog:
 
 Gameplay:

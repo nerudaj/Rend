@@ -132,7 +132,8 @@ void AppStateIngame::update()
 
     namespace ph = std::placeholders;
 
-    stateManager.forEachItemFromOldestToNewest(
+    stateManager.forEachItemFromTick(
+        tickToRollbackTo,
         std::bind(
             &AppStateIngame::simulateFrameFromState, this, ph::_1, ph::_2),
         std::bind(&AppStateIngame::backupState, this, ph::_1));
@@ -170,6 +171,7 @@ void AppStateIngame::handleNetworkUpdate(const ServerUpdateData& update)
         if (clientData.state != ClientState::Disconnected) ++humanPlayerCount;
     }
 
+    tickToRollbackTo = stateManager.getLastInsertedTick();
     dic->logger->log(
         "Peer: Update in tick {}. Frame time: {}",
         stateManager.getLastInsertedTick(),
@@ -180,6 +182,7 @@ void AppStateIngame::handleNetworkUpdate(const ServerUpdateData& update)
             "\tInput for tick {} from client {}",
             inputData.tick,
             inputData.clientId);
+        tickToRollbackTo = std::min(tickToRollbackTo, inputData.tick);
 
         if (stateManager.isTickTooOld(inputData.tick))
         {
