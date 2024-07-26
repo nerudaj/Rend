@@ -47,6 +47,7 @@ void AppStateJoinGame::tryToJoin()
     try
     {
         app.pushState<AppStatePeerLobby>(dic, ipAddressInput);
+        dic->settings->network.joinIpAddress = ipAddressInput;
     }
     catch (const std::exception& e)
     {

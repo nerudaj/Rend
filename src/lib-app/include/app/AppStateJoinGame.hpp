@@ -9,7 +9,10 @@ class [[nodiscard]] AppStateJoinGame final : public dgm::AppState
 {
 public:
     AppStateJoinGame(dgm::App& app, mem::Rc<DependencyContainer> dic)
-        : dgm::AppState(app), dic(dic), warningDialog(dic->gui)
+        : dgm::AppState(app)
+        , dic(dic)
+        , ipAddressInput(dic->settings->network.joinIpAddress)
+        , warningDialog(dic->gui)
     {
         buildLayout();
     }
