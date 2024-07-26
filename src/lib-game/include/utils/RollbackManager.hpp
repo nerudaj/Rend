@@ -96,7 +96,7 @@ public:
 
         assert(tick < getLastInsertedTick());
 
-        auto howMuchToUnroll = getLastInsertedTick() - tick + 2;
+        auto howMuchToUnroll = getLastInsertedTick() - tick + 1;
         assert(howMuchToUnroll <= Capacity);
 
         const auto&& startIdx = buffer.getSize() < howMuchToUnroll

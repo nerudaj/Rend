@@ -69,6 +69,7 @@ AppStateIngame::AppStateIngame(
 
 void AppStateIngame::input()
 {
+    tickToRollbackTo = stateManager.getLastInsertedTick();
     auto&& result = client->readPacketsUntil(
         std::bind(
             &AppStateIngame::handleNetworkUpdate, this, std::placeholders::_1),
@@ -183,7 +184,6 @@ void AppStateIngame::handleNetworkUpdate(const ServerUpdateData& update)
         if (clientData.state != ClientState::Disconnected) ++humanPlayerCount;
     }
 
-    tickToRollbackTo = stateManager.getLastInsertedTick();
     dic->logger->log(
         "Peer: Update in tick {}. Frame time: {}",
         stateManager.getLastInsertedTick(),
@@ -339,7 +339,6 @@ bool AppStateIngame::isFrameConfirmed() const
     constexpr const size_t WINDOW_SIZE = 19;
     if (lastTick < WINDOW_SIZE) return true;
 
-    // NOTE: is last tick really in manager?
     const auto& confirmations =
         stateManager.get(lastTick - WINDOW_SIZE).confirmedInputs;
 

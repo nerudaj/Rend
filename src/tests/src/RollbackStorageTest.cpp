@@ -93,4 +93,96 @@ TEST_CASE("[RollbackManager]")
             REQUIRE(bakCnt == 2);
         }
     }
+
+    SECTION("forEachItemFromTick")
+    {
+        SECTION("If this is frame zero, only call backup")
+        {
+            int cnt = 0;
+            int bakCnt = 0;
+            rs.insert(42, 0);
+            rs.forEachItemFromTick(
+                0,
+                [&cnt](auto&, auto) { ++cnt; },
+                [&bakCnt](auto&) { ++bakCnt; });
+
+            REQUIRE(cnt == 0);
+            REQUIRE(bakCnt == 1);
+        }
+
+        SECTION("If this is a second frame, unroll once")
+        {
+            int cnt = 0;
+            int bakCnt = 0;
+            rs.insert(42, 0);
+            rs.insert(43, 1);
+            rs.forEachItemFromTick(
+                0,
+                [&cnt](auto&, auto) { ++cnt; },
+                [&bakCnt](auto&) { ++bakCnt; });
+
+            REQUIRE(cnt == 1);
+            REQUIRE(bakCnt == 1);
+        }
+
+        SECTION("If this is a third frame, unroll twice")
+        {
+            int cnt = 0;
+            int bakCnt = 0;
+
+            rs.insert(42, 0);
+            rs.insert(43, 1);
+            rs.insert(44, 2);
+
+            rs.forEachItemFromTick(
+                0,
+                [&cnt](auto&, auto) { ++cnt; },
+                [&bakCnt](auto&) { ++bakCnt; });
+
+            REQUIRE(cnt == 2);
+            REQUIRE(bakCnt == 2);
+        }
+
+        SECTION(
+            "If this is fiftieth frame frame and we want to unroll from "
+            "fourthy-eight, unroll once")
+        {
+            int cnt = 0;
+            int bakCnt = 0;
+
+            for (auto&& tick : std::views::iota(size_t { 0 }, size_t { 50 }))
+            {
+                rs.insert(tick, tick);
+            }
+
+            rs.forEachItemFromTick(
+                48,
+                [&cnt](auto&, auto) { ++cnt; },
+                [&bakCnt](auto&) { ++bakCnt; });
+
+            REQUIRE(cnt == 1);
+            REQUIRE(bakCnt == 1);
+        }
+
+        SECTION(
+            "If this is fifty-first frame frame and we want to unroll from "
+            "fourthy-eight, unroll twice")
+        {
+            int cnt = 0;
+            int bakCnt = 0;
+
+            for (auto&& tick : std::views::iota(size_t { 0 }, size_t { 51 }))
+            {
+                rs.insert(tick, tick);
+            }
+
+            rs.forEachItemFromTick(
+                48,
+                [&cnt](auto&, auto) { ++cnt; },
+                [&bakCnt](auto&) { ++bakCnt; });
+
+            REQUIRE(cnt == 2);
+            REQUIRE(bakCnt == 2);
+        }
+    }
 }
