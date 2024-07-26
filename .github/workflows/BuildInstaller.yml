@@ -22,7 +22,7 @@ jobs:
 
     - name: Install NSIS
       run: |
-        & "{{env.BUILD_DIR}}\nsis\nsis-3.08-setup.exe" \S
+        & "${{env.BUILD_DIR}}\nsis\nsis-3.08-setup.exe" \S
       shell: powershell
 
     - name: Setup cmake
