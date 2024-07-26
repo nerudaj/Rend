@@ -86,10 +86,17 @@ public:
         std::function<void(T&)> backupToCallback)
     {
         assert(buffer.getSize() >= 1u);
-        assert(tick <= getLastInsertedTick());
 
-        auto howMuchToUnroll =
-            std::max(size_t { 2 }, getLastInsertedTick() - tick);
+        if (getLastInsertedTick() == tick) [[unlikely]]
+        {
+            assert(isThisTheEndOfFrameZero());
+            backupToCallback(buffer.last());
+            return;
+        }
+
+        assert(tick < getLastInsertedTick());
+
+        auto howMuchToUnroll = getLastInsertedTick() - tick + 1;
         assert(howMuchToUnroll <= Capacity);
 
         const auto&& startIdx = buffer.getSize() < howMuchToUnroll
@@ -103,11 +110,6 @@ public:
             // Write the simulated state into the next frame
             simulateCallback(buffer[idx], idx + 1 == endIdx);
             backupToCallback(buffer[idx + 1]);
-        }
-
-        if (isThisTheEndOfFrameZero())
-        {
-            backupToCallback(buffer.last());
         }
     }
 
