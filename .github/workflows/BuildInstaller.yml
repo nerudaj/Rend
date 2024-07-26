@@ -16,7 +16,7 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
-    - uses: repolevedavaj/install-nsis@v1.0.1
+    - uses: repolevedavaj/install-nsis@v1.0.2
       with:
         nsis-version: 3.08
 
