@@ -16,9 +16,14 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
-    - uses: repolevedavaj/install-nsis@v1.0.1
-      with:
-        nsis-version: 3.08
+    #- uses: repolevedavaj/install-nsis@v1.0.1
+    #  with:
+    #    nsis-version: 3.08
+
+    - name: Install NSIS
+      run: |
+        & "${{github.workspace}}\nsis\nsis-3.08-setup.exe" \S
+      shell: powershell
 
     - name: Setup cmake
       uses: jwlawson/actions-setup-cmake@v1.14
