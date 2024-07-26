@@ -15,7 +15,7 @@ include ( "${CMAKE_SOURCE_DIR}/cmake/version.cmake" )
 include ( "${CMAKE_SOURCE_DIR}/cmake/utils.cmake" )
 include ( "${CMAKE_SOURCE_DIR}/cmake/dependencies.cmake" )
 
-project ( "${SETTINGS_PROJECT_NAME}" )
+project ( "${SETTINGS_PROJECT_NAME}" VERSION "${VERSION_FULL}" )
 
 option ( DISABLE_TESTING    "Disable unit test projects" OFF )
 option ( IS_NIGHTBUILD      "Use name nightbuild.zip for the output package" OFF )
@@ -61,11 +61,11 @@ install (
 )
 
 set ( CPACK_PACKAGE_NAME             "${SETTINGS_PROJECT_NAME}" )
-set ( CPACK_PACKAGE_FILE_NAME        "${CPACK_PACKAGE_NAME}" )
 set ( CPACK_PACKAGE_VERSION_MAJOR    "${PROJECT_VERSION_MAJOR}" )
 set ( CPACK_PACKAGE_VERSION_MINOR    "${PROJECT_VERSION_MINOR}" )
 set ( CPACK_PACKAGE_VERSION_PATCH    "${PROJECT_VERSION_PATCH}" )
 set ( CPACK_PACKAGE_VERSION          "${PROJECT_VERSION}" )
+set ( CPACK_PACKAGE_FILE_NAME        "${CPACK_PACKAGE_NAME}-${CPACK_PACKAGE_VERSION}-${CMAKE_GENERATOR_PLATFORM}" )
 set ( CPACK_PACKAGE_VENDOR           "Jakub Neruda")
 set ( CPACK_PACKAGE_DESCRIPTION_FILE "${CMAKE_SOURCE_DIR}/nsis/description.txt" )
 set ( CPACK_PACKAGE_HOMEPAGE_URL     "https://nerudaj.itch.io/rend" )
