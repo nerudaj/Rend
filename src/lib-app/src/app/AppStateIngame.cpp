@@ -132,6 +132,16 @@ void AppStateIngame::update()
 
     namespace ph = std::placeholders;
 
+    /*stateManager.forEachItemFromOldestToNewest(
+        std::bind(
+            &AppStateIngame::simulateFrameFromState, this, ph::_1, ph::_2),
+        std::bind(&AppStateIngame::backupState, this, ph::_1));*/
+
+    dic->logger->log(
+        "UPDATE: Last tick: {}, getLastInsertedTick: {}, tickToRollbackTo: {}",
+        lastTick,
+        stateManager.getLastInsertedTick(),
+        tickToRollbackTo);
     stateManager.forEachItemFromTick(
         tickToRollbackTo,
         std::bind(
@@ -161,6 +171,8 @@ void AppStateIngame::restoreFocusImpl(const std::string& message)
 
 void AppStateIngame::handleNetworkUpdate(const ServerUpdateData& update)
 {
+    dic->logger->log("---HANDLE NETWORK UPDATE---");
+
     ready = update.state == ServerState::GameInProgress;
     auto&& oldestTicks = std::vector<size_t>(
         update.clients.size(), std::numeric_limits<size_t>::max());
@@ -178,11 +190,12 @@ void AppStateIngame::handleNetworkUpdate(const ServerUpdateData& update)
         app.time.getDeltaTime());
     for (auto&& inputData : update.inputs)
     {
-        dic->logger->log(
-            "\tInput for tick {} from client {}",
-            inputData.tick,
-            inputData.clientId);
         tickToRollbackTo = std::min(tickToRollbackTo, inputData.tick);
+        dic->logger->log(
+            "\tInput for tick {} from client {}, currently rollbacking to {}",
+            inputData.tick,
+            inputData.clientId,
+            tickToRollbackTo);
 
         if (stateManager.isTickTooOld(inputData.tick))
         {
@@ -206,6 +219,7 @@ void AppStateIngame::handleNetworkUpdate(const ServerUpdateData& update)
     }
 
     setCurrentFrameDelay(std::move(oldestTicks));
+    dic->logger->log("---HANDLE NETWORK UPDATE END---");
 }
 
 void AppStateIngame::setCurrentFrameDelay(std::vector<size_t>&& oldestTicks)
