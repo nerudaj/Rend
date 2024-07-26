@@ -69,6 +69,7 @@ AppStateIngame::AppStateIngame(
 
 void AppStateIngame::input()
 {
+    tickToRollbackTo = stateManager.getLastInsertedTick();
     auto&& result = client->readPacketsUntil(
         std::bind(
             &AppStateIngame::handleNetworkUpdate, this, std::placeholders::_1),
@@ -132,6 +133,16 @@ void AppStateIngame::update()
 
     namespace ph = std::placeholders;
 
+    /*stateManager.forEachItemFromOldestToNewest(
+        std::bind(
+            &AppStateIngame::simulateFrameFromState, this, ph::_1, ph::_2),
+        std::bind(&AppStateIngame::backupState, this, ph::_1));*/
+
+    dic->logger->log(
+        "UPDATE: Last tick: {}, getLastInsertedTick: {}, tickToRollbackTo: {}",
+        lastTick,
+        stateManager.getLastInsertedTick(),
+        tickToRollbackTo);
     stateManager.forEachItemFromTick(
         tickToRollbackTo,
         std::bind(
@@ -161,6 +172,8 @@ void AppStateIngame::restoreFocusImpl(const std::string& message)
 
 void AppStateIngame::handleNetworkUpdate(const ServerUpdateData& update)
 {
+    dic->logger->log("---HANDLE NETWORK UPDATE---");
+
     ready = update.state == ServerState::GameInProgress;
     auto&& oldestTicks = std::vector<size_t>(
         update.clients.size(), std::numeric_limits<size_t>::max());
@@ -171,18 +184,18 @@ void AppStateIngame::handleNetworkUpdate(const ServerUpdateData& update)
         if (clientData.state != ClientState::Disconnected) ++humanPlayerCount;
     }
 
-    tickToRollbackTo = stateManager.getLastInsertedTick();
     dic->logger->log(
         "Peer: Update in tick {}. Frame time: {}",
         stateManager.getLastInsertedTick(),
         app.time.getDeltaTime());
     for (auto&& inputData : update.inputs)
     {
-        dic->logger->log(
-            "\tInput for tick {} from client {}",
-            inputData.tick,
-            inputData.clientId);
         tickToRollbackTo = std::min(tickToRollbackTo, inputData.tick);
+        dic->logger->log(
+            "\tInput for tick {} from client {}, currently rollbacking to {}",
+            inputData.tick,
+            inputData.clientId,
+            tickToRollbackTo);
 
         if (stateManager.isTickTooOld(inputData.tick))
         {
@@ -206,6 +219,7 @@ void AppStateIngame::handleNetworkUpdate(const ServerUpdateData& update)
     }
 
     setCurrentFrameDelay(std::move(oldestTicks));
+    dic->logger->log("---HANDLE NETWORK UPDATE END---");
 }
 
 void AppStateIngame::setCurrentFrameDelay(std::vector<size_t>&& oldestTicks)
@@ -326,7 +340,6 @@ bool AppStateIngame::isFrameConfirmed() const
     constexpr const size_t WINDOW_SIZE = 19;
     if (lastTick < WINDOW_SIZE) return true;
 
-    // NOTE: is last tick really in manager?
     const auto& confirmations =
         stateManager.get(lastTick - WINDOW_SIZE).confirmedInputs;
 
