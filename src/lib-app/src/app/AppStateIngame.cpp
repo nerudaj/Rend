@@ -211,9 +211,10 @@ void AppStateIngame::handleNetworkUpdate(const ServerUpdateData& update)
 void AppStateIngame::setCurrentFrameDelay(std::vector<size_t>&& oldestTicks)
 {
     artificialFrameDelay = {};
-    for (auto&& tick : oldestTicks)
+    for (auto&& [clientIdx, tick] : std::views::enumerate(oldestTicks))
     {
-        if (stateManager.isTickHalfwayTooOld(tick))
+        if (stateManager.isTickHalfwayTooOld(tick)
+            && clientIdx != client->getMyIndex())
         {
             dic->logger->log(
                 "\t\tSlowing down, one of the updated clients is lagging "
