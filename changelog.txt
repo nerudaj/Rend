@@ -1,6 +1,7 @@
 Rend 0.5.1 changelog:
 
 * Increased performance on 3P/4P maps when multiple bots are in game
+* Clients are no longer performing frame lenghtening if they are the ones lagging behind
 
 Rend 0.5.0 changelog:
 
