@@ -156,7 +156,7 @@ int main(int argc, char* argv[])
         {
             auto result =
                 resmgr->loadResource<LevelD>(mapPath, Loader::loadLevel);
-            throw Error(result.error());
+            if (!result) throw Error(result.error());
         });
 
     app.pushState<AppStateMainMenu>(dic);

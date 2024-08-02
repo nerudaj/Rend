@@ -1,7 +1,6 @@
 #include "app/AppStateLobbyBase.hpp"
 #include "app/AppStateMapRotationWrapper.hpp"
 #include "app/AppStateMenuOptions.hpp"
-#include "utils/Base16.hpp"
 #include "utils/ClientStateToString.hpp"
 #include "utils/InputHandler.hpp"
 #include <Configs/Strings.hpp>
@@ -66,11 +65,9 @@ void AppStateLobbyBase::handleMapDownload(const MapDownloadResponse& data)
     }
 
     {
-        auto decoded = data.base64encodedMap;
-
         std::filesystem::create_directory(mapPackDir);
         auto save = std::ofstream(mapPath);
-        save << Base16::fromBase16(decoded);
+        save << base64::from_base64(data.base64encodedMap);
     }
 
     dic->lateLoadMapIntoManager(mapPath);
