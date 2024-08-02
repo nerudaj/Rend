@@ -15,7 +15,7 @@ target_include_directories ( ${PROJECT_NAME}
 )
 
 target_link_libraries ( ${PROJECT_NAME}
-	lib-game lib-editor lib-resources lib-network Dep_tgui lib-gui-builder
+	lib-game lib-editor lib-resources lib-network Dep_tgui lib-gui-builder Dep_base64
 )
 
 autoset_target_compile_options ( ${PROJECT_NAME} FALSE )

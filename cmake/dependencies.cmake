@@ -19,6 +19,7 @@ set ( JSON_URL  "https://github.com/nlohmann/json/releases/download/v${JSON_VERS
 set ( CXXOPTS_URL "https://github.com/jarro2783/cxxopts/archive/refs/tags/v${CXXOPTS_VERSION}.zip" )
 set ( ENTT_URL "https://github.com/skypjack/entt/archive/refs/tags/v${ENTT_VERSION}.zip" )
 set ( FAKEIT_URL "https://github.com/eranpeer/FakeIt/archive/refs/tags/${FAKEIT_VERSION}.zip" )
+set ( BASE64_URL "https://raw.githubusercontent.com/tobiaslocker/base64/master/include/base64.hpp" )
 
 include ( FetchContent )
 
@@ -58,6 +59,7 @@ fetch_dependency ( JSON  ${JSON_URL}  FALSE )
 fetch_dependency ( CXXOPTS ${CXXOPTS_URL} FALSE )
 fetch_dependency ( ENTT ${ENTT_URL} FALSE )
 fetch_dependency ( FAKEIT ${FAKEIT_URL} FALSE )
+fetch_dependency ( BASE64 ${BASE64_URL} TRUE )
 
 # Verify folder paths
 message ( "Dependencies downloaded to: " )
@@ -71,6 +73,7 @@ message ( "  JSON:  ${JSON_FOLDER}" )
 message ( "  OPTS:  ${CXXOPTS_FOLDER}" )
 message ( "  ENTT:  ${ENTT_FOLDER}" )
 message ( "  FAKEIT: ${FAKEIT_FOLDER}" )
+message ( "  BASE64: ${BASE64_FOLDER}" )
 
 # Make libraries visible to cmake linker
 link_directories("${DSH_FOLDER}/lib")
@@ -184,3 +187,6 @@ target_include_directories ( Dep_catch INTERFACE "${CATCH_FOLDER}" )
 
 add_library ( Dep_fakeit INTERFACE )
 target_include_directories ( Dep_fakeit INTERFACE "${FAKEIT_FOLDER}/single_header/standalone" )
+
+add_library ( Dep_base64 INTERFACE )
+target_include_directories ( Dep_base64 INTERFACE "${BASE64_FOLDER}" )
