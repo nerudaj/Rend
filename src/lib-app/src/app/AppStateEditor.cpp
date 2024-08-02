@@ -169,6 +169,8 @@ void AppStateEditor::buildLayout()
     const std::string SIDEBAR_HEIGHT = "&.height - " + TOPBAR_HEIGHT;
     const std::string SIDEBAR_XPOS = "&.width - " + SIDEBAR_WIDTH;
 
+    dic->gui->removeAllWidgets();
+
     // Canvas
     auto runToken =
         buildCanvasLayout(SIDEBAR_WIDTH, SIDEBAR_HEIGHT, TOPBAR_HEIGHT);

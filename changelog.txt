@@ -3,6 +3,9 @@ Rend 0.6.0 changelog:
 UX:
 * Last IP that was succesfully used to join a networked game is remembered and prefilled in the Join game screen
 
+Bugfixes:
+* Fixed graphical glitch that shows in place of the sidebar until a map is opened
+
 Rend 0.5.1 changelog:
 
 * Increased performance on 3P/4P maps when multiple bots are in game
