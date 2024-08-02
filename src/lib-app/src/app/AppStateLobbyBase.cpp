@@ -36,7 +36,6 @@ void AppStateLobbyBase::handleNetworkUpdate(const ServerUpdateData& update)
     {
         lobbySettings = update.lobbySettings;
         checkMapAvailability();
-        // TODO: check any unsupported maps
     }
 
     if (update.state == ServerState::MapLoading)
