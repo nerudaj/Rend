@@ -19,5 +19,5 @@ std::expected<std::string, Error> ServerMapLoader::loadMapInBase64(
         return file.error();
     }
 
-    return base64::to_base64(file.value());
+    return file.value();
 }

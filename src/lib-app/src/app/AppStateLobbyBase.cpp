@@ -54,7 +54,7 @@ void AppStateLobbyBase::handleNetworkUpdate(const ServerUpdateData& update)
 
 void AppStateLobbyBase::handleMapDownload(const MapDownloadResponse& data)
 {
-    auto decoded = base64::from_base64(data.base64encodedMap);
+    auto decoded = data.base64encodedMap;
     auto mapPackDir =
         dic->settings->cmdSettings.resourcesDir / "levels" / data.mapPackName;
     std::filesystem::create_directory(mapPackDir);
