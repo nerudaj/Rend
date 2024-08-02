@@ -1,19 +1,32 @@
 #include "Server.hpp"
+#include "StdoutLogger.hpp"
 #include <format>
 #include <functional>
 #include <thread>
 
 std::atomic_bool serverEnabled = true;
 
+class NullMapLoader : public MapLoaderInterface
+{
+public:
+    std::expected<std::string, Error>
+    loadMapInBase64(const std::string&, const std::string&) const override
+    {
+        return "";
+    }
+};
+
 void serverLoop(ServerConfiguration config)
 {
     try
     {
-        auto&& server = Server(config);
+        auto&& server = Server(
+            config,
+            ServerDependencies { .logger = mem::Rc<StdoutLogger>(),
+                                 .mapLoader = mem::Rc<NullMapLoader>() });
         while (serverEnabled)
         {
-            server.update([](const std::string& log)
-                          { std::cout << log << std::endl; });
+            server.update();
         }
     }
     catch (const std::exception& e)
