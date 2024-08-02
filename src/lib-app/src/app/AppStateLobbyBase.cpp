@@ -66,7 +66,7 @@ void AppStateLobbyBase::handleMapDownload(const MapDownloadResponse& data)
 
     {
         std::filesystem::create_directory(mapPackDir);
-        auto save = std::ofstream(mapPath);
+        auto save = std::ofstream(mapPath, std::ios::binary);
         save << base64::from_base64(data.base64encodedMap);
     }
 
