@@ -209,14 +209,18 @@ void AppStateLobbyBase::checkMapAvailability()
 {
     std::vector<std::string> mapsToDownload =
         lobbySettings.mapSettings
+        | std::views::transform(
+            [](const MapSettings& cfg) {
+                return cfg.name.ends_with(".lvd") ? cfg.name
+                                                  : cfg.name + ".lvd";
+            })
         | std::views::filter(
-            [&](const MapSettings& cfg)
+            [&](const std::string& name)
             {
                 return !std::filesystem::exists(
                     dic->settings->cmdSettings.resourcesDir / "levels"
-                    / lobbySettings.packname / cfg.name);
+                    / lobbySettings.packname / name);
             })
-        | std::views::transform([](const MapSettings& cfg) { return cfg.name; })
         | std::ranges::to<std::vector<std::string>>();
 
     if (!mapsToDownload.empty())

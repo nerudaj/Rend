@@ -18,5 +18,12 @@ public:
         const std::string& mapName) const override;
 
 private:
+    static [[nodiscard]] std::string
+    makeSureMapNameHasExtension(const std::string& name) noexcept
+    {
+        return name.ends_with(".lvd") ? name : name + ".lvd";
+    }
+
+private:
     std::filesystem::path resourcesDir;
 };
