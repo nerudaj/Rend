@@ -1,3 +1,4 @@
+#include "StdoutLogger.hpp"
 #include <Client.hpp>
 #include <Server.hpp>
 #include <catch.hpp>
@@ -5,18 +6,30 @@
 
 constexpr const unsigned short PORT = 10666;
 
+class MapLoaderMock final : public MapLoaderInterface
+{
+public:
+    std::string
+    loadMapInBase64(const std::string&, const std::string&) const override
+    {
+        return "dummy";
+    }
+};
+
 void serverThread(std::atomic_bool& keepServerRunning)
 {
-    auto&& server = Server(ServerConfiguration {
-        .port = PORT,
-        .maxClientCount = 1,
-        .acceptReconnects = true,
-    });
+    auto&& server = Server(
+        ServerConfiguration {
+            .port = PORT,
+            .maxClientCount = 1,
+            .acceptReconnects = true,
+        },
+        ServerDependencies { .logger = mem::Rc<StdoutLogger>(),
+                             .mapLoader = mem::Rc<MapLoaderMock>() });
 
     while (keepServerRunning)
     {
-        server.update([](const std::string& str)
-                      { std::cout << str << std::endl; });
+        server.update();
     }
 }
 
@@ -54,12 +67,14 @@ TEST_CASE("Client info is correctly propagated", "[Network]")
     sleep(100u);
 
     bool firstUpdateReceived = false;
-    client.readIncomingPackets(
+    auto&& result = client.readIncomingPackets(
         [&](const ServerUpdateData& update)
         {
             firstUpdateReceived = true;
             REQUIRE(update.clients.size() == 1u);
         });
+    if (!result) std::cout << result.error() << std::endl;
+    REQUIRE(result);
     REQUIRE(firstUpdateReceived);
 
     client.sendPeerSettingsUpdate(ClientData {
@@ -150,5 +165,50 @@ TEST_CASE("reconnection uses previously cleared ClientData", "[Network]")
                 REQUIRE(update.clients.size() == 1u);
             });
         REQUIRE(firstUpdateReceived);
+    }
+}
+
+TEST_CASE(
+    "requesting a bunch of maps returns them in individual messages",
+    "[Network]")
+{
+    std::atomic_bool keepServerRunning = true;
+    auto&& thread = std::jthread(serverThread, std::ref(keepServerRunning));
+    auto&& killswitch = Killswitch(keepServerRunning);
+    sleep(100u);
+
+    {
+        auto&& client = Client("127.0.0.1", PORT);
+        sleep(100u);
+
+        client.readIncomingPackets([](const ServerUpdateData&) {});
+        client.requestMapDownload(
+            "official_ffa", { "2p_greenpath.lvd", "2p_spacestation.lvd" });
+        sleep(100u);
+
+        int seq = 0;
+        client.readIncomingPackets(
+            [](const ServerUpdateData&) {},
+            [&seq](const MapDownloadResponse& response)
+            {
+                if (seq == 0)
+                {
+                    REQUIRE(response.mapPackName == "official_ffa");
+                    REQUIRE(response.mapName == "2p_greenpath.lvd");
+                    REQUIRE_FALSE(response.base64encodedMap.empty());
+                }
+                else if (seq == 1)
+                {
+                    REQUIRE(response.mapPackName == "official_ffa");
+                    REQUIRE(response.mapName == "2p_spacestation.lvd");
+                    REQUIRE_FALSE(response.base64encodedMap.empty());
+                }
+                else
+                {
+                    REQUIRE(false);
+                }
+                ++seq;
+            });
+        REQUIRE(seq == 2);
     }
 }

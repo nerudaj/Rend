@@ -9,6 +9,17 @@
 #include <app/AppStateServerWrapper.hpp>
 #include <core/Constants.hpp>
 
+class [[nodiscard]] ServerMapLoader final : public MapLoaderInterface
+{
+public:
+    std::string loadMapInBase64(
+        const std::string& mapPackName,
+        const std::string& mapName) const override
+    {
+        return "";
+    }
+};
+
 void serverLoop(
     ServerConfiguration config,
     bool enableDebug,
@@ -19,13 +30,16 @@ void serverLoop(
 
     try
     {
-        auto&& server = Server(config);
+        auto&& server = Server(
+            config,
+            ServerDependencies { .logger = logger,
+                                 .mapLoader = mem::Rc<ServerMapLoader>() });
         auto&& framerate = Framerate(FPS * 2);
         logger->log("Server loop started");
 
         while (serverEnabled)
         {
-            server.update([&](auto&& str) { logger->log("{}", str); });
+            server.update();
             framerate.ensureFramerate();
         }
     }

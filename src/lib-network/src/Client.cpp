@@ -1,6 +1,7 @@
 #include "Client.hpp"
 #include "ClientMessage.hpp"
 #include "LobbySettings.hpp"
+#include "MapDownloadRequest.hpp"
 #include "ServerMessage.hpp"
 #include "ServerMessageType.hpp"
 #include <format>
@@ -26,7 +27,7 @@ Client::readIncomingPackets(HandleNetworkUpdate handleUpdateCallback)
     while (socket->receive(packet) == sf::Socket::Status::Done)
     {
         auto&& message = ServerMessage::fromPacket(packet);
-        if (message.type != ServerMessageType::Update)
+        if (message.type != ServerMessageType::Update) [[unlikely]]
         {
             return std::unexpected(std::format(
                 "Expected server Update message, got type {}",
@@ -34,6 +35,35 @@ Client::readIncomingPackets(HandleNetworkUpdate handleUpdateCallback)
         }
 
         handleUpdateCallback(nlohmann::json::parse(message.payload));
+    }
+
+    return ReturnFlag::Success;
+}
+
+ExpectSuccess Client::readIncomingPackets(
+    HandleNetworkUpdate handleUpdateCallback,
+    HandleMapDownload handleMapDownloadCallback)
+{
+    sf::Packet packet;
+
+    while (socket->receive(packet) == sf::Socket::Status::Done)
+    {
+        auto&& message = ServerMessage::fromPacket(packet);
+
+        if (message.type == ServerMessageType::Update) [[likely]]
+        {
+            handleUpdateCallback(nlohmann::json::parse(message.payload));
+        }
+        else if (message.type == ServerMessageType::MapDownloadResponse)
+        {
+            handleMapDownloadCallback(nlohmann::json::parse(message.payload));
+        }
+        else [[unlikely]]
+        {
+            return std::unexpected(std::format(
+                "Expected server Update or MapDownload message, got type {}",
+                std::to_underlying(message.type)));
+        }
     }
 
     return ReturnFlag::Success;
@@ -118,6 +148,21 @@ ExpectSuccess Client::sendPeerSettingsUpdate(const ClientData& peerUpdate)
                         .jsonData = nlohmann::json(peerUpdate).dump() }
             .toPacket(),
         "Could not send peer update");
+}
+
+ExpectSuccess Client::requestMapDownload(
+    const std::string& mapPackName, const std::vector<std::string>& mapNames)
+{
+    return trySendPacket(
+        ClientMessage {
+            .type = ClientMessageType::MapDownloadRequest,
+            .clientId = myClientId,
+            .jsonData =
+                nlohmann::json(MapDownloadRequest { .mapPackName = mapPackName,
+                                                    .mapNames = mapNames })
+                    .dump() }
+            .toPacket(),
+        "Something went wrong when requesting map download");
 }
 
 std::expected<PlayerIdxType, ErrorMessage> Client::registerToServer()

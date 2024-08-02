@@ -10,5 +10,6 @@ enum class [[nodiscard]] ClientMessageType : uint8_t
     ReportMapReady,
     ReportInput,
     ReportMapEnded,
-    Disconnect
+    Disconnect,
+    MapDownloadRequest,
 };
