@@ -1,6 +1,6 @@
 #pragma once
 
-#include "logging/LoggerInterface.hpp"
+#include "LoggerInterface.hpp"
 #include <filesystem>
 #include <fstream>
 

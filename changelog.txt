@@ -2,6 +2,7 @@ Rend 0.6.0 changelog:
 
 UX:
 * Last IP that was succesfully used to join a networked game is remembered and prefilled in the Join game screen
+* If server hosts a map that peer doesn't have, that map will be downloaded
 
 Bugfixes:
 * Fixed graphical glitch that shows in place of the sidebar until a map is opened

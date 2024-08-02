@@ -151,7 +151,13 @@ int main(int argc, char* argv[])
         settings,
         LoggerFactory::createLogger(
             settings->cmdSettings.enableDebug, "./rend_client_log.txt"),
-        ErrorInfoDialog(gui));
+        ErrorInfoDialog(gui),
+        [&resmgr](const std::filesystem::path& mapPath)
+        {
+            auto result =
+                resmgr->loadResource<LevelD>(mapPath, Loader::loadLevel);
+            if (!result) throw Error(result.error());
+        });
 
     app.pushState<AppStateMainMenu>(dic);
     app.run();

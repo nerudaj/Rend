@@ -5,12 +5,18 @@
 #include <SFML/Network.hpp>
 #pragma warning(pop)
 #include "ClientMessage.hpp"
+#include "ServerDependencies.hpp"
+#include "ServerEvents.hpp"
 #include "ServerMessage.hpp"
 #include <Error.hpp>
 #include <Memory.hpp>
 #include <expected>
 #include <map>
+#include <queue>
 #include <string>
+
+using LoadMapAsBase64 =
+    std::function<std::string(const std::string&, const std::string&)>;
 
 struct [[nodiscard]] ServerConfiguration final
 {
@@ -22,13 +28,24 @@ struct [[nodiscard]] ServerConfiguration final
 class [[nodiscard]] Server final
 {
 public:
-    Server(ServerConfiguration config);
+    Server(ServerConfiguration config, ServerDependencies dependencies);
     ~Server();
 
 public:
-    void update(std::function<void(const std::string&)> log);
+    void operator()(const PeerLeftServerEvent& e);
+    void operator()(const MapRequestedServerEvent& e);
+
+    void update();
 
 private:
+    using NewConnectionCount = size_t;
+    using ProcessedPacketCount = size_t;
+
+    NewConnectionCount processNewConnections();
+    ProcessedPacketCount processIncomingPackets();
+    void processEvents();
+    void sendUpdates();
+
     ExpectedLog handleMessage(
         const ClientMessage& message,
         const sf::IpAddress& address,
@@ -47,6 +64,11 @@ private:
 
     ExpectedLog handleReportedInput(const ClientMessage& message);
 
+    ExpectedLog handleMapDownloadRequest(
+        const sf::IpAddress& address,
+        unsigned short port,
+        const ClientMessage& message);
+
     ExpectedLog handlePeerSettingsUpdate(
         const ClientMessage& message,
         const sf::IpAddress& address,
@@ -60,7 +82,8 @@ private:
     ExpectedLog
     handleDisconnection(const sf::IpAddress& address, unsigned short port);
 
-    ExpectSuccess denyNewPeer(mem::Box<sf::TcpSocket>&& socket);
+    ExpectedLog denyNewPeer(
+        mem::Box<sf::TcpSocket>&& socket, const std::string& denyReason);
 
     [[nodiscard]] bool
     isAdmin(const sf::IpAddress& address, unsigned short port) const noexcept
@@ -129,13 +152,14 @@ private:
         sf::IpAddress address;
         unsigned short port = 0;
         mem::Box<sf::TcpSocket> socket;
-        bool disconnected = false;
     };
 
     const unsigned short MAX_CLIENT_COUNT;
     const bool ACCEPT_RECONNECTS;
+    ServerDependencies deps;
     mem::Box<sf::TcpListener> listener;
     std::map<sf::Uint64, ClientConnectionInfo> registeredClients;
     ServerUpdateData updateData;
     size_t sequence = 0;
+    std::queue<ServerEvents> events;
 };

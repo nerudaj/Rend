@@ -3,12 +3,14 @@
 #pragma warning(push, 0)
 #include <SFML/Network.hpp>
 #pragma warning(pop)
+#include "MapDownloadResponse.hpp"
 #include "ServerMessage.hpp"
 #include <Error.hpp>
 #include <Memory.hpp>
 #include <functional>
 
 using HandleNetworkUpdate = std::function<void(const ServerUpdateData&)>;
+using HandleMapDownload = std::function<void(const MapDownloadResponse&)>;
 
 class [[nodiscard]] Client final
 {
@@ -28,6 +30,10 @@ public:
 
     ExpectSuccess readIncomingPackets(HandleNetworkUpdate handleUpdateCallback);
 
+    ExpectSuccess readIncomingPackets(
+        HandleNetworkUpdate handleUpdateCallback,
+        HandleMapDownload handleMapDownloadCallback);
+
     ExpectSuccess readPacketsUntil(
         HandleNetworkUpdate handleUpdateCallback,
         std::function<bool()> shouldStopReading,
@@ -45,6 +51,10 @@ public:
     ExpectSuccess sendLobbySettingsUpdate(const LobbySettings& lobbySettings);
 
     ExpectSuccess sendPeerSettingsUpdate(const ClientData& peerUpdate);
+
+    ExpectSuccess requestMapDownload(
+        const std::string& mapPackName,
+        const std::vector<std::string>& mapNames);
 
 private:
     std::expected<PlayerIdxType, ErrorMessage> registerToServer();

@@ -4,6 +4,7 @@
 #include "Shortcuts/ShortcutEngine.hpp"
 #include "logging/LoggerFactory.hpp"
 #include "utils/Framerate.hpp"
+#include "utils/ServerMapLoader.hpp"
 #include <app/AppStateEditor.hpp>
 #include <app/AppStateGameSetup.hpp>
 #include <app/AppStateServerWrapper.hpp>
@@ -12,20 +13,25 @@
 void serverLoop(
     ServerConfiguration config,
     bool enableDebug,
-    std::atomic_bool& serverEnabled)
+    std::atomic_bool& serverEnabled,
+    std::filesystem::path resourcesDir)
 {
     auto&& logger =
         LoggerFactory::createLogger(enableDebug, "./rend_server_log.txt");
 
     try
     {
-        auto&& server = Server(config);
+        auto&& server = Server(
+            config,
+            ServerDependencies { .logger = logger,
+                                 .mapLoader =
+                                     mem::Rc<ServerMapLoader>(resourcesDir) });
         auto&& framerate = Framerate(FPS * 2);
         logger->log("Server loop started");
 
         while (serverEnabled)
         {
-            server.update([&](auto&& str) { logger->log("{}", str); });
+            server.update();
             framerate.ensureFramerate();
         }
     }
@@ -47,7 +53,8 @@ AppStateServerWrapper::AppStateServerWrapper(
                                 .acceptReconnects =
                                     target == ServerWrapperTarget::Editor },
           dic->settings->cmdSettings.enableDebug,
-          std::ref(serverEnabled))
+          std::ref(serverEnabled),
+          dic->settings->cmdSettings.resourcesDir)
 {
     switch (target)
     {

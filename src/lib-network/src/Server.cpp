@@ -1,4 +1,6 @@
 #include "Server.hpp"
+#include "MapDownloadRequest.hpp"
+#include "MapDownloadResponse.hpp"
 #include <format>
 #include <iostream>
 #include <nlohmann/json.hpp>
@@ -18,9 +20,10 @@
             port));                                                            \
     }
 
-Server::Server(ServerConfiguration config)
+Server::Server(ServerConfiguration config, ServerDependencies dependencies)
     : MAX_CLIENT_COUNT(config.maxClientCount)
     , ACCEPT_RECONNECTS(config.acceptReconnects)
+    , deps(dependencies)
 {
     if (listener->listen(config.port) != sf::Socket::Status::Done)
     {
@@ -29,7 +32,7 @@ Server::Server(ServerConfiguration config)
     }
     listener->setBlocking(false);
 
-    std::println("Server: Listening on port {}", config.port);
+    deps.logger->log("Server: Listening on port {}", config.port);
 }
 
 Server::~Server()
@@ -40,31 +43,70 @@ Server::~Server()
     }
 }
 
-void Server::update(std::function<void(const std::string&)> log)
+void Server::operator()(const PeerLeftServerEvent& e)
 {
-    bool shouldUpdate = false;
+    updateData.clients.at(registeredClients.at(e.clientKey).idx).state =
+        ClientState::Disconnected;
+    registeredClients.erase(e.clientKey);
+}
 
-    auto resolveMessageResult = [&shouldUpdate, log](const ExpectedLog& result)
+void Server::operator()(const MapRequestedServerEvent& e)
+{
+    auto& client = registeredClients.at(e.clientKey);
+    auto map = deps.mapLoader->loadMapInBase64(e.mapPackName, e.mapName);
+    if (!map)
     {
-        if (result)
-        {
-            if (!result.value().empty()) log(result.value());
-            shouldUpdate = true;
-        }
-        else
-        {
-            log("error:" + result.error());
-        }
-    };
+        deps.logger->log(map);
+        return;
+    }
 
-    // Handle new connections
+    auto packet =
+        ServerMessage { .type = ServerMessageType::MapDownloadResponse,
+                        .clientId = client.idx,
+                        .payload = nlohmann::json(
+                                       MapDownloadResponse {
+                                           .mapPackName = e.mapPackName,
+                                           .mapName = e.mapName,
+                                           .base64encodedMap = map.value() })
+                                       .dump() }
+            .toPacket();
+
+    if (client.socket->send(packet) != sf::Socket::Status::Done)
+    {
+        deps.logger->log(
+            "error: Could not send map to client {} at "
+            "{}:{}",
+            client.idx,
+            client.address.toInteger(),
+            client.port);
+    }
+}
+
+void Server::update()
+{
+    auto cnt1 = processNewConnections();
+    auto cnt2 = processIncomingPackets();
+    processEvents();
+    if (cnt1 + cnt2 > 0) sendUpdates();
+}
+
+Server::NewConnectionCount Server::processNewConnections()
+{
+    size_t cnt = registeredClients.size();
+
     mem::Box<sf::TcpSocket> newConnection;
     if (listener->accept(*newConnection) == sf::Socket::Status::Done)
     {
-        resolveMessageResult(handleNewConnection(std::move(newConnection)));
+        deps.logger->log(handleNewConnection(std::move(newConnection)));
     }
 
-    // Handle messages from existing peers
+    return registeredClients.size() - cnt;
+}
+
+Server::ProcessedPacketCount Server::processIncomingPackets()
+{
+    size_t cnt = 0;
+
     sf::Packet packet;
     std::vector<sf::Uint64> clientKeysToRemove;
     for (auto&& [key, client] : registeredClients)
@@ -72,37 +114,47 @@ void Server::update(std::function<void(const std::string&)> log)
         if (client.socket->receive(packet) != sf::Socket::Status::Done)
             continue;
 
-        resolveMessageResult(handleMessage(
-            ClientMessage::fromPacket(packet), client.address, client.port));
-
-        if (client.disconnected) clientKeysToRemove.push_back(key);
+        auto result = handleMessage(
+            ClientMessage::fromPacket(packet), client.address, client.port);
+        if (result) ++cnt;
+        deps.logger->log(result);
     }
 
-    for (auto&& clientKey : clientKeysToRemove)
+    return cnt;
+}
+
+void Server::processEvents()
+{
+    while (!events.empty())
     {
-        registeredClients.erase(clientKey);
+        std::visit(*this, events.front());
+        events.pop();
     }
+}
 
-    if (!shouldUpdate) return;
-
+void Server::sendUpdates()
+{
     updateData.state = computeNewState();
 
     auto&& payload = nlohmann::json(updateData).dump();
     for (auto&& [key, client] : registeredClients)
     {
-        packet = ServerMessage { .type = ServerMessageType::Update,
-                                 .sequence = sequence,
-                                 .clientId = client.idx,
-                                 .payload = payload }
-                     .toPacket();
+        auto packet = ServerMessage { .type = ServerMessageType::Update,
+                                      .sequence = sequence,
+                                      .clientId = client.idx,
+                                      .payload = payload }
+                          .toPacket();
 
-        if (client.socket->send(packet) != sf::Socket::Status::Done)
+        if (auto status = client.socket->send(packet);
+            status != sf::Socket::Status::Done)
         {
-            log(std::format(
-                "error: Could not send response to client {} at {}:{}",
+            deps.logger->log(
+                "error: Could not send response to client {} at {}:{} (status "
+                "code {})",
                 client.idx,
                 client.address.toInteger(),
-                client.port));
+                client.port,
+                std::to_underlying(status));
         }
     }
 
@@ -130,6 +182,8 @@ ExpectedLog Server::handleMessage(
         return handleMapEnded(address, port);
     case ReportInput:
         return handleReportedInput(message);
+    case MapDownloadRequest:
+        return handleMapDownloadRequest(address, port, message);
     case Disconnect:
         return handleDisconnection(address, port);
     default:
@@ -147,32 +201,33 @@ ExpectedLog Server::handleNewConnection(mem::Box<sf::TcpSocket>&& socket)
 
     if (isRegistered(address, port) && !ACCEPT_RECONNECTS)
     {
-        if (auto&& result = denyNewPeer(std::move(socket)); !result)
-            return std::unexpected(result.error());
-        return std::format(
-            "Could not register new peer at {}:{}, because it is already "
-            "registered",
-            address.toString(),
-            port);
+        return denyNewPeer(
+            std::move(socket),
+            std::format(
+                "Could not register new peer at {}:{}, because it is already "
+                "registered",
+                address.toString(),
+                port));
     }
     else if (MAX_CLIENT_COUNT == registeredClients.size())
     {
-        if (auto&& result = denyNewPeer(std::move(socket)); !result)
-            return std::unexpected(result.error());
-        return std::format(
-            "Could not register new peer at {}:{}, because limit of clients "
-            "has been reached ",
-            address.toString(),
-            port);
+        return denyNewPeer(
+            std::move(socket),
+            std::format(
+                "Could not register new peer at {}:{}, because limit of "
+                "clients "
+                "has been reached ",
+                address.toString(),
+                port));
     }
     else if (updateData.state != ServerState::Lobby)
     {
-        if (auto&& result = denyNewPeer(std::move(socket)); !result)
-            return std::unexpected(result.error());
-        return std::format(
-            "Could not register new peer at {}:{}, game has started",
-            address.toString(),
-            port);
+        return denyNewPeer(
+            std::move(socket),
+            std::format(
+                "Could not register new peer at {}:{}, game has started",
+                address.toString(),
+                port));
     }
 
     const auto&& newIdx = [](std::vector<ClientData>& clients) -> PlayerIdxType
@@ -263,7 +318,8 @@ ExpectedLog Server::handleReportedInput(const ClientMessage& message)
     catch (const std::exception& e)
     {
         return std::unexpected(std::format(
-            "Could not parse incoming input json '{}', from client {}, with "
+            "Could not parse incoming input json '{}', from client {}, "
+            "with "
             "error: {}",
             message.jsonData,
             message.clientId,
@@ -279,6 +335,43 @@ ExpectedLog Server::handleReportedInput(const ClientMessage& message)
 #else
     return std::format("");
 #endif
+}
+
+ExpectedLog Server::handleMapDownloadRequest(
+    const sf::IpAddress& address,
+    unsigned short port,
+    const ClientMessage& message)
+{
+    CHECK_REGISTRATION(address, port);
+    auto&& id = peerToId(address, port);
+
+    try
+    {
+        MapDownloadRequest request = nlohmann::json::parse(message.jsonData);
+
+        for (const auto& mapName : request.mapNames)
+        {
+            events.push(
+                MapRequestedServerEvent { .clientKey = id,
+                                          .mapPackName = request.mapPackName,
+                                          .mapName = mapName });
+        }
+    }
+    catch (const std::exception& e)
+    {
+        return std::unexpected(std::format(
+            "Could not parse incoming input json '{}', from client {}, "
+            "with "
+            "error: {}",
+            message.jsonData,
+            message.clientId,
+            e.what()));
+    }
+
+    return std::format(
+        "Map request was accepted from client {} with this payload: '{}'",
+        message.clientId,
+        message.jsonData);
 }
 
 ExpectedLog Server::handlePeerSettingsUpdate(
@@ -297,7 +390,8 @@ ExpectedLog Server::handlePeerSettingsUpdate(
     catch (const std::exception& e)
     {
         return std::unexpected(std::format(
-            "Could not parse peer settings update json '{}', from client {}, "
+            "Could not parse peer settings update json '{}', from client "
+            "{}, "
             "with error: {}",
             message.jsonData,
             message.clientId,
@@ -317,7 +411,8 @@ ExpectedLog Server::handleLobbySettingsUpdate(
 {
     if (!isAdmin(address, port))
         return std::unexpected(std::format(
-            "handleLobbySettingsUpdate: Unauthorized attempt for access from "
+            "handleLobbySettingsUpdate: Unauthorized attempt for access "
+            "from "
             "{}:{}",
             address.toString(),
             port));
@@ -329,7 +424,8 @@ ExpectedLog Server::handleLobbySettingsUpdate(
     catch (const std::exception& e)
     {
         return std::unexpected(std::format(
-            "Could not parse incoming lobby settings update json '{}', from "
+            "Could not parse incoming lobby settings update json '{}', "
+            "from "
             "client {}, with "
             "error: {}",
             message.jsonData,
@@ -349,14 +445,13 @@ Server::handleDisconnection(const sf::IpAddress& address, unsigned short port)
     CHECK_REGISTRATION(address, port);
 
     auto&& id = peerToId(address, port);
-    updateData.clients.at(registeredClients.at(id).idx).state =
-        ClientState::Disconnected;
-    registeredClients.at(id).disconnected = true;
+    events.push(PeerLeftServerEvent { .clientKey = id });
 
     return std::format("Client {}:{} disconnected", address.toString(), port);
 }
 
-ExpectSuccess Server::denyNewPeer(mem::Box<sf::TcpSocket>&& socket)
+ExpectedLog Server::denyNewPeer(
+    mem::Box<sf::TcpSocket>&& socket, const std::string& denyReason)
 {
     auto&& packet =
         ServerMessage { .type = ServerMessageType::ConnectionRefused }
@@ -369,7 +464,7 @@ ExpectSuccess Server::denyNewPeer(mem::Box<sf::TcpSocket>&& socket)
             socket->getRemotePort()));
     }
 
-    return ReturnFlag::Success;
+    return denyReason;
 }
 
 ServerState Server::computeNewState()

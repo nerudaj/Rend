@@ -5,6 +5,7 @@
 #include "utils/InputHandler.hpp"
 #include <Configs/Strings.hpp>
 #include <GuiBuilder.hpp>
+#include <base64.hpp>
 #include <ranges>
 
 constexpr const char* TABS_ID = "IdLobbyBaseTabs";
@@ -34,6 +35,7 @@ void AppStateLobbyBase::handleNetworkUpdate(const ServerUpdateData& update)
     if (!update.lobbySettings.isEmpty())
     {
         lobbySettings = update.lobbySettings;
+        checkMapAvailability();
     }
 
     if (update.state == ServerState::MapLoading)
@@ -48,6 +50,28 @@ void AppStateLobbyBase::handleNetworkUpdate(const ServerUpdateData& update)
     {
         handleTabSelected(Strings::AppState::PeerLobby::PLAYERS);
     }
+}
+
+void AppStateLobbyBase::handleMapDownload(const MapDownloadResponse& data)
+{
+    const auto mapPackDir =
+        dic->settings->cmdSettings.resourcesDir / "levels" / data.mapPackName;
+    const auto mapPath = mapPackDir / data.mapName;
+
+    if (std::filesystem::exists(mapPath))
+    {
+        dic->logger->log("The map at {} already exists", mapPath.string());
+        return;
+    }
+
+    {
+        std::filesystem::create_directory(mapPackDir);
+        auto save = std::ofstream(mapPath, std::ios::binary);
+        save << base64::from_base64(data.base64encodedMap);
+    }
+
+    dic->lateLoadMapIntoManager(mapPath);
+    dic->logger->log("Map downloaded and saved to {}", mapPath.string());
 }
 
 void AppStateLobbyBase::startGame()
@@ -190,4 +214,28 @@ void AppStateLobbyBase::handleTabSelected(const tgui::String& tabname)
 void AppStateLobbyBase::selectTab(const tgui::String& tabname)
 {
     dic->gui->get<tgui::Tabs>(TABS_ID)->select(tabname);
+}
+
+void AppStateLobbyBase::checkMapAvailability()
+{
+    std::vector<std::string> mapsToDownload =
+        lobbySettings.mapSettings
+        | std::views::transform(
+            [](const MapSettings& cfg) {
+                return cfg.name.ends_with(".lvd") ? cfg.name
+                                                  : cfg.name + ".lvd";
+            })
+        | std::views::filter(
+            [&](const std::string& name)
+            {
+                return !std::filesystem::exists(
+                    dic->settings->cmdSettings.resourcesDir / "levels"
+                    / lobbySettings.packname / name);
+            })
+        | std::ranges::to<std::vector<std::string>>();
+
+    if (!mapsToDownload.empty())
+    {
+        client->requestMapDownload(lobbySettings.packname, mapsToDownload);
+    }
 }

@@ -22,6 +22,21 @@ public:
         if (!msg) logImpl(msg.error());
     }
 
+    template<>
+    void log(const std::expected<std::string, ErrorMessage>& msg)
+    {
+        if (msg)
+            logImpl(msg.value());
+        else
+            log("error: {}", msg.error());
+    }
+
+    template<class T>
+    void log(const std::expected<T, Error>& msg)
+    {
+        if (!msg) logImpl(msg.error());
+    }
+
 protected:
     virtual void logImpl(const std::string& message) = 0;
 };

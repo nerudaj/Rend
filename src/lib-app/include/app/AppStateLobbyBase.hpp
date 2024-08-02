@@ -25,6 +25,8 @@ public:
 protected:
     void handleNetworkUpdate(const ServerUpdateData& update);
 
+    void handleMapDownload(const MapDownloadResponse& data);
+
     void startGame();
 
     std::vector<PlayerOptions> createPlayerSettings();
@@ -43,6 +45,8 @@ protected:
     void handleTabSelected(const tgui::String& tabname);
 
     void selectTab(const tgui::String& tabname);
+
+    void checkMapAvailability();
 
 protected:
     virtual void buildLayoutGameSetupImpl(tgui::Panel::Ptr target) = 0;
