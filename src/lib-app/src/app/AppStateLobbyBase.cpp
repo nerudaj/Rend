@@ -73,6 +73,7 @@ void AppStateLobbyBase::handleMapDownload(const MapDownloadResponse& data)
         save << Base16::fromBase16(decoded);
     }
 
+    dic->lateLoadMapIntoManager(mapPath);
     dic->logger->log("Map downloaded and saved to {}", mapPath.string());
 }
 

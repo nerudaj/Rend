@@ -1,5 +1,4 @@
 #include "Loader.hpp"
-#include <LevelD.hpp>
 #pragma warning(push, 0)
 #include <SFML/Audio.hpp>
 #pragma warning(pop)
@@ -45,7 +44,7 @@ static inline void loadClip(const std::filesystem::path& path, dgm::Clip& clip)
     clip = dgm::JsonLoader().loadClipFromFile(path);
 }
 
-static inline void loadLevel(const std::filesystem::path& path, LevelD& lvd)
+void Loader::loadLevel(const std::filesystem::path& path, LevelD& lvd)
 {
     lvd.loadFromFile(path.string());
 }
