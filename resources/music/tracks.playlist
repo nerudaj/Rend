@@ -1,13 +1,18 @@
 {
 	"titleSongs": [
-		"Inevitable Doom - celestialghost8.ogg"
+		"Inevitable Doom - celestialghost8.ogg",
+		"CrashedShip - Ted Kerr.ogg"
 	],
 	"ingameSongs": [
 		"Encounter - shiru8bit.ogg",
 		"Intruder Alert - shiru8bit.ogg",
-		"Let's Go - Wolfgang_.ogg"
+		"Let's Go - Ted Kerr.ogg",
+		"actiontheme-v3 - Ted Kerr.ogg",
+		"Track 01 - celestialghost8.ogg",
+		"Car Chase - shiru8bit.ogg"
 	],
 	"interludeSongs": [
-		"Continue Theme - CleytonKauffman.ogg"
+		"Continue Theme - CleytonKauffman.ogg",
+		"OnTheOffensiveV2 - Ted Kerr.ogg"
 	]
 }
