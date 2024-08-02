@@ -5,6 +5,7 @@
 #include "utils/InputHandler.hpp"
 #include <Configs/Strings.hpp>
 #include <GuiBuilder.hpp>
+#include <base64.hpp>
 #include <ranges>
 
 constexpr const char* TABS_ID = "IdLobbyBaseTabs";
@@ -34,6 +35,8 @@ void AppStateLobbyBase::handleNetworkUpdate(const ServerUpdateData& update)
     if (!update.lobbySettings.isEmpty())
     {
         lobbySettings = update.lobbySettings;
+        checkMapAvailability();
+        // TODO: check any unsupported maps
     }
 
     if (update.state == ServerState::MapLoading)
@@ -48,6 +51,16 @@ void AppStateLobbyBase::handleNetworkUpdate(const ServerUpdateData& update)
     {
         handleTabSelected(Strings::AppState::PeerLobby::PLAYERS);
     }
+}
+
+void AppStateLobbyBase::handleMapDownload(const MapDownloadResponse& data)
+{
+    auto decoded = base64::from_base64(data.base64encodedMap);
+    auto mapPackDir =
+        dic->settings->cmdSettings.resourcesDir / "levels" / data.mapPackName;
+    std::filesystem::create_directory(mapPackDir);
+    auto save = std::ofstream(mapPackDir / data.mapName);
+    save << decoded;
 }
 
 void AppStateLobbyBase::startGame()
@@ -190,4 +203,24 @@ void AppStateLobbyBase::handleTabSelected(const tgui::String& tabname)
 void AppStateLobbyBase::selectTab(const tgui::String& tabname)
 {
     dic->gui->get<tgui::Tabs>(TABS_ID)->select(tabname);
+}
+
+void AppStateLobbyBase::checkMapAvailability()
+{
+    std::vector<std::string> mapsToDownload =
+        lobbySettings.mapSettings
+        | std::views::filter(
+            [&](const MapSettings& cfg)
+            {
+                return !std::filesystem::exists(
+                    dic->settings->cmdSettings.resourcesDir / "levels"
+                    / lobbySettings.packname / cfg.name);
+            })
+        | std::views::transform([](const MapSettings& cfg) { return cfg.name; })
+        | std::ranges::to<std::vector<std::string>>();
+
+    if (!mapsToDownload.empty())
+    {
+        client->requestMapDownload(lobbySettings.packname, mapsToDownload);
+    }
 }

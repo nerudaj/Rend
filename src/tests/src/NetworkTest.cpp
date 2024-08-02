@@ -9,7 +9,7 @@ constexpr const unsigned short PORT = 10666;
 class MapLoaderMock final : public MapLoaderInterface
 {
 public:
-    std::string
+    std::expected<std::string, Error>
     loadMapInBase64(const std::string&, const std::string&) const override
     {
         return "dummy";

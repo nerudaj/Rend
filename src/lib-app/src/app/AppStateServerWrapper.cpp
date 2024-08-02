@@ -4,26 +4,17 @@
 #include "Shortcuts/ShortcutEngine.hpp"
 #include "logging/LoggerFactory.hpp"
 #include "utils/Framerate.hpp"
+#include "utils/ServerMapLoader.hpp"
 #include <app/AppStateEditor.hpp>
 #include <app/AppStateGameSetup.hpp>
 #include <app/AppStateServerWrapper.hpp>
 #include <core/Constants.hpp>
 
-class [[nodiscard]] ServerMapLoader final : public MapLoaderInterface
-{
-public:
-    std::string loadMapInBase64(
-        const std::string& mapPackName,
-        const std::string& mapName) const override
-    {
-        return "";
-    }
-};
-
 void serverLoop(
     ServerConfiguration config,
     bool enableDebug,
-    std::atomic_bool& serverEnabled)
+    std::atomic_bool& serverEnabled,
+    std::filesystem::path resourcesDir)
 {
     auto&& logger =
         LoggerFactory::createLogger(enableDebug, "./rend_server_log.txt");
@@ -33,7 +24,8 @@ void serverLoop(
         auto&& server = Server(
             config,
             ServerDependencies { .logger = logger,
-                                 .mapLoader = mem::Rc<ServerMapLoader>() });
+                                 .mapLoader =
+                                     mem::Rc<ServerMapLoader>(resourcesDir) });
         auto&& framerate = Framerate(FPS * 2);
         logger->log("Server loop started");
 
@@ -61,7 +53,8 @@ AppStateServerWrapper::AppStateServerWrapper(
                                 .acceptReconnects =
                                     target == ServerWrapperTarget::Editor },
           dic->settings->cmdSettings.enableDebug,
-          std::ref(serverEnabled))
+          std::ref(serverEnabled),
+          dic->settings->cmdSettings.resourcesDir)
 {
     switch (target)
     {

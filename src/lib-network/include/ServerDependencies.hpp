@@ -1,5 +1,6 @@
 #pragma once
 
+#include <Error.hpp>
 #include <LoggerInterface.hpp>
 #include <Memory.hpp>
 #include <functional>
@@ -11,7 +12,7 @@ public:
     virtual ~MapLoaderInterface() = default;
 
 public:
-    virtual std::string loadMapInBase64(
+    virtual std::expected<std::string, Error> loadMapInBase64(
         const std::string& mapPackName, const std::string& mapName) const = 0;
 };
 

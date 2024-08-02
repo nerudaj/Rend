@@ -53,6 +53,13 @@ void Server::operator()(const PeerLeftServerEvent& e)
 void Server::operator()(const MapRequestedServerEvent& e)
 {
     auto& client = registeredClients.at(e.clientKey);
+    auto map = deps.mapLoader->loadMapInBase64(e.mapPackName, e.mapName);
+    if (!map)
+    {
+        deps.logger->log(map);
+        return;
+    }
+
     auto packet =
         ServerMessage { .type = ServerMessageType::MapDownloadResponse,
                         .clientId = client.idx,
@@ -60,9 +67,7 @@ void Server::operator()(const MapRequestedServerEvent& e)
                                        MapDownloadResponse {
                                            .mapPackName = e.mapPackName,
                                            .mapName = e.mapName,
-                                           .base64encodedMap =
-                                               deps.mapLoader->loadMapInBase64(
-                                                   e.mapPackName, e.mapName) })
+                                           .base64encodedMap = map.value() })
                                        .dump() }
             .toPacket();
 
