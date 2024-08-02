@@ -1,6 +1,6 @@
 #pragma once
 
-#include "logging/LoggerInterface.hpp"
+#include "LoggerInterface.hpp"
 
 class NullLogger final : public LoggerInterface
 {

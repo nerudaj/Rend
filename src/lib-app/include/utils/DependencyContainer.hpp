@@ -4,8 +4,8 @@
 #include "AudioPlayer.hpp"
 #include "Gui.hpp"
 #include "Jukebox.hpp"
+#include "LoggerInterface.hpp"
 #include "PhysicalController.hpp"
-#include "logging/LoggerInterface.hpp"
 #include <DGM/classes/ResourceManager.hpp>
 #include <Dialogs/ErrorInfoDialog.hpp>
 #include <Memory.hpp>
