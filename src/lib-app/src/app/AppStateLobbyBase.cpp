@@ -1,6 +1,7 @@
 #include "app/AppStateLobbyBase.hpp"
 #include "app/AppStateMapRotationWrapper.hpp"
 #include "app/AppStateMenuOptions.hpp"
+#include "utils/Base16.hpp"
 #include "utils/ClientStateToString.hpp"
 #include "utils/InputHandler.hpp"
 #include <Configs/Strings.hpp>
@@ -54,12 +55,25 @@ void AppStateLobbyBase::handleNetworkUpdate(const ServerUpdateData& update)
 
 void AppStateLobbyBase::handleMapDownload(const MapDownloadResponse& data)
 {
-    auto decoded = data.base64encodedMap;
-    auto mapPackDir =
+    const auto mapPackDir =
         dic->settings->cmdSettings.resourcesDir / "levels" / data.mapPackName;
-    std::filesystem::create_directory(mapPackDir);
-    auto save = std::ofstream(mapPackDir / data.mapName);
-    save << decoded;
+    const auto mapPath = mapPackDir / data.mapName;
+
+    if (std::filesystem::exists(mapPath))
+    {
+        dic->logger->log("The map at {} already exists", mapPath.string());
+        return;
+    }
+
+    {
+        auto decoded = data.base64encodedMap;
+
+        std::filesystem::create_directory(mapPackDir);
+        auto save = std::ofstream(mapPath);
+        save << Base16::fromBase16(decoded);
+    }
+
+    dic->logger->log("Map downloaded and saved to {}", mapPath.string());
 }
 
 void AppStateLobbyBase::startGame()

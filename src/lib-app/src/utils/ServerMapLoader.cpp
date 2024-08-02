@@ -1,4 +1,5 @@
 #include "utils/ServerMapLoader.hpp"
+#include "utils/Base16.hpp"
 #include "utils/FileLoader.hpp"
 #include <base64.hpp>
 
@@ -19,5 +20,5 @@ std::expected<std::string, Error> ServerMapLoader::loadMapInBase64(
         return file.error();
     }
 
-    return file.value();
+    return Base16::toBase16(file.value());
 }
