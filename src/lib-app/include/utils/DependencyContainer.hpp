@@ -16,7 +16,7 @@ struct [[nodiscard]] DependencyContainer final
     mem::Rc<PhysicalController> controller;
     mem::Rc<Gui> gui;
     mem::Rc<Jukebox> jukebox;
-    mem::Rc<dgm::ResourceManager> resmgr;
+    mem::Rc<const dgm::ResourceManager> resmgr;
     mem::Rc<AppOptions> settings;
     mem::Rc<LoggerInterface> logger;
     ErrorInfoDialog warningDialog;

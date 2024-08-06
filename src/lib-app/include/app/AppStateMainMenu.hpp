@@ -1,6 +1,7 @@
 #pragma once
 
 #include "utils/DependencyContainer.hpp"
+#include "utils/JoinGameDialog.hpp"
 #include <Memory.hpp>
 #include <vector>
 
@@ -11,6 +12,11 @@ public:
         : dgm::AppState(
             app, dgm::AppStateConfig { .clearColor = sf::Color::White })
         , dic(dic)
+        , joinGameDialog(
+              dic->gui,
+              dic->settings->network.joinIpAddress,
+              std::bind(
+                  &AppStateMainMenu::tryJoinGame, this, std::placeholders::_1))
     {
         buildLayout();
         dic->jukebox->playTitleSong();
@@ -29,10 +35,13 @@ public:
 private:
     void goToGameSetup();
 
+    void tryJoinGame(const std::string& ip);
+
     void buildLayout();
 
     void restoreFocusImpl(const std::string&) override;
 
 private:
     mem::Rc<DependencyContainer> dic;
+    JoinGameDialog joinGameDialog;
 };

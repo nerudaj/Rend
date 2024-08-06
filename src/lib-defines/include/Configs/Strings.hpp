@@ -74,7 +74,7 @@ namespace Strings
         {
             RAWSTRING TITLE = "join game";
             RAWSTRING CONFIRM = "join";
-            RAWSTRING INPUT_IP = "input host's ip address";
+            RAWSTRING INPUT_IP = "host's ip";
         } // namespace JoinGame
 
         namespace PeerLobby
