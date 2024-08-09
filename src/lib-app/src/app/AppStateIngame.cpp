@@ -176,8 +176,15 @@ void AppStateIngame::handleNetworkUpdate(const ServerUpdateData& update)
     humanPlayerCount = 0;
     for (const auto& clientData : update.clients)
     {
-        if (clientData.state != ClientState::Disconnected) ++humanPlayerCount;
+        if (clientData.state != ClientState::Disconnected)
+            ++humanPlayerCount;
+        else
+        {
+            dic->logger->log("Peer {} is disconnected", clientData.name);
+        }
     }
+
+    dic->logger->log("Found {} human players", humanPlayerCount);
 
     dic->logger->log(
         "Peer: Update in tick {}. Frame time: {}",
