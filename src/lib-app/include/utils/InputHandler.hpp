@@ -7,19 +7,20 @@
 class InputHandler
 {
 public:
-    static void handleUiStateInput(dgm::App& app, DependencyContainer& dic)
+    static inline void
+    handleUiStateInput(dgm::App& app, DependencyContainer& dic)
     {
         handleUiStateInputInternal(app, dic);
     }
 
-    static void handleUiStateWithFocus(
+    static inline void handleUiStateWithFocus(
         bool hasFocus, dgm::App& app, DependencyContainer& dic)
     {
         handleUiStateInputInternal(
             app, dic, InternalFlags { .skipBecauseNoFocus = !hasFocus });
     }
 
-    static void handleUiStateInputWithoutGoBackOption(
+    static inline void handleUiStateInputWithoutGoBackOption(
         dgm::App& app, DependencyContainer& dic)
     {
         handleUiStateInputInternal(
@@ -38,7 +39,7 @@ public:
     }
 
 private:
-    struct InternalFlags
+    struct [[nodiscard]] InternalFlags final
     {
         bool skipBecauseNoFocus = false;
         bool handleGoBackCase = true;
@@ -56,8 +57,16 @@ private:
             {
                 app.exit();
             }
+            else if (dic.controller->isConfirmPressed())
+            {
+                emulateGuiClick(
+                    dic.gui->gui,
+                    sf::Mouse::getPosition(app.window.getWindowContext()));
+            }
             else if (
-                flags.handleGoBackCase && dic.controller->isEscapePressed())
+                flags.handleGoBackCase
+                && (dic.controller->isEscapePressed()
+                    || dic.controller->isCancelPressed()))
             {
                 app.popState();
             }
@@ -66,5 +75,17 @@ private:
         }
 
         dic.controller->update();
+    }
+
+    static void emulateGuiClick(tgui::Gui& gui, const sf::Vector2i& mousePos)
+    {
+        gui.handleEvent(sf::Event { .type = sf::Event::MouseButtonPressed,
+                                    .mouseButton = { .button = sf::Mouse::Left,
+                                                     .x = mousePos.x,
+                                                     .y = mousePos.y } });
+        gui.handleEvent(sf::Event { .type = sf::Event::MouseButtonReleased,
+                                    .mouseButton = { .button = sf::Mouse::Left,
+                                                     .x = mousePos.x,
+                                                     .y = mousePos.y } });
     }
 };

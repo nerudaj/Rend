@@ -32,6 +32,8 @@ PhysicalController::PhysicalController(const sf::Window& window)
     input.bindInput(InputCode::Shoot, dgm::Xbox::Axis::RTrigger);
     input.bindInput(InputCode::Shoot, dgm::Xbox::Button::A);
     input.bindInput(InputCode::Escape, dgm::Xbox::Button::Back);
+    input.bindInput(InputCode::Confirm, dgm::Xbox::Button::A);
+    input.bindInput(InputCode::Cancel, dgm::Xbox::Button::B);
 }
 
 void PhysicalController::update()
@@ -51,37 +53,17 @@ bool PhysicalController::isShooting() const
 
 bool PhysicalController::shouldSwapToPreviousWeapon() const
 {
-    const bool result = input.isInputToggled(InputCode::PreviousWeapon);
-    if (result) input.releaseInput(InputCode::PreviousWeapon);
-    return result;
+    return testInputAndImmediatelyReleaseIt(InputCode::PreviousWeapon);
 }
 
 bool PhysicalController::shouldSwapToNextWeapon() const
 {
-    const bool result = input.isInputToggled(InputCode::NextWeapon);
-    if (result) input.releaseInput(InputCode::NextWeapon);
-    return result;
+    return testInputAndImmediatelyReleaseIt(InputCode::NextWeapon);
 }
 
 bool PhysicalController::shouldSwapToLastWeapon() const
 {
-    const bool result = input.isInputToggled(InputCode::LastWeapon);
-    if (result) input.releaseInput(InputCode::LastWeapon);
-    return result;
-}
-
-bool PhysicalController::isEscapePressed() const
-{
-    const bool result = input.isInputToggled(InputCode::Escape);
-    if (result) input.releaseInput(InputCode::Escape);
-    return result;
-}
-
-bool PhysicalController::shouldTakeScreenshot() const
-{
-    const bool result = input.isInputToggled(InputCode::Printscreen);
-    if (result) input.releaseInput(InputCode::Printscreen);
-    return result;
+    return testInputAndImmediatelyReleaseIt(InputCode::LastWeapon);
 }
 
 float PhysicalController::getThrust() const
@@ -119,4 +101,11 @@ void PhysicalController::setMouseSensitivity(float value)
 {
     // Value needs to be inverted
     mouseSensitivity = 50.f - value;
+}
+
+bool PhysicalController::testInputAndImmediatelyReleaseIt(InputCode code) const
+{
+    const bool result = input.isInputToggled(code);
+    if (result) input.releaseInput(code);
+    return result;
 }

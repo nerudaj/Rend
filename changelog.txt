@@ -5,6 +5,7 @@ UX:
 * If server hosts a map that peer doesn't have, that map will be downloaded
 * Join game dialog is now a modal window
 	* Text input for IP is autofocused
+* Gamepad button A can be used to confirm UI dialogs and B button can be used to go back
 
 Bugfixes:
 * Fixed graphical glitch that shows in place of the sidebar until a map is opened

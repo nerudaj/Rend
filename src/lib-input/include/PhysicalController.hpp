@@ -20,7 +20,9 @@ public:
         NextWeapon,
         LastWeapon,
         Escape,
-        Printscreen
+        Printscreen,
+        Confirm,
+        Cancel,
     };
 
 public:
@@ -39,9 +41,25 @@ public:
 
     bool shouldSwapToLastWeapon() const override;
 
-    bool isEscapePressed() const;
+    [[nodiscard]] bool isEscapePressed() const
+    {
+        return testInputAndImmediatelyReleaseIt(InputCode::Escape);
+    }
 
-    bool shouldTakeScreenshot() const;
+    [[nodiscard]] bool shouldTakeScreenshot() const
+    {
+        return testInputAndImmediatelyReleaseIt(InputCode::Printscreen);
+    }
+
+    [[nodiscard]] bool isConfirmPressed() const
+    {
+        return testInputAndImmediatelyReleaseIt(InputCode::Confirm);
+    }
+
+    [[nodiscard]] bool isCancelPressed() const
+    {
+        return testInputAndImmediatelyReleaseIt(InputCode::Cancel);
+    }
 
     float getThrust() const override;
 
@@ -53,6 +71,8 @@ public:
 
 private: // Setters
     void setMouseSensitivity(float value);
+
+    [[nodiscard]] bool testInputAndImmediatelyReleaseIt(InputCode code) const;
 
 private:
     const sf::Window& window;
