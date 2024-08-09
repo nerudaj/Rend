@@ -133,11 +133,6 @@ void AppStateIngame::update()
 
     namespace ph = std::placeholders;
 
-    /*stateManager.forEachItemFromOldestToNewest(
-        std::bind(
-            &AppStateIngame::simulateFrameFromState, this, ph::_1, ph::_2),
-        std::bind(&AppStateIngame::backupState, this, ph::_1));*/
-
     dic->logger->log(
         "UPDATE: Last tick: {}, getLastInsertedTick: {}, tickToRollbackTo: {}",
         lastTick,
@@ -350,7 +345,7 @@ bool AppStateIngame::isFrameConfirmed() const
         [](unsigned acc, bool val)
         { return acc + static_cast<unsigned>(val); });
 
-    return humanPlayerCount == sumConfirmed;
+    return humanPlayerCount <= sumConfirmed;
 }
 
 void AppStateIngame::lockMouse()

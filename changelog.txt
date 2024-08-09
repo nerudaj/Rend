@@ -9,6 +9,7 @@ UX:
 
 Bugfixes:
 * Fixed graphical glitch that shows in place of the sidebar until a map is opened
+* Server-side peer no longer desyncs when another peer disconnects
 
 Other:
 * New tracks were added to the soundtrack
