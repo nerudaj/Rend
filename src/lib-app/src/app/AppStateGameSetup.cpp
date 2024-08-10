@@ -30,7 +30,7 @@ void AppStateGameSetup::input()
     if (dic->settings->cmdSettings.skipMainMenu)
     {
         dic->settings->cmdSettings.skipMainMenu = false;
-        startGame();
+        InputHandler::handleSendReady(app, *dic, client);
     }
 
     InputHandler::handleUiStateInput(app, *dic);

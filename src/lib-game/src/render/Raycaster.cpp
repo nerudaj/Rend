@@ -77,7 +77,6 @@ void Raycaster::addFloorFlatAndThings(
     auto&& candidates =
         spatialIndex.getOverlapCandidates(getTileBoundingBox(tile));
     thingIds.insert(thingIds.end(), candidates.begin(), candidates.end());
-    // TODO: use set to deduplicate right away?
 }
 
 void Raycaster::addCeilFlat(
@@ -96,7 +95,6 @@ void Raycaster::addFlat(
     const unsigned tileId,
     const float heightHint)
 {
-
     auto&& baseTile = sf::Vector2f(tile);
     auto&& baseTile2 = sf::Vector2f { baseTile.x + 1.f, baseTile.y + 1.f };
     flats.push_back(Flat {

@@ -46,10 +46,12 @@ AppStateIngame::AppStateIngame(
     , scene(SceneBuilder::buildScene(level, gameSettings.players.size()))
     , eventQueue()
     , gameLoop(createGameLoop())
+#ifdef _DEBUG
     , demoFileHandler(
           dic->settings->cmdSettings.demoFile,
           dic->settings->cmdSettings.playDemo ? DemoFileMode::Read
                                               : DemoFileMode::Write)
+#endif
     , camera(
           sf::FloatRect(0.f, 0.f, 1.f, 1.f),
           sf::Vector2f(sf::Vector2u(
@@ -256,6 +258,15 @@ AppStateIngame::FrameState AppStateIngame::snapshotInputsIntoNewFrameState()
         .confirmedInputs = std::vector<bool>(inputs.size(), false)
     };
 
+#ifdef _DEBUG
+    if (dic->settings->cmdSettings.playDemo)
+        state.inputs[client->getMyIndex()] =
+            nlohmann::json::parse(demoFileHandler.getLine());
+    else
+        demoFileHandler.writeLine(
+            nlohmann::json(state.inputs[client->getMyIndex()]).dump());
+#endif
+
     for (auto&& [playerIdx, input] : futureInputs[lastTick])
     {
         state.inputs.at(playerIdx) = input;
@@ -273,8 +284,6 @@ AppStateIngame::FrameState AppStateIngame::snapshotInputsIntoNewFrameState()
         lastTick,
         client->getMyIndex());
     dic->logger->log(client->sendCurrentFrameInputs(lastTick, state.inputs));
-
-    // NOTE: put code for demos here if applicable
 
     return state;
 }
