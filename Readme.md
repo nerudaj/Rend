@@ -2,6 +2,8 @@
 
 This project is my love letter to boomer shooters like Wolfenstein 3D and Doom. The 2.5D enigne is hand-written in C++ from scratch, using SFML for graphics, sounds and networking, TGUI for UI, dgm-lib for abstractions over SFML and dgm-fsm-lib for building AI FSM. The game is supposed to have competitive modes for 2-4 players.
 
+Game releases are available for free on Itch.io: https://nerudaj.itch.io/Rend
+
 You can read about the development process in my [weekly devlogs](https://medium.com/@nerudaj/list/devlogs-rend-97b960bf3cbe).
 
 ## Dependencies
