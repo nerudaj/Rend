@@ -11,7 +11,7 @@
 class [[nodiscard]] AiEngine final
 {
 public:
-    [[nodiscard]] AiEngine(Scene& scene);
+    [[nodiscard]] AiEngine(Scene& scene, bool useNullBehavior);
 
 public:
     void update(const float deltaTime);
@@ -19,10 +19,13 @@ public:
 private: // fsm updates
     void runFsmAlive(AiBlackboard& blackboard);
 
+    constexpr void runFsmAliveNull(AiBlackboard&) {}
+
     void runFsmDead(AiBlackboard& blackboard);
 
 private:
-    static dgm::fsm::Fsm<AiTopState, AiBlackboard> createTopFsm(AiEngine& self);
+    static dgm::fsm::Fsm<AiTopState, AiBlackboard>
+    createTopFsm(AiEngine& self, bool useNullBehavior);
 
     static dgm::fsm::Fsm<AiState, AiBlackboard, Entity, PlayerInventory>
     createAliveFsm(AiEngine& self);

@@ -22,10 +22,11 @@ public:
         mem::Rc<const dgm::ResourceManager> resmgr,
         mem::Rc<AudioPlayer> audioPlayer,
         const std::vector<std::string>& playerNames,
-        const DisplayOptions& renderSettings)
+        const DisplayOptions& renderSettings,
+        bool useNullBotBehavior)
         : scene(scene)
         , eventQueue(eventQueue)
-        , aiEngine(scene)
+        , aiEngine(scene, useNullBotBehavior)
         , animationEngine(scene, eventQueue)
         , audioEngine(audioPlayer, scene)
         , gameRulesEngine(scene, eventQueue, playerNames)

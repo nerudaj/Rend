@@ -10,10 +10,10 @@
         std::placeholders::_2,                                                 \
         std::placeholders::_3)
 
-AiEngine::AiEngine(Scene& scene)
+AiEngine::AiEngine(Scene& scene, bool useNullBehavior)
     : scene(scene)
     , hitscanner(scene)
-    , fsmTop(createTopFsm(*this))
+    , fsmTop(createTopFsm(*this, useNullBehavior))
     , fsmAlive(createAliveFsm(*this))
     , fsmDead(createDeadFsm(*this))
 {
@@ -22,7 +22,8 @@ AiEngine::AiEngine(Scene& scene)
     fsmDead.setStateToStringHelper(std::map { AI_STATE_TO_STRING });*/
 }
 
-dgm::fsm::Fsm<AiTopState, AiBlackboard> AiEngine::createTopFsm(AiEngine& self)
+dgm::fsm::Fsm<AiTopState, AiBlackboard>
+AiEngine::createTopFsm(AiEngine& self, bool useNullBehavior)
 {
     using dgm::fsm::decorator::Not;
     using enum AiTopState;
@@ -41,7 +42,7 @@ dgm::fsm::Fsm<AiTopState, AiBlackboard> AiEngine::createTopFsm(AiEngine& self)
             .exec(bootstrapAlive).andGoTo(Alive)
         .with(Alive)
             .when(isThisPlayerDead).goTo(BootstrapDead)
-            .otherwiseExec(BIND(runFsmAlive)).andLoop()
+            .otherwiseExec(useNullBehavior ? BIND(runFsmAliveNull) : BIND(runFsmAlive)).andLoop()
         .with(BootstrapDead)
             .exec([](auto& b) { b.aiState = AiState::RequestingRespawn; }).andGoTo(Dead)
         .with(AiTopState::Dead)

@@ -13,4 +13,5 @@ struct CmdParameters
     bool enableDebug = false;
     size_t maxNpcs = 3;
     unsigned fraglimit = 15;
+    bool useNullBotBehavior = false;
 };

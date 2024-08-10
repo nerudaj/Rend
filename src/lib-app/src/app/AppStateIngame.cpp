@@ -176,7 +176,7 @@ void AppStateIngame::handleNetworkUpdate(const ServerUpdateData& update)
     humanPlayerCount = 0;
     for (const auto& clientData : update.clients)
     {
-        if (clientData.state != ClientState::Disconnected)
+        if (clientData.state != ClientState::Disconnected) [[likely]]
             ++humanPlayerCount;
         else
         {
@@ -199,7 +199,7 @@ void AppStateIngame::handleNetworkUpdate(const ServerUpdateData& update)
             inputData.clientId,
             tickToRollbackTo);
 
-        if (stateManager.isTickTooOld(inputData.tick))
+        if (stateManager.isTickTooOld(inputData.tick)) [[unlikely]]
         {
             dic->logger->log("\t\tGot outdated input, exiting");
             app.popState(ExceptionGameDisconnected::serialize());
@@ -418,5 +418,6 @@ mem::Box<GameLoop> AppStateIngame::createGameLoop()
             | std::views::transform([](const PlayerOptions& opts)
                                     { return opts.name; })
             | std::ranges::to<std::vector>(),
-        dic->settings->display);
+        dic->settings->display,
+        dic->settings->cmdSettings.useNullBotBehavior);
 }

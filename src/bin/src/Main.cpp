@@ -20,7 +20,8 @@ CmdParameters processCmdParameters(int argc, char* argv[])
         ("r,resource-dir", "Path to resources", cxxopts::value<std::string>())
         ("m,map", "Map name", cxxopts::value<std::string>())
         ("l,limit", "Fraglimit", cxxopts::value<unsigned>())
-        ("d,debug", "Enable debug mode");
+        ("d,debug", "Enable debug mode")
+        ("n,null-bot", "Use null bot behavior");
     // clang-format on
     auto args = options.parse(argc, argv);
 
@@ -34,6 +35,7 @@ CmdParameters processCmdParameters(int argc, char* argv[])
     if (args.count("limit") > 0)
         result.fraglimit = args["limit"].as<unsigned>();
     if (args.count("debug") > 0) result.enableDebug = args["debug"].as<bool>();
+    if (args.count("null-bot") > 0) result.useNullBotBehavior = true;
 
     return result;
 }
