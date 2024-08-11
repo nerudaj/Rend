@@ -1,3 +1,8 @@
+Rend 0.7.0 changelog:
+
+Bugfixed:
+* Fixed a graphical glitch where low ceilings could be rendered outside of the actual ceiling
+
 Rend 0.6.0 changelog:
 
 Gameplay:

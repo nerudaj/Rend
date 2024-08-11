@@ -20,6 +20,7 @@ struct Face
 struct Flat
 {
     sf::Vector2f vertices[4];
+    sf::Vector2f dirToCenter;
     float heightHint;
     float distance;
     unsigned tileId;

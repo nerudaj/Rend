@@ -481,8 +481,15 @@ void RenderingEngine::renderLevelMesh(
             tileset.clipping);
     };
 
+    const auto& camDir = scene.things[scene.camera.anchorIdx].direction;
     auto addFlat = [&](const Flat& flat)
     {
+        // If center of the tile player is standing on is behind the player,
+        // do not add it to view - causes graphical glitches
+        const auto radialDiff =
+            dgm::Math::getDotProduct(camDir, flat.dirToCenter) / flat.distance;
+        if (radialDiff < 0.f) return;
+
         VertexObjectBuilder::makeFlat(
             quads,
             midHeight,

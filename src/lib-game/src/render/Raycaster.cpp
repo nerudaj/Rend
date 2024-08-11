@@ -95,16 +95,19 @@ void Raycaster::addFlat(
     const unsigned tileId,
     const float heightHint)
 {
-    auto&& baseTile = sf::Vector2f(tile);
-    auto&& baseTile2 = sf::Vector2f { baseTile.x + 1.f, baseTile.y + 1.f };
-    flats.push_back(Flat {
-        .vertices = { baseTile,
-                      { baseTile.x + 1.f, baseTile.y },
-                      baseTile2,
-                      { baseTile.x, baseTile.y + 1.f } },
-        .heightHint = heightHint,
-        .distance = dgm::Math::getSize((baseTile + baseTile2) / 2.f - pos),
-        .tileId = tileId });
+    const auto&& baseTile = sf::Vector2f(tile);
+    const auto&& baseTile2 =
+        sf::Vector2f { baseTile.x + 1.f, baseTile.y + 1.f };
+    const auto dirToCenter = (baseTile + baseTile2) / 2.f - pos;
+
+    flats.push_back(Flat { .vertices = { baseTile,
+                                         { baseTile.x + 1.f, baseTile.y },
+                                         baseTile2,
+                                         { baseTile.x, baseTile.y + 1.f } },
+                           .dirToCenter = dirToCenter,
+                           .heightHint = heightHint,
+                           .distance = dgm::Math::getSize(dirToCenter),
+                           .tileId = tileId });
 }
 
 float Raycaster::getTexHint(
