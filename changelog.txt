@@ -1,3 +1,8 @@
+Rend 0.7.0 changelog:
+
+Gameplay:
+* Slightly repositioned spawn-pickups on 2p_greenpath
+
 Rend 0.6.0 changelog:
 
 Gameplay:
