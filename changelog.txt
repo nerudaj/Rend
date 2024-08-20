@@ -2,6 +2,7 @@ Rend 0.7.0 changelog:
 
 Gameplay:
 * Slightly repositioned spawn-pickups on 2p_greenpath
+* Reworked central storage area on 3p_shotgun_frenzy to allow better maneuverability
 
 Rend 0.6.0 changelog:
 
