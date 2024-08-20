@@ -100,6 +100,12 @@ convertLeveldItemIdToEntityType(LevelItemId id) noexcept
         return EntityType::FloorLamp;
     case CeilLamp:
         return EntityType::CeilLamp;
+    case Fountain:
+        return EntityType::Fountain;
+    case Artifact:
+        return EntityType::Artifact;
+    case Wires:
+        return EntityType::Wires;
     default:
         return EntityType::Error;
     }

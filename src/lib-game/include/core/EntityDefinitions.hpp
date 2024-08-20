@@ -269,6 +269,43 @@ const static inline auto ENTITY_PROPERTIES =
         { EntityType::CeilLamp,
           EntityProperties { .radius = 4_px,
                              .initialSpriteIndex = CeilLampA } },
+        { EntityType::Fountain,
+          EntityProperties {
+              .radius = 4_px,
+              .traits = Trait::Solid,
+              .initialSpriteIndex = FountainA,
+              .states = { { AnimationStateId::Idle,
+                            AnimationState {
+                                .clip = { { FountainA, 7 },
+                                          { FountainB, 7 },
+                                          { FountainC, 7 } },
+                                .transition =
+                                    AnimationStateId::MarkerLoop } } } } },
+        { EntityType::Artifact,
+          EntityProperties {
+              .radius = 3_px,
+              .traits = Trait::Solid,
+              .initialSpriteIndex = ArtifactA,
+              .states = { { AnimationStateId::Idle,
+                            AnimationState {
+                                .clip = { { ArtifactA, 10 },
+                                          { ArtifactB, 10 },
+                                          { ArtifactC, 10 },
+                                          { ArtifactD, 10 } },
+                                .transition =
+                                    AnimationStateId::MarkerLoop } } } } },
+        { EntityType::Wires,
+          EntityProperties {
+              .radius = 8_px,
+              .initialSpriteIndex = WiresA,
+              .states = { { AnimationStateId::Idle,
+                            AnimationState {
+                                .clip = { { WiresA, 250 },
+                                          { WiresB, 15 },
+                                          { WiresC, 5 },
+                                          { WiresD, 5 } },
+                                .transition =
+                                    AnimationStateId::MarkerLoop } } } } },
         { EntityType::ProjectileFlare,
           EntityProperties {
               .radius = 2_px,
@@ -479,8 +516,7 @@ const static inline auto ENTITY_PROPERTIES =
                                             { HUD_CrossbowFC,
                                               5,
                                               fireProjectile(
-                                                  EntityType::
-                                                      ProjectileLaserDart,
+                                                  EntityType::ProjectileLaserDart,
                                                   "lasercrossbow_fire.wav") },
                                             { HUD_CrossbowFD, 5 },
                                             { HUD_CrossbowFE, 5 },
