@@ -4,6 +4,7 @@ Gameplay:
 * Added new decorative items - water fountain, ceiling wires, alien artifact
 * Slightly repositioned spawn-pickups on 2p_greenpath
 * Reworked central storage area on 3p_shotgun_frenzy to allow better maneuverability
+* Bots are more likely to equip laser crossbows and rocket launchers
 
 Rend 0.6.0 changelog:
 

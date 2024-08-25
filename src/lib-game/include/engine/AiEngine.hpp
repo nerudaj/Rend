@@ -219,10 +219,13 @@ private: // FSM actions
         Entity&,
         PlayerInventory& inventory) const noexcept
     {
-        for (auto&& type : getLongRangeWeaponTypes())
+        for (auto&& type :
+             getLongRangeWeaponTypesSortedByPersonality(blackboard.personality))
         {
             if (inventory.acquiredWeapons[weaponTypeToIndex(type)])
             {
+                std::cout << "Switching to " << std::to_underlying(type)
+                          << std::endl;
                 blackboard.targetWeaponToSwapTo = type;
                 return;
             }
@@ -305,17 +308,34 @@ private: // Utility functions
         const sf::Vector2f& targetLocation);
 
     [[nodiscard]] static constexpr std::array<EntityType, 4>
-    getLongRangeWeaponTypes()
+    getLongRangeWeaponTypesSortedByPersonality(AiPersonality personality)
     {
-        return { EntityType::WeaponTrishot,
-                 EntityType::WeaponCrossbow,
-                 EntityType::WeaponLauncher,
-                 EntityType::WeaponLauncher };
+        switch (personality)
+        {
+        case AiPersonality::Tank:
+            return { EntityType::WeaponCrossbow,
+                     EntityType::WeaponLauncher,
+                     EntityType::WeaponTrishot,
+                     EntityType::WeaponBallista };
+        case AiPersonality::Flash:
+            return { EntityType::WeaponLauncher,
+                     EntityType::WeaponCrossbow,
+                     EntityType::WeaponBallista,
+                     EntityType::WeaponTrishot };
+        case AiPersonality::Speartip:
+        default:
+            return { EntityType::WeaponTrishot,
+                     EntityType::WeaponCrossbow,
+                     EntityType::WeaponLauncher,
+                     EntityType::WeaponBallista };
+        }
     }
 
     [[nodiscard]] static constexpr bool isLongRangeWeaponType(EntityType type)
     {
-        return std::ranges::contains(getLongRangeWeaponTypes(), type);
+        return std::ranges::contains(
+            getLongRangeWeaponTypesSortedByPersonality(AiPersonality::Default),
+            type);
     }
 
 private:

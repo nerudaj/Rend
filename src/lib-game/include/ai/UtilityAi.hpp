@@ -36,8 +36,8 @@ public:
             {
                 if (index == activeAmmoIndex)
                     return 5000;
-                else if (acquiredWeapons.to_ulong() == 1ul)
-                    return 2500; // if only starter weapon was acquired
+                else if (ownsOnlyStarterWeapon(acquiredWeapons))
+                    return 2500;
                 else
                     return 1000;
             }
@@ -72,5 +72,11 @@ private:
                || type == EntityType::PickupShells
                || type == EntityType::PickupEnergy
                || type == EntityType::PickupRockets;
+    }
+
+    [[nodiscard]] constexpr static bool
+    ownsOnlyStarterWeapon(const AcquiredWeaponsArray& acquiredWeapons)
+    {
+        return acquiredWeapons.to_ulong() == 1ul;
     }
 };
