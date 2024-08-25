@@ -7,6 +7,9 @@ Gameplay:
 * Bots are more likely to equip laser crossbows and rocket launchers
 * Bot movement was tweaked to be more varied, hopefully for the better
 
+Bugfixes:
+* Fixed a graphical glitch where low ceilings could be rendered outside of the actual ceiling
+
 Rend 0.6.0 changelog:
 
 Gameplay:

@@ -92,7 +92,9 @@ protected:
     std::unordered_map<size_t, std::unordered_map<PlayerIdxType, InputSchema>>
         futureInputs; // indexed by tick
     mem::Box<GameLoop> gameLoop;
+#ifdef _DEBUG
     DemoFileHandler demoFileHandler;
+#endif
     mem::Box<dgm::Camera> camera;
     bool ready = false;
     size_t lastTick = {};

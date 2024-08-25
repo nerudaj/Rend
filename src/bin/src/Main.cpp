@@ -21,21 +21,29 @@ CmdParameters processCmdParameters(int argc, char* argv[])
         ("m,map", "Map name", cxxopts::value<std::string>())
         ("l,limit", "Fraglimit", cxxopts::value<unsigned>())
         ("d,debug", "Enable debug mode")
+#ifdef _DEBUG
+        ("p,play-demo", "Replay demo file")
+        ("t,tape-path", "Path to demo tape", cxxopts::value<std::string>())
+#endif
         ("n,null-bot", "Use null bot behavior");
     // clang-format on
     auto args = options.parse(argc, argv);
 
     CmdParameters result;
 
-    if (args.count("skip-menu") > 0)
-        result.skipMainMenu = args["skip-menu"].as<bool>();
+    result.skipMainMenu = args.count("skip-menu") > 0;
     if (args.count("resource-dir") > 0)
         result.resourcesDir = args["resource-dir"].as<std::string>();
     if (args.count("map") > 0) result.mapname = args["map"].as<std::string>();
     if (args.count("limit") > 0)
         result.fraglimit = args["limit"].as<unsigned>();
-    if (args.count("debug") > 0) result.enableDebug = args["debug"].as<bool>();
-    if (args.count("null-bot") > 0) result.useNullBotBehavior = true;
+    result.enableDebug = args.count("debug") > 0;
+    result.useNullBotBehavior = args.count("null-bot") > 0;
+#ifdef _DEBUG
+    result.playDemo = args.count("play-demo") > 0;
+    if (args.count("tape-path") > 0)
+        result.demoFile = args["tape-path"].as<std::string>();
+#endif
 
     return result;
 }
