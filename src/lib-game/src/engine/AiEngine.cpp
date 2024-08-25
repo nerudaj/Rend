@@ -236,10 +236,17 @@ void AiEngine::moveInRelationToTargetEnemy(
         // Rush towards the target with a shotgun in hand
         blackboard.input->setThrust(1.f);
     }
+    else if (blackboard.personality == AiPersonality::Tank)
+    {
+        // do nothing, stand in place
+    }
     else
     {
+        // Back up from the fight slowly
+        blackboard.input->setThrust(-0.3f);
+        blackboard.input->setThrust(0.3f);
         // Circle strafe
-        blackboard.input->setSidewardThrust(0.5f);
+        // blackboard.input->setSidewardThrust(0.5f);
     }
 }
 
