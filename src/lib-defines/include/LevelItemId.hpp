@@ -39,6 +39,9 @@ enum class LevelItemId
     Pillar,
     FloorLamp,
     CeilLamp,
+    Fountain,
+    Artifact,
+    Wires,
     Unused19,
     Unused20,
 };
