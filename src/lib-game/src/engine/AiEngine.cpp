@@ -234,7 +234,7 @@ void AiEngine::moveInRelationToTargetEnemy(
     if (blackboard.personality == AiPersonality::Speartip)
     {
         // Rush towards the target with a shotgun in hand
-        blackboard.input->setThrust(1.f);
+        blackboard.input->setThrust(0.6f);
     }
     else if (blackboard.personality == AiPersonality::Tank)
     {

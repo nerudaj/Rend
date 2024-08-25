@@ -100,8 +100,9 @@ AiEngine::createAliveFsm(AiEngine& self)
 
     auto setTimer = [](AiBlackboard& bb, Entity&, PlayerInventory&)
     {
-        bb.targettingTimer =
-            bb.personality == AiPersonality::Flash ? 0.f : AI_REACTION_TIME;
+        bb.targettingTimer = bb.personality == AiPersonality::Flash
+                                 ? AI_FLASH_REACTION_TIME
+                                 : AI_REACTION_TIME;
     };
 
     auto timerHit =
