@@ -265,14 +265,18 @@ const Spawn& GameRulesEngine::getBestSpawn() const noexcept
     for (std::size_t i = 0; i < scene.spawns.size(); ++i)
     {
         uint16_t minDistance = 0xFFFF;
-        for (auto&& [thing, idx] : scene.things)
+        for (auto&& state : scene.playerStates)
         {
-            if (thing.typeId != EntityType::Player) continue;
+            const auto index = state.inventory.ownerIdx;
+            if (!(scene.things.isIndexValid(index)
+                  && scene.things[index].typeId == EntityType::Player))
+                continue;
 
             minDistance = std::min(
                 minDistance,
                 scene.distanceIndex.getDistance(
-                    scene.spawns[i].position, thing.hitbox.getPosition()));
+                    scene.spawns[i].position,
+                    scene.things[index].hitbox.getPosition()));
         }
 
         if (bestDistance < minDistance)
