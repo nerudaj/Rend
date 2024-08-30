@@ -34,6 +34,10 @@ PhysicalController::PhysicalController(const sf::Window& window)
     input.bindInput(InputCode::Escape, dgm::Xbox::Button::Back);
     input.bindInput(InputCode::Confirm, dgm::Xbox::Button::A);
     input.bindInput(InputCode::Cancel, dgm::Xbox::Button::B);
+    input.bindInput(InputCode::CursorLeft, dgm::Xbox::Axis::LStickXneg);
+    input.bindInput(InputCode::CursorRight, dgm::Xbox::Axis::LStickXpos);
+    input.bindInput(InputCode::CursorUp, dgm::Xbox::Axis::LStickYneg);
+    input.bindInput(InputCode::CursorDown, dgm::Xbox::Axis::LStickYpos);
 }
 
 void PhysicalController::update()
@@ -78,6 +82,16 @@ float PhysicalController::getSidewardThrust() const
            + input.getInputValue(InputCode::StrafeRight);
 }
 
+sf::Vector2f PhysicalController::getCursorDelta() const
+{
+    return sf::Vector2f(
+               input.getInputValue(InputCode::CursorLeft)
+                   + input.getInputValue(InputCode::CursorRight),
+               -input.getInputValue(InputCode::CursorUp)
+                   - input.getInputValue(InputCode::CursorDown))
+           * cursorSensitivity;
+}
+
 float PhysicalController::getSteer() const
 {
     const auto windowWidthHalf = window.getSize().x / 2.f;
@@ -95,6 +109,7 @@ void PhysicalController::updateSettings(const InputOptions& options)
     setMouseSensitivity(options.mouseSensitivity);
     turnSpeed = options.turnSpeed;
     input.setGamepadDeadzone(options.gamepadDeadzone);
+    cursorSensitivity = options.cursorSensitivity;
 }
 
 void PhysicalController::setMouseSensitivity(float value)

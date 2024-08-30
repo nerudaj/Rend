@@ -50,6 +50,8 @@ private:
     {
         if (flags.skipBecauseNoFocus) return;
 
+        dic.controller->update();
+
         sf::Event event;
         while (app.window.pollEvent(event))
         {
@@ -74,7 +76,11 @@ private:
             dic.gui->gui.handleEvent(event);
         }
 
-        dic.controller->update();
+        auto delta = dic.controller->getCursorDelta();
+        sf::Mouse::setPosition(
+            sf::Mouse::getPosition(app.window.getWindowContext())
+                + sf::Vector2i(delta),
+            app.window.getWindowContext());
     }
 
     static void emulateGuiClick(tgui::Gui& gui, const sf::Vector2i& mousePos)

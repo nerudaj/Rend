@@ -161,41 +161,55 @@ void AppStateMenuOptions::buildInputOptionsLayout(FormBuilder& builder)
     auto deadzoneFormatter = [](float val)
     { return std::format("{:.2f}", val); };
 
-    std::ignore = builder
-                      .addOption(
-                          Strings::AppState::Options::MOUSE_SENSITIVITY,
-                          WidgetBuilder::createSlider(
-                              dic->settings->input.mouseSensitivity,
-                              [this](float value) {
-                                  dic->settings->input.mouseSensitivity = value;
-                              },
-                              dic->gui->gui,
-                              sensitivityFormatter,
-                              1.f,
-                              50.f,
-                              1.f))
-                      .addOption(
-                          Strings::AppState::Options::TURN_SENSITIVITY,
-                          WidgetBuilder::createSlider(
-                              dic->settings->input.turnSpeed,
-                              [this](float value)
-                              { dic->settings->input.turnSpeed = value; },
-                              dic->gui->gui,
-                              turnSpeedFormatter,
-                              0.1f,
-                              5.f,
-                              0.1f))
-                      .addOption(
-                          Strings::AppState::Options::GAMEPAD_DEADZONE,
-                          WidgetBuilder::createSlider(
-                              dic->settings->input.gamepadDeadzone,
-                              [this](float value)
-                              { dic->settings->input.gamepadDeadzone = value; },
-                              dic->gui->gui,
-                              deadzoneFormatter,
-                              0.f,
-                              1.f,
-                              0.01f));
+    std::ignore =
+        builder
+            .addOption(
+                Strings::AppState::Options::MOUSE_SENSITIVITY,
+                WidgetBuilder::createSlider(
+                    dic->settings->input.mouseSensitivity,
+                    [this](float value)
+                    { dic->settings->input.mouseSensitivity = value; },
+                    dic->gui->gui,
+                    sensitivityFormatter,
+                    1.f,
+                    50.f,
+                    1.f))
+            .addOption(
+                Strings::AppState::Options::TURN_SENSITIVITY,
+                WidgetBuilder::createSlider(
+                    dic->settings->input.turnSpeed,
+                    [this](float value)
+                    { dic->settings->input.turnSpeed = value; },
+                    dic->gui->gui,
+                    turnSpeedFormatter,
+                    0.1f,
+                    5.f,
+                    0.1f))
+            .addOption(
+                Strings::AppState::Options::GAMEPAD_DEADZONE,
+                WidgetBuilder::createSlider(
+                    dic->settings->input.gamepadDeadzone,
+                    [this](float value)
+                    { dic->settings->input.gamepadDeadzone = value; },
+                    dic->gui->gui,
+                    deadzoneFormatter,
+                    0.f,
+                    1.f,
+                    0.01f))
+            .addOption(
+                Strings::AppState::Options::CURSOR_SENSITIVITY,
+                WidgetBuilder::createSlider(
+                    dic->settings->input.cursorSensitivity,
+                    [this](float value)
+                    {
+                        dic->settings->input.cursorSensitivity = value;
+                        dic->controller->updateSettings(dic->settings->input);
+                    },
+                    dic->gui->gui,
+                    deadzoneFormatter,
+                    0.5f,
+                    5.f,
+                    0.1f));
 }
 
 void AppStateMenuOptions::buildPlayerOptionsLayout(

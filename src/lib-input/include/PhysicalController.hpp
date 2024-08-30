@@ -23,6 +23,10 @@ public:
         Printscreen,
         Confirm,
         Cancel,
+        CursorLeft,
+        CursorRight,
+        CursorUp,
+        CursorDown,
     };
 
 public:
@@ -65,6 +69,8 @@ public:
 
     float getSidewardThrust() const override;
 
+    [[nodiscard]] sf::Vector2f getCursorDelta() const;
+
     float getSteer() const override;
 
     void updateSettings(const InputOptions& options);
@@ -80,4 +86,5 @@ private:
     mutable sf::Vector2i lastMousePos;
     float mouseSensitivity = 25.f;
     float turnSpeed = 1.f;
+    float cursorSensitivity = 5.f;
 };

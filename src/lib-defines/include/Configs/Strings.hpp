@@ -51,6 +51,7 @@ namespace Strings
             RAWSTRING MOUSE_SENSITIVITY = "mouse sensitivity";
             RAWSTRING TURN_SENSITIVITY = "turn sensitivity";
             RAWSTRING GAMEPAD_DEADZONE = "gamepad deadzone";
+            RAWSTRING CURSOR_SENSITIVITY = "cursor sensitivity";
             RAWSTRING SWAP_ON_PICKUP = "autoswap weapon on pickup";
             RAWSTRING HUD_UI_SCALE = "hud ui scale";
             RAWSTRING RESOLUTION_CHANGE_WARNING =

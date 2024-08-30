@@ -8,6 +8,9 @@ Gameplay:
 * Bot movement was tweaked to be more varied, hopefully for the better
 * Improved spawn-picking algorithm
 
+UX:
+* UI can be navigated with gamepad (mouse cursor can be moved with left stick)
+
 Bugfixes:
 * Fixed a graphical glitch where low ceilings could be rendered outside of the actual ceiling
 
