@@ -7,6 +7,7 @@ Gameplay:
 * Bots are more likely to equip laser crossbows and rocket launchers
 * Bot movement was tweaked to be more varied, hopefully for the better
 * Bots are slightly more likely to miss
+* Shotgun spread slightly increased
 * Improved spawn-picking algorithm
 * 4p_neon was tweaked to be less shitty
 
