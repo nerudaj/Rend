@@ -99,8 +99,7 @@ const static inline auto ENTITY_PROPERTIES =
                                           { FlareExplosionB, 7 },
                                           { FlareExplosionC, 7 },
                                           { FlareExplosionD, 7 },
-                                          { FlareExplosionE, 7 },
-                                          { FlareExplosionF, 300 } },
+                                          { FlareExplosionE, 7 } },
                                 .transition =
                                     AnimationStateId::MarkerDestroy } } } } },
         { EntityType::EffectRocketExplosion,

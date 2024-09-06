@@ -10,6 +10,7 @@ Gameplay:
 * Shotgun spread slightly increased
 * Improved spawn-picking algorithm
 * 4p_neon was tweaked to be less shitty
+* Removed the blob left after exploded flare projectile
 
 UX:
 * UI can be navigated with gamepad (mouse cursor can be moved with left stick)
