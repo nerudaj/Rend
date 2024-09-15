@@ -184,9 +184,25 @@ void AiEngine::pickGatherLocation(
             {
                 // Might happen if fallback is too close, never mind, a new one
                 // will be picked after few frames
-                if (path.isTraversed()) return path;
+                if (path.isTraversed())
+                {
+                    std::println(
+                        std::cerr,
+                        "AI Error: Path was found, but was already traversed.");
+                    return path;
+                }
                 blackboard.targetLocation = path.getCurrentPoint().coord;
                 return path;
+            })
+        .or_else(
+            [&]() -> std::optional<dgm::Path<dgm::WorldNavpoint>>
+            {
+                std::println(
+                    std::cerr,
+                    "AI Error: No path was found! Going from {} to {}",
+                    dgm::Utility::to_string(player.hitbox.getPosition()),
+                    dgm::Utility::to_string(bestPosition));
+                return std::nullopt;
             });
 }
 
