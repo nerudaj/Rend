@@ -59,7 +59,17 @@ struct MarkerItemRespawner
     sf::Vector2f position;
 };
 
-using Marker = std::variant<MarkerDeadPlayer, MarkerItemRespawner>;
+struct MarkerDamageOverTime
+{
+    float timeTillNextDischarge = 0.f;
+    int chargesLeft = 0;
+    int damage = 0;
+    PlayerStateIndexType targetStateIdx = 0;
+    PlayerStateIndexType originatorStateIdx = 0;
+};
+
+using Marker =
+    std::variant<MarkerDeadPlayer, MarkerItemRespawner, MarkerDamageOverTime>;
 
 struct PlayerInventory
 {
