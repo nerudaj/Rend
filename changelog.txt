@@ -1,5 +1,8 @@
 Rend 0.8.0 changelog:
 
+Gameplay:
+* When armor is above 100, it absorbs more damage
+
 UX:
 * Game setup screen now shows the server IP
 
