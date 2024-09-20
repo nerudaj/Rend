@@ -355,5 +355,10 @@ enum class AnimationStateId
     FastRaise,
     MarkerLoop,
     MarkerDestroy,
-    MarkerFreeze, // Candidate for deletion
+};
+
+enum class [[nodiscard]] Team : bool
+{
+    Red,
+    Blue
 };

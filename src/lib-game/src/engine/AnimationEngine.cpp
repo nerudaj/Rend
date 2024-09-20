@@ -83,9 +83,6 @@ void AnimationEngine::handleTransition(
     case MarkerDestroy:
         eventQueue->emplace<EntityDestroyedGameEvent>(entityIdx);
         break;
-    case MarkerFreeze:
-        // do nothing
-        break;
     default: {
         // Switch to new state
         auto& newState =
