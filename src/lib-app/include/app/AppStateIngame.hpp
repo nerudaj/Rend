@@ -11,6 +11,7 @@
 #include "utils/DemoFileHandler.hpp"
 #include "utils/DependencyContainer.hpp"
 #include "utils/Framerate.hpp"
+#include "utils/WinConditionStrategy.hpp"
 #include <DGM/dgm.hpp>
 #include <GameLoop.hpp>
 #include <LevelD.hpp>
@@ -102,4 +103,5 @@ protected:
     std::chrono::milliseconds artificialFrameDelay = {};
     size_t tickToRollbackTo = {};
     unsigned humanPlayerCount = 0;
+    IsPointLimitReached isPointLimitReached;
 };

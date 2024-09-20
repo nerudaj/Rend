@@ -72,6 +72,7 @@ struct PlayerInventory
     int score = 0;
     float selectionTimeout = 0.f;
     std::size_t selectionIdx = 0;
+    Team team = Team::Red;
 };
 
 struct AiBlackboard

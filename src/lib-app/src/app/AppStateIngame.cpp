@@ -57,6 +57,8 @@ AppStateIngame::AppStateIngame(
           sf::Vector2f(sf::Vector2u(
               dic->settings->display.resolution.width,
               dic->settings->display.resolution.height)))
+    , isPointLimitReached(
+          WinConditionStrategy::getWinConditionStrategy(gameSettings))
 {
     for (auto&& opts : gameSettings.players)
     {
@@ -316,7 +318,7 @@ void AppStateIngame::restoreState(const FrameState& state)
 
 void AppStateIngame::evaluateWinCondition()
 {
-    if (gameLoop->isPointlimitReached(gameSettings.pointlimit))
+    if (isPointLimitReached(scene))
     {
         if (hasFocus)
         {

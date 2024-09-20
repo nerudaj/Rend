@@ -45,8 +45,6 @@ public:
         return gameRulesEngine;
     }
 
-    [[nodiscard]] bool isPointlimitReached(unsigned limit) const;
-
 private:
     void updateEngines(const float dt, const float realDt);
 
