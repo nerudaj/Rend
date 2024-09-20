@@ -262,3 +262,10 @@ tgui::Label::Ptr WidgetBuilder::createTooltip(const std::string& text)
     label->setTextSize(Sizers::getBaseTextSize());
     return label;
 }
+
+tgui::SeparatorLine::Ptr WidgetBuilder::createSeparator()
+{
+    auto sep = tgui::SeparatorLine::create({ "100%", 1 });
+    sep->setPosition({ "0%", "49%" });
+    return sep;
+}

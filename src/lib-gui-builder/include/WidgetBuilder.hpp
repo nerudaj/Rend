@@ -103,6 +103,8 @@ public:
         std::function<void(const tgui::String&)> onTabChange,
         std::optional<std::string> tabsId = std::nullopt);
 
+    static [[nodiscard]] tgui::SeparatorLine::Ptr createSeparator();
+
     static [[nodiscard]] tgui::Label::Ptr
     createTooltip(const std::string& text);
 
