@@ -390,7 +390,7 @@ void AppStateEditor::handlePlayLevel(bool useBot)
         auto gameSettings = GameOptions { .players = { PlayerOptions {
                                               .kind = PlayerKind::LocalHuman,
                                               .bindCamera = true } },
-                                          .fraglimit = 99 };
+                                          .pointlimit = 99 };
         if (useBot)
         {
             gameSettings.players.push_back(PlayerOptions {

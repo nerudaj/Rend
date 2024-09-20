@@ -19,7 +19,7 @@ struct [[nodiscard]] LobbySettings final
     std::string packname = "";
     std::vector<MapSettings> mapSettings = {};
     std::vector<size_t> mapOrder = {};
-    int fraglimit = 0;
+    int pointlimit = 0;
     size_t maxNpcs = 0;
 
     [[nodiscard]] constexpr std::partial_ordering
@@ -32,4 +32,4 @@ struct [[nodiscard]] LobbySettings final
 };
 
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(
-    LobbySettings, packname, mapSettings, mapOrder, fraglimit, maxNpcs);
+    LobbySettings, packname, mapSettings, mapOrder, pointlimit, maxNpcs);

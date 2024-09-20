@@ -316,7 +316,7 @@ void AppStateIngame::restoreState(const FrameState& state)
 
 void AppStateIngame::evaluateWinCondition()
 {
-    if (gameLoop->isPointlimitReached(gameSettings.fraglimit))
+    if (gameLoop->isPointlimitReached(gameSettings.pointlimit))
     {
         if (hasFocus)
         {

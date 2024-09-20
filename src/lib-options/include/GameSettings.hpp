@@ -29,6 +29,5 @@ struct GameOptions
     std::vector<PlayerOptions> players = { PlayerOptions {
         .kind = PlayerKind::LocalHuman, .bindCamera = true } };
     GameMode gameMode = GameMode::Deathmatch;
-    unsigned fraglimit = 15;
-    unsigned pointlimit = 3;
+    unsigned pointlimit = 15;
 };

@@ -72,11 +72,11 @@ void AppStateGameSetup::buildLayoutGameSetupImpl(tgui::Panel::Ptr target)
             .addOption(
                 Strings::AppState::GameSetup::FRAGLIMIT,
                 WidgetBuilder::createTextInput(
-                    std::to_string(lobbySettings.fraglimit),
+                    std::to_string(lobbySettings.pointlimit),
                     [this](const tgui::String& newValue)
                     {
                         if (newValue.empty()) return;
-                        lobbySettings.fraglimit =
+                        lobbySettings.pointlimit =
                             std::stoi(std::string(newValue));
                         sendLobbyUpdate();
                     },
