@@ -592,9 +592,11 @@ void GameRulesEngine::damage(
     if (thing.health <= 0) return;
     assert(damage > 0);
 
-    // TODO: max 2/3 of armor above 100?
-    // Max 1/3 of the damage can be absorbed by the armor
-    int amountAbsorbedByArmor = std::min(thing.armor, damage / 3);
+    const int absorptionMultiplier =
+        thing.armor > 100 ? 2
+                          : 1; // absorb 2/3 when armor above 100, else only 1/3
+    const int amountAbsorbedByArmor =
+        std::min(thing.armor, absorptionMultiplier * damage / 3);
     thing.armor -= amountAbsorbedByArmor;
     damage -= amountAbsorbedByArmor;
 
