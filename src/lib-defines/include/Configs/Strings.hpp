@@ -63,6 +63,7 @@ namespace Strings
         namespace GameSetup
         {
             RAWSTRING TITLE = "game setup";
+            RAWSTRING SERVER_IP = "server ip";
             RAWSTRING MAX_NPCS = "maximum number of bots";
             RAWSTRING SELECT_PACK = "select map pack";
             RAWSTRING SELECT_MAPS = "configure map rotation";

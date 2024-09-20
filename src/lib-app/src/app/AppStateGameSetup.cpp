@@ -44,6 +44,10 @@ void AppStateGameSetup::buildLayoutGameSetupImpl(tgui::Panel::Ptr target)
     target->add(
         FormBuilder()
             .addOption(
+                Strings::AppState::GameSetup::SERVER_IP,
+                WidgetBuilder::createTextLabel(
+                    sf::IpAddress::getLocalAddress().toString()))
+            .addOption(
                 Strings::AppState::GameSetup::MAX_NPCS,
                 WidgetBuilder::createDropdown(
                     { "0", "1", "2", "3" },

@@ -1,3 +1,11 @@
+Rend 0.8.0 changelog:
+
+UX:
+* Game setup screen now shows the server IP
+
+Bugfixes:
+* Fixed a bug where AI would not move in an completely empty level
+
 Rend 0.7.0 changelog:
 
 Gameplay:
