@@ -3,11 +3,17 @@
 #include <string>
 #include <vector>
 
-enum class PlayerKind
+enum class [[nodiscard]] PlayerKind
 {
     LocalHuman,
     LocalNpc,
     RemoteHuman
+};
+
+enum class [[nodiscard]] GameMode
+{
+    Deathmatch,
+    SingleFlagCtf,
 };
 
 struct PlayerOptions
@@ -22,5 +28,7 @@ struct GameOptions
 {
     std::vector<PlayerOptions> players = { PlayerOptions {
         .kind = PlayerKind::LocalHuman, .bindCamera = true } };
+    GameMode gameMode = GameMode::Deathmatch;
     unsigned fraglimit = 15;
+    unsigned pointlimit = 3;
 };
