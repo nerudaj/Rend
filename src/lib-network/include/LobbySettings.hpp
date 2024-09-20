@@ -1,5 +1,6 @@
 #pragma once
 
+#include <GameSettings.hpp>
 #include <nlohmann/json.hpp>
 #include <string>
 
@@ -19,6 +20,7 @@ struct [[nodiscard]] LobbySettings final
     std::string packname = "";
     std::vector<MapSettings> mapSettings = {};
     std::vector<size_t> mapOrder = {};
+    GameMode gameMode = GameMode::Deathmatch;
     int pointlimit = 0;
     size_t maxNpcs = 0;
 
@@ -32,4 +34,10 @@ struct [[nodiscard]] LobbySettings final
 };
 
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(
-    LobbySettings, packname, mapSettings, mapOrder, pointlimit, maxNpcs);
+    LobbySettings,
+    packname,
+    mapSettings,
+    mapOrder,
+    gameMode,
+    pointlimit,
+    maxNpcs);

@@ -67,7 +67,10 @@ namespace Strings
             RAWSTRING MAX_NPCS = "maximum number of bots";
             RAWSTRING SELECT_PACK = "select map pack";
             RAWSTRING SELECT_MAPS = "configure map rotation";
-            RAWSTRING FRAGLIMIT = "frag limit";
+            RAWSTRING SELECT_GAMEMODE = "choose game mode";
+            RAWSTRING GAMEMODE_DM = "deathmatch";
+            RAWSTRING GAMEMODE_SCTF = "single-flag ctf";
+            RAWSTRING POINTLIMIT = "point limit";
             RAWSTRING START_GAME = "start game";
             RAWSTRING DOTDOTDOT = "...";
         } // namespace GameSetup

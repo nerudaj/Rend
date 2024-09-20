@@ -57,6 +57,7 @@ void AppStateGameSetup::buildLayoutGameSetupImpl(tgui::Panel::Ptr target)
                         lobbySettings.maxNpcs = idx;
                         sendLobbyUpdate();
                     }))
+            .addSeparator()
             .addOption(
                 Strings::AppState::GameSetup::SELECT_PACK,
                 WidgetBuilder::createDropdown(
@@ -69,8 +70,21 @@ void AppStateGameSetup::buildLayoutGameSetupImpl(tgui::Panel::Ptr target)
                 WidgetBuilder::createButton(
                     Strings::AppState::GameSetup::DOTDOTDOT,
                     std::bind(&AppStateGameSetup::openMapPicker, this)))
+            .addSeparator()
             .addOption(
-                Strings::AppState::GameSetup::FRAGLIMIT,
+                Strings::AppState::GameSetup::SELECT_GAMEMODE,
+                WidgetBuilder::createDropdown(
+                    { Strings::AppState::GameSetup::GAMEMODE_DM,
+                      Strings::AppState::GameSetup::GAMEMODE_SCTF },
+                    Strings::AppState::GameSetup::GAMEMODE_DM,
+                    [&](size_t optionIdx)
+                    {
+                        lobbySettings.gameMode =
+                            static_cast<GameMode>(optionIdx);
+                        sendLobbyUpdate();
+                    }))
+            .addOption(
+                Strings::AppState::GameSetup::POINTLIMIT,
                 WidgetBuilder::createTextInput(
                     std::to_string(lobbySettings.pointlimit),
                     [this](const tgui::String& newValue)
