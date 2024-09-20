@@ -400,23 +400,25 @@ void GameRulesEngine::handleDamageOverTime(
     const MarkerIndexType markerIdx,
     const float dt)
 {
-    marker.timeTillNextDischarge -= dt;
-    if (marker.timeTillNextDischarge > 0.f) return;
-
     const auto thingIdx =
         scene.playerStates[marker.targetStateIdx].inventory.ownerIdx;
-
-    --marker.chargesLeft;
-    if (marker.chargesLeft == 0)
-    {
-        removeMarker(markerIdx);
-    }
 
     if (!scene.things.isIndexValid(thingIdx)
         || scene.things[thingIdx].typeId != EntityType::Player)
     {
         removeMarker(markerIdx);
         return;
+    }
+
+    marker.timeTillNextDischarge -= dt;
+    if (marker.timeTillNextDischarge > 0.f) return;
+
+    --marker.chargesLeft;
+    marker.timeTillNextDischarge = FLAREGUN_DOT_TIMEOUT;
+
+    if (marker.chargesLeft == 0)
+    {
+        removeMarker(markerIdx);
     }
 
     damage(

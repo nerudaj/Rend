@@ -1,5 +1,8 @@
 Rend 0.8.0 changelog:
 
+Gameplay:
+* Flaregun applies damage over time
+
 UX:
 * Game setup screen now shows the server IP
 
