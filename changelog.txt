@@ -1,6 +1,7 @@
 Rend 0.8.0 changelog:
 
 Gameplay:
+* Added a new 4-player map: "Digital Nexus"
 * Flaregun applies damage over time
 * When armor is above 100, it absorbs more damage
 * Tweaked damage numbers for flaregun and trishot
