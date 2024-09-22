@@ -1,4 +1,5 @@
 #include <engine/AiEngine.hpp>
+#include <fsm/Builder.hpp>
 #include <limits>
 
 #define BIND(f) std::bind(&AiEngine::f, &self, std::placeholders::_1)
@@ -11,47 +12,52 @@
         std::placeholders::_3)
 
 AiEngine::AiEngine(Scene& scene, bool useNullBehavior)
-    : scene(scene)
-    , hitscanner(scene)
-    , fsmTop(createTopFsm(*this, useNullBehavior))
-    , fsmAlive(createAliveFsm(*this))
-    , fsmDead(createDeadFsm(*this))
+    : scene(scene), hitscanner(scene), fsm(createFsm(*this, useNullBehavior))
 {
-    /*fsmTop.setStateToStringHelper(std::map { TOP_STATES_TO_STRING });
-    fsmAlive.setStateToStringHelper(std::map { AI_STATE_TO_STRING });
-    fsmDead.setStateToStringHelper(std::map { AI_STATE_TO_STRING });*/
 }
 
-dgm::fsm::Fsm<AiTopState, AiBlackboard>
-AiEngine::createTopFsm(AiEngine& self, bool useNullBehavior)
+auto Not(auto&& fn)
 {
-    using dgm::fsm::decorator::Not;
-    using enum AiTopState;
+    return [fn = std::move(fn)](const AiBlackboard& bb) { return !fn(bb); };
+}
 
+fsm::Fsm<AiBlackboard> AiEngine::createFsm(AiEngine& self, bool useNullBehavior)
+{
+    auto isThisPlayerDead = Not(BIND(isThisPlayerAlive));
+    auto shouldRequestRespawn = [&self](const AiBlackboard& bb)
+    { return self.scene.tick % (bb.playerStateIdx + 1) == 0; };
+    auto requestRespawn = [](AiBlackboard& bb) { bb.input->shoot(); };
+    auto doNothing = [](AiBlackboard&) {};
     auto bootstrapAlive = [](auto& b)
     {
-        b.aiState = AiState::ChoosingGatherLocation;
         b.lastHealth = 100;
         b.targetEnemyIdx = std::numeric_limits<EntityIndexType>::max();
     };
-    auto isThisPlayerDead = Not<AiBlackboard>(BIND(isThisPlayerAlive));
 
     // clang-format off
-    return dgm::fsm::Builder<AiTopState, AiBlackboard>()
-        .with(BootstrapAlive)
-            .exec(bootstrapAlive).andGoTo(Alive)
-        .with(Alive)
-            .when(isThisPlayerDead).goTo(BootstrapDead)
-            .otherwiseExec(useNullBehavior ? BIND(runFsmAliveNull) : BIND(runFsmAlive)).andLoop()
-        .with(BootstrapDead)
-            .exec([](auto& b) { b.aiState = AiState::RequestingRespawn; }).andGoTo(Dead)
-        .with(AiTopState::Dead)
-            .when(BIND(isThisPlayerAlive)).goTo(BootstrapAlive)
-            .otherwiseExec(BIND(runFsmDead)).andLoop()
+    return fsm::Builder<AiBlackboard>()
+        .withErrorMachine()
+            .useGlobalEntryCondition(isThisPlayerDead)
+            .withEntryState("Dead")
+                .when(shouldRequestRespawn).goToState("RequestRespawn")
+                .otherwiseExec(doNothing).andLoop()
+            .withState("RequestRespawn")
+                .exec(requestRespawn).andGoToState("WaitingForRespawn")
+            .withState("WaitingForRespawn")
+                .when(BIND(isThisPlayerAlive)).goToState("BootstrapAlive")
+                .otherwiseExec(doNothing).andLoop()
+            .withState("BootstrapAlive")
+                .exec(bootstrapAlive).andRestart()
+            .done()
+        .withMainMachine()
+            .withEntryState("Start")
+                .exec(doNothing).andLoop()
+            .done()
         .build();
     // clang-format on
 }
 
+/*
 dgm::fsm::Fsm<AiState, AiBlackboard, Entity, PlayerInventory>
 AiEngine::createAliveFsm(AiEngine& self)
 {
@@ -157,8 +163,8 @@ AiEngine::createAliveFsm(AiEngine& self)
              .when(timerHit).goTo(PickingTargetEnemy)
              .otherwiseExec(doNothing).andLoop()
         .with(PickingTargetEnemy)
-            .when(Not<AiBlackboard, Entity, PlayerInventory>(BIND3(isAnyEnemyVisible)))
-                .goTo(ChoosingGatherLocation)
+            .when(Not<AiBlackboard, Entity,
+PlayerInventory>(BIND3(isAnyEnemyVisible))) .goTo(ChoosingGatherLocation)
             .otherwiseExec(BIND3(pickTargetEnemy)).andGoTo(LockingTarget)
         .with(LockingTarget)
             .when(BIND3(isTargetEnemyDead)).goTo(ChoosingGatherLocation)
@@ -202,7 +208,7 @@ dgm::fsm::Fsm<AiState, AiBlackboard> AiEngine::createDeadFsm(AiEngine& engine)
             .andLoop()
         .build();
     // clang-format on
-}
+}*/
 
 #undef BIND
 #undef BIND3

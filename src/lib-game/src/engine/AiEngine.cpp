@@ -13,27 +13,8 @@ void AiEngine::update(const float deltaTime)
         blackboard.targettingTimer -= deltaTime;
 
         blackboard.input->clearInputs();
-        fsmTop.setState(blackboard.aiTopState);
-        fsmTop.update(blackboard);
-        blackboard.aiTopState = fsmTop.getState();
+        fsm.tick(blackboard);
     }
-}
-
-void AiEngine::runFsmAlive(AiBlackboard& blackboard)
-{
-    fsmAlive.setState(blackboard.aiState);
-    fsmAlive.update(
-        blackboard, getPlayer(blackboard), getInventory(blackboard));
-    blackboard.aiState = fsmAlive.getState();
-    if (blackboard.aiState == AiState::ExecutingDelayedTransition)
-        blackboard.aiState = blackboard.delayedTransitionState;
-}
-
-void AiEngine::runFsmDead(AiBlackboard& blackboard)
-{
-    fsmDead.setState(blackboard.aiState);
-    fsmDead.update(blackboard);
-    blackboard.aiState = fsmDead.getState();
 }
 
 bool AiEngine::isTargetLocationReached(

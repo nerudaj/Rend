@@ -1,10 +1,10 @@
 #pragma once
 
 #include "ai/AiEnums.hpp"
-#include <DGM/fsm.hpp>
 #include <Memory.hpp>
 #include <core/Enums.hpp>
 #include <core/Scene.hpp>
+#include <fsm/Fsm.hpp>
 #include <ranges>
 #include <utils/Hitscanner.hpp>
 
@@ -16,21 +16,9 @@ public:
 public:
     void update(const float deltaTime);
 
-private: // fsm updates
-    void runFsmAlive(AiBlackboard& blackboard);
-
-    constexpr void runFsmAliveNull(AiBlackboard&) {}
-
-    void runFsmDead(AiBlackboard& blackboard);
-
 private:
-    static dgm::fsm::Fsm<AiTopState, AiBlackboard>
-    createTopFsm(AiEngine& self, bool useNullBehavior);
-
-    static dgm::fsm::Fsm<AiState, AiBlackboard, Entity, PlayerInventory>
-    createAliveFsm(AiEngine& self);
-
-    static dgm::fsm::Fsm<AiState, AiBlackboard> createDeadFsm(AiEngine& self);
+    static fsm::Fsm<AiBlackboard>
+    createFsm(AiEngine& self, bool useNullBehavior);
 
 private: // FSM predicates
     [[nodiscard]] bool isTargetLocationReached(
@@ -192,7 +180,7 @@ private: // FSM actions
         Entity& entity,
         PlayerInventory& inventory) const
     {
-        blackboard.delayedTransitionState = AiState::ChoosingGatherLocation;
+        // blackboard.delayedTransitionState = AiState::ChoosingGatherLocation;
         shoot(blackboard, entity, inventory);
     }
 
@@ -235,7 +223,7 @@ private: // FSM actions
     constexpr void
     performHuntBookmarking(AiBlackboard& blackboard, Entity&, PlayerInventory&)
     {
-        blackboard.delayedTransitionState = AiState::LockingTarget;
+        // blackboard.delayedTransitionState = AiState::LockingTarget;
         blackboard.targetLocation = getEnemy(blackboard).hitbox.getPosition();
     }
 
@@ -341,7 +329,5 @@ private: // Utility functions
 private:
     Scene& scene;
     Hitscanner hitscanner;
-    dgm::fsm::Fsm<AiTopState, AiBlackboard> fsmTop;
-    dgm::fsm::Fsm<AiState, AiBlackboard, Entity, PlayerInventory> fsmAlive;
-    dgm::fsm::Fsm<AiState, AiBlackboard> fsmDead;
+    fsm::Fsm<AiBlackboard> fsm;
 };
