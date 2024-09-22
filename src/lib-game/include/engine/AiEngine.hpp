@@ -21,10 +21,8 @@ private:
     createFsm(AiEngine& self, bool useNullBehavior);
 
 private: // FSM predicates
-    [[nodiscard]] bool isTargetLocationReached(
-        const AiBlackboard&,
-        const Entity&,
-        const PlayerInventory&) const noexcept;
+    [[nodiscard]] bool
+    isTargetLocationReached(const AiBlackboard& blackboard) const noexcept;
 
     [[nodiscard]] constexpr bool
     isThisPlayerAlive(const AiBlackboard& blackboard) const noexcept
@@ -32,181 +30,140 @@ private: // FSM predicates
         return isPlayerAlive(getInventory(blackboard).ownerIdx);
     }
 
-    [[nodiscard]] constexpr bool isTargetEnemyDead(
-        const AiBlackboard& blackboard,
-        const Entity&,
-        const PlayerInventory&) const noexcept
+    [[nodiscard]] constexpr bool
+    isTargetEnemyDead(const AiBlackboard& blackboard) const noexcept
     {
         return !isPlayerAlive(blackboard.targetEnemyIdx);
     }
 
-    [[nodiscard]] bool isTargetEnemyOutOfView(
-        const AiBlackboard& blackboard,
-        const Entity& player,
-        const PlayerInventory& inventory) const noexcept;
+    [[nodiscard]] bool
+    isTargetEnemyOutOfView(const AiBlackboard& blackboard) const noexcept;
 
-    [[nodiscard]] bool isTargetEnemyInReticle(
-        const AiBlackboard& blackboard,
-        const Entity& player,
-        const PlayerInventory& inventory) const noexcept;
+    [[nodiscard]] bool
+    isTargetEnemyInReticle(const AiBlackboard& blackboard) const noexcept;
 
-    [[nodiscard]] bool isAnyEnemyVisible(
-        const AiBlackboard& blackboard,
-        const Entity& player,
-        const PlayerInventory& inventory) const noexcept;
+    [[nodiscard]] bool
+    isAnyEnemyVisible(const AiBlackboard& blackboard) const noexcept;
 
-    [[nodiscard]] constexpr bool hasEnteredWeaponRaise(
-        const AiBlackboard&,
-        const Entity&,
-        const PlayerInventory& inventory) const noexcept
+    [[nodiscard]] constexpr bool
+    hasEnteredWeaponRaise(const AiBlackboard& blackboard) const noexcept
     {
-        return inventory.animationContext.animationStateId
+        return getInventory(blackboard).animationContext.animationStateId
                == AnimationStateId::Raise;
     }
 
-    [[nodiscard]] constexpr bool canShoot(
-        const AiBlackboard&,
-        const Entity&,
-        const PlayerInventory& inventory) const noexcept
+    [[nodiscard]] constexpr bool
+    canShoot(const AiBlackboard& blackboard) const noexcept
     {
-        return inventory.animationContext.animationStateId
+        return getInventory(blackboard).animationContext.animationStateId
                == AnimationStateId::Idle;
     }
 
-    [[nodiscard]] bool shouldSwapToLongRangeWeapon(
-        const AiBlackboard&,
-        const Entity&,
-        const PlayerInventory& inventory) const;
+    [[nodiscard]] bool
+    shouldSwapToLongRangeWeapon(const AiBlackboard& blackboard) const;
 
-    [[nodiscard]] bool shouldSwapToShortRangeWeapon(
-        const AiBlackboard&,
-        const Entity&,
-        const PlayerInventory& inventory) const;
+    [[nodiscard]] bool
+    shouldSwapToShortRangeWeapon(const AiBlackboard& blackboard) const;
 
     [[nodiscard]] constexpr bool isActiveWeaponFlaregunAndLastSomethingElse(
-        const AiBlackboard&,
-        const Entity&,
-        const PlayerInventory& inventory) const noexcept
+        const AiBlackboard& blackboard) const noexcept
     {
+        const auto& inventory = getInventory(blackboard);
         return inventory.activeWeaponType == EntityType::WeaponFlaregun
                && inventory.activeWeaponType != inventory.lastWeaponType;
     }
 
     [[nodiscard]] constexpr bool isTargetWeaponHighlightedInInventory(
-        const AiBlackboard& blackboard,
-        const Entity&,
-        const PlayerInventory& inventory) const noexcept
+        const AiBlackboard& blackboard) const noexcept
     {
-        return inventory.selectionIdx
+        return getInventory(blackboard).selectionIdx
                == weaponTypeToIndex(blackboard.targetWeaponToSwapTo);
     }
 
-    [[nodiscard]] bool isTooCloseWithLongRangeWeapon(
-        const AiBlackboard& blackboard,
-        const Entity& entity,
-        const PlayerInventory& inventory)
+    [[nodiscard]] bool
+    isTooCloseWithLongRangeWeapon(const AiBlackboard& blackboard)
     {
-        return isLongRangeWeaponType(inventory.activeWeaponType)
+        return isLongRangeWeaponType(getInventory(blackboard).activeWeaponType)
                && dgm::Math::getSize(
                       getEnemy(blackboard).hitbox.getPosition()
-                      - entity.hitbox.getPosition())
+                      - getPlayer(blackboard).hitbox.getPosition())
                       < 32.f;
     }
 
-    [[nodiscard]] bool isTooFarWithShortRangeWeapon(
-        const AiBlackboard& blackboard,
-        const Entity& entity,
-        const PlayerInventory& inventory)
+    [[nodiscard]] bool
+    isTooFarWithShortRangeWeapon(const AiBlackboard& blackboard)
     {
-        return inventory.activeWeaponType == EntityType::WeaponShotgun
+        return getInventory(blackboard).activeWeaponType
+                   == EntityType::WeaponShotgun
                && dgm::Math::getSize(
                       getEnemy(blackboard).hitbox.getPosition()
-                      - entity.hitbox.getPosition())
+                      - getPlayer(blackboard).hitbox.getPosition())
                       > 32.f;
     }
 
-    [[nodiscard]] bool hasNoAmmoForActiveWeapon(
-        const AiBlackboard&,
-        const Entity&,
-        const PlayerInventory& inventory) const noexcept;
+    [[nodiscard]] bool
+    hasNoAmmoForActiveWeapon(const AiBlackboard& blackboard) const noexcept;
 
-    [[nodiscard]] bool wasHurt(
-        const AiBlackboard& blackboard,
-        const Entity& entity,
-        const PlayerInventory&) const noexcept
+    [[nodiscard]] bool wasHurt(const AiBlackboard& blackboard) const noexcept
     {
         return blackboard.personality != AiPersonality::Tank
-               && entity.health < blackboard.lastHealth;
+               && getPlayer(blackboard).health < blackboard.lastHealth;
     }
 
 private: // FSM actions
-    void pickGatherLocation(
-        AiBlackboard& blackboard, Entity& player, PlayerInventory& inventory);
+    void pickGatherLocation(AiBlackboard& blackboard);
 
-    void pickTargetEnemy(
-        AiBlackboard& blackboard,
-        Entity& player,
-        PlayerInventory& inventory) noexcept;
+    void pickTargetEnemy(AiBlackboard& blackboard) noexcept;
 
-    void moveTowardTargetLocation(
-        AiBlackboard& blackboard, Entity& player, PlayerInventory& inventory);
+    void moveTowardTargetLocation(AiBlackboard& blackboard);
 
-    void moveInRelationToTargetEnemy(
-        AiBlackboard& blackboard, Entity& player, PlayerInventory& inventory);
+    void moveInRelationToTargetEnemy(AiBlackboard& blackboard);
 
-    void rotateTowardTargetLocation(
-        AiBlackboard& blackboard, Entity& player, PlayerInventory&)
-    {
-        rotateTowardTarget(player, blackboard.input, blackboard.targetLocation);
-    }
-
-    void rotateTowardTargetEnemy(
-        AiBlackboard& blackboard, Entity& player, PlayerInventory&)
+    void rotateTowardTargetLocation(AiBlackboard& blackboard)
     {
         rotateTowardTarget(
-            player,
+            getPlayer(blackboard), blackboard.input, blackboard.targetLocation);
+    }
+
+    void rotateTowardTargetEnemy(AiBlackboard& blackboard)
+    {
+        rotateTowardTarget(
+            getPlayer(blackboard),
             blackboard.input,
             getEnemy(blackboard).hitbox.getPosition());
     }
 
-    void
-    shoot(AiBlackboard& blackboard, Entity&, PlayerInventory&) const noexcept
+    void shoot(AiBlackboard& blackboard) const noexcept
     {
         blackboard.input->shoot();
     }
 
-    void confirmWeaponSelection(
-        AiBlackboard& blackboard,
-        Entity& entity,
-        PlayerInventory& inventory) const
+    void confirmWeaponSelection(AiBlackboard& blackboard) const
     {
         // blackboard.delayedTransitionState = AiState::ChoosingGatherLocation;
-        shoot(blackboard, entity, inventory);
+        shoot(blackboard);
     }
 
-    void performComboSwap(
-        AiBlackboard& blackboard, Entity&, PlayerInventory&) const noexcept
+    void performComboSwap(AiBlackboard& blackboard) const noexcept
     {
         blackboard.input->switchToLastWeapon();
     }
 
-    void
-    selectNextWeapon(AiBlackboard& blackboard, Entity&, PlayerInventory&) const
+    void selectNextWeapon(AiBlackboard& blackboard) const
     {
         blackboard.input->switchToNextWeapon();
     }
 
-    constexpr void pickTargetShortRangeWeapon(
-        AiBlackboard& blackboard, Entity&, PlayerInventory&) const noexcept
+    constexpr void
+    pickTargetShortRangeWeapon(AiBlackboard& blackboard) const noexcept
     {
         blackboard.targetWeaponToSwapTo = EntityType::WeaponShotgun;
     }
 
-    constexpr void pickTargetLongRangeWeapon(
-        AiBlackboard& blackboard,
-        Entity&,
-        PlayerInventory& inventory) const noexcept
+    constexpr void
+    pickTargetLongRangeWeapon(AiBlackboard& blackboard) const noexcept
     {
+        const auto& inventory = getInventory(blackboard);
         for (auto&& type :
              getLongRangeWeaponTypesSortedByPersonality(blackboard.personality))
         {
@@ -220,8 +177,7 @@ private: // FSM actions
         }
     }
 
-    constexpr void
-    performHuntBookmarking(AiBlackboard& blackboard, Entity&, PlayerInventory&)
+    constexpr void performHuntBookmarking(AiBlackboard& blackboard)
     {
         // blackboard.delayedTransitionState = AiState::LockingTarget;
         blackboard.targetLocation = getEnemy(blackboard).hitbox.getPosition();
@@ -291,7 +247,7 @@ private: // Utility functions
     }
 
     void rotateTowardTarget(
-        Entity& player,
+        const Entity& player,
         mem::Rc<AiController>& input,
         const sf::Vector2f& targetLocation);
 
