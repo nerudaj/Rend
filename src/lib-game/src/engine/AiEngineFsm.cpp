@@ -137,7 +137,7 @@ fsm::Fsm<AiBlackboard> AiEngine::createFsm(AiEngine& self, bool useNullBehavior)
                 .otherwiseExec(BIND(selectNextWeapon))
                     .andGoToState("CyclingWaitingForOneFrame")
             .withState("WeaponSwapping")
-                .exec(BIND(shoot))
+                .exec(BIND(shoot)) // confirming with fire button
                     .andGoToMachine("WaitForRaiseAnimation")
                         .thenGoToState("ChoosingGatherLocation")
             .withState("CyclingWaitingForOneFrame")
