@@ -10,7 +10,7 @@ set ( ENTT_VERSION        "3.12.2" )
 set ( FAKEIT_VERSION      "2.3.2" )
 
 set ( DGM_LIB_URL "https://github.com/nerudaj/dgm-lib/releases/download/v${DGM_LIB_VERSION}/dgm-lib-${DGM_LIB_VERSION}-winx64-vc17-x64-for-SFML-${SFML_VERSION}.zip" )
-set ( DGM_FSM_LIB_URL "https://github.com/nerudaj/dgm-fsm-lib/releases/download/v1.99.0/dgm-fsm-lib-v1.99.0-15-g5eedd92-Windows-MSVC-x64.zip" )
+set ( DGM_FSM_LIB_URL "https://github.com/nerudaj/dgm-fsm-lib/releases/download/v2.0.0-rc3/dgm-fsm-lib-v2.0.0-rc3-Windows-MSVC-x64.zip" )
 set ( DSH_URL   "https://github.com/nerudaj/dsh/releases/download/v${DSH_VERSION}/dsh-${DSH_VERSION}-vc16-64-bit.zip" )
 set ( SFML_URL    "https://github.com/SFML/SFML/releases/download/${SFML_VERSION}/SFML-${SFML_VERSION}-windows-vc15-64-bit.zip" )
 set ( TGUI_URL    "https://github.com/texus/TGUI/releases/download/v${TGUI_VERSION}/TGUI-${TGUI_VERSION}-vc17-64bit-for-SFML-${SFML_VERSION}.zip" )

@@ -5,13 +5,20 @@
 #include <core/Enums.hpp>
 #include <core/Scene.hpp>
 #include <fsm/Fsm.hpp>
+#include <fsm/logging/CsvLogger.hpp>
 #include <ranges>
 #include <utils/Hitscanner.hpp>
+
+struct AiEngineConfig
+{
+    bool useNullBehavior = false;
+    bool enableLogging = false;
+};
 
 class [[nodiscard]] AiEngine final
 {
 public:
-    [[nodiscard]] AiEngine(Scene& scene, bool useNullBehavior);
+    [[nodiscard]] AiEngine(Scene& scene, const AiEngineConfig& config);
 
 public:
     void update(const float deltaTime);
@@ -136,12 +143,6 @@ private: // FSM actions
     void shoot(AiBlackboard& blackboard) const noexcept
     {
         blackboard.input->shoot();
-    }
-
-    void confirmWeaponSelection(AiBlackboard& blackboard) const
-    {
-        // blackboard.delayedTransitionState = AiState::ChoosingGatherLocation;
-        shoot(blackboard);
     }
 
     void performComboSwap(AiBlackboard& blackboard) const noexcept
@@ -285,5 +286,6 @@ private: // Utility functions
 private:
     Scene& scene;
     Hitscanner hitscanner;
+    fsm::CsvLogger logger;
     fsm::Fsm<AiBlackboard> fsm;
 };

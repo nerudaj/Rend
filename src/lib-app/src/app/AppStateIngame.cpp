@@ -428,5 +428,5 @@ mem::Box<GameLoop> AppStateIngame::createGameLoop()
                                     { return opts.name; })
             | std::ranges::to<std::vector>(),
         dic->settings->display,
-        dic->settings->cmdSettings.useNullBotBehavior);
+        dic->settings->cmdSettings);
 }

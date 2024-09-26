@@ -1,6 +1,7 @@
 #pragma once
 
 #include "AudioPlayer.hpp"
+#include <CmdParameters.hpp>
 #include <DGM/dgm.hpp>
 #include <Memory.hpp>
 #include <core/Scene.hpp>
@@ -23,10 +24,15 @@ public:
         mem::Rc<AudioPlayer> audioPlayer,
         const std::vector<std::string>& playerNames,
         const DisplayOptions& renderSettings,
-        bool useNullBotBehavior)
+        const CmdParameters& cmdParams)
         : scene(scene)
         , eventQueue(eventQueue)
-        , aiEngine(scene, useNullBotBehavior)
+        , aiEngine(
+              scene,
+              AiEngineConfig {
+                  .useNullBehavior = cmdParams.useNullBotBehavior,
+                  .enableLogging = cmdParams.enableDebug,
+              })
         , animationEngine(scene, eventQueue)
         , audioEngine(audioPlayer, scene)
         , gameRulesEngine(scene, eventQueue, playerNames)
