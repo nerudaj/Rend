@@ -35,8 +35,13 @@ void AppStateGameSetup::input()
 
     InputHandler::handleUiStateInput(app, *dic);
 
-    dic->logger->log(client->readIncomingPackets(std::bind(
-        &AppStateGameSetup::handleNetworkUpdate, this, std::placeholders::_1)));
+    dic->logger->ifError(
+        0,
+        "readIncomingPackets",
+        client->readIncomingPackets(std::bind(
+            &AppStateGameSetup::handleNetworkUpdate,
+            this,
+            std::placeholders::_1)));
 }
 
 void AppStateGameSetup::buildLayoutGameSetupImpl(tgui::Panel::Ptr target)
@@ -140,5 +145,8 @@ void AppStateGameSetup::handleMapRotationUpdate()
 
 void AppStateGameSetup::sendLobbyUpdate()
 {
-    dic->logger->log(client->sendLobbySettingsUpdate(lobbySettings));
+    dic->logger->ifError(
+        0,
+        "sendLobbySettingsUpdate",
+        client->sendLobbySettingsUpdate(lobbySettings));
 }

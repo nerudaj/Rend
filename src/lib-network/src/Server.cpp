@@ -32,7 +32,7 @@ Server::Server(ServerConfiguration config, ServerDependencies dependencies)
     }
     listener->setBlocking(false);
 
-    deps.logger->log("Server: Listening on port {}", config.port);
+    deps.logger->log(sequence, "Server: Listening on port {}", config.port);
 }
 
 Server::~Server()
@@ -56,7 +56,10 @@ void Server::operator()(const MapRequestedServerEvent& e)
     auto map = deps.mapLoader->loadMapInBase64(e.mapPackName, e.mapName);
     if (!map)
     {
-        deps.logger->log(map);
+        deps.logger->error(
+            sequence,
+            "Load map in base64 failed: {}",
+            std::string(map.error()));
         return;
     }
 
@@ -73,7 +76,8 @@ void Server::operator()(const MapRequestedServerEvent& e)
 
     if (client.socket->send(packet) != sf::Socket::Status::Done)
     {
-        deps.logger->log(
+        deps.logger->error(
+            sequence,
             "error: Could not send map to client {} at "
             "{}:{}",
             client.idx,
@@ -97,7 +101,10 @@ Server::NewConnectionCount Server::processNewConnections()
     mem::Box<sf::TcpSocket> newConnection;
     if (listener->accept(*newConnection) == sf::Socket::Status::Done)
     {
-        deps.logger->log(handleNewConnection(std::move(newConnection)));
+        deps.logger->logOrError(
+            sequence,
+            "handleNewConnection",
+            handleNewConnection(std::move(newConnection)));
     }
 
     return registeredClients.size() - cnt;
@@ -117,7 +124,7 @@ Server::ProcessedPacketCount Server::processIncomingPackets()
         auto result = handleMessage(
             ClientMessage::fromPacket(packet), client.address, client.port);
         if (result) ++cnt;
-        deps.logger->log(result);
+        deps.logger->ifError(sequence, "handleMessage", result);
     }
 
     return cnt;
@@ -148,7 +155,8 @@ void Server::sendUpdates()
         if (auto status = client.socket->send(packet);
             status != sf::Socket::Status::Done)
         {
-            deps.logger->log(
+            deps.logger->error(
+                sequence,
                 "error: Could not send response to client {} at {}:{} (status "
                 "code {})",
                 client.idx,

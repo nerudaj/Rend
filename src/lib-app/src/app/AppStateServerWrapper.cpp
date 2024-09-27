@@ -17,7 +17,7 @@ void serverLoop(
     std::filesystem::path resourcesDir)
 {
     auto&& logger =
-        LoggerFactory::createLogger(enableDebug, "./rend_server_log.txt");
+        LoggerFactory::createLogger(enableDebug, "./rend_server_log.csv");
 
     try
     {
@@ -27,7 +27,7 @@ void serverLoop(
                                  .mapLoader =
                                      mem::Rc<ServerMapLoader>(resourcesDir) });
         auto&& framerate = Framerate(FPS * 2);
-        logger->log("Server loop started");
+        logger->log(0, "Server loop started");
 
         while (serverEnabled)
         {
@@ -37,7 +37,7 @@ void serverLoop(
     }
     catch (const std::exception& e)
     {
-        logger->log("error: {}", e.what());
+        logger->error(0, "error: {}", e.what());
     }
 }
 

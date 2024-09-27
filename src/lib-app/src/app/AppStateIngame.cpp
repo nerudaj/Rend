@@ -66,7 +66,8 @@ AppStateIngame::AppStateIngame(
     lockMouse();
     createPlayers();
     dic->jukebox->playIngameSong();
-    dic->logger->log(client->sendMapReadySignal());
+    dic->logger->logOrError(
+        lastTick, "Sending map ready signal", client->sendMapReadySignal());
 }
 
 void AppStateIngame::input()
@@ -78,8 +79,20 @@ void AppStateIngame::input()
         std::bind(&AppStateIngame::isFrameConfirmed, this));
     if (!result)
     {
-        dic->logger->log(result);
+        dic->logger->error(
+            lastTick,
+            "Reading packets until frame confirmed failed. Confirmed inputs: "
+            "{}. Message: {}",
+            nlohmann::json(getFarthestConfirmedInputs()).dump(),
+            result.error());
         app.popState(ExceptionGameDisconnected::serialize());
+    }
+    else
+    {
+        dic->logger->log(
+            lastTick,
+            "Frame {} confirmed",
+            lastTick - (ROLLBACK_WINDOW_SIZE - 1));
     }
 
     if (!hasFocus) return;
@@ -136,8 +149,8 @@ void AppStateIngame::update()
     namespace ph = std::placeholders;
 
     dic->logger->log(
-        "UPDATE: Last tick: {}, getLastInsertedTick: {}, tickToRollbackTo: {}",
         lastTick,
+        "update(): getLastInsertedTick: {}; tickToRollbackTo: {}",
         stateManager.getLastInsertedTick(),
         tickToRollbackTo);
     stateManager.forEachItemFromTick(
@@ -169,26 +182,30 @@ void AppStateIngame::restoreFocusImpl(const std::string& message)
 
 void AppStateIngame::handleNetworkUpdate(const ServerUpdateData& update)
 {
-    dic->logger->log("---HANDLE NETWORK UPDATE---");
-
     ready = update.state == ServerState::GameInProgress;
     auto&& oldestTicks = std::vector<size_t>(
         update.clients.size(), std::numeric_limits<size_t>::max());
 
     humanPlayerCount = 0;
-    for (const auto& clientData : update.clients)
+    for (const auto& [clientIdx, clientData] :
+         std::views::enumerate(update.clients))
     {
         if (clientData.state != ClientState::Disconnected) [[likely]]
             ++humanPlayerCount;
         else
         {
-            dic->logger->log("Peer {} is disconnected", clientData.name);
+            dic->logger->log(
+                lastTick,
+                "Client {} named {} is disconnected",
+                clientIdx,
+                clientData.name);
         }
     }
 
-    dic->logger->log("Found {} human players", humanPlayerCount);
+    dic->logger->log(lastTick, "Found {} human players", humanPlayerCount);
 
     dic->logger->log(
+        lastTick,
         "Peer: Update in tick {}. Frame time: {}",
         stateManager.getLastInsertedTick(),
         app.time.getDeltaTime());
@@ -196,20 +213,21 @@ void AppStateIngame::handleNetworkUpdate(const ServerUpdateData& update)
     {
         tickToRollbackTo = std::min(tickToRollbackTo, inputData.tick);
         dic->logger->log(
-            "\tInput for tick {} from client {}, currently rollbacking to {}",
+            lastTick,
+            "Input for tick {} from client {}; currently rollbacking to {}",
             inputData.tick,
             inputData.clientId,
             tickToRollbackTo);
 
         if (stateManager.isTickTooOld(inputData.tick)) [[unlikely]]
         {
-            dic->logger->log("\t\tGot outdated input, exiting");
+            dic->logger->log(lastTick, "Got outdated input - exiting");
             app.popState(ExceptionGameDisconnected::serialize());
         }
         else if (stateManager.isTickTooNew(inputData.tick))
         {
             dic->logger->log(
-                "\t\tTick is too new, inserting into futureInputs");
+                lastTick, "Tick is too new - inserting into futureInputs");
             futureInputs[inputData.tick][inputData.clientId] = inputData.input;
         }
         else
@@ -223,7 +241,6 @@ void AppStateIngame::handleNetworkUpdate(const ServerUpdateData& update)
     }
 
     setCurrentFrameDelay(std::move(oldestTicks));
-    dic->logger->log("---HANDLE NETWORK UPDATE END---");
 }
 
 void AppStateIngame::setCurrentFrameDelay(std::vector<size_t>&& oldestTicks)
@@ -235,8 +252,9 @@ void AppStateIngame::setCurrentFrameDelay(std::vector<size_t>&& oldestTicks)
             && clientIdx != client->getMyIndex())
         {
             dic->logger->log(
-                "\t\tSlowing down, one of the updated clients is lagging "
-                "behind");
+                lastTick,
+                "Slowing down - client {} is lagging behind",
+                clientIdx);
             artificialFrameDelay =
                 std::chrono::duration_cast<std::chrono::milliseconds>(
                     std::chrono::microseconds(1'000'000 / FPS * 5));
@@ -279,11 +297,10 @@ AppStateIngame::FrameState AppStateIngame::snapshotInputsIntoNewFrameState()
         state.inputs[client->getMyIndex()] = InputSchema {};
     }
 
-    dic->logger->log(
-        "Sending inputs for frame {} (client id {})",
+    dic->logger->ifError(
         lastTick,
-        client->getMyIndex());
-    dic->logger->log(client->sendCurrentFrameInputs(lastTick, state.inputs));
+        "Sending inputs for current tick",
+        client->sendCurrentFrameInputs(lastTick, state.inputs));
 
     return state;
 }
@@ -348,11 +365,9 @@ void AppStateIngame::backupState(FrameState& state)
 
 bool AppStateIngame::isFrameConfirmed() const
 {
-    constexpr const size_t WINDOW_SIZE = 19;
-    if (lastTick < WINDOW_SIZE) return true;
+    if (lastTick < (ROLLBACK_WINDOW_SIZE - 1)) return true;
 
-    const auto& confirmations =
-        stateManager.get(lastTick - WINDOW_SIZE).confirmedInputs;
+    const auto& confirmations = getFarthestConfirmedInputs();
 
     const auto sumConfirmed = std::accumulate(
         confirmations.begin(),

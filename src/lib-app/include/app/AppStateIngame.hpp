@@ -75,6 +75,13 @@ private:
     void createPlayers();
     void propagateSettings();
 
+    constexpr [[nodiscard]] const std::vector<bool>&
+    getFarthestConfirmedInputs() const noexcept
+    {
+        return stateManager.get(lastTick - (ROLLBACK_WINDOW_SIZE - 1))
+            .confirmedInputs;
+    }
+
     mem::Box<GameLoop> createGameLoop();
 
 protected:

@@ -26,7 +26,10 @@ AppStateLobbyBase::AppStateLobbyBase(
           .maxNpcs = dic->settings->cmdSettings.maxNpcs })
     , config(config)
 {
-    dic->logger->log(client->sendPeerSettingsUpdate(myPeerData));
+    dic->logger->ifError(
+        0,
+        "sendPeerSettingsUpdate",
+        client->sendPeerSettingsUpdate(myPeerData));
 }
 
 void AppStateLobbyBase::handleNetworkUpdate(const ServerUpdateData& update)
@@ -60,7 +63,12 @@ void AppStateLobbyBase::handleMapDownload(const MapDownloadResponse& data)
 
     if (std::filesystem::exists(mapPath))
     {
-        dic->logger->log("The map at {} already exists", mapPath.string());
+        dic->logger->error(
+            client->getMyIndex(),
+            0,
+            0,
+            "The map at {} already exists",
+            mapPath.string());
         return;
     }
 
@@ -71,7 +79,12 @@ void AppStateLobbyBase::handleMapDownload(const MapDownloadResponse& data)
     }
 
     dic->lateLoadMapIntoManager(mapPath);
-    dic->logger->log("Map downloaded and saved to {}", mapPath.string());
+    dic->logger->log(
+        client->getMyIndex(),
+        0,
+        0,
+        "Map downloaded and saved to {}",
+        mapPath.string());
 }
 
 void AppStateLobbyBase::startGame()
