@@ -56,9 +56,12 @@ void GameRulesEngine::operator()(const ProjectileDestroyedGameEvent e)
                     DEF.damage, isExplosive, candidateTarget.hitbox, hitbox),
                 scene.things[e.entityIndex].stateIdx);
 
-            scene.markers.emplaceBack(SceneBuilder::createFlaregunDotMarker(
-                scene.things[candidateTargetIdx].stateIdx,
-                scene.things[e.entityIndex].stateIdx));
+            if (projectile.typeId == EntityType::ProjectileFlare)
+            {
+                scene.markers.emplaceBack(SceneBuilder::createFlaregunDotMarker(
+                    scene.things[candidateTargetIdx].stateIdx,
+                    scene.things[e.entityIndex].stateIdx));
+            }
         }
     }
 

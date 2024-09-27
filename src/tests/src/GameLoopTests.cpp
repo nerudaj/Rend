@@ -32,7 +32,7 @@ TEST_CASE("[GameRuleEngine]")
         GameRulesEngine(scene, eventQueue, { "", "", "", "" });
     auto&& animationEngine = AnimationEngine(scene, eventQueue);
 
-    auto simulateStep = [&]()
+    auto simulateStep = [&]
     {
         const float FRAME_TIME = 1.f / 60.f;
         animationEngine.update(FRAME_TIME);
@@ -94,5 +94,48 @@ TEST_CASE("[GameRuleEngine]")
         REQUIRE(origShellAmmo == ammo[ammoTypeToAmmoIndex(AmmoType::Shells)]);
         REQUIRE(origRocketAmmo == ammo[ammoTypeToAmmoIndex(AmmoType::Rockets)]);
         REQUIRE(origEnergyAmmo > ammo[ammoTypeToAmmoIndex(AmmoType::Energy)]);
+    }
+
+    SECTION("After getting hit by a flare projectile, spawn DoT marker")
+    {
+        scene.things.emplaceBack(createDummyPlayer());
+        scene.playerStates.push_back(PlayerState {
+            .inventory = SceneBuilder::getDefaultInventory(0u, 0) });
+        scene.things.emplaceBack(SceneBuilder::createProjectile(
+            EntityType::ProjectileFlare,
+            Position { getSafePosition() },
+            Direction { sf::Vector2f(1.f, 0.f) },
+            0,
+            0));
+        eventQueue->emplace<ProjectileDestroyedGameEvent>(1);
+
+        simulateStep();
+
+        REQUIRE(scene.markers.isIndexValid(0));
+        REQUIRE(!scene.markers.isIndexValid(1));
+        // MarkerDamageOverTime
+        REQUIRE(scene.markers.at(0).value().get().index() == 2);
+    }
+
+    SECTION("Bug: Flaregun damage over time was applied to rockets as well")
+    {
+        scene.things.emplaceBack(createDummyPlayer());
+        scene.playerStates.push_back(PlayerState {
+            .inventory = SceneBuilder::getDefaultInventory(0u, 0) });
+        scene.things.emplaceBack(SceneBuilder::createProjectile(
+            EntityType::ProjectileRocket,
+            Position { getSafePosition() },
+            Direction { sf::Vector2f(1.f, 0.f) },
+            0,
+            0));
+        eventQueue->emplace<ProjectileDestroyedGameEvent>(1);
+
+        simulateStep();
+
+        REQUIRE(scene.markers.isIndexValid(0));
+        REQUIRE(!scene.markers.isIndexValid(1));
+
+        // MarkerDeadPlayer
+        REQUIRE(scene.markers.at(0).value().get().index() == 0);
     }
 }
