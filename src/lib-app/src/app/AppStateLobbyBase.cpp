@@ -63,12 +63,7 @@ void AppStateLobbyBase::handleMapDownload(const MapDownloadResponse& data)
 
     if (std::filesystem::exists(mapPath))
     {
-        dic->logger->error(
-            client->getMyIndex(),
-            0,
-            0,
-            "The map at {} already exists",
-            mapPath.string());
+        dic->logger->error(0, "The map at {} already exists", mapPath.string());
         return;
     }
 
@@ -79,12 +74,7 @@ void AppStateLobbyBase::handleMapDownload(const MapDownloadResponse& data)
     }
 
     dic->lateLoadMapIntoManager(mapPath);
-    dic->logger->log(
-        client->getMyIndex(),
-        0,
-        0,
-        "Map downloaded and saved to {}",
-        mapPath.string());
+    dic->logger->log(0, "Map downloaded and saved to {}", mapPath.string());
 }
 
 void AppStateLobbyBase::startGame()
