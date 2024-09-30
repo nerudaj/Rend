@@ -4,6 +4,7 @@
 #include "Editor/Editor.hpp"
 #include "Editor/NullEditor.hpp"
 #include "app/AppStateIngame.hpp"
+#include "enums/LevelTileId.hpp"
 #include <Filesystem.hpp>
 #include <LevelMetadata.hpp>
 #include <atomic>
@@ -267,8 +268,9 @@ void AppStateEditor::newLevelDialogCallback()
     unsigned levelWidth = dialogNewLevel.getLevelWidth();
     unsigned levelHeight = dialogNewLevel.getLevelHeight();
     levelMetadata->author = dialogNewLevel.getAuthorName();
-    levelMetadata->skyboxTheme = dialogNewLevel.getSkyboxTheme();
-    levelMetadata->texturePack = dialogNewLevel.getTexturePack();
+    levelMetadata->theme.skyboxTheme = dialogNewLevel.getSkyboxTheme();
+    levelMetadata->theme.texturePack = dialogNewLevel.getTexturePack();
+    levelMetadata->theme.mapCompat = dialogNewLevel.getMapCompatibility();
 
     editor = startEditor(levelWidth, levelHeight);
 }
@@ -303,10 +305,7 @@ void AppStateEditor::loadLevel(
         savePath = pathToLevel;
 
         levelMetadata->author = lvd.metadata.author;
-        auto theme = LevelTheme::fromJson(lvd.metadata.description);
-        levelMetadata->skyboxTheme = SkyboxThemeUtils::fromString(theme.skybox);
-        levelMetadata->texturePack =
-            TexturePackUtils::fromString(theme.textures);
+        levelMetadata->theme = parseMapProperties(lvd.metadata.description);
 
         editor = startEditor(lvd);
         unsavedChanges = false;
@@ -346,12 +345,7 @@ void AppStateEditor::saveLevel()
         unsavedChanges = false;
         auto&& lvd = editor->save();
         lvd.metadata.author = levelMetadata->author;
-        lvd.metadata.description =
-            nlohmann::json(LevelTheme { .skybox = SkyboxThemeUtils::toString(
-                                            levelMetadata->skyboxTheme),
-                                        .textures = TexturePackUtils::toString(
-                                            levelMetadata->texturePack) })
-                .dump();
+        lvd.metadata.description = nlohmann::json(levelMetadata->theme).dump();
 
         if (!std::filesystem::exists(savePath.parent_path()))
         {

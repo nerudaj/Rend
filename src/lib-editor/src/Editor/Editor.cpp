@@ -77,7 +77,8 @@ void Editor::configureCanvasCallbacks()
 void Editor::configureMeshTool(const LevelD& level)
 {
     auto tilesetPath =
-        graphicsDir / TexturePath::getTilesetName(levelMetadata->texturePack);
+        graphicsDir
+        / TexturePath::getTilesetName(levelMetadata->theme.texturePack);
     auto clip =
         dgm::JsonLoader().loadClipFromFile(tilesetPath.string() + ".clip");
 
@@ -209,14 +210,16 @@ void Editor::handleChangedMetadata()
 {
     bool somethingChanged =
         levelMetadata->author != editMetadataDialog.getAuthorName()
-        || levelMetadata->skyboxTheme != editMetadataDialog.getSkyboxTheme()
-        || levelMetadata->texturePack != editMetadataDialog.getTexturePack();
+        || levelMetadata->theme.skyboxTheme
+               != editMetadataDialog.getSkyboxTheme()
+        || levelMetadata->theme.texturePack
+               != editMetadataDialog.getTexturePack();
 
     if (!somethingChanged) return;
 
     levelMetadata->author = editMetadataDialog.getAuthorName();
-    levelMetadata->skyboxTheme = editMetadataDialog.getSkyboxTheme();
-    levelMetadata->texturePack = editMetadataDialog.getTexturePack();
+    levelMetadata->theme.skyboxTheme = editMetadataDialog.getSkyboxTheme();
+    levelMetadata->theme.texturePack = editMetadataDialog.getTexturePack();
 
     onStateChanged();
 

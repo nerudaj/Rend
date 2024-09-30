@@ -1,7 +1,8 @@
 #pragma once
 
 #include "FormBuilder.hpp"
-#include <LevelTheme.hpp>
+#include <enums/SkyboxTheme.hpp>
+#include <enums/TexturePack.hpp>
 
 class [[nodiscard]] MetadataDialogBase
 {

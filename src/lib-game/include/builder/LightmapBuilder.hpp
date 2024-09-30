@@ -2,9 +2,9 @@
 
 #include <DGM/classes/Objects.hpp>
 #include <LevelD.hpp>
-#include <LevelTheme.hpp>
 #include <SFML/System/Vector2.hpp>
 #include <core/Scene.hpp>
+#include <enums/SkyboxTheme.hpp>
 #include <queue>
 #include <type_traits>
 

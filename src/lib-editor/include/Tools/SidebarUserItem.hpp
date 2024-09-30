@@ -2,12 +2,12 @@
 
 #include "Gui.hpp"
 #include "Tools/SidebarUserWithSprites.hpp"
-#include <LevelItemId.hpp>
 #include <Memory.hpp>
 #include <SFML/Graphics/Rect.hpp>
 #include <SFML/Graphics/Sprite.hpp>
 #include <SFML/Graphics/Texture.hpp>
-#include <SpawnRotation.hpp>
+#include <enums/LevelItemId.hpp>
+#include <enums/SpawnRotation.hpp>
 #include <filesystem>
 #include <utility>
 #include <vector>

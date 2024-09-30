@@ -1,5 +1,6 @@
 #include <builder/LightmapBuilder.hpp>
 #include <core/Enums.hpp>
+#include <enums/LevelTileId.hpp>
 #include <ranges>
 #include <utils/SemanticTypes.hpp>
 

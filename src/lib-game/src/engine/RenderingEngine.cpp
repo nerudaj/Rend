@@ -5,6 +5,7 @@
 #include <TexturePath.hpp>
 #include <builder/RenderContextBuilder.hpp>
 #include <core/EntityDefinitions.hpp>
+#include <enums/LevelTileId.hpp>
 #include <numbers>
 #include <ranges>
 #include <utils/MathHelpers.hpp>

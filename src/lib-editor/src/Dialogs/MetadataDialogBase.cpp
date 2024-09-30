@@ -10,14 +10,14 @@ void MetadataDialogBase::addAttributesToFormular(FormBuilder& builder)
                 Strings::Editor::NewLevel::SKYBOX_THEME,
                 WidgetBuilder::createDropdown(
                     SkyboxThemeUtils::getAllNames(),
-                    SkyboxThemeUtils::toString(skyboxTheme),
+                    SkyboxThemeUtils::getAllNames().front(),
                     [this](std::size_t idx)
                     { skyboxTheme = static_cast<SkyboxTheme>(idx); }))
             .addOption(
                 Strings::Editor::NewLevel::TEXTURE_PACK,
                 WidgetBuilder::createDropdown(
                     TexturePackUtils::getAllNames(),
-                    TexturePackUtils::toString(texturePack),
+                    TexturePackUtils::getAllNames().front(),
                     [this](std::size_t idx)
                     { texturePack = static_cast<TexturePack>(idx); }))
             .addOption(

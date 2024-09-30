@@ -11,8 +11,8 @@ EditMetadataDialog::EditMetadataDialog(mem::Rc<Gui> gui)
 void EditMetadataDialog::open(
     const LevelMetadata& metadata, std::function<void()> confirmCallback)
 {
-    skyboxTheme = metadata.skyboxTheme;
-    texturePack = metadata.texturePack;
+    skyboxTheme = metadata.theme.skyboxTheme;
+    texturePack = metadata.theme.texturePack;
     author = metadata.author;
 
     DialogInterface::open(confirmCallback);

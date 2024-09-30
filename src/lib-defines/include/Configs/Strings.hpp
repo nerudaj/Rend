@@ -202,6 +202,7 @@ namespace Strings
             RAWSTRING SKYBOX_THEME = "Skybox theme";
             RAWSTRING TEXTURE_PACK = "Texture pack";
             RAWSTRING AUTHOR = "Author name";
+            RAWSTRING COMPAT = "Gamemode";
         } // namespace NewLevel
 
         RAWSTRING EDIT_PROPERTIES = "Edit Properties";
@@ -224,6 +225,8 @@ namespace Strings
         RAWSTRING TEXTURES_SPACE = "Space station";
         RAWSTRING TEXTURES_COUNTRY = "Countryside";
         RAWSTRING TEXTURES_NEON = "Neon";
+        RAWSTRING GAMEMODE_DM = "Deathmatch";
+        RAWSTRING GAMEMODE_SCTF = "Single-flag CTF";
     } // namespace Level
 
     RAWSTRING TITLE = "rend";

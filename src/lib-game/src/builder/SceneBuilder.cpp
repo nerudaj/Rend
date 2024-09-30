@@ -1,5 +1,8 @@
+#include "enums/LevelItemId.hpp"
+#include "enums/SpawnRotation.hpp"
 #include <DGM/dgm.hpp>
 #include <LevelD.hpp>
+#include <MapProperties.hpp>
 #include <builder/LightmapBuilder.hpp>
 #include <builder/MeshBuilder.hpp>
 #include <builder/SceneBuilder.hpp>
@@ -227,7 +230,7 @@ Scene SceneBuilder::buildScene(const LevelD& level, size_t maxPlayerCount)
     const auto upperTextureMesh =
         MeshBuilder::buildTextureMeshFromLvd(level, 1);
 
-    auto&& theme = LevelTheme::fromJson(level.metadata.description);
+    auto&& props = parseMapProperties(level.metadata.description);
 
     return Scene {
         .things = std::move(things),
@@ -235,14 +238,13 @@ Scene SceneBuilder::buildScene(const LevelD& level, size_t maxPlayerCount)
                    .height = level.mesh.layerHeight,
                    .bottomMesh = bottomMesh,
                    .upperMesh = MeshBuilder::buildMeshFromLvd(level, 1),
-                   .skyboxTheme = SkyboxThemeUtils::fromString(theme.skybox),
-                   .texturePack =
-                       TexturePackUtils::fromString(theme.textures) },
+                   .skyboxTheme = props.skyboxTheme,
+                   .texturePack = props.texturePack, },
         .drawableLevel = { .bottomTextures = bottomTextureMesh,
                            .upperTextures = upperTextureMesh,
                            .lightmap = LightmapBuilder::buildLightmap(
                                level,
-                               SkyboxThemeUtils::fromString(theme.skybox)) },
+                               props.skyboxTheme),},
         .spatialIndex = createSpatialIndex(level),
         .distanceIndex = DistanceIndex(bottomMesh),
         .spawns = createSpawns(level),

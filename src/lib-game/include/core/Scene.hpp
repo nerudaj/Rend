@@ -2,15 +2,16 @@
 
 #include "utils/HudMessage.hpp"
 #include <DGM/dgm.hpp>
-#include <LevelTheme.hpp>
 #include <Memory.hpp>
-#include <SpawnRotation.hpp>
 #include <ai/AiEnums.hpp>
 #include <array>
 #include <bitset>
 #include <core/Constants.hpp>
 #include <core/Enums.hpp>
 #include <core/Types.hpp>
+#include <enums/SkyboxTheme.hpp>
+#include <enums/SpawnRotation.hpp>
+#include <enums/TexturePack.hpp>
 #include <input/AiController.hpp>
 #include <input/SimpleController.hpp>
 #include <render/DrawableLevel.hpp>

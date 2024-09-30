@@ -1,6 +1,6 @@
 #pragma once
 
-enum class LevelItemId
+enum class [[nodiscard]] LevelItemId
 {
     PlayerSpawn = 0,
     Unused1,
@@ -44,25 +44,4 @@ enum class LevelItemId
     Wires,
     Unused19,
     Unused20,
-};
-
-enum class LevelTileId
-{
-    Flat1 = 0,
-    Flat2,
-    CeilLow,
-    CeilSky,
-    FlatLight,
-    Crate1,
-    Crate2,
-    Wall1,
-    Wall2,
-    Wall3,
-    Wall4,
-    Wall5,
-    WallWindow,
-    WallLight,
-    WallFlagBlue,
-    WallFlagRed,
-    End = 16
 };

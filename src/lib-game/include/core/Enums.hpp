@@ -1,7 +1,7 @@
 #pragma once
 
-#include <LevelItemId.hpp>
 #include <cstdint>
+#include <enums/LevelItemId.hpp>
 #include <map>
 #include <string>
 
