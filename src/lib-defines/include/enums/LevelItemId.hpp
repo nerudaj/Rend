@@ -3,12 +3,12 @@
 enum class [[nodiscard]] LevelItemId
 {
     PlayerSpawn = 0,
-    Unused1,
-    Unused2,
+    RedSpawn,
+    BlueSpawn,
     Unused3,
-    UnusedFlag,
-    Unused4,
-    Unused5,
+    GreyFlag,
+    RedFlag,
+    BlueFlag,
     Unused6,
     Medikit,
     ArmorShard,
