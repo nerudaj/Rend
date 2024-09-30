@@ -7,6 +7,7 @@
 #include <SFML/Graphics/Sprite.hpp>
 #include <SFML/Graphics/Texture.hpp>
 #include <enums/LevelItemId.hpp>
+#include <enums/MapCompatibility.hpp>
 #include <enums/SpawnRotation.hpp>
 #include <filesystem>
 #include <utility>
@@ -39,7 +40,9 @@ public:
     }
 
 public:
-    void configure(const std::vector<PathRectPair>& textureClipPairs);
+    void configure(
+        const std::vector<PathRectPair>& textureClipPairs,
+        MapCompatibility newMapCompat);
 
     [[nodiscard]] const sf::IntRect& getClip(unsigned spriteId) const noexcept
     {
@@ -74,7 +77,9 @@ public: // SidebarUserWithSprites
         case Unused1:
         case Unused2:
         case Unused3:
+            return true;
         case UnusedFlag:
+            return mapCompat != MapCompatibility::SingleFlagCTF;
         case Unused4:
         case Unused5:
         case Unused6:
@@ -102,4 +107,5 @@ public: // SidebarUserWithSprites
 private:
     std::vector<ItemRenderData> renderData;
     sf::RectangleShape outline;
+    MapCompatibility mapCompat = MapCompatibility::Deathmatch;
 };

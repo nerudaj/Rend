@@ -2,8 +2,11 @@
 #include "TguiHelper.hpp"
 
 void SidebarUserItem::configure(
-    const std::vector<PathRectPair>& textureClipPairs)
+    const std::vector<PathRectPair>& textureClipPairs,
+    MapCompatibility newMapCompat)
 {
+    mapCompat = newMapCompat;
+
     renderData.clear();
     penHistory.clear();
     penValue = 0;

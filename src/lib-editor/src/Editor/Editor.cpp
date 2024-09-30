@@ -64,7 +64,8 @@ void Editor::configureItemTool(const LevelD& level)
         commandQueue,
         spritesheetPath,
         clip,
-        level);
+        level,
+        levelMetadata->theme.mapCompat);
 }
 
 void Editor::configureCanvasCallbacks()

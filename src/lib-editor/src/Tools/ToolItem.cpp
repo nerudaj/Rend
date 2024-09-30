@@ -71,7 +71,8 @@ void ToolItem::createDeleteCommand()
 void ToolItem::configure(
     const sf::Vector2u& tileDimensions,
     const std::filesystem::path& texturePath,
-    const dgm::Clip& clip)
+    const dgm::Clip& clip,
+    MapCompatibility mapCompat)
 {
     items.clear();
 
@@ -85,7 +86,7 @@ void ToolItem::configure(
             .texturePath = texturePath, .clip = clip.getFrame(i) });
     }
 
-    sidebarUser.configure(pathRectPairs);
+    sidebarUser.configure(pathRectPairs, mapCompat);
 
     selectMarker.setOutlineColor(sf::Color::Red);
     selectMarker.setOutlineThickness(2);
