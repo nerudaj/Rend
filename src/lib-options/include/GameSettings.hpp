@@ -1,14 +1,8 @@
 #pragma once
 
+#include "enums/PlayerKind.hpp"
 #include <string>
 #include <vector>
-
-enum class PlayerKind
-{
-    LocalHuman,
-    LocalNpc,
-    RemoteHuman
-};
 
 struct PlayerOptions
 {

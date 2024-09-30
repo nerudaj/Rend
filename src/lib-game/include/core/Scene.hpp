@@ -11,6 +11,7 @@
 #include <core/Constants.hpp>
 #include <core/Enums.hpp>
 #include <core/Types.hpp>
+#include <fsm/Types.hpp>
 #include <input/AiController.hpp>
 #include <input/SimpleController.hpp>
 #include <render/DrawableLevel.hpp>
@@ -84,12 +85,9 @@ struct PlayerInventory
     std::size_t selectionIdx = 0;
 };
 
-struct AiBlackboard
+struct AiBlackboard : fsm::BlackboardBase
 {
     mem::Rc<AiController> input;
-    AiTopState aiTopState = AiTopState::BootstrapDead;
-    AiState aiState = AiState::ChoosingGatherLocation;
-    AiState delayedTransitionState;
     AiPersonality personality = AiPersonality::Default;
     PlayerStateIndexType playerStateIdx;
     EntityIndexType targetEnemyIdx = 0;

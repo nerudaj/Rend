@@ -13,46 +13,26 @@ void AiEngine::update(const float deltaTime)
         blackboard.targettingTimer -= deltaTime;
 
         blackboard.input->clearInputs();
-        fsmTop.setState(blackboard.aiTopState);
-        fsmTop.update(blackboard);
-        blackboard.aiTopState = fsmTop.getState();
+        fsm.tick(blackboard);
     }
 }
 
-void AiEngine::runFsmAlive(AiBlackboard& blackboard)
-{
-    fsmAlive.setState(blackboard.aiState);
-    fsmAlive.update(
-        blackboard, getPlayer(blackboard), getInventory(blackboard));
-    blackboard.aiState = fsmAlive.getState();
-    if (blackboard.aiState == AiState::ExecutingDelayedTransition)
-        blackboard.aiState = blackboard.delayedTransitionState;
-}
-
-void AiEngine::runFsmDead(AiBlackboard& blackboard)
-{
-    fsmDead.setState(blackboard.aiState);
-    fsmDead.update(blackboard);
-    blackboard.aiState = fsmDead.getState();
-}
-
 bool AiEngine::isTargetLocationReached(
-    const AiBlackboard& blackboard,
-    const Entity& player,
-    const PlayerInventory&) const noexcept
+    const AiBlackboard& blackboard) const noexcept
 {
     return dgm::Math::getSize(
-               player.hitbox.getPosition() - blackboard.targetLocation)
+               getPlayer(blackboard).hitbox.getPosition()
+               - blackboard.targetLocation)
            < AI_MAX_POSITION_ERROR;
 }
 
 bool AiEngine::isTargetEnemyOutOfView(
-    const AiBlackboard& blackboard,
-    const Entity& player,
-    const PlayerInventory& inventory) const noexcept
+    const AiBlackboard& blackboard) const noexcept
 {
     if (!isPlayerAlive(blackboard.targetEnemyIdx)) return false;
 
+    const auto& player = getPlayer(blackboard);
+    const auto& inventory = getInventory(blackboard);
     const auto& enemy = scene.things[blackboard.targetEnemyIdx];
 
     assert(inventory.ownerIdx != blackboard.targetEnemyIdx);
@@ -65,12 +45,11 @@ bool AiEngine::isTargetEnemyOutOfView(
 }
 
 bool AiEngine::isTargetEnemyInReticle(
-    const AiBlackboard& blackboard,
-    const Entity& player,
-    const PlayerInventory&) const noexcept
+    const AiBlackboard& blackboard) const noexcept
 {
     if (!isPlayerAlive(blackboard.targetEnemyIdx)) return false;
 
+    const auto& player = getPlayer(blackboard);
     const auto dirToEnemy = getDirectionToEnemy(
         player.hitbox.getPosition(), blackboard.targetEnemyIdx);
 
@@ -79,11 +58,11 @@ bool AiEngine::isTargetEnemyInReticle(
     return angle <= AI_MAX_AIM_ERROR;
 }
 
-bool AiEngine::isAnyEnemyVisible(
-    const AiBlackboard&,
-    const Entity& player,
-    const PlayerInventory& inventory) const noexcept
+bool AiEngine::isAnyEnemyVisible(const AiBlackboard& blackboard) const noexcept
 {
+    const auto& player = getPlayer(blackboard);
+    const auto& inventory = getInventory(blackboard);
+
     return std::any_of(
         scene.playerStates.begin(),
         scene.playerStates.end(),
@@ -101,11 +80,9 @@ bool AiEngine::isAnyEnemyVisible(
         });
 }
 
-bool AiEngine::shouldSwapToLongRangeWeapon(
-    const AiBlackboard& blackboard,
-    const Entity&,
-    const PlayerInventory& inventory) const
+bool AiEngine::shouldSwapToLongRangeWeapon(const AiBlackboard& blackboard) const
 {
+    const auto& inventory = getInventory(blackboard);
     return blackboard.personality != AiPersonality::Speartip
            && hasLongRangeWeapon(inventory)
            && !isLongRangeWeaponType(inventory.activeWeaponType)
@@ -113,26 +90,28 @@ bool AiEngine::shouldSwapToLongRangeWeapon(
 }
 
 bool AiEngine::shouldSwapToShortRangeWeapon(
-    const AiBlackboard&, const Entity&, const PlayerInventory& inventory) const
+    const AiBlackboard& blackboard) const
 {
+    const auto& inventory = getInventory(blackboard);
     return hasShortRangeWeapon(inventory)
            && inventory.activeWeaponType != EntityType::WeaponShotgun
            && inventory.lastWeaponType != EntityType::WeaponShotgun;
 }
 
 bool AiEngine::hasNoAmmoForActiveWeapon(
-    const AiBlackboard&,
-    const Entity&,
-    const PlayerInventory& inventory) const noexcept
+    const AiBlackboard& blackboard) const noexcept
 {
+    const auto& inventory = getInventory(blackboard);
     return inventory.ammo[ammoTypeToAmmoIndex(
                ENTITY_PROPERTIES.at(inventory.activeWeaponType).ammoType)]
            < 3;
 }
 
-void AiEngine::pickGatherLocation(
-    AiBlackboard& blackboard, Entity& player, PlayerInventory& inventory)
+void AiEngine::pickGatherLocation(AiBlackboard& blackboard)
 {
+    const auto& player = getPlayer(blackboard);
+    const auto& inventory = getInventory(blackboard);
+
     const auto activeAmmoIdx = ammoTypeToAmmoIndex(
         ENTITY_PROPERTIES.at(inventory.activeWeaponType).ammoType);
 
@@ -206,11 +185,11 @@ void AiEngine::pickGatherLocation(
             });
 }
 
-void AiEngine::pickTargetEnemy(
-    AiBlackboard& blackboard,
-    Entity& player,
-    PlayerInventory& inventory) noexcept
+void AiEngine::pickTargetEnemy(AiBlackboard& blackboard) noexcept
 {
+    const auto& inventory = getInventory(blackboard);
+    const auto& player = getPlayer(blackboard);
+
     for (auto&& state : scene.playerStates)
     {
         if (state.inventory.ownerIdx == inventory.ownerIdx) continue;
@@ -231,9 +210,9 @@ void AiEngine::pickTargetEnemy(
     }
 }
 
-void AiEngine::moveTowardTargetLocation(
-    AiBlackboard& blackboard, Entity& player, PlayerInventory&)
+void AiEngine::moveTowardTargetLocation(AiBlackboard& blackboard)
 {
+    const auto& player = getPlayer(blackboard);
     const auto directionToDestination =
         blackboard.targetLocation - player.hitbox.getPosition();
     const float angle = dgm::Math::cartesianToPolar(player.direction).angle;
@@ -244,8 +223,7 @@ void AiEngine::moveTowardTargetLocation(
     blackboard.input->setSidewardThrust(lookRelativeThrust.y);
 }
 
-void AiEngine::moveInRelationToTargetEnemy(
-    AiBlackboard& blackboard, Entity&, PlayerInventory&)
+void AiEngine::moveInRelationToTargetEnemy(AiBlackboard& blackboard)
 {
     if (blackboard.personality == AiPersonality::Speartip)
     {
@@ -289,7 +267,7 @@ bool AiEngine::isEnemyVisible(
 }
 
 void AiEngine::rotateTowardTarget(
-    Entity& player,
+    const Entity& player,
     mem::Rc<AiController>& input,
     const sf::Vector2f& targetLocation)
 {
