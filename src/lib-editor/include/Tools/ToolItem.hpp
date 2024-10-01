@@ -23,12 +23,12 @@ public:
         : ToolWithDragAndSelect(onStateChanged, shortcutEngine, layerObserver)
         , sidebarUser(gui)
         , commandQueue(commandQueue)
+        , mapCompat(mapCompat)
     {
         configure(
             sf::Vector2u(level.mesh.tileWidth, level.mesh.tileHeight),
             spritesheetPath,
-            spritesheetClip,
-            mapCompat);
+            spritesheetClip);
         loadFrom(level);
     }
 
@@ -102,8 +102,7 @@ protected:
     void configure(
         const sf::Vector2u& tileDimensions,
         const std::filesystem::path& texturePath,
-        const dgm::Clip& clip,
-        MapCompatibility mapCompat);
+        const dgm::Clip& clip);
 
 private:
     std::vector<LevelD::Thing> items;
@@ -111,4 +110,5 @@ private:
     sf::Vector2i levelSize;
     SidebarUserItem sidebarUser;
     mem::Rc<CommandQueue> commandQueue;
+    MapCompatibility mapCompat;
 };

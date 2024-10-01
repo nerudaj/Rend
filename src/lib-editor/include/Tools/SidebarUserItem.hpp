@@ -74,14 +74,17 @@ public: // SidebarUserWithSprites
         switch (static_cast<LevelItemId>(spriteId))
         {
             using enum LevelItemId;
-        case Unused1:
-        case Unused2:
+        case PlayerSpawn:
+            return mapCompat == MapCompatibility::SingleFlagCTF;
+        case RedSpawn:
+        case BlueSpawn:
+            return false;
         case Unused3:
             return true;
-        case UnusedFlag:
+        case GreyFlag:
+        case RedFlag:
+        case BlueFlag:
             return mapCompat != MapCompatibility::SingleFlagCTF;
-        case Unused4:
-        case Unused5:
         case Unused6:
         case Unused7:
         case Unused8:

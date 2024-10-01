@@ -15,10 +15,11 @@ public:
     [[nodiscard]] static Entity createPlayer(
         const Position& position,
         const Direction& lookDirection,
-        PlayerStateIndexType stateIdx) noexcept;
+        PlayerStateIndexType stateIdx,
+        Team team) noexcept;
 
-    [[nodiscard]] static PlayerInventory
-    getDefaultInventory(EntityIndexType ownerIdx, int score) noexcept;
+    [[nodiscard]] static PlayerInventory getDefaultInventory(
+        EntityIndexType ownerIdx, int score, Team team) noexcept;
 
     [[nodiscard]] static Entity createProjectile(
         EntityType type,

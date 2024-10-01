@@ -12,6 +12,7 @@
 #include <engine/RenderingEngine.hpp>
 #include <events/EventQueue.hpp>
 #include <ranges>
+#include <utils/GameModeSpecificGameRulesFactory.hpp>
 
 class [[nodiscard]] GameLoop final
 {
@@ -22,14 +23,18 @@ public:
         mem::Rc<const dgm::ResourceManager> resmgr,
         mem::Rc<AudioPlayer> audioPlayer,
         const std::vector<std::string>& playerNames,
+        GameMode gameMode,
         const DisplayOptions& renderSettings,
         bool useNullBotBehavior)
         : scene(scene)
         , eventQueue(eventQueue)
+        , modeSpecificRules(GameModeSpecificGameRulesFactory::
+                                createGameModeSpecificRulesEngine(
+                                    gameMode, scene, eventQueue, playerNames))
         , aiEngine(scene, useNullBotBehavior)
         , animationEngine(scene, eventQueue)
         , audioEngine(audioPlayer, scene)
-        , gameRulesEngine(scene, eventQueue, playerNames)
+        , gameRulesEngine(scene, eventQueue, *modeSpecificRules, playerNames)
         , physicsEngine(scene, eventQueue)
         , renderingEngine(renderSettings, *resmgr, scene)
     {
@@ -40,10 +45,10 @@ public:
 
     void renderTo(dgm::Window& window);
 
-    const GameRulesEngine& getRulesEngine() const
+    /*const GameRulesEngine& getRulesEngine() const
     {
         return gameRulesEngine;
-    }
+    }*/
 
 private:
     void updateEngines(const float dt, const float realDt);
@@ -53,6 +58,7 @@ private:
 private:
     Scene& scene;
     mem::Rc<EventQueue> eventQueue;
+    mem::Box<GameModeSpecificRulesEngineInterface> modeSpecificRules;
     AiEngine aiEngine;
     AnimationEngine animationEngine;
     AudioEngine audioEngine;

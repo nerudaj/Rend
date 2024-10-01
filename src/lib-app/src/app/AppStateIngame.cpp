@@ -429,6 +429,7 @@ mem::Box<GameLoop> AppStateIngame::createGameLoop()
             | std::views::transform([](const PlayerOptions& opts)
                                     { return opts.name; })
             | std::ranges::to<std::vector>(),
+        gameSettings.gameMode,
         dic->settings->display,
         dic->settings->cmdSettings.useNullBotBehavior);
 }

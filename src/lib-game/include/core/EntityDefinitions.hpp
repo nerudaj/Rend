@@ -417,6 +417,7 @@ const static inline auto ENTITY_PROPERTIES =
           EntityProperties {
               .radius = 4_px,
               .traits = Trait::Pickable,
+              .specialSound = "pickup.wav",
               .initialSpriteIndex = FlagA,
               .states = { { AnimationStateId::Idle,
                             AnimationState {
@@ -428,6 +429,7 @@ const static inline auto ENTITY_PROPERTIES =
         { EntityType::RedFlag,
           EntityProperties {
               .radius = 4_px,
+              .traits = Trait::Deposit,
               .initialSpriteIndex = RedFlagA,
               .states = { { AnimationStateId::Idle,
                             AnimationState {
@@ -439,6 +441,7 @@ const static inline auto ENTITY_PROPERTIES =
         { EntityType::BlueFlag,
           EntityProperties {
               .radius = 4_px,
+              .traits = Trait::Deposit,
               .initialSpriteIndex = BlueFlagA,
               .states = { { AnimationStateId::Idle,
                             AnimationState {

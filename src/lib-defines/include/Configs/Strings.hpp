@@ -214,6 +214,8 @@ namespace Strings
         RAWSTRING SUICIDE = "You killed yourself";
         RAWSTRING KILLED_BY = "{} killed you";
         RAWSTRING YOU_KILLED = "You killed {}";
+        RAWSTRING XY_SCORED = "{} scored!";
+        RAWSTRING YOU_SCORED = "You scored!";
     } // namespace Game
 
     namespace Level

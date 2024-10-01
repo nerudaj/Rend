@@ -127,6 +127,7 @@ struct [[nodiscard]] Spawn final
 {
     sf::Vector2f position;
     sf::Vector2f direction;
+    Team team;
 };
 
 // Add all game actors and objects to this struct as it is passed
@@ -150,6 +151,7 @@ struct Scene
     dgm::SpatialIndex<EntityIndexType> spatialIndex;
     DistanceIndex distanceIndex;
     std::vector<Spawn> spawns = {};
+    std::vector<sf::Vector2f> greyFlagSpawns = {};
     std::vector<sf::Vector2f> dummyAiDestinations = {};
     dgm::WorldNavMesh navmesh;
 };

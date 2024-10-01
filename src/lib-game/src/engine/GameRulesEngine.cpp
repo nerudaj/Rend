@@ -10,10 +10,14 @@
 
 void GameRulesEngine::operator()(const PickablePickedUpGameEvent& e)
 {
-    scene.markers.emplaceBack(MarkerItemRespawner {
-        .timeout = ITEM_RESPAWN_TIMEOUT,
-        .pickupType = scene.things[e.entityIndex].typeId,
-        .position = scene.things[e.entityIndex].hitbox.getPosition() });
+    const auto pickupType = scene.things[e.entityIndex].typeId;
+    if (pickupType != EntityType::GreyFlag)
+    {
+        scene.markers.emplaceBack(MarkerItemRespawner {
+            .timeout = ITEM_RESPAWN_TIMEOUT,
+            .pickupType = pickupType,
+            .position = scene.things[e.entityIndex].hitbox.getPosition() });
+    }
 
     removeEntity(e.entityIndex);
 }
@@ -71,15 +75,17 @@ void GameRulesEngine::operator()(const PlayerRespawnedGameEvent& e)
 {
     const auto& marker =
         std::get<MarkerDeadPlayer>(scene.markers[e.markerIndex]);
-    const auto& spawn = getBestSpawn();
+    auto& inventory = scene.playerStates[marker.stateIdx].inventory;
+    const auto& spawn = getBestSpawn(inventory.team);
 
     auto idx = scene.things.emplaceBack(SceneBuilder::createPlayer(
         Position { spawn.position },
         Direction { spawn.direction },
-        marker.stateIdx));
+        marker.stateIdx,
+        inventory.team));
 
-    auto& inventory = scene.playerStates[scene.things[idx].stateIdx].inventory;
-    inventory = SceneBuilder::getDefaultInventory(idx, inventory.score);
+    inventory =
+        SceneBuilder::getDefaultInventory(idx, inventory.score, inventory.team);
 
 #ifdef DEBUG_REMOVALS
     std::cout << std::format(
@@ -183,6 +189,11 @@ void GameRulesEngine::operator()(const ScriptTriggeredGameEvent& e)
 void GameRulesEngine::operator()(const PlayerKilledThemselvesGameEvent& e)
 {
     auto&& context = scene.playerStates[e.playerStateIdx].renderContext;
+
+    modeSpecificRules.adjustScore(
+        scene.playerStates[e.playerStateIdx].inventory,
+        ScoringOccasion::Suicide);
+
     context.message = HudMessage(Strings::Game::SUICIDE);
 }
 
@@ -190,6 +201,10 @@ void GameRulesEngine::operator()(const PlayerKilledPlayerGameEvent& e)
 {
     auto&& killerContext = scene.playerStates[e.killerStateIdx].renderContext;
     auto&& victimContext = scene.playerStates[e.victimStateIdx].renderContext;
+
+    modeSpecificRules.adjustScore(
+        scene.playerStates[e.killerStateIdx].inventory,
+        ScoringOccasion::KilledOpponent);
 
     killerContext.message = HudMessage(std::vformat(
         Strings::Game::YOU_KILLED,
@@ -216,6 +231,11 @@ void GameRulesEngine::operator()(const WeaponPickedUpGameEvent& e)
 
     state.inventory.selectionIdx = e.weaponIdx;
     state.inventory.selectionTimeout = FRAME_TIME / 2.f;
+}
+
+void GameRulesEngine::operator()(const FlagDeliveredGameEvent& e)
+{
+    modeSpecificRules.handleFlagDelivered(e);
 }
 
 #pragma endregion
@@ -258,33 +278,37 @@ void GameRulesEngine::deleteMarkedObjects()
     indicesToRemove.clear();
 }
 
-const Spawn& GameRulesEngine::getBestSpawn() const noexcept
+const Spawn& GameRulesEngine::getBestSpawn(Team team) const noexcept
 {
     float bestDistance = 0.f;
     std::size_t bestSpawnIdx = 0;
-    for (std::size_t i = 0; i < scene.spawns.size(); ++i)
+
+    for (const auto&& [idx, spawn] : std::views::enumerate(scene.spawns))
     {
+        if (team != Team::None && team != spawn.team) continue;
+
         uint16_t minDistance = 0xFFFF;
         for (auto&& state : scene.playerStates)
         {
             const auto index = state.inventory.ownerIdx;
             if (!(scene.things.isIndexValid(index)
-                  && scene.things[index].typeId == EntityType::Player))
+                  && isPlayer(scene.things[index].typeId)))
                 continue;
 
             minDistance = std::min(
                 minDistance,
                 scene.distanceIndex.getDistance(
-                    scene.spawns[i].position,
-                    scene.things[index].hitbox.getPosition()));
+                    spawn.position, scene.things[index].hitbox.getPosition()));
         }
 
         if (bestDistance < minDistance)
         {
             bestDistance = minDistance;
-            bestSpawnIdx = i;
+            bestSpawnIdx = idx;
         }
     }
+
+    assert(team == Team::None || scene.spawns[bestSpawnIdx].team == team);
 
     return scene.spawns[bestSpawnIdx];
 }
@@ -304,6 +328,12 @@ void GameRulesEngine::handlePlayer(
         {
             handleGrabbedPickable(
                 thing, state.inventory, candidate, candidateId);
+        }
+        else if (
+            def.traits & Trait::Deposit
+            && dgm::Collision::basic(thing.hitbox, candidate.hitbox))
+        {
+            modeSpecificRules.handleDeposit(thing, idx, candidate);
         }
     }
 
@@ -380,12 +410,12 @@ void GameRulesEngine::handleItemRespawner(
 }
 
 void GameRulesEngine::handleGrabbedPickable(
-    Entity& entity,
+    Entity& player,
     PlayerInventory& inventory,
     Entity pickup,
     std::size_t pickupId)
 {
-    if (auto giveResult = give(entity, inventory, pickup.typeId);
+    if (auto giveResult = give(player, inventory, pickup.typeId);
         giveResult.given)
     {
         if (giveResult.removePickup)
@@ -393,7 +423,7 @@ void GameRulesEngine::handleGrabbedPickable(
         if (giveResult.playSound)
             eventQueue->emplace<SoundTriggeredAudioEvent>(
                 ENTITY_PROPERTIES.at(pickup.typeId).specialSound,
-                entity.stateIdx);
+                player.stateIdx);
     }
 }
 
@@ -464,6 +494,8 @@ GiveResult GameRulesEngine::give(
 
     switch (pickupType)
     {
+    case GreyFlag:
+        return modeSpecificRules.handleGreyFlagPickup(entity);
     case PickupHealth:
         if (entity.health >= MAX_HEALTH) return NOT_GIVEN;
         entity.health =
@@ -561,13 +593,11 @@ void GameRulesEngine::damage(
         // decrement score if killing myself
         if (idx == inventory.ownerIdx)
         {
-            --inventory.score;
             eventQueue->emplace<PlayerKilledThemselvesGameEvent>(
                 thing.stateIdx);
         }
         else
         {
-            ++inventory.score;
             eventQueue->emplace<PlayerKilledPlayerGameEvent>(
                 originatorStateIdx, thing.stateIdx);
         }
@@ -581,7 +611,7 @@ void GameRulesEngine::removeEntity(std::size_t index)
 {
     const auto thing = scene.things[index];
     const auto& DEF = ENTITY_PROPERTIES.at(thing.typeId);
-    const bool playerWasDestroyed = thing.typeId == EntityType::Player;
+    const bool playerWasDestroyed = isPlayer(thing.typeId);
 
     if (DEF.debrisEffectType != EntityType::None)
     {

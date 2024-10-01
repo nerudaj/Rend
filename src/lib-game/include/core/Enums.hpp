@@ -83,7 +83,7 @@ enum class SpriteId : std::uint8_t
     PlayerCarrierRedFB0,
     PlayerCarrierRedFB1,
     PlayerCarrierRedFB2,
-    PlayeCarrierrRedFB3,
+    PlayerCarrierRedFB3,
     PlayerCarrierRedFB4,
     PlayerBlueA0,
     PlayerBlueA1,
@@ -367,6 +367,7 @@ enum class Trait
     Pickable = 0b1000000,
     PowerItem = 0b10000000,
     WeaponPickup = 0b100000000,
+    Deposit = 0b1000000000,
 };
 
 constexpr Trait operator|(Trait a, Trait b)
@@ -421,8 +422,9 @@ enum class AnimationStateId
     MarkerDestroy,
 };
 
-enum class [[nodiscard]] Team : bool
+enum class [[nodiscard]] Team : uint8_t
 {
+    None,
     Red,
     Blue
 };
