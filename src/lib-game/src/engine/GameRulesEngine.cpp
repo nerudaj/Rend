@@ -683,6 +683,8 @@ void GameRulesEngine::removeEntity(EntityIndexType index)
             .rebindCamera = rebindCamera, .stateIdx = thing.stateIdx });
 
         if (rebindCamera) scene.camera.anchorIdx = thing.stateIdx;
+
+        modeSpecificRules.handlePlayerDied(thing);
     }
 
     scene.spatialIndex.removeFromLookup(index, thing.hitbox);

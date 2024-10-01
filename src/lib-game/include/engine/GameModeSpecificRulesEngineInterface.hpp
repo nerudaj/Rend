@@ -22,4 +22,6 @@ public:
         const Entity& deposit) = 0;
 
     virtual void handleFlagDelivered(const FlagDeliveredGameEvent& e) = 0;
+
+    virtual void handlePlayerDied(const Entity& player) = 0;
 };

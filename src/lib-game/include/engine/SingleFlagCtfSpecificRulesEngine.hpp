@@ -28,6 +28,8 @@ public:
 
     void handleFlagDelivered(const FlagDeliveredGameEvent& e) override;
 
+    void handlePlayerDied(const Entity& player) override;
+
 private:
     void respawnAllGreyFlags();
 

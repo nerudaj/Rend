@@ -36,4 +36,6 @@ public:
     handleDeposit(const Entity&, EntityIndexType, const Entity&) override {};
 
     void handleFlagDelivered(const FlagDeliveredGameEvent&) override {};
+
+    void handlePlayerDied(const Entity&) override {}
 };

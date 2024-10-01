@@ -1,4 +1,5 @@
 #include <Configs/Strings.hpp>
+#include <builder/SceneBuilder.hpp>
 #include <engine/SingleFlagCtfSpecificRulesEngine.hpp>
 
 void SingleFlagCtfSpecificRulesEngine::adjustScore(
@@ -55,6 +56,16 @@ void SingleFlagCtfSpecificRulesEngine::handleFlagDelivered(
     respawnAllGreyFlags();
     // TODO: play sound
     displayGlobalScoreMessage(player.stateIdx);
+}
+
+void SingleFlagCtfSpecificRulesEngine::handlePlayerDied(const Entity& player)
+{
+    if (player.typeId == EntityType::CarrierRedPlayer
+        || player.typeId == EntityType::CarrierBluePlayer)
+    {
+        scene.things.emplaceBack(SceneBuilder::createPickup(
+            EntityType::GreyFlag, Position { player.hitbox.getPosition() }));
+    }
 }
 
 void SingleFlagCtfSpecificRulesEngine::respawnAllGreyFlags()
