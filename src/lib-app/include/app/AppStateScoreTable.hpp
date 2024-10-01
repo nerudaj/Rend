@@ -28,7 +28,8 @@ public:
     {
         buildLayout();
         dic->jukebox->playInterludeSong();
-        dic->logger->log(client->sendMapEndedSignal());
+        dic->logger->logOrError(
+            0, "sendMapEndedSignal", client->sendMapEndedSignal());
     }
 
 public:

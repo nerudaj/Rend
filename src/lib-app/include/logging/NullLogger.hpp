@@ -5,5 +5,11 @@
 class NullLogger final : public LoggerInterface
 {
 public:
-    void logImpl(const std::string&) override {};
+    NullLogger()
+    {
+        setLogLevel(LogLevel::Off);
+    }
+
+public:
+    void logImpl(size_t, LogSeverity, const std::string&) override {};
 };

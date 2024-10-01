@@ -35,6 +35,11 @@ constinit const int MAX_SHELLS = 24;
 constinit const int MAX_ENERGY = 18;
 constinit const int MAX_ROCKETS = 18;
 
+// Dot - damage over time
+constinit const float FLAREGUN_DOT_TIMEOUT = 1.2f;
+constinit const int FLAREGUN_DOT_CHARGES = 3;
+constinit const int FLAREGUN_DOT_DAMAGE = 5;
+
 constinit const std::array<AmmoCounterType, 4> AMMO_LIMIT = {
     MAX_BULLETS, MAX_SHELLS, MAX_ENERGY, MAX_ROCKETS
 };

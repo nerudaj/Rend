@@ -43,22 +43,29 @@ void GameRulesEngine::operator()(const ProjectileDestroyedGameEvent e)
             : projectile.hitbox;
 
     // Damage all destructibles in vicinity
-    for (auto&& [candidateId, candidate] : getOverlapCandidates(hitbox))
+    for (auto&& [candidateTargetIdx, candidateTarget] :
+         getOverlapCandidates(hitbox))
     {
-        bool isDestructible =
-            ENTITY_PROPERTIES.at(candidate.typeId).traits & Trait::Destructible;
+        const bool isDestructible =
+            ENTITY_PROPERTIES.at(candidateTarget.typeId).traits
+            & Trait::Destructible;
 
-        if (isDestructible && dgm::Collision::basic(hitbox, candidate.hitbox))
+        if (isDestructible
+            && dgm::Collision::basic(hitbox, candidateTarget.hitbox))
         {
-            const int damageAmount = computeProjectileDamage(
-                DEF.damage, isExplosive, candidate.hitbox, hitbox);
-            assert(damageAmount > 0);
-
             damage(
-                candidate,
-                candidateId,
-                damageAmount,
+                candidateTarget,
+                candidateTargetIdx,
+                computeProjectileDamage(
+                    DEF.damage, isExplosive, candidateTarget.hitbox, hitbox),
                 scene.things[e.entityIndex].stateIdx);
+
+            if (projectile.typeId == EntityType::ProjectileFlare)
+            {
+                scene.markers.emplaceBack(SceneBuilder::createFlaregunDotMarker(
+                    scene.things[candidateTargetIdx].stateIdx,
+                    scene.things[e.entityIndex].stateIdx));
+            }
         }
     }
 
@@ -95,7 +102,7 @@ void GameRulesEngine::operator()(const PlayerRespawnedGameEvent& e)
 
     if (marker.rebindCamera) scene.camera.anchorIdx = idx;
 
-    scene.markers.eraseAtIndex(e.markerIndex);
+    removeMarker(e.markerIndex);
 }
 
 void GameRulesEngine::operator()(const EffectSpawnedGameEvent& e)
@@ -108,7 +115,7 @@ void GameRulesEngine::operator()(const PickupSpawnedGameEvent& e)
 {
     scene.things.emplaceBack(
         SceneBuilder::createPickup(e.type, Position { e.position }));
-    scene.markers.eraseAtIndex(e.markerIndex);
+    removeMarker(e.markerIndex);
 }
 
 void GameRulesEngine::operator()(const HitscanProjectileFiredGameEvent& e)
@@ -254,28 +261,38 @@ void GameRulesEngine::update(const float deltaTime)
         }
     }
 
-    for (auto&& [thing, idx] : scene.markers)
+    for (auto&& [marker, idx] : scene.markers)
     {
         std::visit(
             overloaded { [&](MarkerItemRespawner& marker)
                          { handleItemRespawner(marker, idx, deltaTime); },
                          [&](MarkerDeadPlayer& marker)
-                         { handleDeadPlayer(marker, idx); } },
-            thing);
+                         { handleDeadPlayer(marker, idx); },
+                         [&](MarkerDamageOverTime& marker)
+                         { handleDamageOverTime(marker, idx, deltaTime); } },
+            marker);
     }
+}
+
+template<class IndexType, class RangeType>
+void clearRangeThroughSortedIndices(
+    std::vector<IndexType>& indices, RangeType& range)
+{
+    std::sort(indices.begin(), indices.end());
+    for (unsigned i = 0; i < indices.size(); i++)
+    {
+        if (i == 0 || indices[i - 1] != indices[i])
+        {
+            range.eraseAtIndex(indices[i]);
+        }
+    }
+    indices.clear();
 }
 
 void GameRulesEngine::deleteMarkedObjects()
 {
-    std::sort(indicesToRemove.begin(), indicesToRemove.end());
-    for (unsigned i = 0; i < indicesToRemove.size(); i++)
-    {
-        if (i == 0 || indicesToRemove[i - 1] != indicesToRemove[i])
-        {
-            scene.things.eraseAtIndex(indicesToRemove[i]);
-        }
-    }
-    indicesToRemove.clear();
+    clearRangeThroughSortedIndices(entityIndicesToRemove, scene.things);
+    clearRangeThroughSortedIndices(markerIndicesToRemove, scene.markers);
 }
 
 const Spawn& GameRulesEngine::getBestSpawn(Team team) const noexcept
@@ -314,7 +331,7 @@ const Spawn& GameRulesEngine::getBestSpawn(Team team) const noexcept
 }
 
 void GameRulesEngine::handlePlayer(
-    Entity& thing, std::size_t idx, const float dt)
+    Entity& thing, const EntityIndexType idx, const float dt)
 {
     auto& state = scene.playerStates[thing.stateIdx];
 
@@ -381,18 +398,20 @@ void GameRulesEngine::handlePlayer(
 }
 
 void GameRulesEngine::handleDeadPlayer(
-    MarkerDeadPlayer& marker, const std::size_t idx)
+    MarkerDeadPlayer& marker, const MarkerIndexType markerIdx)
 {
     auto& input = scene.playerStates[marker.stateIdx].input;
     if (input.isShooting())
     {
         input.stopShooting();
-        eventQueue->emplace<PlayerRespawnedGameEvent>(idx);
+        eventQueue->emplace<PlayerRespawnedGameEvent>(markerIdx);
     }
 }
 
 void GameRulesEngine::handleItemRespawner(
-    MarkerItemRespawner& marker, const std::size_t idx, const float deltaTime)
+    MarkerItemRespawner& marker,
+    const MarkerIndexType markerIdx,
+    const float deltaTime)
 {
     marker.timeout -= deltaTime;
     if (marker.timeout <= ITEM_SPAWN_EFFECT_TIMEOUT
@@ -405,8 +424,41 @@ void GameRulesEngine::handleItemRespawner(
     else if (marker.timeout <= 0.f)
     {
         eventQueue->emplace<PickupSpawnedGameEvent>(
-            marker.pickupType, marker.position, idx);
+            marker.pickupType, marker.position, markerIdx);
     }
+}
+
+void GameRulesEngine::handleDamageOverTime(
+    MarkerDamageOverTime& marker,
+    const MarkerIndexType markerIdx,
+    const float dt)
+{
+    const auto thingIdx =
+        scene.playerStates[marker.targetStateIdx].inventory.ownerIdx;
+
+    if (!scene.things.isIndexValid(thingIdx)
+        || scene.things[thingIdx].typeId != EntityType::Player)
+    {
+        removeMarker(markerIdx);
+        return;
+    }
+
+    marker.timeTillNextDischarge -= dt;
+    if (marker.timeTillNextDischarge > 0.f) return;
+
+    --marker.chargesLeft;
+    marker.timeTillNextDischarge = FLAREGUN_DOT_TIMEOUT;
+
+    if (marker.chargesLeft == 0)
+    {
+        removeMarker(markerIdx);
+    }
+
+    damage(
+        scene.things[thingIdx],
+        thingIdx,
+        marker.damage,
+        marker.originatorStateIdx);
 }
 
 void GameRulesEngine::handleGrabbedPickable(
@@ -568,11 +620,12 @@ int GameRulesEngine::computeProjectileDamage(
 
 void GameRulesEngine::damage(
     Entity& thing,
-    std::size_t idx,
+    EntityIndexType thingIndex,
     int damage,
     PlayerStateIndexType originatorStateIdx)
 {
     if (thing.health <= 0) return;
+    assert(damage > 0);
 
     const int absorptionMultiplier =
         thing.armor > 100 ? 2
@@ -583,7 +636,7 @@ void GameRulesEngine::damage(
     damage -= amountAbsorbedByArmor;
 
     thing.health -= damage;
-    if (idx == scene.camera.anchorIdx)
+    if (thingIndex == scene.camera.anchorIdx)
         scene.playerStates[thing.stateIdx].renderContext.redOverlayIntensity =
             128.f;
 
@@ -591,7 +644,7 @@ void GameRulesEngine::damage(
     {
         auto& inventory = scene.playerStates[originatorStateIdx].inventory;
         // decrement score if killing myself
-        if (idx == inventory.ownerIdx)
+        if (thingIndex == inventory.ownerIdx)
         {
             eventQueue->emplace<PlayerKilledThemselvesGameEvent>(
                 thing.stateIdx);
@@ -601,13 +654,13 @@ void GameRulesEngine::damage(
             eventQueue->emplace<PlayerKilledPlayerGameEvent>(
                 originatorStateIdx, thing.stateIdx);
         }
-        removeEntity(idx);
+        removeEntity(thingIndex);
     }
 }
 
 #pragma region Helpers
 
-void GameRulesEngine::removeEntity(std::size_t index)
+void GameRulesEngine::removeEntity(EntityIndexType index)
 {
     const auto thing = scene.things[index];
     const auto& DEF = ENTITY_PROPERTIES.at(thing.typeId);
@@ -640,7 +693,12 @@ void GameRulesEngine::removeEntity(std::size_t index)
     }
 
     scene.spatialIndex.removeFromLookup(index, thing.hitbox);
-    indicesToRemove.push_back(index);
+    entityIndicesToRemove.push_back(index);
+}
+
+void GameRulesEngine::removeMarker(MarkerIndexType index)
+{
+    markerIndicesToRemove.push_back(index);
 }
 
 #pragma endregion

@@ -31,9 +31,9 @@ public:
         dgm::App& app, DependencyContainer& dic, mem::Rc<Client> client)
     {
         auto result = client->sendPeerReadySignal();
+        dic.logger->logOrError(0, "sendPeerReady", result);
         if (!result)
         {
-            dic.logger->log(result);
             app.popState(ExceptionServerOffline::serialize());
         }
     }

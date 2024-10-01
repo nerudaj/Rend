@@ -394,3 +394,16 @@ Entity SceneBuilder::createDecal(
         .hitbox = dgm::Circle(position.value, 1_px)
     };
 }
+
+MarkerDamageOverTime SceneBuilder::createFlaregunDotMarker(
+    PlayerStateIndexType targetStateIdx,
+    PlayerStateIndexType originatorStateIdx)
+{
+    return MarkerDamageOverTime {
+        .timeTillNextDischarge = FLAREGUN_DOT_TIMEOUT,
+        .chargesLeft = FLAREGUN_DOT_CHARGES,
+        .damage = FLAREGUN_DOT_DAMAGE,
+        .targetStateIdx = targetStateIdx,
+        .originatorStateIdx = originatorStateIdx,
+    };
+}

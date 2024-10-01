@@ -12,6 +12,7 @@
 #include <enums/SkyboxTheme.hpp>
 #include <enums/SpawnRotation.hpp>
 #include <enums/TexturePack.hpp>
+#include <fsm/Types.hpp>
 #include <input/AiController.hpp>
 #include <input/SimpleController.hpp>
 #include <render/DrawableLevel.hpp>
@@ -60,7 +61,17 @@ struct MarkerItemRespawner
     sf::Vector2f position;
 };
 
-using Marker = std::variant<MarkerDeadPlayer, MarkerItemRespawner>;
+struct MarkerDamageOverTime
+{
+    float timeTillNextDischarge = 0.f;
+    int chargesLeft = 0;
+    int damage = 0;
+    PlayerStateIndexType targetStateIdx = 0;
+    PlayerStateIndexType originatorStateIdx = 0;
+};
+
+using Marker =
+    std::variant<MarkerDeadPlayer, MarkerItemRespawner, MarkerDamageOverTime>;
 
 struct PlayerInventory
 {
@@ -76,12 +87,9 @@ struct PlayerInventory
     Team team = Team::Red;
 };
 
-struct AiBlackboard
+struct AiBlackboard : fsm::BlackboardBase
 {
     mem::Rc<AiController> input;
-    AiTopState aiTopState = AiTopState::BootstrapDead;
-    AiState aiState = AiState::ChoosingGatherLocation;
-    AiState delayedTransitionState;
     AiPersonality personality = AiPersonality::Default;
     PlayerStateIndexType playerStateIdx;
     EntityIndexType targetEnemyIdx = 0;

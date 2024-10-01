@@ -17,15 +17,18 @@ void AppStatePeerLobby::input()
 {
     InputHandler::handleUiStateInput(app, *dic);
 
-    dic->logger->log(client->readIncomingPackets(
-        std::bind(
-            &AppStatePeerLobby::handleNetworkUpdate,
-            this,
-            std::placeholders::_1),
-        std::bind(
-            &AppStatePeerLobby::handleMapDownload,
-            this,
-            std::placeholders::_1)));
+    dic->logger->ifError(
+        0,
+        "readIncomingPackets",
+        client->readIncomingPackets(
+            std::bind(
+                &AppStatePeerLobby::handleNetworkUpdate,
+                this,
+                std::placeholders::_1),
+            std::bind(
+                &AppStatePeerLobby::handleMapDownload,
+                this,
+                std::placeholders::_1)));
 }
 
 void AppStatePeerLobby::buildLayoutGameSetupImpl(tgui::Panel::Ptr target) {}

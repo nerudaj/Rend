@@ -10,7 +10,8 @@ public:
     explicit FileLogger(const std::filesystem::path& logfilePath);
 
 public:
-    void logImpl(const std::string& message) override;
+    void logImpl(
+        size_t tick, LogSeverity severity, const std::string& message) override;
 
 private:
     std::ofstream logstream;

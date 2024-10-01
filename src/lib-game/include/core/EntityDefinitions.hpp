@@ -23,6 +23,9 @@ constinit const int SHELL_AMMO_PICKUP = 6;
 constinit const int ENERGY_AMMO_PICKUP = 6;
 constinit const int ROCKET_AMMO_PICKUP = 2;
 
+constinit const int HEALTH_PICKUP_AMOUNT = 25;
+constinit const int ARMOR_PICKUP_AMOUNT = 10;
+
 constexpr Script playSound(
     const std::string& sound, SoundSourceType type = SoundSourceType::Ambient)
 {
@@ -291,13 +294,13 @@ const static inline auto ENTITY_PROPERTIES =
           EntityProperties { .radius = 3_px,
                              .traits = Trait::Pickable,
                              .specialSound = "pickup.wav",
-                             .healthAmount = 25,
+                             .healthAmount = HEALTH_PICKUP_AMOUNT,
                              .initialSpriteIndex = MedikitA } },
         { EntityType::PickupArmor,
           EntityProperties { .radius = 3_px,
                              .traits = Trait::Pickable,
                              .specialSound = "pickup.wav",
-                             .armorAmount = 10,
+                             .armorAmount = ARMOR_PICKUP_AMOUNT,
                              .initialSpriteIndex = ArmorShardA } },
         { EntityType::PickupMegaHealth,
           EntityProperties { .radius = 6_px,

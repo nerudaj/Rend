@@ -1,6 +1,7 @@
 #pragma once
 
 #include "AudioPlayer.hpp"
+#include <CmdParameters.hpp>
 #include <DGM/dgm.hpp>
 #include <Memory.hpp>
 #include <core/Scene.hpp>
@@ -25,13 +26,18 @@ public:
         const std::vector<std::string>& playerNames,
         GameMode gameMode,
         const DisplayOptions& renderSettings,
-        bool useNullBotBehavior)
+        const CmdParameters& cmdParams)
         : scene(scene)
         , eventQueue(eventQueue)
         , modeSpecificRules(GameModeSpecificGameRulesFactory::
                                 createGameModeSpecificRulesEngine(
                                     gameMode, scene, eventQueue, playerNames))
-        , aiEngine(scene, useNullBotBehavior)
+        , aiEngine(
+              scene,
+              AiEngineConfig {
+                  .useNullBehavior = cmdParams.useNullBotBehavior,
+                  .enableLogging = cmdParams.enableDebug,
+              })
         , animationEngine(scene, eventQueue)
         , audioEngine(audioPlayer, scene)
         , gameRulesEngine(scene, eventQueue, *modeSpecificRules, playerNames)

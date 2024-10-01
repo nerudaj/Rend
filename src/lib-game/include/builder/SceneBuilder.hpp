@@ -36,4 +36,8 @@ public:
 
     [[nodiscard]] static Entity createDecal(
         bool isFlesh, const Position& position, std::size_t tick) noexcept;
+
+    [[nodiscard]] static MarkerDamageOverTime createFlaregunDotMarker(
+        PlayerStateIndexType targetStateIdx,
+        PlayerStateIndexType originatorStateIdx);
 };

@@ -49,14 +49,20 @@ public:
     [[nodiscard]] const Spawn& getBestSpawn(Team team) const noexcept;
 
 private:
-    void handlePlayer(Entity& thing, std::size_t id, const float dt);
+    void handlePlayer(Entity& thing, const EntityIndexType idx, const float dt);
 
-    void handleDeadPlayer(MarkerDeadPlayer& thing, const std::size_t id);
+    void
+    handleDeadPlayer(MarkerDeadPlayer& thing, const MarkerIndexType markerIdx);
 
     void handleItemRespawner(
         MarkerItemRespawner& thing,
-        const std::size_t idx,
+        const MarkerIndexType markerIdx,
         const float deltaTime);
+
+    void handleDamageOverTime(
+        MarkerDamageOverTime& marker,
+        const MarkerIndexType markerIdx,
+        const float dt);
 
     void handleGrabbedPickable(
         Entity& player,
@@ -86,7 +92,7 @@ private:
 
     void damage(
         Entity& thing,
-        std::size_t thingIndex,
+        EntityIndexType thingIndex,
         int damage,
         PlayerStateIndexType originatorStateIdx);
 
@@ -99,7 +105,9 @@ private:
                    });
     }
 
-    void removeEntity(std::size_t index);
+    void removeEntity(EntityIndexType index);
+
+    void removeMarker(MarkerIndexType index);
 
 private: // Scripts API
     void firePellets(
@@ -136,5 +144,6 @@ private:
     GameModeSpecificRulesEngineInterface& modeSpecificRules;
     std::vector<std::string> playerNames;
     Hitscanner hitscanner;
-    std::vector<EntityIndexType> indicesToRemove;
+    std::vector<EntityIndexType> entityIndicesToRemove;
+    std::vector<MarkerIndexType> markerIndicesToRemove;
 };

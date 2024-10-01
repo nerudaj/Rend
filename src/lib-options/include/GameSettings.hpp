@@ -1,15 +1,9 @@
 #pragma once
 
 #include <nlohmann/json.hpp>
+#include "enums/PlayerKind.hpp"
 #include <string>
 #include <vector>
-
-enum class [[nodiscard]] PlayerKind
-{
-    LocalHuman,
-    LocalNpc,
-    RemoteHuman
-};
 
 enum class [[nodiscard]] GameMode
 {
