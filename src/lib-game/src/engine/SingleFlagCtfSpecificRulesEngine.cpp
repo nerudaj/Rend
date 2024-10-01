@@ -68,6 +68,15 @@ void SingleFlagCtfSpecificRulesEngine::handlePlayerDied(const Entity& player)
     }
 }
 
+bool SingleFlagCtfSpecificRulesEngine::isDamageAllowed(
+    PlayerStateIndexType originatorStateIdx,
+    PlayerStateIndexType receiverStateIdx)
+{
+    // Prevent friendly fire
+    return scene.playerStates[originatorStateIdx].inventory.team
+           != scene.playerStates[receiverStateIdx].inventory.team;
+}
+
 void SingleFlagCtfSpecificRulesEngine::respawnAllGreyFlags()
 {
     for (const auto& flagSpawnPosition : scene.greyFlagSpawns)

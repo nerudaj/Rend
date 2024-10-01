@@ -38,4 +38,9 @@ public:
     void handleFlagDelivered(const FlagDeliveredGameEvent&) override {};
 
     void handlePlayerDied(const Entity&) override {}
+
+    bool isDamageAllowed(PlayerStateIndexType, PlayerStateIndexType) override
+    {
+        return true;
+    }
 };

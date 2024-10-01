@@ -617,7 +617,11 @@ void GameRulesEngine::damage(
     int damage,
     PlayerStateIndexType originatorStateIdx)
 {
-    if (thing.health <= 0) return;
+    if (thing.health <= 0
+        || isPlayer(thing.typeId)
+               && !modeSpecificRules.isDamageAllowed(
+                   originatorStateIdx, thing.stateIdx))
+        return;
     assert(damage > 0);
 
     const int absorptionMultiplier =

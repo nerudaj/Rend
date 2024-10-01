@@ -30,6 +30,10 @@ public:
 
     void handlePlayerDied(const Entity& player) override;
 
+    bool isDamageAllowed(
+        PlayerStateIndexType originatorStateIdx,
+        PlayerStateIndexType receiverStateIdx) override;
+
 private:
     void respawnAllGreyFlags();
 

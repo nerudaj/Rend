@@ -24,4 +24,8 @@ public:
     virtual void handleFlagDelivered(const FlagDeliveredGameEvent& e) = 0;
 
     virtual void handlePlayerDied(const Entity& player) = 0;
+
+    virtual bool isDamageAllowed(
+        PlayerStateIndexType originatorStateIdx,
+        PlayerStateIndexType receiverStateIdx) = 0;
 };
