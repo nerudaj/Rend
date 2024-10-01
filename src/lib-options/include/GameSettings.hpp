@@ -2,6 +2,7 @@
 
 #include <nlohmann/json.hpp>
 #include "enums/PlayerKind.hpp"
+#include "enums/GameMode.hpp"
 #include <string>
 #include <vector>
 
