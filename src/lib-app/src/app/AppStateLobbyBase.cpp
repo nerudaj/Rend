@@ -90,9 +90,11 @@ void AppStateLobbyBase::startGame()
     app.pushState<AppStateMapRotationWrapper>(
         dic,
         client,
-        GameOptions { .players = createPlayerSettings(),
-                      .pointlimit =
-                          static_cast<unsigned>(lobbySettings.pointlimit) },
+        GameOptions {
+            .players = createPlayerSettings(),
+            .gameMode = lobbySettings.gameMode,
+            .pointlimit = static_cast<unsigned>(lobbySettings.pointlimit),
+        },
         lobbySettings.packname,
         maplist);
 }

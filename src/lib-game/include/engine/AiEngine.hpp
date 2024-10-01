@@ -189,7 +189,7 @@ private: // Utility predicates
     isPlayerAlive(EntityIndexType idx) const noexcept
     {
         return scene.things.isIndexValid(idx)
-               && scene.things[idx].typeId == EntityType::Player;
+               && isPlayer(scene.things[idx].typeId);
     }
 
     [[nodiscard]] constexpr bool

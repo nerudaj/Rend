@@ -251,14 +251,7 @@ void GameRulesEngine::update(const float deltaTime)
 {
     for (auto&& [thing, id] : scene.things)
     {
-        switch (thing.typeId)
-        {
-        case EntityType::Player:
-            handlePlayer(thing, id, deltaTime);
-            break;
-        default:
-            break;
-        }
+        if (isPlayer(thing.typeId)) handlePlayer(thing, id, deltaTime);
     }
 
     for (auto&& [marker, idx] : scene.markers)
@@ -437,7 +430,7 @@ void GameRulesEngine::handleDamageOverTime(
         scene.playerStates[marker.targetStateIdx].inventory.ownerIdx;
 
     if (!scene.things.isIndexValid(thingIdx)
-        || scene.things[thingIdx].typeId != EntityType::Player)
+        || !isPlayer(scene.things[thingIdx].typeId))
     {
         removeMarker(markerIdx);
         return;

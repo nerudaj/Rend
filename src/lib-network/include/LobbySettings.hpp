@@ -1,6 +1,6 @@
 #pragma once
 
-#include <GameSettings.hpp>
+#include <enums/GameMode.hpp>
 #include <nlohmann/json.hpp>
 #include <string>
 

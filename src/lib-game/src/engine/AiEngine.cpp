@@ -195,8 +195,7 @@ void AiEngine::pickTargetEnemy(AiBlackboard& blackboard) noexcept
         if (state.inventory.ownerIdx == inventory.ownerIdx) continue;
 
         if (!scene.things.isIndexValid(state.inventory.ownerIdx)
-            || scene.things[state.inventory.ownerIdx].typeId
-                   != EntityType::Player)
+            || !isPlayer(scene.things[state.inventory.ownerIdx].typeId))
             continue;
 
         if (isEnemyVisible(

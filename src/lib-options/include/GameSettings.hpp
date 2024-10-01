@@ -1,23 +1,10 @@
 #pragma once
 
-#include <nlohmann/json.hpp>
-#include "enums/PlayerKind.hpp"
 #include "enums/GameMode.hpp"
+#include "enums/PlayerKind.hpp"
+#include <nlohmann/json.hpp>
 #include <string>
 #include <vector>
-
-enum class [[nodiscard]] GameMode
-{
-    Deathmatch,
-    SingleFlagCtf,
-};
-
-NLOHMANN_JSON_SERIALIZE_ENUM(
-    GameMode,
-    {
-        { GameMode::Deathmatch, "dm" },
-        { GameMode::SingleFlagCtf, "sctf" },
-    });
 
 struct PlayerOptions
 {

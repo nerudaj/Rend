@@ -124,7 +124,7 @@ Server::ProcessedPacketCount Server::processIncomingPackets()
         auto result = handleMessage(
             ClientMessage::fromPacket(packet), client.address, client.port);
         if (result) ++cnt;
-        deps.logger->ifError(sequence, "handleMessage", result);
+        deps.logger->logOrError(sequence, "handleMessage", result);
     }
 
     return cnt;

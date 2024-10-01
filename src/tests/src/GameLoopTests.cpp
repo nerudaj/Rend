@@ -27,9 +27,10 @@ TEST_CASE("[GameRuleEngine]")
     auto&& mesh = createDummyMesh();
     Scene scene = createDummyScene(mesh);
 
+    auto&& dmRulesEngine = DeathmatchSpecificRulesEngine();
     auto&& eventQueue = mem::Rc<EventQueue>();
     auto&& gameRulesEngine =
-        GameRulesEngine(scene, eventQueue, { "", "", "", "" });
+        GameRulesEngine(scene, eventQueue, dmRulesEngine, { "", "", "", "" });
     auto&& animationEngine = AnimationEngine(scene, eventQueue);
 
     auto simulateStep = [&]
@@ -68,7 +69,8 @@ TEST_CASE("[GameRuleEngine]")
     {
         scene.things.emplaceBack(createDummyPlayer());
         scene.playerStates.push_back(PlayerState {
-            .inventory = SceneBuilder::getDefaultInventory(0u, 0) });
+            .inventory =
+                SceneBuilder::getDefaultInventory(0u, 0, Team::None) });
         scene.playerStates.front().inventory.activeWeaponType =
             EntityType::WeaponBallista;
 
@@ -100,7 +102,8 @@ TEST_CASE("[GameRuleEngine]")
     {
         scene.things.emplaceBack(createDummyPlayer());
         scene.playerStates.push_back(PlayerState {
-            .inventory = SceneBuilder::getDefaultInventory(0u, 0) });
+            .inventory =
+                SceneBuilder::getDefaultInventory(0u, 0, Team::None) });
         scene.things.emplaceBack(SceneBuilder::createProjectile(
             EntityType::ProjectileFlare,
             Position { getSafePosition() },
@@ -121,7 +124,8 @@ TEST_CASE("[GameRuleEngine]")
     {
         scene.things.emplaceBack(createDummyPlayer());
         scene.playerStates.push_back(PlayerState {
-            .inventory = SceneBuilder::getDefaultInventory(0u, 0) });
+            .inventory =
+                SceneBuilder::getDefaultInventory(0u, 0, Team::None) });
         scene.things.emplaceBack(SceneBuilder::createProjectile(
             EntityType::ProjectileRocket,
             Position { getSafePosition() },

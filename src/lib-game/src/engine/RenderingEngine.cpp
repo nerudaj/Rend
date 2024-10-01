@@ -121,7 +121,7 @@ void RenderingEngine::renderTo(dgm::Window& window)
     renderWorld(window);
     renderFps(window);
 
-    if (pov.typeId == EntityType::Player)
+    if (isPlayer(pov.typeId))
     {
         renderPlayerHud(
             window, pov, scene.playerStates[pov.stateIdx].inventory);

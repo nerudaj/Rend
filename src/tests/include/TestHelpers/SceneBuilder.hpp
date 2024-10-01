@@ -37,5 +37,6 @@ static [[nodiscard]] Entity createDummyPlayer()
     return SceneBuilder::createPlayer(
         Position { getSafePosition() },
         Direction { sf::Vector2f(1.f, 0.f) },
-        0u);
+        0u,
+        Team::None);
 }

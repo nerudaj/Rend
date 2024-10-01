@@ -85,6 +85,8 @@ private:
 
     mem::Box<GameLoop> createGameLoop();
 
+    Team getTeamBelonging(PlayerStateIndexType idx);
+
 protected:
     constexpr static const unsigned ROLLBACK_WINDOW_SIZE = 20u;
 
