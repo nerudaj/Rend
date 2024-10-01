@@ -232,7 +232,7 @@ const static inline auto ENTITY_PROPERTIES =
               .radius = 4_px,
               .speed = 96_unitspersec,
               .traits = Trait::Solid | Trait::Destructible | Trait::Directional,
-              .debrisEffectType = EntityType::EffectRedDyingPlayer,
+              .debrisEffectType = EntityType::EffectBlueDyingPlayer,
               .initialSpriteIndex = PlayerBlueA0,
               .states = { { AnimationStateId::Idle,
                             AnimationState {
