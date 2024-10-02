@@ -8,8 +8,14 @@ void SidebarUserItem::configure(
     mapCompat = newMapCompat;
 
     renderData.clear();
-    penHistory.clear();
-    penValue = 0;
+    penValue = mapCompat == MapCompatibility::Deathmatch
+                   ? std::to_underlying(LevelItemId::PlayerSpawn)
+                   : std::to_underlying(LevelItemId::RedSpawn);
+
+    // The only way to make sure penHistory contains one item
+    // with correct value. `clear()` inserts zero value after clearing
+    penHistory.insert(penValue);
+    penHistory.prune(1);
 
     renderData.reserve(textureClipPairs.size());
     for (auto&& [path, clip] : textureClipPairs)
