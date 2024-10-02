@@ -13,6 +13,7 @@ struct AiEngineConfig
 {
     bool useNullBehavior = false;
     bool enableLogging = false;
+    bool preferFlags = false;
 };
 
 class [[nodiscard]] AiEngine final
