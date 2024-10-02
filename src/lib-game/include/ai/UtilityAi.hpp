@@ -14,11 +14,14 @@ public:
         int armor,
         const AmmoArray& ammo,
         unsigned activeAmmoIndex,
-        const AcquiredWeaponsArray& acquiredWeapons)
+        const AcquiredWeaponsArray& acquiredWeapons,
+        bool preferFlags)
     {
         const auto& def = ENTITY_PROPERTIES.at(pickup);
 
-        if (pickup == EntityType::PickupMegaHealth)
+        if (preferFlags && pickup == EntityType::GreyFlag)
+            return 20000;
+        else if (pickup == EntityType::PickupMegaHealth)
             return 15000;
         else if (pickup == EntityType::PickupHealth)
         {

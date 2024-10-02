@@ -39,6 +39,14 @@ private: // FSM predicates
     }
 
     [[nodiscard]] constexpr bool
+    isThisPlayerFlagCarrier(const AiBlackboard& blackboard) const noexcept
+    {
+        const auto& player = getPlayer(blackboard);
+        return player.typeId == EntityType::CarrierRedPlayer
+               || player.typeId == EntityType::CarrierBluePlayer;
+    }
+
+    [[nodiscard]] constexpr bool
     isTargetEnemyDead(const AiBlackboard& blackboard) const noexcept
     {
         return !isPlayerAlive(blackboard.targetEnemyIdx);
@@ -181,9 +189,10 @@ private: // FSM actions
 
     constexpr void performHuntBookmarking(AiBlackboard& blackboard)
     {
-        // blackboard.delayedTransitionState = AiState::LockingTarget;
         blackboard.targetLocation = getEnemy(blackboard).hitbox.getPosition();
     }
+
+    void setDestinationToFlagPole(AiBlackboard& blackboard);
 
 private: // Utility predicates
     [[nodiscard]] constexpr bool
@@ -283,6 +292,11 @@ private: // Utility functions
             getLongRangeWeaponTypesSortedByPersonality(AiPersonality::Default),
             type);
     }
+
+    void setPathToTargetLocation(
+        const Entity& player,
+        const sf::Vector2f& destination,
+        AiBlackboard& blackboard);
 
 private:
     Scene& scene;
