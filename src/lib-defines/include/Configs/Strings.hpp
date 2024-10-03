@@ -108,6 +108,8 @@ namespace Strings
             RAWSTRING PLAYER_TH = "player";
             RAWSTRING SCORE_TH = "score";
             RAWSTRING WON = "won";
+            RAWSTRING RED_TEAM_WON = "red team won";
+            RAWSTRING BLUE_TEAM_WON = "red team won";
         } // namespace Scores
     }     // namespace AppState
 
@@ -242,6 +244,9 @@ namespace Strings
             "You were disconnected, because server appears to be offline";
         RAWSTRING NO_MAP_SELECTED =
             "You were disconnected, because no map was selected";
+        RAWSTRING BAD_GAMEMODE =
+            "You were disconnected, because the selected map was not "
+            "compatible with selected gamemode";
     } // namespace Error
 } // namespace Strings
 
