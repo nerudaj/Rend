@@ -303,4 +303,5 @@ private:
     Hitscanner hitscanner;
     fsm::CsvLogger logger;
     fsm::Fsm<AiBlackboard> fsm;
+    bool preferFlags = false;
 };

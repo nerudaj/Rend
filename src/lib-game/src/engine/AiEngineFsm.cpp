@@ -10,11 +10,19 @@ AiEngine::AiEngine(Scene& scene, const AiEngineConfig& config)
     , hitscanner(scene)
     , logger("ailog.csv")
     , fsm(createFsm(*this, config.useNullBehavior))
+    , preferFlags(config.preferFlags)
 {
     if (config.enableLogging) fsm.setLogger(logger);
 }
 
-auto Not(auto&& fn)
+template<class Callable, class BbT>
+concept FsmCondition = requires(Callable&& fn, const BbT& bb) {
+    {
+        fn(bb)
+    } -> std::same_as<bool>;
+} && fsm::BlackboardTypeConcept<BbT>;
+
+auto Not(FsmCondition<AiBlackboard> auto&& fn)
 {
     return [fn = std::move(fn)](const AiBlackboard& bb) { return !fn(bb); };
 }

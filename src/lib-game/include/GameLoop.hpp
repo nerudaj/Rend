@@ -37,6 +37,7 @@ public:
               AiEngineConfig {
                   .useNullBehavior = cmdParams.useNullBotBehavior,
                   .enableLogging = cmdParams.enableDebug,
+                  .preferFlags = gameMode == GameMode::SingleFlagCtf,
               })
         , animationEngine(scene, eventQueue)
         , audioEngine(audioPlayer, scene)
