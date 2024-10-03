@@ -64,19 +64,6 @@ void AppStateGameSetup::buildLayoutGameSetupImpl(tgui::Panel::Ptr target)
                     }))
             .addSeparator()
             .addOption(
-                Strings::AppState::GameSetup::SELECT_PACK,
-                WidgetBuilder::createDropdown(
-                    mapPackNames,
-                    lobbySettings.packname,
-                    [this](std::size_t idx)
-                    { selectMapPackAndSendUpdate(mapPackNames.at(idx)); }))
-            .addOption(
-                Strings::AppState::GameSetup::SELECT_MAPS,
-                WidgetBuilder::createButton(
-                    Strings::AppState::GameSetup::DOTDOTDOT,
-                    std::bind(&AppStateGameSetup::openMapPicker, this)))
-            .addSeparator()
-            .addOption(
                 Strings::AppState::GameSetup::SELECT_GAMEMODE,
                 WidgetBuilder::createDropdown(
                     { Strings::AppState::GameSetup::GAMEMODE_DM,
@@ -87,6 +74,8 @@ void AppStateGameSetup::buildLayoutGameSetupImpl(tgui::Panel::Ptr target)
                         lobbySettings.gameMode =
                             static_cast<GameMode>(optionIdx);
                         sendLobbyUpdate();
+                        // TODO: recompute available mappacks
+                        // and maps within
                     }))
             .addOption(
                 Strings::AppState::GameSetup::POINTLIMIT,
@@ -100,6 +89,19 @@ void AppStateGameSetup::buildLayoutGameSetupImpl(tgui::Panel::Ptr target)
                         sendLobbyUpdate();
                     },
                     WidgetBuilder::getPositiveNumericValidator()))
+            .addSeparator()
+            .addOption(
+                Strings::AppState::GameSetup::SELECT_PACK,
+                WidgetBuilder::createDropdown(
+                    mapPackNames,
+                    lobbySettings.packname,
+                    [this](std::size_t idx)
+                    { selectMapPackAndSendUpdate(mapPackNames.at(idx)); }))
+            .addOption(
+                Strings::AppState::GameSetup::SELECT_MAPS,
+                WidgetBuilder::createButton(
+                    Strings::AppState::GameSetup::DOTDOTDOT,
+                    std::bind(&AppStateGameSetup::openMapPicker, this)))
             .build(PANEL_BACKGROUND_COLOR));
 }
 

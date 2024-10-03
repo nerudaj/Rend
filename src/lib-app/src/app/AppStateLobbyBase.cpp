@@ -85,7 +85,7 @@ void AppStateLobbyBase::startGame()
         | std::views::transform([](const MapSettings& ms) { return ms.name; })
         | std::ranges::to<std::vector>();
 
-    if (maplist.empty()) throw std::runtime_error("No map selected!");
+    if (maplist.empty()) app.popState(ExceptionGameDisconnected::serialize());
 
     app.pushState<AppStateMapRotationWrapper>(
         dic,

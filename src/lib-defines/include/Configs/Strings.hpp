@@ -240,6 +240,8 @@ namespace Strings
             "You were disconnected, because your game got desynced";
         RAWSTRING SERVER_OFFLINE =
             "You were disconnected, because server appears to be offline";
+        RAWSTRING NO_MAP_SELECTED =
+            "You were disconnected, because no map was selected";
     } // namespace Error
 } // namespace Strings
 
