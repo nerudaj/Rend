@@ -27,7 +27,7 @@ public:
     {
         return GiveResult {
             .given = false,
-            .removePickup = false,
+            .removePickup = true,
             .playSound = false,
         };
     }

@@ -60,7 +60,7 @@ using AppMessage = std::variant<
     PopIfNotMapRotationWrapper,
     ExceptionGameDisconnected,
     ExceptionServerOffline,
-    ExceptionNoMapSelected,
+    ExceptionNoMapSelected>;
 
 [[nodiscard]] std::optional<AppMessage>
 deserializeAppMessage(const std::string& str);
