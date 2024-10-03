@@ -34,7 +34,8 @@ TEST_CASE("[ToolItem]")
             commandQueue,
             Mesh::MESH_TEXTURE_PATH,
             Item::ITEM_CLIP,
-            level);
+            level,
+            MapCompatibility::Deathmatch);
     };
 
     SECTION("On save validation")

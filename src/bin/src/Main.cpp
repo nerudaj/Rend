@@ -36,7 +36,7 @@ CmdParameters processCmdParameters(int argc, char* argv[])
         result.resourcesDir = args["resource-dir"].as<std::string>();
     if (args.count("map") > 0) result.mapname = args["map"].as<std::string>();
     if (args.count("limit") > 0)
-        result.fraglimit = args["limit"].as<unsigned>();
+        result.pointlimit = args["limit"].as<unsigned>();
     result.enableDebug = args.count("debug") > 0;
     result.useNullBotBehavior = args.count("null-bot") > 0;
 #ifdef _DEBUG

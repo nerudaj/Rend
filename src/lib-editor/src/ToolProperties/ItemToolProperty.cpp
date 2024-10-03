@@ -1,8 +1,8 @@
 #include "ToolProperties/ItemToolProperty.hpp"
 #include <Configs/Strings.hpp>
 #include <FormBuilder.hpp>
-#include <SpawnRotation.hpp>
 #include <WidgetBuilder.hpp>
+#include <enums/SpawnRotation.hpp>
 
 static constexpr [[nodiscard]] std::string
 spawnRotationToString(SpawnRotation rot)

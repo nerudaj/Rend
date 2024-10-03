@@ -2,12 +2,13 @@
 
 #include "Gui.hpp"
 #include "Tools/SidebarUserWithSprites.hpp"
-#include <LevelItemId.hpp>
 #include <Memory.hpp>
 #include <SFML/Graphics/Rect.hpp>
 #include <SFML/Graphics/Sprite.hpp>
 #include <SFML/Graphics/Texture.hpp>
-#include <SpawnRotation.hpp>
+#include <enums/LevelItemId.hpp>
+#include <enums/MapCompatibility.hpp>
+#include <enums/SpawnRotation.hpp>
 #include <filesystem>
 #include <utility>
 #include <vector>
@@ -39,7 +40,9 @@ public:
     }
 
 public:
-    void configure(const std::vector<PathRectPair>& textureClipPairs);
+    void configure(
+        const std::vector<PathRectPair>& textureClipPairs,
+        MapCompatibility newMapCompat);
 
     [[nodiscard]] const sf::IntRect& getClip(unsigned spriteId) const noexcept
     {
@@ -71,12 +74,17 @@ public: // SidebarUserWithSprites
         switch (static_cast<LevelItemId>(spriteId))
         {
             using enum LevelItemId;
-        case Unused1:
-        case Unused2:
+        case PlayerSpawn:
+            return mapCompat == MapCompatibility::SingleFlagCTF;
+        case RedSpawn:
+        case BlueSpawn:
+            return false;
         case Unused3:
-        case UnusedFlag:
-        case Unused4:
-        case Unused5:
+            return true;
+        case GreyFlag:
+        case RedFlag:
+        case BlueFlag:
+            return mapCompat != MapCompatibility::SingleFlagCTF;
         case Unused6:
         case Unused7:
         case Unused8:
@@ -102,4 +110,5 @@ public: // SidebarUserWithSprites
 private:
     std::vector<ItemRenderData> renderData;
     sf::RectangleShape outline;
+    MapCompatibility mapCompat = MapCompatibility::Deathmatch;
 };

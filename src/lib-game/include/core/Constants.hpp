@@ -103,6 +103,15 @@ ammoTypeToPickupType(AmmoType type) noexcept
         + static_cast<std::size_t>(EntityType::PickupBullets));
 }
 
+[[nodiscard]] constexpr static bool isPlayer(EntityType entityType)
+{
+    return entityType == EntityType::Player
+           || entityType == EntityType::RedPlayer
+           || entityType == EntityType::BluePlayer
+           || entityType == EntityType::CarrierRedPlayer
+           || entityType == EntityType::CarrierBluePlayer;
+}
+
 // Other
 constinit const std::size_t ANIMATION_FPS = 60 / 4; // four updates per second
 constinit const unsigned MAX_LEVEL_WIDTH = 32;

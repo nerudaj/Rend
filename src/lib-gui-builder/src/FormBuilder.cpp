@@ -34,6 +34,12 @@ FormBuilder& FormBuilder::addOptionWithSubmit(
     return *this;
 }
 
+FormBuilder& FormBuilder::addSeparator()
+{
+    rowsToBuild.push_back({ .separator = true });
+    return *this;
+}
+
 tgui::Panel::Ptr FormBuilder::build(tgui::Color backgroundColor)
 {
     auto&& panel = WidgetBuilder::createPanel(
@@ -44,15 +50,19 @@ tgui::Panel::Ptr FormBuilder::build(tgui::Color backgroundColor)
 
     for (auto&& [idx, props] : std::views::enumerate(rowsToBuild))
     {
-
-        auto&& row = props.submitBtn
+        auto&& row = props.separator ? WidgetBuilder::getStandardizedRow()
+                     : props.submitBtn
                          ? WidgetBuilder::createOptionRowWithSubmitButton(
                              props.label, props.widget, props.submitBtn.value())
                          : WidgetBuilder::createOptionRow(
                              props.label, props.widget, props.widgetId);
         row->setPosition({ "0%", row->getSize().y * idx });
 
-        if (props.tooltipText.has_value())
+        if (props.separator)
+        {
+            row->add(WidgetBuilder::createSeparator());
+        }
+        else if (props.tooltipText.has_value())
         {
             row->setToolTip(
                 WidgetBuilder::createTooltip(props.tooltipText.value()));

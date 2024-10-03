@@ -67,7 +67,10 @@ namespace Strings
             RAWSTRING MAX_NPCS = "maximum number of bots";
             RAWSTRING SELECT_PACK = "select map pack";
             RAWSTRING SELECT_MAPS = "configure map rotation";
-            RAWSTRING FRAGLIMIT = "frag limit";
+            RAWSTRING SELECT_GAMEMODE = "choose game mode";
+            RAWSTRING GAMEMODE_DM = "deathmatch";
+            RAWSTRING GAMEMODE_SCTF = "single-flag ctf";
+            RAWSTRING POINTLIMIT = "point limit";
             RAWSTRING START_GAME = "start game";
             RAWSTRING DOTDOTDOT = "...";
         } // namespace GameSetup
@@ -105,6 +108,8 @@ namespace Strings
             RAWSTRING PLAYER_TH = "player";
             RAWSTRING SCORE_TH = "score";
             RAWSTRING WON = "won";
+            RAWSTRING RED_TEAM_WON = "red team won";
+            RAWSTRING BLUE_TEAM_WON = "red team won";
         } // namespace Scores
     }     // namespace AppState
 
@@ -199,6 +204,7 @@ namespace Strings
             RAWSTRING SKYBOX_THEME = "Skybox theme";
             RAWSTRING TEXTURE_PACK = "Texture pack";
             RAWSTRING AUTHOR = "Author name";
+            RAWSTRING COMPAT = "Gamemode";
         } // namespace NewLevel
 
         RAWSTRING EDIT_PROPERTIES = "Edit Properties";
@@ -210,6 +216,8 @@ namespace Strings
         RAWSTRING SUICIDE = "You killed yourself";
         RAWSTRING KILLED_BY = "{} killed you";
         RAWSTRING YOU_KILLED = "You killed {}";
+        RAWSTRING XY_SCORED = "{} scored!";
+        RAWSTRING YOU_SCORED = "You scored!";
     } // namespace Game
 
     namespace Level
@@ -221,6 +229,8 @@ namespace Strings
         RAWSTRING TEXTURES_SPACE = "Space station";
         RAWSTRING TEXTURES_COUNTRY = "Countryside";
         RAWSTRING TEXTURES_NEON = "Neon";
+        RAWSTRING GAMEMODE_DM = "Deathmatch";
+        RAWSTRING GAMEMODE_SCTF = "Single-flag CTF";
     } // namespace Level
 
     RAWSTRING TITLE = "rend";
@@ -232,6 +242,11 @@ namespace Strings
             "You were disconnected, because your game got desynced";
         RAWSTRING SERVER_OFFLINE =
             "You were disconnected, because server appears to be offline";
+        RAWSTRING NO_MAP_SELECTED =
+            "You were disconnected, because no map was selected";
+        RAWSTRING BAD_GAMEMODE =
+            "You were disconnected, because the selected map was not "
+            "compatible with selected gamemode";
     } // namespace Error
 } // namespace Strings
 

@@ -2,15 +2,16 @@
 
 #include "utils/HudMessage.hpp"
 #include <DGM/dgm.hpp>
-#include <LevelTheme.hpp>
 #include <Memory.hpp>
-#include <SpawnRotation.hpp>
 #include <ai/AiEnums.hpp>
 #include <array>
 #include <bitset>
 #include <core/Constants.hpp>
 #include <core/Enums.hpp>
 #include <core/Types.hpp>
+#include <enums/SkyboxTheme.hpp>
+#include <enums/SpawnRotation.hpp>
+#include <enums/TexturePack.hpp>
 #include <fsm/Types.hpp>
 #include <input/AiController.hpp>
 #include <input/SimpleController.hpp>
@@ -83,6 +84,7 @@ struct PlayerInventory
     int score = 0;
     float selectionTimeout = 0.f;
     std::size_t selectionIdx = 0;
+    Team team = Team::Red;
 };
 
 struct AiBlackboard : fsm::BlackboardBase
@@ -133,6 +135,7 @@ struct [[nodiscard]] Spawn final
 {
     sf::Vector2f position;
     sf::Vector2f direction;
+    Team team;
 };
 
 // Add all game actors and objects to this struct as it is passed
@@ -156,6 +159,7 @@ struct Scene
     dgm::SpatialIndex<EntityIndexType> spatialIndex;
     DistanceIndex distanceIndex;
     std::vector<Spawn> spawns = {};
+    std::vector<sf::Vector2f> greyFlagSpawns = {};
     std::vector<sf::Vector2f> dummyAiDestinations = {};
     dgm::WorldNavMesh navmesh;
 };

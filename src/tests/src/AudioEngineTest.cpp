@@ -17,7 +17,8 @@ TEST_CASE("[AudioEngine]")
     scene.things.emplaceBack(SceneBuilder::createPlayer(
         Position { sf::Vector2f(0.f, 0.f) },
         Direction { sf::Vector2f(1.f, 0.f) },
-        0u));
+        0u,
+        Team::None));
     scene.playerStates.push_back(
         PlayerState { .inventory = PlayerInventory { .ownerIdx = 0 } });
     auto&& audioEngine = AudioEngine(audioPlayerMock, scene);

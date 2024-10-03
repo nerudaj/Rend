@@ -1,5 +1,8 @@
+#include "enums/LevelItemId.hpp"
+#include "enums/SpawnRotation.hpp"
 #include <DGM/dgm.hpp>
 #include <LevelD.hpp>
+#include <MapProperties.hpp>
 #include <builder/LightmapBuilder.hpp>
 #include <builder/MeshBuilder.hpp>
 #include <builder/SceneBuilder.hpp>
@@ -12,7 +15,10 @@ static inline const sf::FloatRect FULLSCREEN_VIEWPORT = { 0.f, 0.f, 1.f, 1.f };
 
 static constexpr bool isSpawn(const LevelD::Thing& thing) noexcept
 {
-    return static_cast<LevelItemId>(thing.id) == LevelItemId::PlayerSpawn;
+    const auto thingId = static_cast<LevelItemId>(thing.id);
+    return thingId == LevelItemId::PlayerSpawn
+           || thingId == LevelItemId::RedSpawn
+           || thingId == LevelItemId::BlueSpawn;
 }
 
 static sf::Vector2f getThingPosition(const LevelD::Thing& thing) noexcept
@@ -48,18 +54,50 @@ spawnRotationToDirection(SpawnRotation rotation)
     }
 }
 
+static [[nodiscard]] Team convertSpawnThingIdToTeam(const LevelItemId thingId)
+{
+    switch (thingId)
+    {
+    case LevelItemId::PlayerSpawn:
+        return Team::None;
+    case LevelItemId::RedSpawn:
+        return Team::Red;
+    case LevelItemId::BlueSpawn:
+        return Team::Blue;
+    default:
+        throw new std::runtime_error(
+            "Non-spawn thingId passed to convertSpawnThingIdToTeam");
+    }
+}
+
 static [[nodiscard]] std::vector<Spawn> createSpawns(const LevelD& level)
 {
     return level.things | std::views::filter(isSpawn)
            | std::views::transform(
                [](const LevelD::Thing& thing)
                {
-                   return Spawn { .position = getThingPosition(thing),
-                                  .direction = spawnRotationToDirection(
-                                      static_cast<SpawnRotation>(
-                                          thing.flags)) };
+                   return Spawn {
+                       .position = getThingPosition(thing),
+                       .direction = spawnRotationToDirection(
+                           static_cast<SpawnRotation>(thing.flags)),
+                       .team = convertSpawnThingIdToTeam(
+                           static_cast<LevelItemId>(thing.id)),
+                   };
                })
            | std::ranges::to<std::vector<Spawn>>();
+}
+
+static [[nodiscard]] std::vector<sf::Vector2f>
+noteGreyFlagSpawns(const LevelD& level)
+{
+    return level.things
+           | std::views::filter(
+               [](const auto& thing) {
+                   return static_cast<LevelItemId>(thing.id)
+                          == LevelItemId::GreyFlag;
+               })
+           | std::views::transform(getThingPosition)
+           | std::ranges::to<std::vector>();
 }
 
 [[nodiscard]] static EntityType
@@ -68,6 +106,12 @@ convertLeveldItemIdToEntityType(LevelItemId id) noexcept
     using enum LevelItemId;
     switch (id)
     {
+    case GreyFlag:
+        return EntityType::GreyFlag;
+    case RedFlag:
+        return EntityType::RedFlag;
+    case BlueFlag:
+        return EntityType::BlueFlag;
     case Medikit:
         return EntityType::PickupHealth;
     case ArmorShard:
@@ -227,7 +271,7 @@ Scene SceneBuilder::buildScene(const LevelD& level, size_t maxPlayerCount)
     const auto upperTextureMesh =
         MeshBuilder::buildTextureMeshFromLvd(level, 1);
 
-    auto&& theme = LevelTheme::fromJson(level.metadata.description);
+    auto&& props = parseMapProperties(level.metadata.description);
 
     return Scene {
         .things = std::move(things),
@@ -235,17 +279,17 @@ Scene SceneBuilder::buildScene(const LevelD& level, size_t maxPlayerCount)
                    .height = level.mesh.layerHeight,
                    .bottomMesh = bottomMesh,
                    .upperMesh = MeshBuilder::buildMeshFromLvd(level, 1),
-                   .skyboxTheme = SkyboxThemeUtils::fromString(theme.skybox),
-                   .texturePack =
-                       TexturePackUtils::fromString(theme.textures) },
+                   .skyboxTheme = props.skyboxTheme,
+                   .texturePack = props.texturePack, },
         .drawableLevel = { .bottomTextures = bottomTextureMesh,
                            .upperTextures = upperTextureMesh,
                            .lightmap = LightmapBuilder::buildLightmap(
                                level,
-                               SkyboxThemeUtils::fromString(theme.skybox)) },
+                               props.skyboxTheme),},
         .spatialIndex = createSpatialIndex(level),
         .distanceIndex = DistanceIndex(bottomMesh),
         .spawns = createSpawns(level),
+        .greyFlagSpawns = noteGreyFlagSpawns(level),
         .dummyAiDestinations = std::move(aiDestinations),
         .navmesh = std::move(navmesh)
     };
@@ -254,12 +298,17 @@ Scene SceneBuilder::buildScene(const LevelD& level, size_t maxPlayerCount)
 Entity SceneBuilder::createPlayer(
     const Position& position,
     const Direction& lookDirection,
-    PlayerStateIndexType stateIdx) noexcept
+    PlayerStateIndexType stateIdx,
+    Team team) noexcept
 {
     const auto& eprops = ENTITY_PROPERTIES.at(EntityType::Player);
 
     return Entity {
-        .typeId = EntityType::Player,
+        .typeId = team == Team::None
+        ? EntityType::Player
+        : team == Team::Red
+            ? EntityType::RedPlayer
+            : EntityType::BluePlayer,
         .animationContext = {
             eprops.initialSpriteIndex,
         },
@@ -273,8 +322,8 @@ Entity SceneBuilder::createPlayer(
     };
 }
 
-PlayerInventory
-SceneBuilder::getDefaultInventory(EntityIndexType ownerIdx, int score) noexcept
+PlayerInventory SceneBuilder::getDefaultInventory(
+    EntityIndexType ownerIdx, int score, Team team) noexcept
 {
     return PlayerInventory {
         .ownerIdx = ownerIdx,
@@ -284,7 +333,8 @@ SceneBuilder::getDefaultInventory(EntityIndexType ownerIdx, int score) noexcept
                                 ENTITY_PROPERTIES.at(EntityType::WeaponFlaregun)
                                     .initialSpriteIndex },
         .acquiredWeapons = 0b0000000000000001,
-        .score = score
+        .score = score,
+        .team = team,
     };
 }
 

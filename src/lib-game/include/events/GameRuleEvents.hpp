@@ -159,6 +159,17 @@ struct WeaponPickedUpGameEvent
     }
 };
 
+struct FlagDeliveredGameEvent final
+{
+    EntityIndexType scoringPlayerIdx;
+
+    [[nodiscard]] constexpr FlagDeliveredGameEvent(
+        size_t scoringPlayerIdx) noexcept
+        : scoringPlayerIdx(scoringPlayerIdx)
+    {
+    }
+};
+
 using GameEvent = std::variant<
     PickablePickedUpGameEvent,
     ProjectileCreatedGameEvent,
@@ -171,4 +182,5 @@ using GameEvent = std::variant<
     ScriptTriggeredGameEvent,
     PlayerKilledThemselvesGameEvent,
     PlayerKilledPlayerGameEvent,
-    WeaponPickedUpGameEvent>;
+    WeaponPickedUpGameEvent,
+    FlagDeliveredGameEvent>;

@@ -22,14 +22,23 @@ void AppStateWinnerAnnounced::update()
 void AppStateWinnerAnnounced::buildLayout()
 {
     auto&& maxIndex = 0u;
+    std::array<unsigned, 2> teamScores = { scores[0], 0u };
     for (auto&& i = 1u; i < scores.size(); i++)
     {
         if (scores[i] > scores[maxIndex]) maxIndex = i;
+        teamScores[i % 2] += scores[i];
     }
 
+    const auto playerWonStr = gameSettings.players[maxIndex].name + " "
+                              + Strings::AppState::Scores::WON + "!";
+    // clang-format off
     auto&& label = WidgetBuilder::createH1Label(
-        gameSettings.players[maxIndex].name + " "
-        + Strings::AppState::Scores::WON + "!");
+        gameSettings.gameMode == GameMode::Deathmatch
+        ? playerWonStr
+        : teamScores[0] > teamScores[1]
+            ? std::string(Strings::AppState::Scores::RED_TEAM_WON)
+            : std::string(Strings::AppState::Scores::BLUE_TEAM_WON));
+    // clang-format on
     label->setSize({ "100%", "25%" });
     label->setPosition({ "0%", "30%" });
     label->setHorizontalAlignment(tgui::Label::HorizontalAlignment::Center);

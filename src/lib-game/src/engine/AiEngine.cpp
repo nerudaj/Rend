@@ -1,4 +1,4 @@
-#include <ai/UtilityAi.hpp>
+﻿#include <ai/UtilityAi.hpp>
 #include <core/EntityDefinitions.hpp>
 #include <engine/AiEngine.hpp>
 #include <utils/MathHelpers.hpp>
@@ -130,7 +130,8 @@ void AiEngine::pickGatherLocation(AiBlackboard& blackboard)
                                 player.armor,
                                 inventory.ammo,
                                 activeAmmoIdx,
-                                inventory.acquiredWeapons)
+                                inventory.acquiredWeapons,
+                                preferFlags)
                             / static_cast<float>((distance * distance));
 
         if (score > bestScore)
@@ -157,32 +158,7 @@ void AiEngine::pickGatherLocation(AiBlackboard& blackboard)
         bestPosition = blackboard.longTermTargetLocation;
     }
 
-    scene.navmesh.computePath(player.hitbox.getPosition(), bestPosition)
-        .and_then(
-            [&](auto path) -> std::optional<dgm::Path<dgm::WorldNavpoint>>
-            {
-                // Might happen if fallback is too close, never mind, a new one
-                // will be picked after few frames
-                if (path.isTraversed())
-                {
-                    std::println(
-                        std::cerr,
-                        "AI Error: Path was found, but was already traversed.");
-                    return path;
-                }
-                blackboard.targetLocation = path.getCurrentPoint().coord;
-                return path;
-            })
-        .or_else(
-            [&]() -> std::optional<dgm::Path<dgm::WorldNavpoint>>
-            {
-                std::println(
-                    std::cerr,
-                    "AI Error: No path was found! Going from {} to {}",
-                    dgm::Utility::to_string(player.hitbox.getPosition()),
-                    dgm::Utility::to_string(bestPosition));
-                return std::nullopt;
-            });
+    setPathToTargetLocation(player, bestPosition, blackboard);
 }
 
 void AiEngine::pickTargetEnemy(AiBlackboard& blackboard) noexcept
@@ -195,8 +171,7 @@ void AiEngine::pickTargetEnemy(AiBlackboard& blackboard) noexcept
         if (state.inventory.ownerIdx == inventory.ownerIdx) continue;
 
         if (!scene.things.isIndexValid(state.inventory.ownerIdx)
-            || scene.things[state.inventory.ownerIdx].typeId
-                   != EntityType::Player)
+            || !isPlayer(scene.things[state.inventory.ownerIdx].typeId))
             continue;
 
         if (isEnemyVisible(
@@ -244,6 +219,25 @@ void AiEngine::moveInRelationToTargetEnemy(AiBlackboard& blackboard)
     }
 }
 
+void AiEngine::setDestinationToFlagPole(AiBlackboard& blackboard)
+{
+    const auto& player = getPlayer(blackboard);
+
+    for (const auto& [thing, idx] : scene.things)
+    {
+
+        if ((player.typeId == EntityType::CarrierRedPlayer
+             && thing.typeId == EntityType::BlueFlag)
+            || (player.typeId == EntityType::CarrierBluePlayer
+                && thing.typeId == EntityType::RedFlag))
+        {
+            setPathToTargetLocation(
+                player, thing.hitbox.getPosition(), blackboard);
+            return;
+        }
+    }
+}
+
 bool AiEngine::isEnemyVisible(
     const Entity& player,
     EntityIndexType playerIdx,
@@ -275,4 +269,47 @@ void AiEngine::rotateTowardTarget(
     const auto pivotDir =
         getVectorPivotDirection(player.direction, dirToTarget);
     input->setSteer(AI_TURN_SPEED_MULTIPLIER * pivotDir);
+}
+
+void AiEngine::setPathToTargetLocation(
+    const Entity& player,
+    const sf::Vector2f& destination,
+    AiBlackboard& blackboard)
+{
+    scene.navmesh.computePath(player.hitbox.getPosition(), destination)
+        .and_then(
+            [&](auto path) -> std::optional<dgm::Path<dgm::WorldNavpoint>>
+            {
+#ifdef _DEBUG
+                // Not really needed to be logged since I've figured out
+                // what is happening, left for possible future diagnostics
+                if (path.isTraversed())
+                {
+                    std::println(
+                        std::cerr,
+                        "AI Error: Path was found, but was already "
+                        "traversed. Going from {} to {}",
+                        dgm::Utility::to_string(player.hitbox.getPosition()),
+                        dgm::Utility::to_string(destination));
+                }
+#endif
+
+                // Due to leevay to target detection, NPC might slide into
+                // destination tile so no path is fouńd, but it needs a little
+                // nudge to reach the center especially in CTF
+                blackboard.targetLocation = path.isTraversed()
+                                                ? destination // a little nudge
+                                                : path.getCurrentPoint().coord;
+                return path;
+            })
+        .or_else(
+            [&]() -> std::optional<dgm::Path<dgm::WorldNavpoint>>
+            {
+                std::println(
+                    std::cerr,
+                    "AI Error: No path was found! Going from {} to {}",
+                    dgm::Utility::to_string(player.hitbox.getPosition()),
+                    dgm::Utility::to_string(destination));
+                return std::nullopt;
+            });
 }

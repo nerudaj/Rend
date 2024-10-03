@@ -22,7 +22,7 @@ AppStateLobbyBase::AppStateLobbyBase(
                               .hasAutoswapOnPickup =
                                   dic->settings->player.autoswapOnPickup })
     , lobbySettings(LobbySettings {
-          .fraglimit = static_cast<int>(dic->settings->cmdSettings.fraglimit),
+          .pointlimit = static_cast<int>(dic->settings->cmdSettings.pointlimit),
           .maxNpcs = dic->settings->cmdSettings.maxNpcs })
     , config(config)
 {
@@ -85,14 +85,16 @@ void AppStateLobbyBase::startGame()
         | std::views::transform([](const MapSettings& ms) { return ms.name; })
         | std::ranges::to<std::vector>();
 
-    if (maplist.empty()) throw std::runtime_error("No map selected!");
+    if (maplist.empty()) app.popState(ExceptionGameDisconnected::serialize());
 
     app.pushState<AppStateMapRotationWrapper>(
         dic,
         client,
-        GameOptions { .players = createPlayerSettings(),
-                      .fraglimit =
-                          static_cast<unsigned>(lobbySettings.fraglimit) },
+        GameOptions {
+            .players = createPlayerSettings(),
+            .gameMode = lobbySettings.gameMode,
+            .pointlimit = static_cast<unsigned>(lobbySettings.pointlimit),
+        },
         lobbySettings.packname,
         maplist);
 }

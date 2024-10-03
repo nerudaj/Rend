@@ -49,12 +49,18 @@ struct [[nodiscard]] ExceptionServerOffline final
 {
 };
 
+struct [[nodiscard]] ExceptionNoMapSelected final
+    : public CanDeserializeFrom<ExceptionNoMapSelected>
+{
+};
+
 using AppMessage = std::variant<
     PopIfNotMainMenu,
     PopIfPause,
     PopIfNotMapRotationWrapper,
     ExceptionGameDisconnected,
-    ExceptionServerOffline>;
+    ExceptionServerOffline,
+    ExceptionNoMapSelected>;
 
 [[nodiscard]] std::optional<AppMessage>
 deserializeAppMessage(const std::string& str);
@@ -97,6 +103,13 @@ handleAppMessage(dgm::App& app, const std::string& message)
                     app.popState(message);
                 else
                     result = Strings::Error::SERVER_OFFLINE;
+            },
+            [&](ExceptionNoMapSelected)
+            {
+                if (!std::is_same_v<CallerState, AppStateMainMenu>)
+                    app.popState(message);
+                else
+                    result = Strings::Error::NO_MAP_SELECTED;
             } },
         msg.value());
     return result;

@@ -28,7 +28,7 @@ void AnimationEngine::update(const float)
     {
         handleUpdate(thing.animationContext, thing.typeId, idx);
 
-        if (thing.typeId == EntityType::Player)
+        if (isPlayer(thing.typeId))
         {
             auto& inventory = scene.playerStates[thing.stateIdx].inventory;
             handleUpdate(
@@ -82,9 +82,6 @@ void AnimationEngine::handleTransition(
         break;
     case MarkerDestroy:
         eventQueue->emplace<EntityDestroyedGameEvent>(entityIdx);
-        break;
-    case MarkerFreeze:
-        // do nothing
         break;
     default: {
         // Switch to new state

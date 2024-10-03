@@ -1,11 +1,10 @@
 #pragma once
 
-#include <LevelTheme.hpp>
+#include "MapProperties.hpp"
 #include <string>
 
 struct LevelMetadata
 {
-    SkyboxTheme skyboxTheme;
-    TexturePack texturePack;
+    MapProperties theme;
     std::string author;
 };

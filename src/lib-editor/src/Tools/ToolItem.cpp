@@ -85,7 +85,7 @@ void ToolItem::configure(
             .texturePath = texturePath, .clip = clip.getFrame(i) });
     }
 
-    sidebarUser.configure(pathRectPairs);
+    sidebarUser.configure(pathRectPairs, mapCompat);
 
     selectMarker.setOutlineColor(sf::Color::Red);
     selectMarker.setOutlineThickness(2);
@@ -139,18 +139,58 @@ void ToolItem::saveTo(LevelD& lvd) const
 
 void ToolItem::validateBeforeSave() const
 {
-    unsigned numSpawns = 0;
+    unsigned numBasicSpawns = 0, numRedSpawns = 0, numBlueSpawns = 0;
+    unsigned greyFlagPlaced = false, redFlagPlaced = false,
+             blueFlagPlaced = false;
+
     for (auto&& item : items)
     {
-        if (static_cast<LevelItemId>(item.id) == LevelItemId::PlayerSpawn)
-            ++numSpawns;
+        auto itemId = static_cast<LevelItemId>(item.id);
+        if (itemId == LevelItemId::PlayerSpawn)
+            ++numBasicSpawns;
+        else if (itemId == LevelItemId::RedSpawn)
+            ++numRedSpawns;
+        else if (itemId == LevelItemId::BlueSpawn)
+            ++numBlueSpawns;
+        else if (itemId == LevelItemId::GreyFlag)
+            greyFlagPlaced = true;
+        else if (itemId == LevelItemId::RedFlag)
+            redFlagPlaced = true;
+        else if (itemId == LevelItemId::BlueFlag)
+            blueFlagPlaced = true;
     }
 
-    if (numSpawns < 4)
+    if (mapCompat == MapCompatibility::Deathmatch)
     {
-        throw std::runtime_error(
-            "Cannot save level! There have to be at least four player spawns "
-            "in the level.");
+        if (numBasicSpawns + numRedSpawns + numBlueSpawns < 4)
+        {
+            throw std::runtime_error(
+                "Cannot save level! There have to be at least four player "
+                "spawns "
+                "in the level.");
+        }
+    }
+    else if (mapCompat == MapCompatibility::SingleFlagCTF)
+    {
+        if (numRedSpawns != numBlueSpawns)
+        {
+            throw std::runtime_error(
+                "Cannot save level! There has to be an equal number of red and "
+                "blue spawns.");
+        }
+        else if (numRedSpawns + numBlueSpawns < 4)
+        {
+            throw std::runtime_error(
+                "Cannot save level! There have to be at least four player "
+                "spawns "
+                "in the level.");
+        }
+        else if (!greyFlagPlaced || !redFlagPlaced || !blueFlagPlaced)
+        {
+            throw std::runtime_error(
+                "Cannot save level! There has to be one grey, one red and one "
+                "blue flag in the level.");
+        }
     }
 }
 

@@ -87,6 +87,30 @@ const static inline auto ENTITY_PROPERTIES =
                                           { DeathD, 600 } },
                                 .transition =
                                     AnimationStateId::MarkerDestroy } } } } },
+        { EntityType::EffectRedDyingPlayer,
+          EntityProperties {
+              .radius = 8_px,
+              .initialSpriteIndex = RedDeathA,
+              .states = { { AnimationStateId::Idle,
+                            AnimationState {
+                                .clip = { { RedDeathA, 7 },
+                                          { RedDeathB, 7 },
+                                          { RedDeathC, 7 },
+                                          { RedDeathD, 600 } },
+                                .transition =
+                                    AnimationStateId::MarkerDestroy } } } } },
+        { EntityType::EffectBlueDyingPlayer,
+          EntityProperties {
+              .radius = 8_px,
+              .initialSpriteIndex = BlueDeathA,
+              .states = { { AnimationStateId::Idle,
+                            AnimationState {
+                                .clip = { { BlueDeathA, 7 },
+                                          { BlueDeathB, 7 },
+                                          { BlueDeathC, 7 },
+                                          { BlueDeathD, 600 } },
+                                .transition =
+                                    AnimationStateId::MarkerDestroy } } } } },
         { EntityType::EffectFlareExplosion,
           EntityProperties {
               .radius = 8_px,
@@ -181,6 +205,90 @@ const static inline auto ENTITY_PROPERTIES =
                             AnimationState {
                                 .clip = { { PlayerFA0, 10 },
                                           { PlayerFB0, 10 } },
+                                .transition = AnimationStateId::Idle } } } } },
+        { EntityType::RedPlayer,
+          EntityProperties {
+              .radius = 4_px,
+              .speed = 96_unitspersec,
+              .traits = Trait::Solid | Trait::Destructible | Trait::Directional,
+              .debrisEffectType = EntityType::EffectRedDyingPlayer,
+              .initialSpriteIndex = PlayerRedA0,
+              .states = { { AnimationStateId::Idle,
+                            AnimationState {
+                                .clip = { { PlayerRedA0, 10 } },
+                                .transition = AnimationStateId::MarkerLoop } },
+                          { AnimationStateId::Run,
+                            AnimationState { .clip = { { PlayerRedA0, 10 },
+                                                       { PlayerRedB0, 10 } },
+                                             .transition =
+                                                 AnimationStateId::Idle } },
+                          { AnimationStateId::Missile,
+                            AnimationState {
+                                .clip = { { PlayerRedFA0, 10 },
+                                          { PlayerRedFB0, 10 } },
+                                .transition = AnimationStateId::Idle } } } } },
+        { EntityType::BluePlayer,
+          EntityProperties {
+              .radius = 4_px,
+              .speed = 96_unitspersec,
+              .traits = Trait::Solid | Trait::Destructible | Trait::Directional,
+              .debrisEffectType = EntityType::EffectBlueDyingPlayer,
+              .initialSpriteIndex = PlayerBlueA0,
+              .states = { { AnimationStateId::Idle,
+                            AnimationState {
+                                .clip = { { PlayerBlueA0, 10 } },
+                                .transition = AnimationStateId::MarkerLoop } },
+                          { AnimationStateId::Run,
+                            AnimationState { .clip = { { PlayerBlueA0, 10 },
+                                                       { PlayerBlueB0, 10 } },
+                                             .transition =
+                                                 AnimationStateId::Idle } },
+                          { AnimationStateId::Missile,
+                            AnimationState {
+                                .clip = { { PlayerBlueFA0, 10 },
+                                          { PlayerBlueFB0, 10 } },
+                                .transition = AnimationStateId::Idle } } } } },
+        { EntityType::CarrierRedPlayer,
+          EntityProperties {
+              .radius = 4_px,
+              .speed = 96_unitspersec,
+              .traits = Trait::Solid | Trait::Destructible | Trait::Directional,
+              .debrisEffectType = EntityType::EffectRedDyingPlayer,
+              .initialSpriteIndex = PlayerCarrierRedA0,
+              .states = { { AnimationStateId::Idle,
+                            AnimationState {
+                                .clip = { { PlayerCarrierRedA0, 10 } },
+                                .transition = AnimationStateId::MarkerLoop } },
+                          { AnimationStateId::Run,
+                            AnimationState {
+                                .clip = { { PlayerCarrierRedA0, 10 },
+                                          { PlayerCarrierRedB0, 10 } },
+                                .transition = AnimationStateId::Idle } },
+                          { AnimationStateId::Missile,
+                            AnimationState {
+                                .clip = { { PlayerCarrierRedFA0, 10 },
+                                          { PlayerCarrierRedFB0, 10 } },
+                                .transition = AnimationStateId::Idle } } } } },
+        { EntityType::CarrierBluePlayer,
+          EntityProperties {
+              .radius = 4_px,
+              .speed = 96_unitspersec,
+              .traits = Trait::Solid | Trait::Destructible | Trait::Directional,
+              .debrisEffectType = EntityType::EffectBlueDyingPlayer,
+              .initialSpriteIndex = PlayerCarrierBlueA0,
+              .states = { { AnimationStateId::Idle,
+                            AnimationState {
+                                .clip = { { PlayerCarrierBlueA0, 10 } },
+                                .transition = AnimationStateId::MarkerLoop } },
+                          { AnimationStateId::Run,
+                            AnimationState {
+                                .clip = { { PlayerCarrierBlueA0, 10 },
+                                          { PlayerCarrierBlueB0, 10 } },
+                                .transition = AnimationStateId::Idle } },
+                          { AnimationStateId::Missile,
+                            AnimationState {
+                                .clip = { { PlayerCarrierBlueFA0, 10 },
+                                          { PlayerCarrierBlueFB0, 10 } },
                                 .transition = AnimationStateId::Idle } } } } },
         { EntityType::PickupHealth,
           EntityProperties { .radius = 3_px,
@@ -308,6 +416,43 @@ const static inline auto ENTITY_PROPERTIES =
                                           { WiresD, 5 } },
                                 .transition =
                                     AnimationStateId::MarkerLoop } } } } },
+        { EntityType::GreyFlag,
+          EntityProperties {
+              .radius = 4_px,
+              .traits = Trait::Pickable,
+              .specialSound = "pickup.wav",
+              .initialSpriteIndex = FlagA,
+              .states = { { AnimationStateId::Idle,
+                            AnimationState {
+                                .clip = { { FlagA, 20 },
+                                          { FlagB, 20 },
+                                          { FlagC, 20 } },
+                                .transition =
+                                    AnimationStateId::MarkerLoop } } } } },
+        { EntityType::RedFlag,
+          EntityProperties {
+              .radius = 4_px,
+              .traits = Trait::Deposit,
+              .initialSpriteIndex = RedFlagA,
+              .states = { { AnimationStateId::Idle,
+                            AnimationState {
+                                .clip = { { RedFlagA, 20 },
+                                          { RedFlagB, 20 },
+                                          { RedFlagC, 20 } },
+                                .transition =
+                                    AnimationStateId::MarkerLoop } } } } },
+        { EntityType::BlueFlag,
+          EntityProperties {
+              .radius = 4_px,
+              .traits = Trait::Deposit,
+              .initialSpriteIndex = BlueFlagA,
+              .states = { { AnimationStateId::Idle,
+                            AnimationState {
+                                .clip = { { BlueFlagA, 20 },
+                                          { BlueFlagB, 20 },
+                                          { BlueFlagC, 20 } },
+                                .transition =
+                                    AnimationStateId::MarkerLoop } } } } },
         { EntityType::ProjectileFlare,
           EntityProperties {
               .radius = 2_px,
@@ -323,7 +468,8 @@ const static inline auto ENTITY_PROPERTIES =
               .speed = 150_unitspersec,
               .traits =
                   Trait::Projectile | Trait::Explosive | Trait::Directional,
-              .explosionRadius = 16_px,
+              .explosionRadius =
+                  16_px,
               .damage = ROCKET_DAMAGE,
               .debrisEffectType = EntityType::EffectRocketExplosion,
               .initialSpriteIndex = RocketA0,

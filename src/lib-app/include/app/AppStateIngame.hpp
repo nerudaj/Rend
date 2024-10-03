@@ -11,6 +11,7 @@
 #include "utils/DemoFileHandler.hpp"
 #include "utils/DependencyContainer.hpp"
 #include "utils/Framerate.hpp"
+#include "utils/WinConditionStrategy.hpp"
 #include <DGM/dgm.hpp>
 #include <GameLoop.hpp>
 #include <LevelD.hpp>
@@ -84,6 +85,8 @@ private:
 
     mem::Box<GameLoop> createGameLoop();
 
+    Team getTeamBelonging(PlayerStateIndexType idx);
+
 protected:
     constexpr static const unsigned ROLLBACK_WINDOW_SIZE = 20u;
 
@@ -109,4 +112,5 @@ protected:
     std::chrono::milliseconds artificialFrameDelay = {};
     size_t tickToRollbackTo = {};
     unsigned humanPlayerCount = 0;
+    IsPointLimitReached isPointLimitReached;
 };

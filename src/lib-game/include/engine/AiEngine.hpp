@@ -13,6 +13,7 @@ struct AiEngineConfig
 {
     bool useNullBehavior = false;
     bool enableLogging = false;
+    bool preferFlags = false;
 };
 
 class [[nodiscard]] AiEngine final
@@ -35,6 +36,14 @@ private: // FSM predicates
     isThisPlayerAlive(const AiBlackboard& blackboard) const noexcept
     {
         return isPlayerAlive(getInventory(blackboard).ownerIdx);
+    }
+
+    [[nodiscard]] constexpr bool
+    isThisPlayerFlagCarrier(const AiBlackboard& blackboard) const noexcept
+    {
+        const auto& player = getPlayer(blackboard);
+        return player.typeId == EntityType::CarrierRedPlayer
+               || player.typeId == EntityType::CarrierBluePlayer;
     }
 
     [[nodiscard]] constexpr bool
@@ -180,16 +189,17 @@ private: // FSM actions
 
     constexpr void performHuntBookmarking(AiBlackboard& blackboard)
     {
-        // blackboard.delayedTransitionState = AiState::LockingTarget;
         blackboard.targetLocation = getEnemy(blackboard).hitbox.getPosition();
     }
+
+    void setDestinationToFlagPole(AiBlackboard& blackboard);
 
 private: // Utility predicates
     [[nodiscard]] constexpr bool
     isPlayerAlive(EntityIndexType idx) const noexcept
     {
         return scene.things.isIndexValid(idx)
-               && scene.things[idx].typeId == EntityType::Player;
+               && isPlayer(scene.things[idx].typeId);
     }
 
     [[nodiscard]] constexpr bool
@@ -283,9 +293,15 @@ private: // Utility functions
             type);
     }
 
+    void setPathToTargetLocation(
+        const Entity& player,
+        const sf::Vector2f& destination,
+        AiBlackboard& blackboard);
+
 private:
     Scene& scene;
     Hitscanner hitscanner;
     fsm::CsvLogger logger;
     fsm::Fsm<AiBlackboard> fsm;
+    bool preferFlags = false;
 };

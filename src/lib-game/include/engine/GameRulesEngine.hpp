@@ -5,15 +5,10 @@
 #include "events/GameRuleEvents.hpp"
 #include <DGM/DGM.hpp>
 #include <Memory.hpp>
+#include <engine/GameModeSpecificRulesEngineInterface.hpp>
 #include <events/EventQueue.hpp>
+#include <utils/GiveResult.hpp>
 #include <utils/Hitscanner.hpp>
-
-struct [[nodiscard]] GiveResult final
-{
-    bool given = true;
-    bool removePickup = true;
-    bool playSound = true;
-};
 
 class [[nodiscard]] GameRulesEngine final
 {
@@ -21,9 +16,11 @@ public:
     [[nodiscard]] GameRulesEngine(
         Scene& scene,
         mem::Rc<EventQueue> eventQueue,
+        GameModeSpecificRulesEngineInterface& modeSpecificRules,
         const std::vector<std::string>& playerNames) noexcept
         : scene(scene)
         , eventQueue(eventQueue)
+        , modeSpecificRules(modeSpecificRules)
         , playerNames(playerNames)
         , hitscanner(scene)
     {
@@ -42,13 +39,14 @@ public: // Must visit on all related events
     void operator()(const PlayerKilledThemselvesGameEvent&);
     void operator()(const PlayerKilledPlayerGameEvent&);
     void operator()(const WeaponPickedUpGameEvent&);
+    void operator()(const FlagDeliveredGameEvent&);
 
 public:
     void update(const float deltaTime);
 
     void deleteMarkedObjects();
 
-    [[nodiscard]] const Spawn& getBestSpawn() const noexcept;
+    [[nodiscard]] const Spawn& getBestSpawn(Team team) const noexcept;
 
 private:
     void handlePlayer(Entity& thing, const EntityIndexType idx, const float dt);
@@ -67,7 +65,7 @@ private:
         const float dt);
 
     void handleGrabbedPickable(
-        Entity& entity,
+        Entity& player,
         PlayerInventory& inventory,
         Entity pickup,
         std::size_t pickupId);
@@ -143,6 +141,7 @@ private: // Scripts API
 private:
     Scene& scene;
     mem::Rc<EventQueue> eventQueue;
+    GameModeSpecificRulesEngineInterface& modeSpecificRules;
     std::vector<std::string> playerNames;
     Hitscanner hitscanner;
     std::vector<EntityIndexType> entityIndicesToRemove;

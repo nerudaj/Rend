@@ -57,6 +57,8 @@ AppStateIngame::AppStateIngame(
           sf::Vector2f(sf::Vector2u(
               dic->settings->display.resolution.width,
               dic->settings->display.resolution.height)))
+    , isPointLimitReached(
+          WinConditionStrategy::getWinConditionStrategy(gameSettings))
 {
     for (auto&& opts : gameSettings.players)
     {
@@ -333,7 +335,7 @@ void AppStateIngame::restoreState(const FrameState& state)
 
 void AppStateIngame::evaluateWinCondition()
 {
-    if (gameLoop->isPointlimitReached(gameSettings.fraglimit))
+    if (isPointLimitReached(scene))
     {
         if (hasFocus)
         {
@@ -402,7 +404,7 @@ void AppStateIngame::createPlayers()
 
         scene.playerStates.push_back(PlayerState {});
         scene.playerStates.back().inventory =
-            SceneBuilder::getDefaultInventory(idx, 0);
+            SceneBuilder::getDefaultInventory(idx, 0, getTeamBelonging(idx));
 
         if (gameSettings.players[idx].bindCamera) scene.camera.anchorIdx = idx;
         if (gameSettings.players[idx].kind == PlayerKind::LocalNpc)
@@ -442,6 +444,16 @@ mem::Box<GameLoop> AppStateIngame::createGameLoop()
             | std::views::transform([](const PlayerOptions& opts)
                                     { return opts.name; })
             | std::ranges::to<std::vector>(),
+        gameSettings.gameMode,
         dic->settings->display,
         dic->settings->cmdSettings);
+}
+
+Team AppStateIngame::getTeamBelonging(PlayerStateIndexType idx)
+{
+    if (gameSettings.gameMode == GameMode::SingleFlagCtf)
+    {
+        return idx % 2 == 0 ? Team::Red : Team::Blue;
+    }
+    return Team::None;
 }

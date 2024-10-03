@@ -36,12 +36,15 @@ public:
         tgui::Widget::Ptr widget,
         tgui::Button::Ptr submitBtn);
 
+    [[nodiscard]] FormBuilder& addSeparator();
+
     [[nodiscard]] tgui::Panel::Ptr
     build(tgui::Color backgroundColor = tgui::Color::Transparent);
 
 private:
     struct RowProps
     {
+        bool separator = false;
         std::string label;
         tgui::Widget::Ptr widget;
         std::optional<std::string> widgetId = {};

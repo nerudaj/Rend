@@ -10,7 +10,7 @@ void PhysicsEngine::update(const float deltaTime)
     {
         const auto& properties = ENTITY_PROPERTIES.at(thing.typeId);
         scene.spatialIndex.removeFromLookup(idx, thing.hitbox);
-        if (thing.typeId == EntityType::Player)
+        if (isPlayer(thing.typeId))
             handlePlayer(properties, thing, idx, deltaTime);
         else if (properties.traits & Trait::Projectile)
             handleProjectile(properties, thing, idx, deltaTime);

@@ -1,6 +1,8 @@
 #pragma once
 
+#include "enums/GameMode.hpp"
 #include "enums/PlayerKind.hpp"
+#include <nlohmann/json.hpp>
 #include <string>
 #include <vector>
 
@@ -16,5 +18,6 @@ struct GameOptions
 {
     std::vector<PlayerOptions> players = { PlayerOptions {
         .kind = PlayerKind::LocalHuman, .bindCamera = true } };
-    unsigned fraglimit = 15;
+    GameMode gameMode = GameMode::Deathmatch;
+    unsigned pointlimit = 15;
 };

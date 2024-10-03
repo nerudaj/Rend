@@ -13,14 +13,6 @@ void GameLoop::renderTo(dgm::Window& window)
     renderingEngine.renderTo(window);
 }
 
-bool GameLoop::isPointlimitReached(unsigned limit) const
-{
-    return std::ranges::any_of(
-        scene.playerStates,
-        [limit](const PlayerState& state)
-        { return state.inventory.score >= static_cast<int>(limit); });
-}
-
 void GameLoop::updateEngines(const float dt, const float realDt)
 {
     animationEngine.update(dt);

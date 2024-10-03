@@ -18,10 +18,12 @@ public:
         const mem::Rc<CommandQueue> commandQueue,
         const std::filesystem::path& spritesheetPath,
         const dgm::Clip& spritesheetClip,
-        const LevelD& level) noexcept
+        const LevelD& level,
+        MapCompatibility mapCompat) noexcept
         : ToolWithDragAndSelect(onStateChanged, shortcutEngine, layerObserver)
         , sidebarUser(gui)
         , commandQueue(commandQueue)
+        , mapCompat(mapCompat)
     {
         configure(
             sf::Vector2u(level.mesh.tileWidth, level.mesh.tileHeight),
@@ -108,4 +110,5 @@ private:
     sf::Vector2i levelSize;
     SidebarUserItem sidebarUser;
     mem::Rc<CommandQueue> commandQueue;
+    MapCompatibility mapCompat;
 };

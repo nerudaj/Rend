@@ -35,7 +35,7 @@ void AppStateGameSetup::input()
 
     InputHandler::handleUiStateInput(app, *dic);
 
-    dic->logger->ifError(
+    dic->logger->logOrError(
         0,
         "readIncomingPackets",
         client->readIncomingPackets(std::bind(
@@ -62,6 +62,34 @@ void AppStateGameSetup::buildLayoutGameSetupImpl(tgui::Panel::Ptr target)
                         lobbySettings.maxNpcs = idx;
                         sendLobbyUpdate();
                     }))
+            .addSeparator()
+            .addOption(
+                Strings::AppState::GameSetup::SELECT_GAMEMODE,
+                WidgetBuilder::createDropdown(
+                    { Strings::AppState::GameSetup::GAMEMODE_DM,
+                      Strings::AppState::GameSetup::GAMEMODE_SCTF },
+                    Strings::AppState::GameSetup::GAMEMODE_DM,
+                    [&](size_t optionIdx)
+                    {
+                        lobbySettings.gameMode =
+                            static_cast<GameMode>(optionIdx);
+                        sendLobbyUpdate();
+                        // TODO: recompute available mappacks
+                        // and maps within
+                    }))
+            .addOption(
+                Strings::AppState::GameSetup::POINTLIMIT,
+                WidgetBuilder::createTextInput(
+                    std::to_string(lobbySettings.pointlimit),
+                    [this](const tgui::String& newValue)
+                    {
+                        if (newValue.empty()) return;
+                        lobbySettings.pointlimit =
+                            std::stoi(std::string(newValue));
+                        sendLobbyUpdate();
+                    },
+                    WidgetBuilder::getPositiveNumericValidator()))
+            .addSeparator()
             .addOption(
                 Strings::AppState::GameSetup::SELECT_PACK,
                 WidgetBuilder::createDropdown(
@@ -74,18 +102,6 @@ void AppStateGameSetup::buildLayoutGameSetupImpl(tgui::Panel::Ptr target)
                 WidgetBuilder::createButton(
                     Strings::AppState::GameSetup::DOTDOTDOT,
                     std::bind(&AppStateGameSetup::openMapPicker, this)))
-            .addOption(
-                Strings::AppState::GameSetup::FRAGLIMIT,
-                WidgetBuilder::createTextInput(
-                    std::to_string(lobbySettings.fraglimit),
-                    [this](const tgui::String& newValue)
-                    {
-                        if (newValue.empty()) return;
-                        lobbySettings.fraglimit =
-                            std::stoi(std::string(newValue));
-                        sendLobbyUpdate();
-                    },
-                    WidgetBuilder::getPositiveNumericValidator()))
             .build(PANEL_BACKGROUND_COLOR));
 }
 

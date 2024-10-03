@@ -1,7 +1,7 @@
 #pragma once
 
-#include <LevelItemId.hpp>
 #include <cstdint>
+#include <enums/LevelItemId.hpp>
 #include <map>
 #include <string>
 
@@ -11,6 +11,12 @@ enum class SpriteId : std::uint8_t
     FlagA = 1,
     FlagB,
     FlagC,
+    RedFlagA,
+    RedFlagB,
+    RedFlagC,
+    BlueFlagA,
+    BlueFlagB,
+    BlueFlagC,
     MedikitA,
     ArmorShardA,
     MegaHealthA,
@@ -59,6 +65,26 @@ enum class SpriteId : std::uint8_t
     PlayerRedFB2,
     PlayerRedFB3,
     PlayerRedFB4,
+    PlayerCarrierRedA0,
+    PlayerCarrierRedA1,
+    PlayerCarrierRedA2,
+    PlayerCarrierRedA3,
+    PlayerCarrierRedA4,
+    PlayerCarrierRedB0,
+    PlayerCarrierRedB1,
+    PlayerCarrierRedB2,
+    PlayerCarrierRedB3,
+    PlayerCarrierRedB4,
+    PlayerCarrierRedFA0,
+    PlayerCarrierRedFA1,
+    PlayerCarrierRedFA2,
+    PlayerCarrierRedFA3,
+    PlayerCarrierRedFA4,
+    PlayerCarrierRedFB0,
+    PlayerCarrierRedFB1,
+    PlayerCarrierRedFB2,
+    PlayerCarrierRedFB3,
+    PlayerCarrierRedFB4,
     PlayerBlueA0,
     PlayerBlueA1,
     PlayerBlueA2,
@@ -79,6 +105,26 @@ enum class SpriteId : std::uint8_t
     PlayerBlueFB2,
     PlayerBlueFB3,
     PlayerBlueFB4,
+    PlayerCarrierBlueA0,
+    PlayerCarrierBlueA1,
+    PlayerCarrierBlueA2,
+    PlayerCarrierBlueA3,
+    PlayerCarrierBlueA4,
+    PlayerCarrierBlueB0,
+    PlayerCarrierBlueB1,
+    PlayerCarrierBlueB2,
+    PlayerCarrierBlueB3,
+    PlayerCarrierBlueB4,
+    PlayerCarrierBlueFA0,
+    PlayerCarrierBlueFA1,
+    PlayerCarrierBlueFA2,
+    PlayerCarrierBlueFA3,
+    PlayerCarrierBlueFA4,
+    PlayerCarrierBlueFB0,
+    PlayerCarrierBlueFB1,
+    PlayerCarrierBlueFB2,
+    PlayerCarrierBlueFB3,
+    PlayerCarrierBlueFB4,
     PlayerA0,
     PlayerA1,
     PlayerA2,
@@ -138,6 +184,14 @@ enum class SpriteId : std::uint8_t
     DeathB,
     DeathC,
     DeathD,
+    RedDeathA,
+    RedDeathB,
+    RedDeathC,
+    RedDeathD,
+    BlueDeathA,
+    BlueDeathB,
+    BlueDeathC,
+    BlueDeathD,
     SpawnItemA,
     SpawnItemB,
     SpawnItemC,
@@ -228,8 +282,14 @@ enum class EntityType
     Fountain,
     Artifact,
     Wires,
+    RedFlag,
+    BlueFlag,
     StaticDecorationEnd,
     Player,
+    RedPlayer,
+    BluePlayer,
+    CarrierRedPlayer,
+    CarrierBluePlayer,
 
     PickableBegin,
 
@@ -256,6 +316,8 @@ enum class EntityType
     PickupBallista,
     WeaponPickableEnd,
 
+    GreyFlag,
+
     PickableEnd,
 
     ProjectilesBegin,
@@ -269,6 +331,8 @@ enum class EntityType
     EffectBegin,
     EffectStatic, // Does nothing, has no collisions
     EffectDyingPlayer,
+    EffectRedDyingPlayer,
+    EffectBlueDyingPlayer,
     EffectFlareExplosion,
     EffectRocketExplosion,
     EffectDartExplosion,
@@ -303,6 +367,7 @@ enum class Trait
     Pickable = 0b1000000,
     PowerItem = 0b10000000,
     WeaponPickup = 0b100000000,
+    Deposit = 0b1000000000,
 };
 
 constexpr Trait operator|(Trait a, Trait b)
@@ -355,5 +420,11 @@ enum class AnimationStateId
     FastRaise,
     MarkerLoop,
     MarkerDestroy,
-    MarkerFreeze, // Candidate for deletion
+};
+
+enum class [[nodiscard]] Team : uint8_t
+{
+    None,
+    Red,
+    Blue
 };

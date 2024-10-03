@@ -10,11 +10,19 @@ AiEngine::AiEngine(Scene& scene, const AiEngineConfig& config)
     , hitscanner(scene)
     , logger("ailog.csv")
     , fsm(createFsm(*this, config.useNullBehavior))
+    , preferFlags(config.preferFlags)
 {
     if (config.enableLogging) fsm.setLogger(logger);
 }
 
-auto Not(auto&& fn)
+template<class Callable, class BbT>
+concept FsmCondition = requires(Callable&& fn, const BbT& bb) {
+    {
+        fn(bb)
+    } -> std::same_as<bool>;
+} && fsm::BlackboardTypeConcept<BbT>;
+
+auto Not(FsmCondition<AiBlackboard> auto&& fn)
 {
     return [fn = std::move(fn)](const AiBlackboard& bb) { return !fn(bb); };
 }
@@ -100,13 +108,34 @@ fsm::Fsm<AiBlackboard> AiEngine::createFsm(AiEngine& self, bool useNullBehavior)
             .withState("Wait") // wait for 1 frame (1 tick)
                 .exec(doNothing).andFinish()
             .done()
+        .withSubmachine("RunToFlagPole")
+            .withEntryState("SetDestinationToFlagPole")
+                .exec(BIND(setDestinationToFlagPole))
+                    .andGoToState("Run")
+            .withState("StartTimer")
+                .exec(setTimer).andGoToState("Run")
+            .withState("Run")
+                .when(Not(BIND(isThisPlayerFlagCarrier)))
+                    .finish()
+                .orWhen(BIND(isTargetLocationReached))
+                    .goToState("SetDestinationToFlagPole")
+                .orWhen(timerHit)
+                    .goToState("Shoot")
+                .otherwiseExec(gather) // moves toward target location and rotates towards it
+                    .andLoop()
+            .withState("Shoot")
+                .exec(BIND(shoot)).andGoToState("StartTimer")
+            .done()
         .withMainMachine()
             .withEntryState("ChoosingGatherLocation")
                 .when([useNullBehavior](const AiBlackboard&) { return useNullBehavior; })
                     .goToState("ChoosingGatherLocation")
                 .otherwiseExec(BIND(pickGatherLocation)).andGoToState("Gather")
             .withState("Gather")
-                .when(BIND(wasHurt)).goToState("GatheringAfterHurt")
+                .when(BIND(isThisPlayerFlagCarrier))
+                    .goToMachine("RunToFlagPole")
+                        .thenGoToState("ChoosingGatherLocation")
+                .orWhen(BIND(wasHurt)).goToState("GatheringAfterHurt")
                 .orWhen(BIND(isTargetLocationReached))
                     .goToState("ChoosingGatherLocation")
                 .orWhen(BIND(shouldSwapToLongRangeWeapon))
@@ -160,6 +189,9 @@ fsm::Fsm<AiBlackboard> AiEngine::createFsm(AiEngine& self, bool useNullBehavior)
             .withState("LockingTarget")
                 .when(BIND(isTargetEnemyDead))
                     .goToState("ChoosingGatherLocation")
+                .orWhen(BIND(isThisPlayerFlagCarrier))
+                    .goToMachine("RunToFlagPole")
+                        .thenGoToState("ChoosingGatherLocation")
                 .orWhen(BIND(isTargetEnemyOutOfView)).goToState("Pursuing")
                 .orWhen(BIND(hasNoAmmoForActiveWeapon))
                     .goToState("ComboSwapping")
