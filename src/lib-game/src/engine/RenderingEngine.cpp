@@ -31,16 +31,11 @@
     return { baseClipIndex + 4u, false };
 }
 
-[[nodiscard, msvc::intrinsic]] constexpr static auto
-spriteIdToIndex(SpriteId id) noexcept
-{
-    return static_cast<std::underlying_type_t<SpriteId>>(id);
-}
-
 RenderingEngine::RenderingEngine(
     const DisplayOptions& settings,
     const dgm::ResourceManager& resmgr,
-    Scene& scene)
+    Scene& scene,
+    const ScoreHelperForRendererInterface& scoreHelper)
     : settings(settings)
     , scene(scene)
     , tileset { .texture = resmgr
@@ -84,6 +79,7 @@ RenderingEngine::RenderingEngine(
           sf::Color::White))
     , caster(scene.level.bottomMesh.getVoxelSize())
     , depthBuffer(settings.resolution.width)
+    , scoreHelper(scoreHelper)
 {
     shader.setUniform("noise", noiseTexture);
     shader.setUniform("shadeColor", sf::Glsl::Vec4(sf::Color(0, 0, 0)));
@@ -234,6 +230,11 @@ void RenderingEngine::renderPlayerHud(
 {
     if (settings.hideHud) return;
 
+    text.setFillColor(
+        inventory.team == Team::None  ? sf::Color::White
+        : inventory.team == Team::Red ? sf::Color::Red
+                                      : sf::Color::Blue);
+
     renderHudActiveWeapon(window, player, inventory);
     renderHudForHealth(window, player);
     renderHudForArmor(window, player);
@@ -294,7 +295,7 @@ void RenderingEngine::renderHudForHealth(
     hud.sprite.setPosition(
         10.f, settings.resolution.height - 10.f - hud.sprite.getSize().y);
     hud.sprite.setTextureRect(
-        hud.clipping.getFrame(spriteIdToIndex(SpriteId::HUD_Health)));
+        hud.clipping.getFrame(std::to_underlying(SpriteId::HUD_Health)));
     window.draw(hud.sprite);
 
     text.setString(std::to_string(player.health));
@@ -312,7 +313,7 @@ void RenderingEngine::renderHudForArmor(
     hud.sprite.setPosition(
         10.f, settings.resolution.height - 10.f - hud.sprite.getSize().y * 2.f);
     hud.sprite.setTextureRect(
-        hud.clipping.getFrame(spriteIdToIndex(SpriteId::HUD_Armor)));
+        hud.clipping.getFrame(std::to_underlying(SpriteId::HUD_Armor)));
     window.draw(hud.sprite);
 
     text.setString(std::to_string(player.armor));
@@ -334,7 +335,7 @@ void RenderingEngine::renderHudForAmmo(
     auto ammoIndex = ammoTypeToAmmoIndex(
         ENTITY_PROPERTIES.at(inventory.activeWeaponType).ammoType);
     hud.sprite.setTextureRect(hud.clipping.getFrame(
-        spriteIdToIndex(SpriteId::HUD_BulletAmmo) + ammoIndex));
+        std::to_underlying(SpriteId::HUD_BulletAmmo) + ammoIndex));
     window.draw(hud.sprite);
 
     text.setString(std::to_string(inventory.ammo[ammoIndex]));
@@ -370,7 +371,7 @@ void RenderingEngine::renderHudForWeaponSelection(
                          : COLOR_PICO8_RED);
         hud.sprite.setTextureRect(hud.clipping.getFrame(
             idx
-            + spriteIdToIndex(
+            + std::to_underlying(
                 isEquipped ? SpriteId::HUD_FlaregunFilled
                            : SpriteId::HUD_FlaregunOutline)));
         window.draw(hud.sprite);
@@ -378,7 +379,7 @@ void RenderingEngine::renderHudForWeaponSelection(
         if (isSelected)
         {
             hud.sprite.setTextureRect(hud.clipping.getFrame(
-                spriteIdToIndex(SpriteId::HUD_SelectFrame)));
+                std::to_underlying(SpriteId::HUD_SelectFrame)));
             window.draw(hud.sprite);
         }
     }
@@ -389,8 +390,7 @@ void RenderingEngine::renderHudForWeaponSelection(
 void RenderingEngine::renderHudForScore(
     dgm::Window& window, const PlayerInventory& inventory)
 {
-    text.setString(std::format(
-        "{} ({:+})", inventory.score, getScoreOffset(inventory.score)));
+    text.setString(scoreHelper.getScoreString(inventory));
     text.setPosition({ 10.f, 10.f });
     window.draw(text);
 }
@@ -687,25 +687,4 @@ std::optional<std::pair<float, float>> RenderingEngine::cropSpriteIfObscured(
         movedLeftColumnBy / static_cast<float>(originalWidth),
         1.f - movedRightColumnBy / static_cast<float>(originalWidth)
     };
-}
-
-int RenderingEngine::getScoreOffset(int score) const
-{
-    int bestScore = std::numeric_limits<int>::min();
-    int secondBestScore = std::numeric_limits<int>::min();
-
-    for (const auto& state : scene.playerStates)
-    {
-        if (state.inventory.score > bestScore)
-        {
-            secondBestScore = bestScore;
-            bestScore = state.inventory.score;
-        }
-        else if (state.inventory.score > secondBestScore)
-        {
-            secondBestScore = state.inventory.score;
-        }
-    }
-
-    return score == bestScore ? score - secondBestScore : score - bestScore;
 }

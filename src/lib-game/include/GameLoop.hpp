@@ -12,8 +12,9 @@
 #include <engine/PhysicsEngine.hpp>
 #include <engine/RenderingEngine.hpp>
 #include <events/EventQueue.hpp>
+#include <factories/GameModeSpecificGameRulesFactory.hpp>
+#include <factories/ScoreHelperForRendererFactory.hpp>
 #include <ranges>
-#include <utils/GameModeSpecificGameRulesFactory.hpp>
 
 class [[nodiscard]] GameLoop final
 {
@@ -32,6 +33,8 @@ public:
         , modeSpecificRules(GameModeSpecificGameRulesFactory::
                                 createGameModeSpecificRulesEngine(
                                     gameMode, scene, eventQueue, playerNames))
+        , scoreHelperForRenderer(
+              ScoreHelperForRendererFactory::createScoreHelper(gameMode, scene))
         , aiEngine(
               scene,
               AiEngineConfig {
@@ -43,7 +46,8 @@ public:
         , audioEngine(audioPlayer, scene)
         , gameRulesEngine(scene, eventQueue, *modeSpecificRules, playerNames)
         , physicsEngine(scene, eventQueue)
-        , renderingEngine(renderSettings, *resmgr, scene)
+        , renderingEngine(
+              renderSettings, *resmgr, scene, *scoreHelperForRenderer)
     {
     }
 
@@ -51,11 +55,6 @@ public:
     void update(const float dt, const float realDt, bool skipAudio);
 
     void renderTo(dgm::Window& window);
-
-    /*const GameRulesEngine& getRulesEngine() const
-    {
-        return gameRulesEngine;
-    }*/
 
 private:
     void updateEngines(const float dt, const float realDt);
@@ -66,6 +65,7 @@ private:
     Scene& scene;
     mem::Rc<EventQueue> eventQueue;
     mem::Box<GameModeSpecificRulesEngineInterface> modeSpecificRules;
+    mem::Box<ScoreHelperForRendererInterface> scoreHelperForRenderer;
     AiEngine aiEngine;
     AnimationEngine animationEngine;
     AudioEngine audioEngine;

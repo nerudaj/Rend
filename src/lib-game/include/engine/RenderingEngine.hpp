@@ -4,6 +4,7 @@
 #include "core/Scene.hpp"
 #include "render/FpsCounter.hpp"
 #include "render/Raycaster.hpp"
+#include "render/ScoreHelperForRendererInterface.hpp"
 #include <DGM/DGM.hpp>
 #include <LevelD.hpp>
 #include <Memory.hpp>
@@ -26,7 +27,8 @@ public:
     RenderingEngine(
         const DisplayOptions& settings,
         const dgm::ResourceManager& resmgr,
-        Scene& scene);
+        Scene& scene,
+        const ScoreHelperForRendererInterface& scoreHelper);
 
 public:
     void update(const float deltaTime, const float realDelta);
@@ -96,8 +98,6 @@ private:
     std::optional<std::pair<float, float>> cropSpriteIfObscured(
         int& leftColumn, int& rightColumn, float thingDistance);
 
-    int getScoreOffset(int score) const;
-
 private:
     const DisplayOptions settings;
     Scene& scene;
@@ -112,4 +112,5 @@ private:
     Raycaster caster;
     FpsCounter fpsCounter;
     std::vector<float> depthBuffer;
+    const ScoreHelperForRendererInterface& scoreHelper;
 };
