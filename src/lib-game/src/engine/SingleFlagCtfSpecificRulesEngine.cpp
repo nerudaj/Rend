@@ -25,7 +25,7 @@ SingleFlagCtfSpecificRulesEngine::handleGreyFlagPickup(Entity& player)
     return GiveResult {
         .given = true,
         .removePickup = true,
-        .playSound = false,
+        .playSound = true,
     };
 }
 
@@ -54,7 +54,7 @@ void SingleFlagCtfSpecificRulesEngine::handleFlagDelivered(
     adjustScore(inventory, ScoringOccasion::FlagDelivered);
     swapPlayerSkinBackFromFlagCarrier(player);
     respawnAllGreyFlags();
-    // TODO: play sound
+    triggerFlagScoredSoundForEverybody();
     displayGlobalScoreMessage(player.stateIdx);
 }
 
@@ -118,4 +118,14 @@ void SingleFlagCtfSpecificRulesEngine::displayGlobalScoreMessage(
 
     scene.playerStates[scoringPlayerStateIdx].renderContext.message =
         HudMessage(Strings::Game::YOU_SCORED);
+}
+
+void SingleFlagCtfSpecificRulesEngine::triggerFlagScoredSoundForEverybody()
+{
+    for (const auto&& stateIdx :
+         std::views::iota(0u, scene.playerStates.size()))
+    {
+        eventQueue->emplace<SoundTriggeredAudioEvent>(
+            "flag_score.wav", stateIdx);
+    }
 }
