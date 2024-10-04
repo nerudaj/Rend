@@ -129,3 +129,4 @@ void SingleFlagCtfSpecificRulesEngine::triggerFlagScoredSoundForEverybody()
             "flag_score.wav", stateIdx);
     }
 }
+
