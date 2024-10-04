@@ -82,7 +82,7 @@ void SingleFlagCtfSpecificRulesEngine::respawnAllGreyFlags()
     for (const auto& flagSpawnPosition : scene.greyFlagSpawns)
     {
         scene.markers.emplaceBack(MarkerItemRespawner {
-            .timeout = 3_seconds,
+            .timeout = 5_seconds,
             .pickupType = EntityType::GreyFlag,
             .position = flagSpawnPosition,
         });
