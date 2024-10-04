@@ -54,7 +54,7 @@ void SingleFlagCtfSpecificRulesEngine::handleFlagDelivered(
     adjustScore(inventory, ScoringOccasion::FlagDelivered);
     swapPlayerSkinBackFromFlagCarrier(player);
     respawnAllGreyFlags();
-    triggerFlagScoredSoundForEverybody();
+    triggerFlagScoredSoundForEverybody(inventory.team);
     displayGlobalScoreMessage(player.stateIdx);
 }
 
@@ -112,19 +112,23 @@ void SingleFlagCtfSpecificRulesEngine::displayGlobalScoreMessage(
     for (auto&& [idx, state] : std::views::enumerate(scene.playerStates))
     {
         state.renderContext.message = HudMessage(std::vformat(
-            Strings::Game::XY_SCORED, std::make_format_args(playerNames[idx])));
+            Strings::Game::XY_SCORED,
+            std::make_format_args(playerNames[scoringPlayerStateIdx])));
     }
 
     scene.playerStates[scoringPlayerStateIdx].renderContext.message =
         HudMessage(Strings::Game::YOU_SCORED);
 }
 
-void SingleFlagCtfSpecificRulesEngine::triggerFlagScoredSoundForEverybody()
+void SingleFlagCtfSpecificRulesEngine::triggerFlagScoredSoundForEverybody(
+    Team scoringTeam)
 {
     for (const auto&& stateIdx :
          std::views::iota(0u, scene.playerStates.size()))
     {
         eventQueue->emplace<SoundTriggeredAudioEvent>(
-            "flag_score.wav", stateIdx);
+            scoringTeam == Team::Red ? "red_team_scored.wav"
+                                     : "blue_team_scored.wav",
+            stateIdx);
     }
 }

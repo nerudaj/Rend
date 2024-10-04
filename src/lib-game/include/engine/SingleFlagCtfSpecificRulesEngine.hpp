@@ -43,7 +43,7 @@ private:
 
     void displayGlobalScoreMessage(PlayerStateIndexType scoringPlayerStateIdx);
 
-    void triggerFlagScoredSoundForEverybody();
+    void triggerFlagScoredSoundForEverybody(Team scoringTeam);
 
 private:
     Scene& scene;
