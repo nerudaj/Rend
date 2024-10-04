@@ -60,8 +60,7 @@ void SingleFlagCtfSpecificRulesEngine::handleFlagDelivered(
 
 void SingleFlagCtfSpecificRulesEngine::handlePlayerDied(const Entity& player)
 {
-    if (player.typeId == EntityType::CarrierRedPlayer
-        || player.typeId == EntityType::CarrierBluePlayer)
+    if (isFlagCarrier(player.typeId))
     {
         scene.things.emplaceBack(SceneBuilder::createPickup(
             EntityType::GreyFlag, Position { player.hitbox.getPosition() }));
@@ -129,4 +128,3 @@ void SingleFlagCtfSpecificRulesEngine::triggerFlagScoredSoundForEverybody()
             "flag_score.wav", stateIdx);
     }
 }
-

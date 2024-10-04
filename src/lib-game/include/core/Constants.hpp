@@ -103,13 +103,18 @@ ammoTypeToPickupType(AmmoType type) noexcept
         + static_cast<std::size_t>(EntityType::PickupBullets));
 }
 
-[[nodiscard]] constexpr static bool isPlayer(EntityType entityType)
+[[nodiscard]] constexpr static bool
+isFlagCarrier(EntityType entityType) noexcept
+{
+    return entityType == EntityType::CarrierRedPlayer
+           || entityType == EntityType::CarrierBluePlayer;
+}
+
+[[nodiscard]] constexpr static bool isPlayer(EntityType entityType) noexcept
 {
     return entityType == EntityType::Player
            || entityType == EntityType::RedPlayer
-           || entityType == EntityType::BluePlayer
-           || entityType == EntityType::CarrierRedPlayer
-           || entityType == EntityType::CarrierBluePlayer;
+           || entityType == EntityType::BluePlayer || isFlagCarrier(entityType);
 }
 
 // Other

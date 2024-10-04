@@ -242,6 +242,8 @@ void RenderingEngine::renderPlayerHud(
     renderHudForWeaponSelection(window, inventory);
     renderHudForScore(window, inventory);
     renderHudForCrosshair(window);
+
+    if (isFlagCarrier(player.typeId)) renderHudForFlagCarrier(window);
 }
 
 void RenderingEngine::renderHudActiveWeapon(
@@ -427,6 +429,16 @@ void RenderingEngine::renderHudForCrosshair(dgm::Window& window)
         settings.resolution.width / 2.f - bounds.width / 2.f,
         settings.resolution.height / 2.f - bounds.height / 2.f);
     window.draw(text);
+}
+
+void RenderingEngine::renderHudForFlagCarrier(dgm::Window& window)
+{
+    hud.sprite.setPosition(
+        settings.resolution.width - 10.f - hud.sprite.getSize().x,
+        settings.resolution.height - 10.f - hud.sprite.getSize().y * 2.f);
+    hud.sprite.setTextureRect(
+        hud.clipping.getFrame(std::to_underlying(SpriteId::HUD_Flag)));
+    window.draw(hud.sprite);
 }
 
 void RenderingEngine::renderRespawnPrompt(dgm::Window& window)
