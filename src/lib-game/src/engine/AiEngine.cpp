@@ -69,7 +69,7 @@ bool AiEngine::isAnyEnemyVisible(const AiBlackboard& blackboard) const noexcept
         [&](const PlayerState& state)
         {
             if (state.inventory.ownerIdx == inventory.ownerIdx
-                || state.inventory.team == inventory.team
+                || isSameTeam(state.inventory.team, inventory.team)
                 || !isPlayerAlive(state.inventory.ownerIdx))
                 return false;
 
@@ -172,7 +172,7 @@ void AiEngine::pickTargetEnemy(AiBlackboard& blackboard) noexcept
         if (state.inventory.ownerIdx == inventory.ownerIdx) continue;
 
         // Don't consider teammates as enemies
-        if (state.inventory.team == inventory.team) continue;
+        if (isSameTeam(state.inventory.team, inventory.team)) continue;
 
         if (!scene.things.isIndexValid(state.inventory.ownerIdx)
             || !isPlayer(scene.things[state.inventory.ownerIdx].typeId))

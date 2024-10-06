@@ -202,6 +202,11 @@ private: // Utility predicates
                && isPlayer(scene.things[idx].typeId);
     }
 
+    [[nodiscard]] static constexpr bool isSameTeam(Team a, Team b) noexcept
+    {
+        return a != Team::None && a == b;
+    }
+
     [[nodiscard]] constexpr bool
     hasLongRangeWeapon(const PlayerInventory& inventory) const noexcept
     {
