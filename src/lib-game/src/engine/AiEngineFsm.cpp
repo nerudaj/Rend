@@ -3,8 +3,8 @@
 #include <fsm/exports/MermaidExporter.hpp>
 #include <limits>
 
-#define BIND(f) std::bind(&AiEngine::f, &self, std::placeholders::_1)
 #define CBND(f) [&self](const AiBlackboard& bb) { return self.f(bb); }
+#define BND(f) [&self](AiBlackboard& bb) { self.f(bb); }
 
 AiEngine::AiEngine(Scene& scene, const AiEngineConfig& config)
     : scene(scene)
@@ -30,8 +30,8 @@ auto Not(FsmCondition<AiBlackboard> auto&& fn)
 
 fsm::Fsm<AiBlackboard> AiEngine::createFsm(AiEngine& self, bool useNullBehavior)
 {
-    auto isThisPlayerDead = Not(BIND(isThisPlayerAlive));
-    auto shouldRequestRespawn = [&self](const AiBlackboard& bb)
+    auto isThisPlayerDead = Not(CBND(isThisPlayerAlive));
+    auto canRequestRespawn = [&self](const AiBlackboard& bb)
     { return self.scene.tick % (bb.playerStateIdx + 1) == 0; };
     auto doNothing = [](AiBlackboard&) {};
     auto bootstrapAlive = [](auto& b)
@@ -44,14 +44,14 @@ fsm::Fsm<AiBlackboard> AiEngine::createFsm(AiEngine& self, bool useNullBehavior)
     {
         self.moveTowardTargetLocation(blackboard);
         self.rotateTowardTargetLocation(blackboard);
-        blackboard.lastHealth = self.getPlayer(blackboard).health;
+        self.noteCurrentHealth(blackboard);
     };
 
     auto gatherWhileHurt = [&self](AiBlackboard& blackboard)
     {
         self.moveTowardTargetLocation(blackboard);
         blackboard.input->setSteer(-1.f * AI_TURN_SPEED_MULTIPLIER);
-        blackboard.lastHealth = self.getPlayer(blackboard).health;
+        self.noteCurrentHealth(blackboard);
     };
 
     auto setTimer = [](AiBlackboard& bb)
@@ -74,72 +74,72 @@ fsm::Fsm<AiBlackboard> AiEngine::createFsm(AiEngine& self, bool useNullBehavior)
     auto canShootTarget = [&self](const AiBlackboard& bb)
     { return self.isTargetEnemyInReticle(bb) && self.canShoot(bb); };
 
-    auto noEnemyIsVisible = Not(BIND(isAnyEnemyVisible));
+    auto noEnemyIsVisible = Not(CBND(isAnyEnemyVisible));
 
     // clang-format off
     return fsm::Builder<AiBlackboard>()
         .withErrorMachine()
             .useGlobalEntryCondition(isThisPlayerDead)
             .withEntryState("Dead")
-                .when(shouldRequestRespawn).goToState("RequestRespawn")
+                .when(canRequestRespawn).goToState("RequestRespawn")
                 .otherwiseExec(doNothing).andLoop()
             .withState("RequestRespawn")
                 // respawning is done through fire key
-                .exec(BIND(shoot)).andGoToState("WaitingForRespawn")
+                .exec(BND(shoot)).andGoToState("WaitingForRespawn")
             .withState("WaitingForRespawn")
-                .when(BIND(isThisPlayerAlive)).goToState("BootstrapAlive")
+                .when(CBND(isThisPlayerAlive)).goToState("BootstrapAlive")
                 .otherwiseExec(doNothing).andLoop()
             .withState("BootstrapAlive")
                 .exec(bootstrapAlive).andRestart()
             .done()
         .withSubmachine("WaitForRaiseAnimation")
             .withEntryState("Wait")
-                .when(BIND(hasEnteredWeaponRaise)).finish()
+                .when(CBND(hasEnteredWeaponRaise)).finish()
                 .otherwiseExec(doNothing).andLoop()
             .done()
         .withSubmachine("PerformComboSwap")
             .withEntryState("Swap")
-                .exec(BIND(performComboSwap))
+                .exec(BND(performComboSwap))
                     .andGoToMachine("WaitForRaiseAnimation")
                         .thenFinish()
             .done()
         .withSubmachine("Shoot")
             .withEntryState("Shoot")
-                .exec(BIND(shoot)).andGoToState("Wait")
+                .exec(BND(shoot)).andGoToState("Wait")
             .withState("Wait") // wait for 1 frame (1 tick)
                 .exec(doNothing).andFinish()
             .done()
         .withSubmachine("RunToFlagPole")
             .withEntryState("SetDestinationToFlagPole")
-                .exec(BIND(setDestinationToFlagPole))
+                .exec(BND(setDestinationToFlagPole))
                     .andGoToState("Run")
             .withState("StartTimer")
                 .exec(setTimer).andGoToState("Run")
             .withState("Run")
-                .when(Not(BIND(isThisPlayerFlagCarrier)))
+                .when(Not(CBND(isThisPlayerFlagCarrier)))
                     .finish()
-                .orWhen(BIND(isTargetLocationReached))
+                .orWhen(CBND(isTargetLocationReached))
                     .goToState("SetDestinationToFlagPole")
                 .orWhen(timerHit)
                     .goToState("Shoot")
                 .otherwiseExec(gather) // moves toward target location and rotates towards it
                     .andLoop()
             .withState("Shoot")
-                .exec(BIND(shoot)).andGoToState("StartTimer")
+                .exec(BND(shoot)).andGoToState("StartTimer")
             .done()
         .withSubmachine("SwapToSelectedWeapon")
             .withEntryState("CyclingInventory")
-                .when(BIND(isActiveWeaponFlaregunAndLastSomethingElse))
+                .when(CBND(isActiveWeaponFlaregunAndLastSomethingElse))
                     .goToMachine("PerformComboSwap")
                         .thenGoToState("CyclingInventory")
-                .orWhen(BIND(isTargetWeaponHighlightedInInventory))
+                .orWhen(CBND(isTargetWeaponHighlightedInInventory))
                     .goToState("WeaponSwapping")
-                .otherwiseExec(BIND(selectNextWeapon))
+                .otherwiseExec(BND(selectNextWeapon))
                     .andGoToState("CyclingWaitingForOneFrame")
             .withState("CyclingWaitingForOneFrame")
                 .exec(doNothing).andGoToState("CyclingInventory")
             .withState("WeaponSwapping")
-                .exec(BIND(shoot)) // confirming with fire button
+                .exec(BND(shoot)) // confirming with fire button
                     .andGoToMachine("WaitForRaiseAnimation")
                         .thenFinish()
             .done()
@@ -147,37 +147,37 @@ fsm::Fsm<AiBlackboard> AiEngine::createFsm(AiEngine& self, bool useNullBehavior)
             .withEntryState("ChoosingGatherLocation")
                 .when([useNullBehavior](const AiBlackboard&) { return useNullBehavior; })
                     .goToState("ChoosingGatherLocation")
-                .otherwiseExec(BIND(pickGatherLocation)).andGoToState("Gather")
+                .otherwiseExec(BND(pickGatherLocation)).andGoToState("Gather")
             .withState("Gather")
-                .when(BIND(isThisPlayerFlagCarrier))
+                .when(CBND(isThisPlayerFlagCarrier))
                     .goToMachine("RunToFlagPole")
                         .thenGoToState("ChoosingGatherLocation")
-                .orWhen(BIND(wasHurt)).goToState("GatheringAfterHurt")
-                .orWhen(BIND(isTargetLocationReached))
+                .orWhen(CBND(wasHurt)).goToState("GatheringAfterHurt")
+                .orWhen(CBND(isTargetLocationReached))
                     .goToState("ChoosingGatherLocation")
-                .orWhen(BIND(shouldSwapToLongRangeWeapon))
+                .orWhen(CBND(shouldSwapToLongRangeWeapon))
                     .goToState("PickingLongRangeWeaponForSwap")
-                .orWhen(BIND(shouldSwapToShortRangeWeapon))
+                .orWhen(CBND(shouldSwapToShortRangeWeapon))
                     .goToState("PickingShortRangeWeaponForSwap")
-                .orWhen(BIND(isAnyEnemyVisible))
+                .orWhen(CBND(isAnyEnemyVisible))
                     .goToState("StartTargettingTimer")
                 .otherwiseExec(gather).andLoop()
             .withState("GatheringAfterHurt")
-                .when(BIND(isTargetLocationReached))
+                .when(CBND(isTargetLocationReached))
                     .goToState("ChoosingGatherLocation")
-                .orWhen(BIND(isAnyEnemyVisible))
+                .orWhen(CBND(isAnyEnemyVisible))
                     .goToState("StartTargettingTimer")
                 .otherwiseExec(gatherWhileHurt).andLoop()
             .withState("PickingLongRangeWeaponForSwap")
-                .exec(BIND(pickTargetLongRangeWeapon))
+                .exec(BND(pickTargetLongRangeWeapon))
                     .andGoToMachine("SwapToSelectedWeapon")
                         .thenGoToState("ChoosingGatherLocation")
             .withState("PickingShortRangeWeaponForSwap")
-                .exec(BIND(pickTargetShortRangeWeapon))
+                .exec(BND(pickTargetShortRangeWeapon))
                     .andGoToMachine("SwapToSelectedWeapon")
                         .thenGoToState("ChoosingGatherLocation")
             .withState("ComboSwapping")
-                .exec(BIND(performComboSwap))
+                .exec(BND(performComboSwap))
                     .andGoToMachine("WaitForRaiseAnimation")
                         .thenGoToState("LockingTarget")
             .withState("StartTargettingTimer")
@@ -189,24 +189,24 @@ fsm::Fsm<AiBlackboard> AiEngine::createFsm(AiEngine& self, bool useNullBehavior)
             .withState("PickingTargetEnemy")
                 .when(noEnemyIsVisible)
                     .goToState("ChoosingGatherLocation")
-                .otherwiseExec(BIND(pickTargetEnemy))
+                .otherwiseExec(BND(pickTargetEnemy))
                     .andGoToState("LockingTarget")
             .withState("LockingTarget")
-                .when(BIND(isTargetEnemyDead))
+                .when(CBND(isTargetEnemyDead))
                     .goToState("ChoosingGatherLocation")
-                .orWhen(BIND(isThisPlayerFlagCarrier))
+                .orWhen(CBND(isThisPlayerFlagCarrier))
                     .goToMachine("RunToFlagPole")
                         .thenGoToState("ChoosingGatherLocation")
-                .orWhen(BIND(isTargetEnemyOutOfView)).goToState("Pursuing")
-                .orWhen(BIND(hasNoAmmoForActiveWeapon))
+                .orWhen(CBND(isTargetEnemyOutOfView)).goToState("Pursuing")
+                .orWhen(CBND(hasNoAmmoForActiveWeapon))
                     .goToState("ComboSwapping")
                 .orWhen(canShootTarget)
                     .goToMachine("Shoot")
                         .thenGoToState("LockingTarget")
                 .otherwiseExec(hunt).andLoop()
             .withState("Pursuing")
-                .when(BIND(isAnyEnemyVisible)).goToState("PickingTargetEnemy")
-                .orWhen(BIND(isTargetLocationReached))
+                .when(CBND(isAnyEnemyVisible)).goToState("PickingTargetEnemy")
+                .orWhen(CBND(isTargetLocationReached))
                     .goToState("ChoosingGatherLocation")
                 .otherwiseExec(gather).andLoop()
             .done()
@@ -215,4 +215,4 @@ fsm::Fsm<AiBlackboard> AiEngine::createFsm(AiEngine& self, bool useNullBehavior)
     // clang-format on
 }
 
-#undef BIND
+#undef BND

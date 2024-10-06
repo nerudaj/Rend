@@ -194,6 +194,11 @@ private: // FSM actions
 
     void setDestinationToFlagPole(AiBlackboard& blackboard);
 
+    inline void noteCurrentHealth(AiBlackboard& blackboard) const noexcept
+    {
+        blackboard.lastHealth = getPlayer(blackboard).health;
+    }
+
 private: // Utility predicates
     [[nodiscard]] constexpr bool
     isPlayerAlive(EntityIndexType idx) const noexcept
