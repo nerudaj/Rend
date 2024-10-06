@@ -311,7 +311,7 @@ const Spawn& GameRulesEngine::getBestSpawn(Team team) const noexcept
                     spawn.position, scene.things[index].hitbox.getPosition()));
         }
 
-        if (bestDistance < minDistance)
+        if (bestDistance <= minDistance)
         {
             bestDistance = minDistance;
             bestSpawnIdx = idx;

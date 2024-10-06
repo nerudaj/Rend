@@ -420,7 +420,7 @@ const static inline auto ENTITY_PROPERTIES =
           EntityProperties {
               .radius = 4_px,
               .traits = Trait::Pickable,
-              .specialSound = "pickup.wav",
+              .specialSound = "flag_pickup.wav",
               .initialSpriteIndex = FlagA,
               .states = { { AnimationStateId::Idle,
                             AnimationState {

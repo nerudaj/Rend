@@ -254,6 +254,7 @@ enum class SpriteId : std::uint8_t
     HUD_ShellAmmo,
     HUD_EnergyAmmo,
     HUD_RocketAmmo,
+    HUD_Flag,
     HUD_FlaregunOutline,
     HUD_ShotgunOutline,
     HUD_TrishotOutline,

@@ -1,5 +1,5 @@
 set ( DGM_LIB_VERSION     "2.3.1" )
-set ( FSM_LIB_VERSION     "2.0.0" )
+set ( FSM_LIB_VERSION     "2.1.0" )
 set ( DSH_VERSION         "1.7.2" )
 set ( SFML_VERSION        "2.6.1" )
 set ( TGUI_VERSION        "1.1.0" )

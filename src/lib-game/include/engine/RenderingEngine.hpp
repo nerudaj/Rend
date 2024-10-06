@@ -60,6 +60,8 @@ private:
     void
     renderHudMessage(dgm::Window& window, const RenderContext& renderContext);
     void renderHudForCrosshair(dgm::Window& window);
+    void renderHudForFlagCarrier(dgm::Window& window);
+
     void renderRespawnPrompt(dgm::Window& window);
 
     void renderLevelMesh(

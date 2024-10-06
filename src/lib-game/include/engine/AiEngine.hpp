@@ -194,12 +194,22 @@ private: // FSM actions
 
     void setDestinationToFlagPole(AiBlackboard& blackboard);
 
+    inline void noteCurrentHealth(AiBlackboard& blackboard) const noexcept
+    {
+        blackboard.lastHealth = getPlayer(blackboard).health;
+    }
+
 private: // Utility predicates
     [[nodiscard]] constexpr bool
     isPlayerAlive(EntityIndexType idx) const noexcept
     {
         return scene.things.isIndexValid(idx)
                && isPlayer(scene.things[idx].typeId);
+    }
+
+    [[nodiscard]] static constexpr bool isSameTeam(Team a, Team b) noexcept
+    {
+        return a != Team::None && a == b;
     }
 
     [[nodiscard]] constexpr bool

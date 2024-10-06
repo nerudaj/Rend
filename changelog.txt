@@ -1,3 +1,15 @@
+Rend 0.9.0 changelog:
+
+Gameplay:
+* Added a new game mode - Single-flag CTF
+	* Bots can play CTF in teams
+	* New map type is available in the editor
+* Added new CTF map: "CTF Garden"
+	* Can be played in both 1:1 and 2:2
+
+Misc:
+* Underlying AI framework updated to version 2.1.0
+
 Rend 0.8.0 changelog:
 
 Gameplay:
