@@ -81,7 +81,7 @@ tgui::Panel::Ptr AppStateScoreTable::buildTable() const
 
     for (auto&& score : getOrderedScores(scores, gameSettings))
     {
-        const auto peerState = score.playerIdx > clientData.size()
+        const auto peerState = score.playerIdx < clientData.size()
                                    ? clientData[score.playerIdx].state
                                    : ClientState::ConnectedAndReady;
         tableBuilder.addRow({ score.name,
