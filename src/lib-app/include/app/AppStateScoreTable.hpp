@@ -28,6 +28,7 @@ public:
     {
         buildLayout();
         dic->jukebox->playInterludeSong();
+        dic->logger->ifError(0, "sendHeartbeat", client->sendHeartbeat());
     }
 
 public:

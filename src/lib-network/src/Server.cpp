@@ -192,6 +192,8 @@ ExpectedLog Server::handleMessage(
         return handleReportedInput(message);
     case MapDownloadRequest:
         return handleMapDownloadRequest(address, port, message);
+    case Heartbeat:
+        return handleHeartbeat(address, port);
     case Disconnect:
         return handleDisconnection(address, port);
     default:
@@ -446,6 +448,14 @@ ExpectedLog Server::handleLobbySettingsUpdate(
         "Processed lobby update from client {}, json {}",
         message.clientId,
         message.jsonData);
+}
+
+ExpectedLog
+Server::handleHeartbeat(const sf::IpAddress& address, unsigned short port)
+{
+    CHECK_REGISTRATION(address, port);
+    return std::format(
+        "Received heartbeat from client {}:{}", address.toString(), port);
 }
 
 ExpectedLog
