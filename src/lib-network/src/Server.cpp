@@ -341,7 +341,7 @@ ExpectedLog Server::handleReportedInput(const ClientMessage& message)
         message.tick,
         message.jsonData);
 #else
-    return std::format("");
+    return std::format("Processed input from client {}, tick {}");
 #endif
 }
 

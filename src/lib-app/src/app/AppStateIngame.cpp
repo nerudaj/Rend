@@ -76,9 +76,9 @@ void AppStateIngame::input()
 {
     tickToRollbackTo = stateManager.getLastInsertedTick();
     auto&& result = client->readPacketsUntil(
-        std::bind(
-            &AppStateIngame::handleNetworkUpdate, this, std::placeholders::_1),
-        std::bind(&AppStateIngame::isFrameConfirmed, this));
+        [&](auto data) { handleNetworkUpdate(data); },
+        [&] { return isFrameConfirmed(); });
+
     if (!result)
     {
         dic->logger->error(
@@ -337,6 +337,8 @@ void AppStateIngame::evaluateWinCondition()
 {
     if (isPointLimitReached(scene))
     {
+        dic->logger->log(lastTick, "Point limit has been reached");
+
         if (hasFocus)
         {
             unlockMouse();
