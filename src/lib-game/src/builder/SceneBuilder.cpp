@@ -295,6 +295,13 @@ Scene SceneBuilder::buildScene(const LevelD& level, size_t maxPlayerCount)
     };
 }
 
+static [[nodiscard]] constexpr EntityType teamToEntity(Team team)
+{
+    return team == Team::None  ? EntityType::Player
+           : team == Team::Red ? EntityType::RedPlayer
+                               : EntityType::BluePlayer;
+}
+
 Entity SceneBuilder::createPlayer(
     const Position& position,
     const Direction& lookDirection,
@@ -304,11 +311,7 @@ Entity SceneBuilder::createPlayer(
     const auto& eprops = ENTITY_PROPERTIES.at(EntityType::Player);
 
     return Entity {
-        .typeId = team == Team::None
-        ? EntityType::Player
-        : team == Team::Red
-            ? EntityType::RedPlayer
-            : EntityType::BluePlayer,
+        .typeId = teamToEntity(team),
         .animationContext = {
             eprops.initialSpriteIndex,
         },

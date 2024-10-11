@@ -200,7 +200,7 @@ void AppStateIngame::handleNetworkUpdate(const ServerUpdateData& update)
                 lastTick,
                 "Client {} named {} is disconnected",
                 clientIdx,
-                clientData.name);
+                clientData.userOpts.name);
         }
     }
 
@@ -341,13 +341,7 @@ void AppStateIngame::evaluateWinCondition()
         {
             unlockMouse();
             app.pushState<AppStateWinnerAnnounced>(
-                dic,
-                client,
-                gameSettings,
-                scene.playerStates
-                    | std::views::transform([](const PlayerState& state)
-                                            { return state.inventory.score; })
-                    | std::ranges::to<std::vector<int>>());
+                dic, client, gameSettings, scene);
         }
         else
         {
@@ -396,27 +390,32 @@ void AppStateIngame::unlockMouse()
 
 void AppStateIngame::createPlayers()
 {
-    for (PlayerStateIndexType idx = 0; idx < gameSettings.players.size(); ++idx)
+    for (const auto&& [idx, playerSettings] :
+         std::views::enumerate(gameSettings.players))
     {
         scene.markers.emplaceBack(MarkerDeadPlayer {
-            .rebindCamera = gameSettings.players[idx].bindCamera,
-            .stateIdx = idx });
+            .rebindCamera = playerSettings.bindCamera,
+            .stateIdx = static_cast<size_t>(idx),
+        });
 
-        scene.playerStates.push_back(PlayerState {});
-        scene.playerStates.back().inventory =
-            SceneBuilder::getDefaultInventory(idx, 0, getTeamBelonging(idx));
+        scene.playerStates.push_back(PlayerState {
+            .inventory = SceneBuilder::getDefaultInventory(
+                idx, 0, getTeamBelonging(playerSettings.team)),
+            .blackboard =
+                playerSettings.kind == PlayerKind::LocalNpc
+                    ? std::optional<AiBlackboard> { {
+                        .input = inputs[idx].castTo<AiController>(),
+                        .personality = static_cast<AiPersonality>(idx),
+                        .playerStateIdx = static_cast<size_t>(idx),
+                    } }
+                    : std::nullopt,
+            .autoswapOnPickup = playerSettings.kind == PlayerKind::LocalNpc
+                                    ? false
+                                    : playerSettings.autoswapOnPickup,
+            .playerSkin = playerSettings.team,
+        });
 
-        if (gameSettings.players[idx].bindCamera) scene.camera.anchorIdx = idx;
-        if (gameSettings.players[idx].kind == PlayerKind::LocalNpc)
-            scene.playerStates[idx].blackboard =
-                AiBlackboard { .input = inputs[idx].castTo<AiController>(),
-                               .personality = static_cast<AiPersonality>(idx),
-                               .playerStateIdx = idx };
-        else if (gameSettings.players[idx].kind != PlayerKind::LocalNpc)
-        {
-            scene.playerStates.back().autoswapOnPickup =
-                gameSettings.players[idx].autoswapOnPickup;
-        }
+        if (playerSettings.bindCamera) scene.camera.anchorIdx = idx;
     }
 }
 
@@ -449,11 +448,8 @@ mem::Box<GameLoop> AppStateIngame::createGameLoop()
         dic->settings->cmdSettings);
 }
 
-Team AppStateIngame::getTeamBelonging(PlayerStateIndexType idx)
+Team AppStateIngame::getTeamBelonging(Team teamPreference)
 {
-    if (gameSettings.gameMode == GameMode::SingleFlagCtf)
-    {
-        return idx % 2 == 0 ? Team::Red : Team::Blue;
-    }
-    return Team::None;
+    return gameSettings.gameMode == GameMode::SingleFlagCtf ? teamPreference
+                                                            : Team::None;
 }

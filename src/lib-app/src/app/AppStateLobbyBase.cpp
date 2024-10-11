@@ -18,9 +18,9 @@ AppStateLobbyBase::AppStateLobbyBase(
     : dgm::AppState(app)
     , dic(dic)
     , client(client)
-    , myPeerData(ClientData { .name = dic->settings->player.name,
-                              .hasAutoswapOnPickup =
-                                  dic->settings->player.autoswapOnPickup })
+    , myPeerData(ClientData {
+          .userOpts = dic->settings->player,
+      })
     , lobbySettings(LobbySettings {
           .pointlimit = static_cast<int>(dic->settings->cmdSettings.pointlimit),
           .maxNpcs = dic->settings->cmdSettings.maxNpcs })
@@ -91,7 +91,8 @@ void AppStateLobbyBase::startGame()
         dic,
         client,
         GameOptions {
-            .players = createPlayerSettings(),
+            .players = createPlayerSettings(
+                lobbySettings.gameMode == GameMode::SingleFlagCtf),
             .gameMode = lobbySettings.gameMode,
             .pointlimit = static_cast<unsigned>(lobbySettings.pointlimit),
         },
@@ -99,7 +100,8 @@ void AppStateLobbyBase::startGame()
         maplist);
 }
 
-std::vector<PlayerOptions> AppStateLobbyBase::createPlayerSettings()
+std::vector<PlayerOptions>
+AppStateLobbyBase::createPlayerSettings(bool isTeamGameMode)
 {
     auto&& playerOptions = std::vector<PlayerOptions>();
     for (auto&& [idx, connectedPeer] : std::views::enumerate(connectedPeers))
@@ -108,8 +110,10 @@ std::vector<PlayerOptions> AppStateLobbyBase::createPlayerSettings()
             .kind = idx == client->getMyIndex() ? PlayerKind::LocalHuman
                                                 : PlayerKind::RemoteHuman,
             .bindCamera = idx == client->getMyIndex(),
-            .name = connectedPeer.name,
-            .autoswapOnPickup = connectedPeer.hasAutoswapOnPickup });
+            .name = connectedPeer.userOpts.name,
+            .autoswapOnPickup = connectedPeer.userOpts.autoswapOnPickup,
+            .team = connectedPeer.userOpts.prefferedTeam,
+        });
     }
 
     const auto&& NPC_NAMES = std::vector<std::string> {
@@ -124,8 +128,13 @@ std::vector<PlayerOptions> AppStateLobbyBase::createPlayerSettings()
             .kind = PlayerKind::LocalNpc,
             .bindCamera = false,
             .name = NPC_NAMES.at(idx),
+            .team = static_cast<Team>(idx),
         });
     }
+
+    playerOptions.resize(4);
+
+    if (isTeamGameMode) adjustTeams(playerOptions);
 
     return playerOptions;
 }
@@ -177,9 +186,7 @@ void AppStateLobbyBase::buildLayoutPlayerSetup(tgui::Panel::Ptr target)
         false,
         [&]
         {
-            myPeerData.name = dic->settings->player.name;
-            myPeerData.hasAutoswapOnPickup =
-                dic->settings->player.autoswapOnPickup;
+            myPeerData.userOpts = dic->settings->player;
             client->sendPeerSettingsUpdate(myPeerData);
         });
     target->add(formBuilder.build(PANEL_BACKGROUND_COLOR));
@@ -189,7 +196,7 @@ void AppStateLobbyBase::buildLayoutPlayerTable(tgui::Panel::Ptr target)
 {
     auto&& table = TableBuilder().withNoHeading();
     for (auto&& peer : connectedPeers)
-        table.addRow({ peer.name, clientStateToString(peer.state) });
+        table.addRow({ peer.userOpts.name, clientStateToString(peer.state) });
 
     target->add(table.build());
 }
@@ -242,5 +249,34 @@ void AppStateLobbyBase::checkMapAvailability()
     if (!mapsToDownload.empty())
     {
         client->requestMapDownload(lobbySettings.packname, mapsToDownload);
+    }
+}
+
+void AppStateLobbyBase::adjustTeams(std::vector<PlayerOptions>& playerOptions)
+{
+    int sum = 0;
+    for (const auto& opt : playerOptions)
+    {
+        if (opt.team == Team::Red)
+            --sum;
+        else if (opt.team == Team::Blue)
+            ++sum;
+    }
+
+    for (auto&& [idx, playerOpts] : std::views::enumerate(playerOptions))
+    {
+        if ((sum < -1 && playerOpts.team == Team::Red)
+            || (playerOpts.team == Team::None && sum <= 0))
+        {
+            sum += playerOpts.team == Team::None ? 1 : 2;
+            playerOpts.team = Team::Blue;
+        }
+        else if (
+            (sum > 1 && playerOpts.team == Team::Blue)
+            || (playerOpts.team == Team::None && sum > 0))
+        {
+            sum -= playerOpts.team == Team::None ? 1 : 2;
+            playerOpts.team = Team::Red;
+        }
     }
 }

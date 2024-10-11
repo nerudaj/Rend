@@ -18,13 +18,13 @@ public:
         mem::Rc<DependencyContainer> dic,
         mem::Rc<Client> client,
         const GameOptions& gameSettings,
-        dgm::UniversalReference<std::vector<int>> auto&& scores)
+        const Scene& scene)
         : dgm::AppState(
             app, dgm::AppStateConfig { .shouldDrawUnderlyingState = true })
         , dic(dic)
         , client(client)
         , gameSettings(gameSettings)
-        , scores(std::forward<decltype(scores)>(scores))
+        , scene(scene)
     {
         buildLayout();
     }
@@ -44,10 +44,16 @@ private:
 
     void restoreFocusImpl(const std::string& message) override;
 
+    [[nodiscard]] std::string getSoloWinnerString() const;
+
+    [[nodiscard]] std::string getTeamWinnerString() const;
+
+    [[nodiscard]] PlayerStateIndexType getWinnerIndex() const;
+
 private:
     mem::Rc<DependencyContainer> dic;
     mem::Rc<Client> client;
     GameOptions gameSettings;
-    std::vector<int> scores;
+    const Scene& scene;
     float transitionTimeout = 3_seconds;
 };

@@ -14,30 +14,17 @@ public:
     }
 
 public:
-    [[nodiscard]] std::string
-    getScoreString(const PlayerInventory& inventory) const
+    struct [[nodiscard]] TeamScores final
     {
-        const auto myTeamScore = getScoreForTeam(inventory.team);
-        return std::format(
-            "{} ({:+})",
-            myTeamScore,
-            myTeamScore
-                - getScoreForTeam(
-                    inventory.team == Team::Red ? Team::Blue : Team::Red));
-    }
+        int redScore = 0;
+        int blueScore = 0;
+    };
 
-private:
-    constexpr [[nodiscard]] int getScoreForTeam(Team team) const noexcept
-    {
-        int acc = 0;
-        for (size_t i = (team == Team::Red ? 0 : 1);
-             i < scene.playerStates.size();
-             i += 2) // iterate only over members of the same team
-        {
-            acc += scene.playerStates[i].inventory.score;
-        }
-        return acc;
-    }
+public:
+    [[nodiscard]] std::string
+    getScoreString(const PlayerInventory& inventory) const;
+
+    [[nodiscard]] TeamScores getTeamScores() const noexcept;
 
 private:
     const Scene& scene;

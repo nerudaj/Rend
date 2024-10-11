@@ -22,6 +22,9 @@ SingleFlagCtfSpecificRulesEngine::handleGreyFlagPickup(Entity& player)
 {
     swapPlayerSkinToFlagCarrier(player);
 
+    scene.playerStates[player.stateIdx].renderContext.message =
+        HudMessage(Strings::Game::YOU_HAVE_FLAG);
+
     return GiveResult {
         .given = true,
         .removePickup = true,

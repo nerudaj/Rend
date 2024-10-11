@@ -232,8 +232,8 @@ void RenderingEngine::renderPlayerHud(
 
     text.setFillColor(
         inventory.team == Team::None  ? sf::Color::White
-        : inventory.team == Team::Red ? sf::Color::Red
-                                      : sf::Color::Blue);
+        : inventory.team == Team::Red ? COLOR_PICO8_RED
+                                      : COLOR_PICO8_BLUE);
 
     renderHudActiveWeapon(window, player, inventory);
     renderHudForHealth(window, player);

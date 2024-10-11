@@ -2,6 +2,7 @@
 
 #include <cstdint>
 #include <enums/LevelItemId.hpp>
+#include <enums/Team.hpp>
 #include <map>
 #include <string>
 
@@ -421,11 +422,4 @@ enum class AnimationStateId
     FastRaise,
     MarkerLoop,
     MarkerDestroy,
-};
-
-enum class [[nodiscard]] Team : uint8_t
-{
-    None,
-    Red,
-    Blue
 };

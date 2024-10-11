@@ -77,10 +77,10 @@ TEST_CASE("Client info is correctly propagated", "[Network]")
     REQUIRE(result);
     REQUIRE(firstUpdateReceived);
 
-    client.sendPeerSettingsUpdate(ClientData {
-        .name = "custom_player",
-        .hasAutoswapOnPickup = true,
-    });
+    client.sendPeerSettingsUpdate(ClientData { .userOpts = {
+                                                   .name = "custom_player",
+                                                   .autoswapOnPickup = true,
+                                               } });
     sleep(100u);
 
     bool secondUpdateReceived = false;
@@ -90,8 +90,8 @@ TEST_CASE("Client info is correctly propagated", "[Network]")
             secondUpdateReceived = true;
             REQUIRE(update.clients.size() == 1u);
             REQUIRE(update.clients.front().state == ClientState::Connected);
-            REQUIRE(update.clients.front().name == "custom_player");
-            REQUIRE(update.clients.front().hasAutoswapOnPickup);
+            REQUIRE(update.clients.front().userOpts.name == "custom_player");
+            REQUIRE(update.clients.front().userOpts.autoswapOnPickup);
         });
     REQUIRE(secondUpdateReceived);
 }

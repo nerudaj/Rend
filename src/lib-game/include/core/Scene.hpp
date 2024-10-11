@@ -114,6 +114,7 @@ struct PlayerState
     RenderContext renderContext;
     std::optional<AiBlackboard> blackboard;
     bool autoswapOnPickup = false;
+    Team playerSkin = Team::None;
 };
 
 struct Level
