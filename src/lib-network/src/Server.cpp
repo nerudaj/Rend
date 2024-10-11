@@ -397,9 +397,7 @@ ExpectedLog Server::handlePeerSettingsUpdate(
     try
     {
         auto&& data = ClientData(nlohmann::json::parse(message.jsonData));
-        getClient(address, port).userOpts.name = data.userOpts.name;
-        getClient(address, port).userOpts.autoswapOnPickup =
-            data.userOpts.autoswapOnPickup;
+        getClient(address, port).userOpts = data.userOpts;
     }
     catch (const std::exception& e)
     {
