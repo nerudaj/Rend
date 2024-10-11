@@ -142,6 +142,10 @@ void Server::processEvents()
 void Server::sendUpdates()
 {
     updateData.state = computeNewState();
+    deps.logger->log(
+        sequence,
+        "sending updates, current server state: {}",
+        nlohmann::json(updateData.state).dump());
 
     auto&& payload = nlohmann::json(updateData).dump();
     for (auto&& [key, client] : registeredClients)
@@ -493,8 +497,7 @@ ServerState Server::computeNewState()
     {
         return ServerState::Lobby;
     }
-
-    if (updateData.state == ServerState::Lobby && areAllPeersReady())
+    else if (updateData.state == ServerState::Lobby && areAllPeersReady())
     {
         return ServerState::MapLoading;
     }
