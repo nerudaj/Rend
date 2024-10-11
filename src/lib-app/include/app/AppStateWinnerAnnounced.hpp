@@ -27,6 +27,8 @@ public:
         , scene(scene)
     {
         buildLayout();
+        dic->logger->logOrError(
+            0, "sendMapEndedSignal", client->sendMapEndedSignal());
     }
 
 public:

@@ -19,54 +19,50 @@ void AppStateScoreTable::input()
             std::placeholders::_1)));
 }
 
-void AppStateScoreTable::buildLayout()
+struct [[nodiscard]] PlayerScore final
 {
-    struct [[nodiscard]] PlayerScore final
-    {
-        std::string name;
-        int score;
-        ClientState state;
-    };
+    std::string name;
+    int score;
+    ptrdiff_t playerIdx;
+};
 
-    auto&& orderedScores =
+PlayerScore flattenTuplesToPlayerScore(
+    const std::tuple<ptrdiff_t, std::tuple<int, PlayerOptions>>& params)
+{
+    const auto& [idx, t] = params;
+    const auto& [score, opts] = t;
+    return PlayerScore {
+        .name = opts.name,
+        .score = score,
+        .playerIdx = idx,
+    };
+}
+
+static std::vector<PlayerScore>
+getOrderedScores(const std::vector<int> scores, const GameOptions& gameSettings)
+{
+    auto&& playerScores =
         std::views::enumerate(std::views::zip(scores, gameSettings.players))
-        | std::views::transform(
-            [&](const std::tuple<ptrdiff_t, std::tuple<int, PlayerOptions>>&
-                    params)
-            {
-                auto&& [idx, t] = params;
-                return PlayerScore { .name = std::get<1>(t).name,
-                                     .score = std::get<0>(t),
-                                     .state =
-                                         clientData.size() > idx
-                                             ? clientData[idx].state
-                                             : ClientState::ConnectedAndReady };
-            })
+        | std::views::transform(flattenTuplesToPlayerScore)
         | std::ranges::to<std::vector>();
 
     std::ranges::sort(
-        orderedScores,
-        [](const PlayerScore& a, const PlayerScore& b) -> bool
+        playerScores,
+        [](const PlayerScore& a, const PlayerScore& b)
         { return a.score >= b.score; });
 
-    auto&& tableBuilder =
-        TableBuilder().withHeading({ Strings::AppState::Scores::PLAYER_TH,
-                                     Strings::AppState::Scores::SCORE_TH,
-                                     Strings::AppState::PeerLobby::IS_READY });
-    for (auto&& score : orderedScores)
-    {
-        tableBuilder.addRow({ score.name,
-                              std::to_string(score.score),
-                              clientStateToString(score.state) });
-    }
+    return playerScores;
+}
 
+void AppStateScoreTable::buildLayout()
+{
     dic->gui->rebuildWith(
         LayoutBuilder::withBackgroundImage(
             dic->resmgr->get<sf::Texture>("menu_intermission.png")
                 .value()
                 .get())
             .withTitle(Strings::AppState::Scores::TITLE, HeadingLevel::H1)
-            .withContent(tableBuilder.build())
+            .withContent(buildTable())
             .withBackButton(WidgetBuilder::createButton(
                 Strings::AppState::MainMenu::BACK_TO_MENU,
                 [this] { app.popState(PopIfNotMainMenu::serialize()); }))
@@ -74,6 +70,26 @@ void AppStateScoreTable::buildLayout()
                 Strings::AppState::MainMenu::NEXT_MAP,
                 [&] { InputHandler::handleSendReady(app, *dic, client); }))
             .build());
+}
+
+tgui::Panel::Ptr AppStateScoreTable::buildTable() const
+{
+    auto&& tableBuilder =
+        TableBuilder().withHeading({ Strings::AppState::Scores::PLAYER_TH,
+                                     Strings::AppState::Scores::SCORE_TH,
+                                     Strings::AppState::PeerLobby::IS_READY });
+
+    for (auto&& score : getOrderedScores(scores, gameSettings))
+    {
+        const auto peerState = score.playerIdx > clientData.size()
+                                   ? clientData[score.playerIdx].state
+                                   : ClientState::ConnectedAndReady;
+        tableBuilder.addRow({ score.name,
+                              std::to_string(score.score),
+                              clientStateToString(peerState) });
+    }
+
+    return tableBuilder.build();
 }
 
 void AppStateScoreTable::handleNetworkUpdate(const ServerUpdateData& update)
