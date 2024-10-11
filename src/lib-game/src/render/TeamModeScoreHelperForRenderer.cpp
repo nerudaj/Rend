@@ -7,11 +7,12 @@ std::string TeamModeScoreHelperForRenderer::getScoreString(
     return std::format(
         "{} ({:+})",
         inventory.team == Team::Red ? scores.redScore : scores.blueScore,
-        scores.redScore
-            - scores.blueScore * (inventory.team == Team::Red ? 1 : -1));
+        (scores.redScore - scores.blueScore)
+            * (inventory.team == Team::Red ? 1 : -1));
 }
 
-TeamScores TeamModeScoreHelperForRenderer::getTeamScores() const noexcept
+TeamModeScoreHelperForRenderer::TeamScores
+TeamModeScoreHelperForRenderer::getTeamScores() const noexcept
 {
     int acc[2] = { 0, 0 };
 
