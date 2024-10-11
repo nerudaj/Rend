@@ -247,7 +247,10 @@ void AppStateLobbyBase::checkMapAvailability()
 
     if (!mapsToDownload.empty())
     {
-        client->requestMapDownload(lobbySettings.packname, mapsToDownload);
+        dic->logger->ifError(
+            0,
+            "requestMapDownload",
+            client->requestMapDownload(lobbySettings.packname, mapsToDownload));
     }
 }
 
