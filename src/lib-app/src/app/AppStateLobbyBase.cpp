@@ -117,8 +117,8 @@ AppStateLobbyBase::createPlayerSettings(bool isTeamGameMode)
     }
 
     const auto&& NPC_NAMES = std::vector<std::string> {
-        "[bot] phobos",
         "[bot] spartan",
+        "[bot] phobos",
         "[bot] deimos",
     };
 
@@ -132,8 +132,7 @@ AppStateLobbyBase::createPlayerSettings(bool isTeamGameMode)
         });
     }
 
-    playerOptions.resize(4);
-
+    if (playerOptions.size() > 4) playerOptions.resize(4);
     if (isTeamGameMode) adjustTeams(playerOptions);
 
     return playerOptions;
