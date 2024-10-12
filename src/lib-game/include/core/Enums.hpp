@@ -2,6 +2,7 @@
 
 #include <cstdint>
 #include <enums/LevelItemId.hpp>
+#include <enums/Team.hpp>
 #include <map>
 #include <string>
 
@@ -254,6 +255,7 @@ enum class SpriteId : std::uint8_t
     HUD_ShellAmmo,
     HUD_EnergyAmmo,
     HUD_RocketAmmo,
+    HUD_Flag,
     HUD_FlaregunOutline,
     HUD_ShotgunOutline,
     HUD_TrishotOutline,
@@ -420,11 +422,4 @@ enum class AnimationStateId
     FastRaise,
     MarkerLoop,
     MarkerDestroy,
-};
-
-enum class [[nodiscard]] Team : uint8_t
-{
-    None,
-    Red,
-    Blue
 };

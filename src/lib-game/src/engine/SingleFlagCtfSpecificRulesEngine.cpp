@@ -22,10 +22,13 @@ SingleFlagCtfSpecificRulesEngine::handleGreyFlagPickup(Entity& player)
 {
     swapPlayerSkinToFlagCarrier(player);
 
+    scene.playerStates[player.stateIdx].renderContext.message =
+        HudMessage(Strings::Game::YOU_HAVE_FLAG);
+
     return GiveResult {
         .given = true,
         .removePickup = true,
-        .playSound = false,
+        .playSound = true,
     };
 }
 
@@ -54,14 +57,13 @@ void SingleFlagCtfSpecificRulesEngine::handleFlagDelivered(
     adjustScore(inventory, ScoringOccasion::FlagDelivered);
     swapPlayerSkinBackFromFlagCarrier(player);
     respawnAllGreyFlags();
-    // TODO: play sound
+    triggerFlagScoredSoundForEverybody(inventory.team);
     displayGlobalScoreMessage(player.stateIdx);
 }
 
 void SingleFlagCtfSpecificRulesEngine::handlePlayerDied(const Entity& player)
 {
-    if (player.typeId == EntityType::CarrierRedPlayer
-        || player.typeId == EntityType::CarrierBluePlayer)
+    if (isFlagCarrier(player.typeId))
     {
         scene.things.emplaceBack(SceneBuilder::createPickup(
             EntityType::GreyFlag, Position { player.hitbox.getPosition() }));
@@ -82,7 +84,7 @@ void SingleFlagCtfSpecificRulesEngine::respawnAllGreyFlags()
     for (const auto& flagSpawnPosition : scene.greyFlagSpawns)
     {
         scene.markers.emplaceBack(MarkerItemRespawner {
-            .timeout = 3_seconds,
+            .timeout = 5_seconds,
             .pickupType = EntityType::GreyFlag,
             .position = flagSpawnPosition,
         });
@@ -113,9 +115,23 @@ void SingleFlagCtfSpecificRulesEngine::displayGlobalScoreMessage(
     for (auto&& [idx, state] : std::views::enumerate(scene.playerStates))
     {
         state.renderContext.message = HudMessage(std::vformat(
-            Strings::Game::XY_SCORED, std::make_format_args(playerNames[idx])));
+            Strings::Game::XY_SCORED,
+            std::make_format_args(playerNames[scoringPlayerStateIdx])));
     }
 
     scene.playerStates[scoringPlayerStateIdx].renderContext.message =
         HudMessage(Strings::Game::YOU_SCORED);
+}
+
+void SingleFlagCtfSpecificRulesEngine::triggerFlagScoredSoundForEverybody(
+    Team scoringTeam)
+{
+    for (const auto&& stateIdx :
+         std::views::iota(0u, scene.playerStates.size()))
+    {
+        eventQueue->emplace<SoundTriggeredAudioEvent>(
+            scoringTeam == Team::Red ? "red_team_scored.wav"
+                                     : "blue_team_scored.wav",
+            stateIdx);
+    }
 }

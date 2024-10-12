@@ -47,6 +47,7 @@ constinit const std::array<AmmoCounterType, 4> AMMO_LIMIT = {
 // Colors
 const sf::Color COLOR_PICO8_RED = sf::Color(255, 0, 77);
 const sf::Color COLOR_PICO8_GREEN = sf::Color(0, 228, 54);
+const sf::Color COLOR_PICO8_BLUE = sf::Color(41, 173, 255);
 const sf::Color COLOR_PICO8_MAGENTA = sf::Color(255, 119, 168);
 
 // Ai
@@ -103,13 +104,18 @@ ammoTypeToPickupType(AmmoType type) noexcept
         + static_cast<std::size_t>(EntityType::PickupBullets));
 }
 
-[[nodiscard]] constexpr static bool isPlayer(EntityType entityType)
+[[nodiscard]] constexpr static bool
+isFlagCarrier(EntityType entityType) noexcept
+{
+    return entityType == EntityType::CarrierRedPlayer
+           || entityType == EntityType::CarrierBluePlayer;
+}
+
+[[nodiscard]] constexpr static bool isPlayer(EntityType entityType) noexcept
 {
     return entityType == EntityType::Player
            || entityType == EntityType::RedPlayer
-           || entityType == EntityType::BluePlayer
-           || entityType == EntityType::CarrierRedPlayer
-           || entityType == EntityType::CarrierBluePlayer;
+           || entityType == EntityType::BluePlayer || isFlagCarrier(entityType);
 }
 
 // Other

@@ -56,6 +56,8 @@ public:
         const std::string& mapPackName,
         const std::vector<std::string>& mapNames);
 
+    ExpectSuccess sendHeartbeat();
+
 private:
     std::expected<PlayerIdxType, ErrorMessage> registerToServer();
 

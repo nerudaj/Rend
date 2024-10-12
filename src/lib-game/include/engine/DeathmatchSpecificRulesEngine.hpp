@@ -26,7 +26,7 @@ public:
     GiveResult handleGreyFlagPickup(Entity&) override
     {
         return GiveResult {
-            .given = false,
+            .given = true,
             .removePickup = true,
             .playSound = false,
         };

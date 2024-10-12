@@ -89,7 +89,7 @@ void GameRulesEngine::operator()(const PlayerRespawnedGameEvent& e)
         Position { spawn.position },
         Direction { spawn.direction },
         marker.stateIdx,
-        inventory.team));
+        scene.playerStates[marker.stateIdx].playerSkin));
 
     inventory =
         SceneBuilder::getDefaultInventory(idx, inventory.score, inventory.team);
@@ -311,7 +311,7 @@ const Spawn& GameRulesEngine::getBestSpawn(Team team) const noexcept
                     spawn.position, scene.things[index].hitbox.getPosition()));
         }
 
-        if (bestDistance < minDistance)
+        if (bestDistance <= minDistance)
         {
             bestDistance = minDistance;
             bestSpawnIdx = idx;

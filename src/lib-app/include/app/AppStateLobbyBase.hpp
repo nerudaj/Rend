@@ -22,6 +22,8 @@ public:
 
     virtual ~AppStateLobbyBase() = default;
 
+    static void adjustTeams(std::vector<PlayerOptions>& playerOptions);
+
 protected:
     void handleNetworkUpdate(const ServerUpdateData& update);
 
@@ -29,7 +31,7 @@ protected:
 
     void startGame();
 
-    std::vector<PlayerOptions> createPlayerSettings();
+    std::vector<PlayerOptions> createPlayerSettings(bool isTeamGameMode);
 
     void buildLayout();
 

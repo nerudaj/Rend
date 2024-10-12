@@ -12,4 +12,5 @@ enum class [[nodiscard]] ClientMessageType : uint8_t
     ReportMapEnded,
     Disconnect,
     MapDownloadRequest,
+    Heartbeat,
 };

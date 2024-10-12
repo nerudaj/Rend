@@ -53,6 +53,7 @@ namespace Strings
             RAWSTRING GAMEPAD_DEADZONE = "gamepad deadzone";
             RAWSTRING CURSOR_SENSITIVITY = "cursor sensitivity";
             RAWSTRING SWAP_ON_PICKUP = "autoswap weapon on pickup";
+            RAWSTRING TEAM_PREFERENCE = "team preference";
             RAWSTRING HUD_UI_SCALE = "hud ui scale";
             RAWSTRING RESOLUTION_CHANGE_WARNING =
                 "it is recommended to restart the game after changing "
@@ -109,7 +110,7 @@ namespace Strings
             RAWSTRING SCORE_TH = "score";
             RAWSTRING WON = "won";
             RAWSTRING RED_TEAM_WON = "red team won";
-            RAWSTRING BLUE_TEAM_WON = "red team won";
+            RAWSTRING BLUE_TEAM_WON = "blue team won";
         } // namespace Scores
     }     // namespace AppState
 
@@ -212,12 +213,13 @@ namespace Strings
 
     namespace Game
     {
-        RAWSTRING RESPAWN_PROMPT = "Press [Space] to respawn";
-        RAWSTRING SUICIDE = "You killed yourself";
+        RAWSTRING RESPAWN_PROMPT = "press [Space] to respawn";
+        RAWSTRING SUICIDE = "you killed yourself";
         RAWSTRING KILLED_BY = "{} killed you";
-        RAWSTRING YOU_KILLED = "You killed {}";
+        RAWSTRING YOU_KILLED = "you killed {}";
         RAWSTRING XY_SCORED = "{} scored!";
-        RAWSTRING YOU_SCORED = "You scored!";
+        RAWSTRING YOU_SCORED = "you scored!";
+        RAWSTRING YOU_HAVE_FLAG = "you have the flag!";
     } // namespace Game
 
     namespace Level
@@ -248,6 +250,13 @@ namespace Strings
             "You were disconnected, because the selected map was not "
             "compatible with selected gamemode";
     } // namespace Error
+
+    namespace Enums
+    {
+        RAWSTRING TEAM_NONE = "none";
+        RAWSTRING TEAM_RED = "red";
+        RAWSTRING TEAM_BLUE = "blue";
+    } // namespace Enums
 } // namespace Strings
 
 #undef RAWSTRING

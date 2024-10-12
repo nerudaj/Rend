@@ -43,6 +43,8 @@ private:
 
     void displayGlobalScoreMessage(PlayerStateIndexType scoringPlayerStateIdx);
 
+    void triggerFlagScoredSoundForEverybody(Team scoringTeam);
+
 private:
     Scene& scene;
     mem::Rc<EventQueue> eventQueue;

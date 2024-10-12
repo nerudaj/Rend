@@ -1,5 +1,7 @@
 #pragma once
 
+#include "UserOptions.hpp"
+#include "enums/Team.hpp"
 #include <nlohmann/json.hpp>
 #include <string>
 
@@ -23,9 +25,7 @@ NLOHMANN_JSON_SERIALIZE_ENUM(
 struct [[nodiscard]] ClientData final
 {
     ClientState state = ClientState::Connected;
-    std::string name = "player";
-    bool hasAutoswapOnPickup = false;
+    UserOptions userOpts;
 };
 
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(
-    ClientData, state, name, hasAutoswapOnPickup);
+NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(ClientData, state, userOpts);

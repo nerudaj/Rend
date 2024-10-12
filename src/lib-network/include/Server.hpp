@@ -80,6 +80,9 @@ private:
         unsigned short port);
 
     ExpectedLog
+    handleHeartbeat(const sf::IpAddress& address, unsigned short port);
+
+    ExpectedLog
     handleDisconnection(const sf::IpAddress& address, unsigned short port);
 
     ExpectedLog denyNewPeer(

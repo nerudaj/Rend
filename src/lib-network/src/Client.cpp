@@ -160,9 +160,21 @@ ExpectSuccess Client::requestMapDownload(
             .jsonData =
                 nlohmann::json(MapDownloadRequest { .mapPackName = mapPackName,
                                                     .mapNames = mapNames })
-                    .dump() }
+                    .dump(),
+        }
             .toPacket(),
         "Something went wrong when requesting map download");
+}
+
+ExpectSuccess Client::sendHeartbeat()
+{
+    return trySendPacket(
+        ClientMessage {
+            .type = ClientMessageType::Heartbeat,
+            .clientId = myClientId,
+        }
+            .toPacket(),
+        "Something went wrong when sending heartbeat");
 }
 
 std::expected<PlayerIdxType, ErrorMessage> Client::registerToServer()

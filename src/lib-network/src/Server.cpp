@@ -142,6 +142,10 @@ void Server::processEvents()
 void Server::sendUpdates()
 {
     updateData.state = computeNewState();
+    deps.logger->log(
+        sequence,
+        "sending updates, current server state: {}",
+        nlohmann::json(updateData.state).dump());
 
     auto&& payload = nlohmann::json(updateData).dump();
     for (auto&& [key, client] : registeredClients)
@@ -192,6 +196,8 @@ ExpectedLog Server::handleMessage(
         return handleReportedInput(message);
     case MapDownloadRequest:
         return handleMapDownloadRequest(address, port, message);
+    case Heartbeat:
+        return handleHeartbeat(address, port);
     case Disconnect:
         return handleDisconnection(address, port);
     default:
@@ -341,7 +347,10 @@ ExpectedLog Server::handleReportedInput(const ClientMessage& message)
         message.tick,
         message.jsonData);
 #else
-    return std::format("");
+    return std::format(
+        "Processed input from client {}, tick {}",
+        message.clientId,
+        message.tick);
 #endif
 }
 
@@ -392,8 +401,7 @@ ExpectedLog Server::handlePeerSettingsUpdate(
     try
     {
         auto&& data = ClientData(nlohmann::json::parse(message.jsonData));
-        getClient(address, port).name = data.name;
-        getClient(address, port).hasAutoswapOnPickup = data.hasAutoswapOnPickup;
+        getClient(address, port).userOpts = data.userOpts;
     }
     catch (const std::exception& e)
     {
@@ -448,6 +456,14 @@ ExpectedLog Server::handleLobbySettingsUpdate(
 }
 
 ExpectedLog
+Server::handleHeartbeat(const sf::IpAddress& address, unsigned short port)
+{
+    CHECK_REGISTRATION(address, port);
+    return std::format(
+        "Received heartbeat from client {}:{}", address.toString(), port);
+}
+
+ExpectedLog
 Server::handleDisconnection(const sf::IpAddress& address, unsigned short port)
 {
     CHECK_REGISTRATION(address, port);
@@ -481,8 +497,7 @@ ServerState Server::computeNewState()
     {
         return ServerState::Lobby;
     }
-
-    if (updateData.state == ServerState::Lobby && areAllPeersReady())
+    else if (updateData.state == ServerState::Lobby && areAllPeersReady())
     {
         return ServerState::MapLoading;
     }

@@ -218,6 +218,10 @@ void AppStateMenuOptions::buildPlayerOptionsLayout(
     bool changesDisabled,
     std::function<void(void)> onChanged)
 {
+    const auto&& teams = std::vector<std::string> { Strings::Enums::TEAM_NONE,
+                                                    Strings::Enums::TEAM_RED,
+                                                    Strings::Enums::TEAM_BLUE };
+
     std::ignore =
         builder
             .addOption(
@@ -239,7 +243,19 @@ void AppStateMenuOptions::buildPlayerOptionsLayout(
                         dic->settings->player.autoswapOnPickup = value;
                         onChanged();
                     }),
-                { .disabled = changesDisabled });
+                { .disabled = changesDisabled })
+            .addOption(
+                Strings::AppState::Options::TEAM_PREFERENCE,
+                WidgetBuilder::createDropdown(
+                    teams,
+                    teams.at(std::to_underlying(
+                        dic->settings->player.prefferedTeam)),
+                    [&, onChanged](size_t idx)
+                    {
+                        dic->settings->player.prefferedTeam =
+                            static_cast<Team>(idx);
+                        onChanged();
+                    }));
 }
 
 void AppStateMenuOptions::handleTabSelected(const tgui::String& selectedTabName)

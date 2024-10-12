@@ -35,7 +35,7 @@ void AppStateGameSetup::input()
 
     InputHandler::handleUiStateInput(app, *dic);
 
-    dic->logger->logOrError(
+    dic->logger->ifError(
         0,
         "readIncomingPackets",
         client->readIncomingPackets(std::bind(
