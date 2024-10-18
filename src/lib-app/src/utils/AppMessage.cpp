@@ -12,5 +12,9 @@ std::optional<AppMessage> deserializeAppMessage(const std::string& str)
         return ExceptionGameDisconnected();
     else if (ExceptionServerOffline::canDeserializeFrom(str))
         return ExceptionServerOffline();
+    else if (ExceptionNoMapSelected::canDeserializeFrom(str))
+        return ExceptionNoMapSelected();
+    else if (ExceptionCtfMapWrongCompat::canDeserializeFrom(str))
+        return ExceptionCtfMapWrongCompat();
     return std::nullopt;
 }

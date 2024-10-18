@@ -2,6 +2,7 @@
 #include "utils/AppMessage.hpp"
 #include <Filesystem.hpp>
 #include <LevelD.hpp>
+#include <MapProperties.hpp>
 #include <app/AppStateIngame.hpp>
 #include <app/AppStateMapRotationWrapper.hpp>
 
@@ -32,7 +33,16 @@ void AppStateMapRotationWrapper::input()
 
     currentMapIdx = (currentMapIdx + 1) % mapNames.size();
 
-    app.pushState<AppStateIngame>(dic, client, gameSettings, lvd);
+    MapProperties info = parseMapProperties(lvd.metadata.description);
+    if (info.mapCompat == MapCompatibility::Deathmatch
+        && gameSettings.gameMode == GameMode::SingleFlagCtf)
+    {
+        app.popState(ExceptionCtfMapWrongCompat::serialize());
+    }
+    else
+    {
+        app.pushState<AppStateIngame>(dic, client, gameSettings, lvd);
+    }
 }
 
 void AppStateMapRotationWrapper::restoreFocusImpl(const std::string& message)

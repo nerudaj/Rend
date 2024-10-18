@@ -54,13 +54,19 @@ struct [[nodiscard]] ExceptionNoMapSelected final
 {
 };
 
+struct [[nodiscard]] ExceptionCtfMapWrongCompat final
+    : public CanDeserializeFrom<ExceptionCtfMapWrongCompat>
+{
+};
+
 using AppMessage = std::variant<
     PopIfNotMainMenu,
     PopIfPause,
     PopIfNotMapRotationWrapper,
     ExceptionGameDisconnected,
     ExceptionServerOffline,
-    ExceptionNoMapSelected>;
+    ExceptionNoMapSelected,
+    ExceptionCtfMapWrongCompat>;
 
 [[nodiscard]] std::optional<AppMessage>
 deserializeAppMessage(const std::string& str);
@@ -110,6 +116,13 @@ handleAppMessage(dgm::App& app, const std::string& message)
                     app.popState(message);
                 else
                     result = Strings::Error::NO_MAP_SELECTED;
+            },
+            [&](ExceptionCtfMapWrongCompat)
+            {
+                if (!std::is_same_v<CallerState, AppStateMainMenu>)
+                    app.popState(message);
+                else
+                    result = Strings::Error::BAD_GAMEMODE;
             } },
         msg.value());
     return result;
