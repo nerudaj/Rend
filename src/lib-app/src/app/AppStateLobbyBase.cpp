@@ -265,7 +265,7 @@ void AppStateLobbyBase::adjustTeams(std::vector<PlayerOptions>& playerOptions)
             ++sum;
     }
 
-    for (auto&& [idx, playerOpts] : std::views::enumerate(playerOptions))
+    for (auto&& playerOpts : playerOptions)
     {
         if ((sum < -1 && playerOpts.team == Team::Red)
             || (playerOpts.team == Team::None && sum <= 0))
