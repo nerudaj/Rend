@@ -321,10 +321,17 @@ void AppStateIngame::restoreState(const FrameState& state)
     scene.things = state.things.clone(); // restore things
     scene.markers = state.markers.clone();
     scene.playerStates = state.states;
-    for (unsigned i = 0; i < state.inputs.size(); ++i)
+
+    for (auto&& i : std::views::iota(0u, firstNpcIdx))
     {
         scene.playerStates[i].input.deserializeFrom(state.inputs[i]);
     }
+
+    for (auto&& i : std::views::iota(firstNpcIdx, state.inputs.size()))
+    {
+        scene.playerStates[i].input.deserializeFrom(inputs[i]->getSnapshot());
+    }
+
     scene.camera.anchorIdx = state.cameraAnchorIdx;
 
     // rebuild spatial index
@@ -418,6 +425,7 @@ void AppStateIngame::createPlayers()
         });
 
         if (playerSettings.bindCamera) scene.camera.anchorIdx = idx;
+        if (playerSettings.kind != PlayerKind::LocalNpc) ++firstNpcIdx;
     }
 }
 

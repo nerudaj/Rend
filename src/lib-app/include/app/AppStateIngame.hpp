@@ -113,4 +113,5 @@ protected:
     size_t tickToRollbackTo = {};
     unsigned humanPlayerCount = 0;
     IsPointLimitReached isPointLimitReached;
+    PlayerStateIndexType firstNpcIdx = 0;
 };
