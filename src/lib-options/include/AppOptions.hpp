@@ -21,4 +21,4 @@ struct AppOptions
 };
 
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(
-    AppOptions, audio, input, player, display, network);
+    AppOptions, audio, input, player, display, network, lastUsedLobbySettings);

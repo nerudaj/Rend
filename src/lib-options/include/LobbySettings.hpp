@@ -30,6 +30,7 @@ NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(
     packname,
     mapSettings,
     mapOrder,
+    useRandomMapRotation,
     gameMode,
     pointlimit,
     maxNpcs);

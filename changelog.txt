@@ -2,6 +2,8 @@ Rend 0.10.0 changelog:
 
 UX:
 * Random map rotation can be chosen in game setup lobby
+* Game setup lobby configuration is remembered
+    * Last used setting will be applied when re-entering lobby or after restarting the game
 
 Rend 0.9.0 changelog:
 
