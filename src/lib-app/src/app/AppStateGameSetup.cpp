@@ -22,8 +22,18 @@ AppStateGameSetup::AppStateGameSetup(
           Filesystem::getLevelsDir(dic->settings->cmdSettings.resourcesDir)))
     , mapPickerDialog(dic->gui, std::vector<MapSettingsForPicker>())
 {
-    selectMapPack(mapPackNames.front());
+    // TODO: this should be allowed to fail, due to lastUsedLobbySettings being
+    // invalid it also should somehow set map rotation
+    selectMapPack(
+        dic->settings->lastUsedLobbySettings.packname.empty()
+            ? mapPackNames.front()
+            : dic->settings->lastUsedLobbySettings.packname);
     sendLobbyUpdate();
+}
+
+AppStateGameSetup::~AppStateGameSetup()
+{
+    dic->settings->lastUsedLobbySettings = lobbySettings;
 }
 
 void AppStateGameSetup::input()
@@ -128,7 +138,7 @@ void AppStateGameSetup::selectMapPack(const std::string& packname)
             packname)
         | std::views::transform(
             [](const std::string& name)
-            { return MapSettings { .name = name, .enabled = true }; })
+            { return MapOptions { .name = name, .enabled = true }; })
         | std::ranges::to<std::vector>();
 
     lobbySettings.mapOrder =
@@ -180,13 +190,12 @@ void AppStateGameSetup::openMapPicker()
 
 void AppStateGameSetup::handleMapRotationUpdate()
 {
-    lobbySettings.mapSettings =
-        mapPickerDialog->getMapSettings()
-        | std::views::transform(
-            [](auto s) {
-                return MapSettings { s.name, s.enabled };
-            })
-        | std::ranges::to<std::vector>();
+    lobbySettings.mapSettings = mapPickerDialog->getMapSettings()
+                                | std::views::transform(
+                                    [](auto s) {
+                                        return MapOptions { s.name, s.enabled };
+                                    })
+                                | std::ranges::to<std::vector>();
     sendLobbyUpdate();
 }
 

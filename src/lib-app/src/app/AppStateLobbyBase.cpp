@@ -21,9 +21,7 @@ AppStateLobbyBase::AppStateLobbyBase(
     , myPeerData(ClientData {
           .userOpts = dic->settings->player,
       })
-    , lobbySettings(LobbySettings {
-          .pointlimit = static_cast<int>(dic->settings->cmdSettings.pointlimit),
-          .maxNpcs = dic->settings->cmdSettings.maxNpcs })
+    , lobbySettings(dic->settings->lastUsedLobbySettings)
     , config(config)
 {
     dic->logger->ifError(
@@ -77,7 +75,7 @@ void AppStateLobbyBase::handleMapDownload(const MapDownloadResponse& data)
     dic->logger->log(0, "Map downloaded and saved to {}", mapPath.string());
 }
 
-std::vector<MapSettings> getOrderedMapList(const LobbySettings& lobbySettings)
+std::vector<MapOptions> getOrderedMapList(const LobbySettings& lobbySettings)
 {
     auto orderedMaplist =
         std::views::zip(lobbySettings.mapOrder, lobbySettings.mapSettings)
@@ -96,8 +94,8 @@ void AppStateLobbyBase::startGame()
 {
     auto&& maplist =
         getOrderedMapList(lobbySettings)
-        | std::views::filter([](const MapSettings& ms) { return ms.enabled; })
-        | std::views::transform([](const MapSettings& ms) { return ms.name; })
+        | std::views::filter([](const MapOptions& ms) { return ms.enabled; })
+        | std::views::transform([](const MapOptions& ms) { return ms.name; })
         | std::ranges::to<std::vector>();
 
     if (maplist.empty()) app.popState(ExceptionNoMapSelected::serialize());
@@ -247,7 +245,7 @@ void AppStateLobbyBase::checkMapAvailability()
     std::vector<std::string> mapsToDownload =
         lobbySettings.mapSettings
         | std::views::transform(
-            [](const MapSettings& cfg) {
+            [](const MapOptions& cfg) {
                 return cfg.name.ends_with(".lvd") ? cfg.name
                                                   : cfg.name + ".lvd";
             })

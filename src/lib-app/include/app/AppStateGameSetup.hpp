@@ -14,6 +14,7 @@ class [[nodiscard]] AppStateGameSetup final : public AppStateLobbyBase
 {
 public:
     AppStateGameSetup(dgm::App& app, mem::Rc<DependencyContainer> dic) noexcept;
+    ~AppStateGameSetup();
 
 public:
     void input() override;
