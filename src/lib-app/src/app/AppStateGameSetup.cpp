@@ -22,8 +22,17 @@ AppStateGameSetup::AppStateGameSetup(
           Filesystem::getLevelsDir(dic->settings->cmdSettings.resourcesDir)))
     , mapPickerDialog(dic->gui, std::vector<MapSettingsForPicker>())
 {
-    selectMapPack(mapPackNames.front());
+    selectMapPack(
+        dic->settings->lastUsedLobbySettings.packname.empty()
+            ? mapPackNames.front()
+            : dic->settings->lastUsedLobbySettings.packname,
+        dic->settings->lastUsedLobbySettings.mapSettings);
     sendLobbyUpdate();
+}
+
+AppStateGameSetup::~AppStateGameSetup()
+{
+    dic->settings->lastUsedLobbySettings = lobbySettings;
 }
 
 void AppStateGameSetup::input()
@@ -119,17 +128,30 @@ void AppStateGameSetup::restoreFocusImpl(const std::string& message)
     handleAppMessage<AppStateGameSetup>(app, message);
 }
 
-void AppStateGameSetup::selectMapPack(const std::string& packname)
+void AppStateGameSetup::selectMapPack(
+    const std::string& packname, const std::vector<MapOptions>& mapOptionsHint)
 {
     lobbySettings.packname = packname;
+
+    const auto levelNames = Filesystem::getLevelNames(
+        Filesystem::getLevelsDir(dic->settings->cmdSettings.resourcesDir),
+        packname);
+
+    const bool allMapsMatchWithHint =
+        mapOptionsHint.size() == levelNames.size()
+        && std::ranges::all_of(
+            std::views::zip(levelNames, mapOptionsHint),
+            [](const std::tuple<std::string, MapOptions>& t)
+            { return std::get<0>(t) == std::get<1>(t).name; });
+
     lobbySettings.mapSettings =
-        Filesystem::getLevelNames(
-            Filesystem::getLevelsDir(dic->settings->cmdSettings.resourcesDir),
-            packname)
-        | std::views::transform(
-            [](const std::string& name)
-            { return MapSettings { .name = name, .enabled = true }; })
-        | std::ranges::to<std::vector>();
+        allMapsMatchWithHint
+            ? mapOptionsHint
+            : levelNames
+                  | std::views::transform(
+                      [](const std::string& name)
+                      { return MapOptions { .name = name, .enabled = true }; })
+                  | std::ranges::to<std::vector>();
 
     lobbySettings.mapOrder =
         std::views::iota(size_t { 0 }, lobbySettings.mapSettings.size())
@@ -180,13 +202,12 @@ void AppStateGameSetup::openMapPicker()
 
 void AppStateGameSetup::handleMapRotationUpdate()
 {
-    lobbySettings.mapSettings =
-        mapPickerDialog->getMapSettings()
-        | std::views::transform(
-            [](auto s) {
-                return MapSettings { s.name, s.enabled };
-            })
-        | std::ranges::to<std::vector>();
+    lobbySettings.mapSettings = mapPickerDialog->getMapSettings()
+                                | std::views::transform(
+                                    [](auto s) {
+                                        return MapOptions { s.name, s.enabled };
+                                    })
+                                | std::ranges::to<std::vector>();
     sendLobbyUpdate();
 }
 

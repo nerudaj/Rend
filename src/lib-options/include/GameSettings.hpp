@@ -1,20 +1,10 @@
 #pragma once
 
+#include "PlayerOptions.hpp"
 #include "enums/GameMode.hpp"
-#include "enums/PlayerKind.hpp"
-#include "enums/Team.hpp"
 #include <nlohmann/json.hpp>
 #include <string>
 #include <vector>
-
-struct PlayerOptions
-{
-    PlayerKind kind = PlayerKind::LocalHuman;
-    bool bindCamera = false;
-    std::string name = "";
-    bool autoswapOnPickup = false;
-    Team team = Team::None;
-};
 
 struct GameOptions
 {

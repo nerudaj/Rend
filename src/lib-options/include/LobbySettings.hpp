@@ -1,29 +1,20 @@
 #pragma once
 
+#include "MapOptions.hpp"
 #include <enums/GameMode.hpp>
 #include <nlohmann/json.hpp>
 #include <string>
-
-struct [[nodiscard]] MapSettings final
-{
-    std::string name = "";
-    bool enabled = false;
-
-    [[nodiscard]] constexpr std::partial_ordering
-    operator<=>(const MapSettings&) const = default;
-};
-
-NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(MapSettings, name, enabled);
+#include <vector>
 
 struct [[nodiscard]] LobbySettings final
 {
     std::string packname = "";
-    std::vector<MapSettings> mapSettings = {};
+    std::vector<MapOptions> mapSettings = {};
     std::vector<size_t> mapOrder = {};
     bool useRandomMapRotation = true;
     GameMode gameMode = GameMode::Deathmatch;
-    int pointlimit = 0;
-    size_t maxNpcs = 0;
+    int pointlimit = 15;
+    size_t maxNpcs = 3;
 
     [[nodiscard]] constexpr std::partial_ordering
     operator<=>(const LobbySettings&) const = default;
@@ -39,6 +30,7 @@ NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(
     packname,
     mapSettings,
     mapOrder,
+    useRandomMapRotation,
     gameMode,
     pointlimit,
     maxNpcs);

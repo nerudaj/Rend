@@ -18,8 +18,6 @@ CmdParameters processCmdParameters(int argc, char* argv[])
     options.add_options()
         ("s,skip-menu", "Start game directly")
         ("r,resource-dir", "Path to resources", cxxopts::value<std::string>())
-        ("m,map", "Map name", cxxopts::value<std::string>())
-        ("l,limit", "Fraglimit", cxxopts::value<unsigned>())
         ("d,debug", "Enable debug mode")
 #ifdef _DEBUG
         ("p,play-demo", "Replay demo file")
@@ -34,9 +32,6 @@ CmdParameters processCmdParameters(int argc, char* argv[])
     result.skipMainMenu = args.count("skip-menu") > 0;
     if (args.count("resource-dir") > 0)
         result.resourcesDir = args["resource-dir"].as<std::string>();
-    if (args.count("map") > 0) result.mapname = args["map"].as<std::string>();
-    if (args.count("limit") > 0)
-        result.pointlimit = args["limit"].as<unsigned>();
     result.enableDebug = args.count("debug") > 0;
     result.useNullBotBehavior = args.count("null-bot") > 0;
 #ifdef _DEBUG
@@ -95,11 +90,6 @@ int main(int argc, char* argv[])
 
     auto&& settings = mem::Rc<AppOptions>(loadAppSettings(CONFIG_FILE_PATH));
     settings->cmdSettings = processCmdParameters(argc, argv);
-
-    if (settings->cmdSettings.maxNpcs > 3)
-    {
-        throw std::runtime_error("Cannot have more than 3 bots!");
-    }
 
     dgm::WindowSettings windowSettings = {
         .resolution = sf::Vector2u(

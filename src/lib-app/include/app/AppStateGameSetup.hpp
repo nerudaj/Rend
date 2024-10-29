@@ -14,6 +14,7 @@ class [[nodiscard]] AppStateGameSetup final : public AppStateLobbyBase
 {
 public:
     AppStateGameSetup(dgm::App& app, mem::Rc<DependencyContainer> dic) noexcept;
+    ~AppStateGameSetup();
 
 public:
     void input() override;
@@ -31,7 +32,9 @@ private:
 private:
     void restoreFocusImpl(const std::string& message) override;
 
-    void selectMapPack(const std::string& packname);
+    void selectMapPack(
+        const std::string& packname,
+        const std::vector<MapOptions>& mapOptionsHint = {});
 
     void selectMapPackAndSendUpdate(const std::string& packname);
 

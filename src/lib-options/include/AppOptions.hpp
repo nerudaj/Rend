@@ -4,6 +4,7 @@
 #include "CmdParameters.hpp"
 #include "DisplayOptions.hpp"
 #include "InputOptions.hpp"
+#include "LobbySettings.hpp"
 #include "NetOptions.hpp"
 #include "UserOptions.hpp"
 #include <nlohmann/json.hpp>
@@ -16,7 +17,8 @@ struct AppOptions
     UserOptions player;
     CmdParameters cmdSettings;
     NetOptions network;
+    LobbySettings lastUsedLobbySettings;
 };
 
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(
-    AppOptions, audio, input, player, display, network);
+    AppOptions, audio, input, player, display, network, lastUsedLobbySettings);
