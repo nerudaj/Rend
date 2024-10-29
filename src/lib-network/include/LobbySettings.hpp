@@ -20,6 +20,7 @@ struct [[nodiscard]] LobbySettings final
     std::string packname = "";
     std::vector<MapSettings> mapSettings = {};
     std::vector<size_t> mapOrder = {};
+    bool useRandomMapRotation = true;
     GameMode gameMode = GameMode::Deathmatch;
     int pointlimit = 0;
     size_t maxNpcs = 0;

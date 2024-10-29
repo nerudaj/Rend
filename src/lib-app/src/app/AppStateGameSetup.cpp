@@ -9,6 +9,7 @@
 #include <app/AppStateMapRotationWrapper.hpp>
 #include <atomic>
 #include <expected>
+#include <random>
 
 AppStateGameSetup::AppStateGameSetup(
     dgm::App& app, mem::Rc<DependencyContainer> dic) noexcept
@@ -74,8 +75,6 @@ void AppStateGameSetup::buildLayoutGameSetupImpl(tgui::Panel::Ptr target)
                         lobbySettings.gameMode =
                             static_cast<GameMode>(optionIdx);
                         sendLobbyUpdate();
-                        // TODO: recompute available mappacks
-                        // and maps within
                     }))
             .addOption(
                 Strings::AppState::GameSetup::POINTLIMIT,
@@ -97,6 +96,15 @@ void AppStateGameSetup::buildLayoutGameSetupImpl(tgui::Panel::Ptr target)
                     lobbySettings.packname,
                     [this](std::size_t idx)
                     { selectMapPackAndSendUpdate(mapPackNames.at(idx)); }))
+            .addOption(
+                Strings::AppState::GameSetup::RANDOM_ROTATION,
+                WidgetBuilder::createCheckbox(
+                    lobbySettings.useRandomMapRotation,
+                    [&](bool value)
+                    {
+                        lobbySettings.useRandomMapRotation = value;
+                        adjustMapOrderAndSendUpdate();
+                    }))
             .addOption(
                 Strings::AppState::GameSetup::SELECT_MAPS,
                 WidgetBuilder::createButton(
@@ -122,6 +130,7 @@ void AppStateGameSetup::selectMapPack(const std::string& packname)
             [](const std::string& name)
             { return MapSettings { .name = name, .enabled = true }; })
         | std::ranges::to<std::vector>();
+
     lobbySettings.mapOrder =
         std::views::iota(size_t { 0 }, lobbySettings.mapSettings.size())
         | std::ranges::to<std::vector>();
@@ -130,7 +139,29 @@ void AppStateGameSetup::selectMapPack(const std::string& packname)
 void AppStateGameSetup::selectMapPackAndSendUpdate(const std::string& packname)
 {
     selectMapPack(packname);
+
+    if (lobbySettings.useRandomMapRotation) shuffleMapOrder();
+
     sendLobbyUpdate();
+}
+
+void AppStateGameSetup::adjustMapOrderAndSendUpdate()
+{
+    if (lobbySettings.useRandomMapRotation)
+        shuffleMapOrder();
+    else
+        std::ranges::sort(lobbySettings.mapOrder);
+
+    sendLobbyUpdate();
+}
+
+void AppStateGameSetup::shuffleMapOrder()
+{
+    auto&& generator = std::mt19937(std::random_device()());
+    std::shuffle(
+        lobbySettings.mapOrder.begin(),
+        lobbySettings.mapOrder.end(),
+        generator);
 }
 
 void AppStateGameSetup::openMapPicker()
