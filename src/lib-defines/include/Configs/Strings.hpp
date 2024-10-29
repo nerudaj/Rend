@@ -67,6 +67,7 @@ namespace Strings
             RAWSTRING SERVER_IP = "server ip";
             RAWSTRING MAX_NPCS = "maximum number of bots";
             RAWSTRING SELECT_PACK = "select map pack";
+            RAWSTRING RANDOM_ROTATION = "random map rotation";
             RAWSTRING SELECT_MAPS = "configure map rotation";
             RAWSTRING SELECT_GAMEMODE = "choose game mode";
             RAWSTRING GAMEMODE_DM = "deathmatch";

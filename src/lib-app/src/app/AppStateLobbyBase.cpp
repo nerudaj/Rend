@@ -77,10 +77,25 @@ void AppStateLobbyBase::handleMapDownload(const MapDownloadResponse& data)
     dic->logger->log(0, "Map downloaded and saved to {}", mapPath.string());
 }
 
+std::vector<MapSettings> getOrderedMapList(const LobbySettings& lobbySettings)
+{
+    auto orderedMaplist =
+        std::views::zip(lobbySettings.mapOrder, lobbySettings.mapSettings)
+        | std::ranges::to<std::vector>();
+
+    std::ranges::sort(
+        orderedMaplist,
+        [](auto& a, auto& b) { return std::get<0>(a) < std::get<0>(b); });
+
+    return orderedMaplist
+           | std::views::transform([](const auto& t) { return std::get<1>(t); })
+           | std::ranges::to<std::vector>();
+}
+
 void AppStateLobbyBase::startGame()
 {
     auto&& maplist =
-        lobbySettings.mapSettings
+        getOrderedMapList(lobbySettings)
         | std::views::filter([](const MapSettings& ms) { return ms.enabled; })
         | std::views::transform([](const MapSettings& ms) { return ms.name; })
         | std::ranges::to<std::vector>();

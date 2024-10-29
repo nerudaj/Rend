@@ -35,6 +35,10 @@ private:
 
     void selectMapPackAndSendUpdate(const std::string& packname);
 
+    void adjustMapOrderAndSendUpdate();
+
+    void shuffleMapOrder();
+
     void openMapPicker();
 
     void handleMapRotationUpdate();

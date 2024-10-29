@@ -1,3 +1,8 @@
+Rend 0.10.0 changelog:
+
+UX:
+* Random map rotation can be chosen in game setup lobby
+
 Rend 0.9.0 changelog:
 
 Gameplay:
