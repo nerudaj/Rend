@@ -1,5 +1,8 @@
 Rend 0.10.0 changelog:
 
+Gameplay:
+* Added new CTF map: "CTF Longway"
+
 UX:
 * Random map rotation can be chosen in game setup lobby
 * Game setup lobby configuration is remembered

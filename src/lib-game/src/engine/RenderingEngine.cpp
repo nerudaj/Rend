@@ -164,7 +164,7 @@ void RenderingEngine::renderWorld(dgm::Window& window)
 
 #define fireRay(col, isLeftmost, isRightmost)                                  \
     {                                                                          \
-        float cameraX = 2 * float(col) / settings.resolution.width - 1;        \
+        float cameraX = 2 * float(col) / (settings.resolution.width - 1) - 1;  \
         auto&& rayDir = player.direction + plane * cameraX;                    \
         depthBuffer[col] =                                                     \
             caster.castRay<isLeftmost, isRightmost>(pos, rayDir, scene);       \
@@ -205,7 +205,7 @@ void RenderingEngine::renderWorld(dgm::Window& window)
     caster.prepare();
     fireRay(0, true, false);
     fireRay(settings.resolution.width - 1, false, true);
-    for (unsigned col = 1; col < settings.resolution.width - 1; col++)
+    for (unsigned col = 1; col < settings.resolution.width - 2; col++)
     {
         fireRay(col, false, false);
     }
