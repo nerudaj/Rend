@@ -418,7 +418,7 @@ const static inline auto ENTITY_PROPERTIES =
                                     AnimationStateId::MarkerLoop } } } } },
         { EntityType::GreyFlag,
           EntityProperties {
-              .radius = 4_px,
+              .radius = 5_px,
               .traits = Trait::Pickable,
               .specialSound = "flag_pickup.wav",
               .initialSpriteIndex = FlagA,
@@ -431,7 +431,7 @@ const static inline auto ENTITY_PROPERTIES =
                                     AnimationStateId::MarkerLoop } } } } },
         { EntityType::RedFlag,
           EntityProperties {
-              .radius = 4_px,
+              .radius = 5_px,
               .traits = Trait::Deposit,
               .initialSpriteIndex = RedFlagA,
               .states = { { AnimationStateId::Idle,
@@ -443,7 +443,7 @@ const static inline auto ENTITY_PROPERTIES =
                                     AnimationStateId::MarkerLoop } } } } },
         { EntityType::BlueFlag,
           EntityProperties {
-              .radius = 4_px,
+              .radius = 5_px,
               .traits = Trait::Deposit,
               .initialSpriteIndex = BlueFlagA,
               .states = { { AnimationStateId::Idle,
