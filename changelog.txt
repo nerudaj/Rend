@@ -1,3 +1,8 @@
+Rend 0.11.0 changelog:
+
+Gameplay:
+* AI can be used in online multiplayer
+
 Rend 0.10.0 changelog:
 
 Gameplay:
