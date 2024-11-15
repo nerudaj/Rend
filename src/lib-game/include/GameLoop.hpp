@@ -52,7 +52,18 @@ public:
     }
 
 public:
-    void update(const float dt, const float realDt, bool skipAudio);
+    void update(
+        const float dt,
+        const float realDt,
+        bool skipAudio,
+        auto&& afterAiEngineUpdateCallback)
+    {
+        aiEngine.update(dt); // FIXME: must happen after everything else
+        afterAiEngineUpdateCallback();
+        updateEngines(dt, realDt);
+        processEvents(skipAudio);
+        gameRulesEngine.deleteMarkedObjects();
+    }
 
     void renderTo(dgm::Window& window);
 

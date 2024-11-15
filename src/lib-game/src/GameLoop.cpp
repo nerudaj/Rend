@@ -1,12 +1,13 @@
 #include "GameLoop.hpp"
 
+/* DELETEME:
 void GameLoop::update(const float dt, const float realDt, bool skipAudio)
 {
+    aiEngine.update(dt); // FIXME: must happen after everything else
     updateEngines(dt, realDt);
     processEvents(skipAudio);
     gameRulesEngine.deleteMarkedObjects();
-    aiEngine.update(dt); // must happen after everything else
-}
+}*/
 
 void GameLoop::renderTo(dgm::Window& window)
 {
