@@ -311,7 +311,23 @@ void AppStateIngame::simulateFrameFromState(
     const FrameState& state, bool skipAudio)
 {
     restoreState(state);
-    gameLoop->update(FRAME_TIME, app.time.getDeltaTime(), skipAudio);
+    gameLoop->update(
+        FRAME_TIME,
+        app.time.getDeltaTime(),
+        skipAudio,
+        [&]
+        {
+            // This gets executed after aiEngine.update
+            // propagate AI inputs to playerStates::input
+            // so NPCs do their thing
+            for (auto&& i : std::views::iota(firstNpcIdx, state.inputs.size()))
+            {
+                scene.playerStates[i].input.deserializeFrom(
+                    scene.playerStates[i]
+                        .blackboard.value()
+                        .input->getSnapshot());
+            }
+        });
     ++scene.tick;
 }
 
@@ -325,11 +341,6 @@ void AppStateIngame::restoreState(const FrameState& state)
     for (auto&& i : std::views::iota(0u, firstNpcIdx))
     {
         scene.playerStates[i].input.deserializeFrom(state.inputs[i]);
-    }
-
-    for (auto&& i : std::views::iota(firstNpcIdx, state.inputs.size()))
-    {
-        scene.playerStates[i].input.deserializeFrom(inputs[i]->getSnapshot());
     }
 
     scene.camera.anchorIdx = state.cameraAnchorIdx;

@@ -1,13 +1,5 @@
 #include "GameLoop.hpp"
 
-void GameLoop::update(const float dt, const float realDt, bool skipAudio)
-{
-    updateEngines(dt, realDt);
-    processEvents(skipAudio);
-    gameRulesEngine.deleteMarkedObjects();
-    aiEngine.update(dt); // must happen after everything else
-}
-
 void GameLoop::renderTo(dgm::Window& window)
 {
     renderingEngine.renderTo(window);
