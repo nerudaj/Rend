@@ -58,7 +58,7 @@ public:
         bool skipAudio,
         auto&& afterAiEngineUpdateCallback)
     {
-        aiEngine.update(dt); // FIXME: must happen after everything else
+        aiEngine.update(dt);
         afterAiEngineUpdateCallback();
         updateEngines(dt, realDt);
         processEvents(skipAudio);

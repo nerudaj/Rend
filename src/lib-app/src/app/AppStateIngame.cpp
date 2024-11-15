@@ -317,9 +317,9 @@ void AppStateIngame::simulateFrameFromState(
         skipAudio,
         [&]
         {
-            // TODO: into own method, should run after AI engine update, but
-            // before all
-            // other engine updates
+            // This gets executed after aiEngine.update
+            // propagate AI inputs to playerStates::input
+            // so NPCs do their thing
             for (auto&& i : std::views::iota(firstNpcIdx, state.inputs.size()))
             {
                 scene.playerStates[i].input.deserializeFrom(
