@@ -1,5 +1,6 @@
 #include <catch.hpp>
 #include <print>
+#include <ranges>
 #include <utils/RollbackManager.hpp>
 
 struct Logger

@@ -2,11 +2,12 @@
 #include "WidgetBuilder.hpp"
 #include <Configs/Strings.hpp>
 #include <Dialogs/MapPickerDialog.hpp>
+#include <ranges>
 
 MapPickerDialog::MapPickerDialog(
     mem::Rc<Gui> gui, const std::vector<MapSettingsForPicker>& settings)
     : DialogInterface(
-        gui, "MapPickerDialogId", Strings::Dialog::Title::SELECT_MAPS)
+          gui, "MapPickerDialogId", Strings::Dialog::Title::SELECT_MAPS)
     , maps(settings)
 {
 }

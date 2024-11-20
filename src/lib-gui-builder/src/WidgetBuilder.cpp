@@ -3,6 +3,7 @@
 #include <Configs/Sizers.hpp>
 #include <TGUI/Backend/SFML-Graphics.hpp>
 #include <TGUI/TGUI.hpp>
+#include <ranges>
 
 [[nodiscard]] std::string randomString(std::size_t len)
 {

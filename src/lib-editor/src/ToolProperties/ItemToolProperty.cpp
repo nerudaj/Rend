@@ -3,6 +3,7 @@
 #include <FormBuilder.hpp>
 #include <WidgetBuilder.hpp>
 #include <enums/SpawnRotation.hpp>
+#include <ranges>
 
 static constexpr [[nodiscard]] std::string
 spawnRotationToString(SpawnRotation rot)

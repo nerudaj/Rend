@@ -1,4 +1,5 @@
 #include <DGM/dgm.hpp>
+#include <array>
 
 template<class T, size_t C>
 class RoundRobinBuffer

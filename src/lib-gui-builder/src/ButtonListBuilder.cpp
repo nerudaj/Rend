@@ -3,6 +3,7 @@
 #include <Configs/Sizers.hpp>
 #include <TGUI/Backend/SFML-Graphics.hpp>
 #include <TGUI/TGUI.hpp>
+#include <ranges>
 
 ButtonListBuilder& ButtonListBuilder::addButton(
     const std::string& label, std::function<void(void)> onClick)

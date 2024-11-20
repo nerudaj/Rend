@@ -3,6 +3,7 @@
 #include <Configs/Sizers.hpp>
 #include <TGUI/Backend/SFML-Graphics.hpp>
 #include <TGUI/TGUI.hpp>
+#include <ranges>
 
 FormBuilder& FormBuilder::addOption(
     const std::string& labelText, tgui::Widget::Ptr widget, OptionConfig config)
@@ -50,12 +51,13 @@ tgui::Panel::Ptr FormBuilder::build(tgui::Color backgroundColor)
 
     for (auto&& [idx, props] : std::views::enumerate(rowsToBuild))
     {
-        auto&& row = props.separator ? WidgetBuilder::getStandardizedRow()
-                     : props.submitBtn
-                         ? WidgetBuilder::createOptionRowWithSubmitButton(
-                             props.label, props.widget, props.submitBtn.value())
-                         : WidgetBuilder::createOptionRow(
-                             props.label, props.widget, props.widgetId);
+        auto&& row =
+            props.separator ? WidgetBuilder::getStandardizedRow()
+            : props.submitBtn
+                ? WidgetBuilder::createOptionRowWithSubmitButton(
+                      props.label, props.widget, props.submitBtn.value())
+                : WidgetBuilder::createOptionRow(
+                      props.label, props.widget, props.widgetId);
         row->setPosition({ "0%", row->getSize().y * idx });
 
         if (props.separator)
