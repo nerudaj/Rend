@@ -20,9 +20,9 @@ NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(LegacyMapProperties, skybox, textures);
 
 struct [[nodiscard]] MapProperties final
 {
-    SkyboxTheme skyboxTheme;
-    TexturePack texturePack;
-    MapCompatibility mapCompat;
+    SkyboxTheme skyboxTheme = SkyboxTheme::Countryside;
+    TexturePack texturePack = TexturePack::SpaceStation;
+    MapCompatibility mapCompat = MapCompatibility::Deathmatch;
 };
 
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(

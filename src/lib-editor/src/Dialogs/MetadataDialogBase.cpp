@@ -4,20 +4,23 @@
 
 void MetadataDialogBase::addAttributesToFormular(FormBuilder& builder)
 {
+    auto skyboxNames = SkyboxThemeUtils::getAllNames();
+    auto texturePackNames = TexturePackUtils::getAllNames();
+
     std::ignore =
         builder
             .addOption(
                 Strings::Editor::NewLevel::SKYBOX_THEME,
                 WidgetBuilder::createDropdown(
-                    SkyboxThemeUtils::getAllNames(),
-                    SkyboxThemeUtils::getAllNames().front(),
+                    skyboxNames,
+                    skyboxNames.at(std::to_underlying(skyboxTheme)),
                     [this](std::size_t idx)
                     { skyboxTheme = static_cast<SkyboxTheme>(idx); }))
             .addOption(
                 Strings::Editor::NewLevel::TEXTURE_PACK,
                 WidgetBuilder::createDropdown(
-                    TexturePackUtils::getAllNames(),
-                    TexturePackUtils::getAllNames().front(),
+                    texturePackNames,
+                    texturePackNames.at(std::to_underlying(texturePack)),
                     [this](std::size_t idx)
                     { texturePack = static_cast<TexturePack>(idx); }))
             .addOption(
