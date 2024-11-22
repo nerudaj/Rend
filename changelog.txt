@@ -5,6 +5,8 @@ Gameplay:
 
 Bugfixes:
 * Edit metadata dialog correctly displays current metadata and correctly changes them
+* Game setup lobby correctly shows and sets game mode
+    * This bug was caused by the previous release
 
 Rend 0.10.0 changelog:
 

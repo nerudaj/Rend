@@ -8,16 +8,17 @@
 #include <app/AppStateGameSetup.hpp>
 #include <app/AppStateMapRotationWrapper.hpp>
 #include <atomic>
+#include <enums/MapCompatibility.hpp>
 #include <expected>
 #include <random>
 
 AppStateGameSetup::AppStateGameSetup(
     dgm::App& app, mem::Rc<DependencyContainer> dic) noexcept
     : AppStateLobbyBase(
-        app,
-        dic,
-        mem::Rc<Client>("127.0.0.1", 10666ui16),
-        LobbyBaseConfig { .isHost = true })
+          app,
+          dic,
+          mem::Rc<Client>("127.0.0.1", 10666ui16),
+          LobbyBaseConfig { .isHost = true })
     , mapPackNames(Filesystem::getLevelPackNames(
           Filesystem::getLevelsDir(dic->settings->cmdSettings.resourcesDir)))
     , mapPickerDialog(dic->gui, std::vector<MapSettingsForPicker>())
@@ -56,6 +57,12 @@ void AppStateGameSetup::input()
 
 void AppStateGameSetup::buildLayoutGameSetupImpl(tgui::Panel::Ptr target)
 {
+    auto gameModeNames = std::vector<std::string> {
+        Strings::AppState::GameSetup::GAMEMODE_DM,
+        Strings::AppState::GameSetup::GAMEMODE_SCTF
+    };
+    assert(std::to_underlying(lobbySettings.gameMode) < gameModeNames.size());
+
     target->add(
         FormBuilder()
             .addOption(
@@ -76,9 +83,9 @@ void AppStateGameSetup::buildLayoutGameSetupImpl(tgui::Panel::Ptr target)
             .addOption(
                 Strings::AppState::GameSetup::SELECT_GAMEMODE,
                 WidgetBuilder::createDropdown(
-                    { Strings::AppState::GameSetup::GAMEMODE_DM,
-                      Strings::AppState::GameSetup::GAMEMODE_SCTF },
-                    Strings::AppState::GameSetup::GAMEMODE_DM,
+                    gameModeNames,
+                    gameModeNames.at(
+                        std::to_underlying(lobbySettings.gameMode)),
                     [&](size_t optionIdx)
                     {
                         lobbySettings.gameMode =
@@ -192,9 +199,8 @@ void AppStateGameSetup::openMapPicker()
         dic->gui,
         lobbySettings.mapSettings
             | std::views::transform(
-                [](auto s) {
-                    return MapSettingsForPicker { s.name, s.enabled };
-                })
+                [](auto s)
+                { return MapSettingsForPicker { s.name, s.enabled }; })
             | std::ranges::to<std::vector>());
     mapPickerDialog->open(
         std::bind(&AppStateGameSetup::handleMapRotationUpdate, this));
@@ -202,12 +208,11 @@ void AppStateGameSetup::openMapPicker()
 
 void AppStateGameSetup::handleMapRotationUpdate()
 {
-    lobbySettings.mapSettings = mapPickerDialog->getMapSettings()
-                                | std::views::transform(
-                                    [](auto s) {
-                                        return MapOptions { s.name, s.enabled };
-                                    })
-                                | std::ranges::to<std::vector>();
+    lobbySettings.mapSettings =
+        mapPickerDialog->getMapSettings()
+        | std::views::transform([](auto s)
+                                { return MapOptions { s.name, s.enabled }; })
+        | std::ranges::to<std::vector>();
     sendLobbyUpdate();
 }
 
