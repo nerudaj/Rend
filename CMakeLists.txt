@@ -5,7 +5,7 @@ set ( CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/Compiled" )
 # Download some helper files
 file (
 	DOWNLOAD
-		"https://raw.githubusercontent.com/nerudaj/clang-format/main/.clang-format"
+		"https://raw.githubusercontent.com/nerudaj/cpp-init/main/.clang-format"
 		"${CMAKE_BINARY_DIR}/.clang-format"
 )
 
