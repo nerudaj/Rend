@@ -9,18 +9,18 @@
 AiEngine::AiEngine(Scene& scene, const AiEngineConfig& config)
     : scene(scene)
     , hitscanner(scene)
-    , logger("ailog.csv")
+    , logger(
+          config.enableLogging ? std::make_optional(fsm::CsvLogger("ailog.csv"))
+                               : std::nullopt)
     , fsm(createFsm(*this, config.useNullBehavior))
     , preferFlags(config.preferFlags)
 {
-    if (config.enableLogging) fsm.setLogger(logger);
+    if (config.enableLogging) fsm.setLogger(logger.value());
 }
 
 template<class Callable, class BbT>
 concept FsmCondition = requires(Callable&& fn, const BbT& bb) {
-    {
-        fn(bb)
-    } -> std::same_as<bool>;
+    { fn(bb) } -> std::same_as<bool>;
 } && fsm::BlackboardTypeConcept<BbT>;
 
 auto Not(FsmCondition<AiBlackboard> auto&& fn)
@@ -210,7 +210,9 @@ fsm::Fsm<AiBlackboard> AiEngine::createFsm(AiEngine& self, bool useNullBehavior)
                     .goToState("ChoosingGatherLocation")
                 .otherwiseExec(gather).andLoop()
             .done()
+#ifdef _DEBUG
         .exportDiagram(fsm::MermaidExporter("./ai.md"))
+#endif
         .build();
     // clang-format on
 }

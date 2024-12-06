@@ -179,8 +179,6 @@ private: // FSM actions
         {
             if (inventory.acquiredWeapons[weaponTypeToIndex(type)])
             {
-                std::cout << "Switching to " << std::to_underlying(type)
-                          << std::endl;
                 blackboard.targetWeaponToSwapTo = type;
                 return;
             }
@@ -311,7 +309,7 @@ private: // Utility functions
 private:
     Scene& scene;
     Hitscanner hitscanner;
-    fsm::CsvLogger logger;
+    std::optional<fsm::CsvLogger> logger;
     fsm::Fsm<AiBlackboard> fsm;
     bool preferFlags = false;
 };
