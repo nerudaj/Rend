@@ -1,3 +1,8 @@
+Rend 1.0.0 changelog:
+
+Gameplay:
+* Added new 4-player CTF map: "Two Houses"
+
 Rend 0.11.0 changelog:
 
 Gameplay:
