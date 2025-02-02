@@ -26,20 +26,31 @@ CmdParameters processCmdParameters(int argc, char* argv[])
 #endif
         ("n,null-bot", "Use null bot behavior");
     // clang-format on
-    auto args = options.parse(argc, argv);
 
     CmdParameters result;
 
-    result.skipMainMenu = args.count("skip-menu") > 0;
-    if (args.count("resource-dir") > 0)
-        result.resourcesDir = args["resource-dir"].as<std::string>();
-    result.enableDebug = args.count("debug") > 0;
-    result.useNullBotBehavior = args.count("null-bot") > 0;
+    try
+    {
+        auto args = options.parse(argc, argv);
+
+        result.skipMainMenu = args.count("skip-menu") > 0;
+        if (args.count("resource-dir") > 0)
+            result.resourcesDir = args["resource-dir"].as<std::string>();
+        result.enableDebug = args.count("debug") > 0;
+        result.useNullBotBehavior = args.count("null-bot") > 0;
 #ifdef _DEBUG
-    result.playDemo = args.count("play-demo") > 0;
-    if (args.count("tape-path") > 0)
-        result.demoFile = args["tape-path"].as<std::string>();
+        result.playDemo = args.count("play-demo") > 0;
+        if (args.count("tape-path") > 0)
+            result.demoFile = args["tape-path"].as<std::string>();
 #endif
+    }
+    catch (const std::exception& ex)
+    {
+        std::println(
+            std::cerr,
+            "Parsing of command-line parameters failed with exception: {}",
+            ex.what());
+    }
 
     return result;
 }
@@ -76,16 +87,18 @@ ExpectSuccess createAppdataFolder(const std::filesystem::path& path)
 int main(int argc, char* argv[])
 {
     const auto APPDATA_FOLDER = Filesystem::getAppdataPath() / "Rend";
-    const auto status = createAppdataFolder(APPDATA_FOLDER);
-    status.or_else(
-        [&APPDATA_FOLDER](const ErrorMessage& msg) -> ExpectSuccess
-        {
-            std::cerr << std::format(
-                "Error: Could not create folder {}. Reason: {}",
-                APPDATA_FOLDER.string(),
-                msg) << std::endl;
-            return ReturnFlag::Failure;
-        });
+    const auto status =
+        createAppdataFolder(APPDATA_FOLDER)
+            .or_else(
+                [&APPDATA_FOLDER](const ErrorMessage& msg) -> ExpectSuccess
+                {
+                    std::cerr << std::format(
+                        "Error: Could not create folder {}. Reason: {}",
+                        APPDATA_FOLDER.string(),
+                        msg) << std::endl;
+                    return ReturnFlag::Failure;
+                });
+    if (!status) return 1;
 
     const auto CONFIG_FILE_PATH = APPDATA_FOLDER / "app.json";
 
@@ -167,7 +180,15 @@ int main(int argc, char* argv[])
         });
 
     app.pushState<AppStateMainMenu>(dic);
-    app.run();
+
+    try
+    {
+        app.run();
+    }
+    catch (const std::exception& ex)
+    {
+        std::println(std::cerr, "App crashed with exception: {}", ex.what());
+    }
 
     auto outWindowSettings = window.close();
 
