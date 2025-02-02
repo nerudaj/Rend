@@ -10,6 +10,7 @@
 #include <app/AppStateMainMenu.hpp>
 #include <core/Scene.hpp>
 #include <cxxopts.hpp>
+#include <print>
 
 CmdParameters processCmdParameters(int argc, char* argv[])
 {
@@ -119,6 +120,12 @@ int main(int argc, char* argv[])
         std::cerr << std::format("error: Loading theme: {}\n", e.what());
         throw;
     }
+
+    std::println(std::cout, "Shaders available: {}", sf::Shader::isAvailable());
+    std::println(
+        std::cout,
+        "Geometry shaders available: {}",
+        sf::Shader::isGeometryAvailable());
 
     auto&& resmgr = mem::Rc<dgm::ResourceManager>();
 

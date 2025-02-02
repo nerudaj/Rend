@@ -55,9 +55,17 @@ loadShader(const std::filesystem::path& path, sf::Shader& shader)
     auto&& path1 = path.string() + ".vert";
     auto&& path2 = path.string() + ".frag";
 
-    if (!shader.loadFromFile(path1, path2))
+    auto bufbak = sf::err().rdbuf();
+
+    std::stringstream ss;
+    sf::err().set_rdbuf(ss.rdbuf());
+    auto status = shader.loadFromFile(path1, path2);
+    sf::err().set_rdbuf(bufbak);
+
+    if (!status)
     {
-        throw std::runtime_error("Cannot load shader!");
+        throw std::runtime_error(
+            std::format("Cannot load shader! ({})", ss.str()));
     }
 }
 
