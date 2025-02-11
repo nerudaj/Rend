@@ -65,7 +65,7 @@ loadShader(const std::filesystem::path& path, sf::Shader& shader)
     if (!status)
     {
         throw std::runtime_error(
-            std::format("Cannot load shader! ({})", ss.str()));
+            std::format("Cannot load shader! ({})\n", ss.str()));
     }
 }
 
