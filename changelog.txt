@@ -2,6 +2,7 @@ Rend 1.1.0 changelog:
 
 Bugfixes:
 * Vertex shader was fixed so it can be loaded on Steam Deck
+* Game waits until a server loop is started (caused the "Play" option in the main menu to crash on some devices, most notably Steam Deck)
 
 Rend 1.0.0 changelog:
 
