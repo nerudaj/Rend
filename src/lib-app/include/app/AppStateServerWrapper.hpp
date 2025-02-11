@@ -5,6 +5,7 @@
 #include <TGUI/Backend/SFML-Graphics.hpp>
 #include <TGUI/TGUI.hpp>
 #include <atomic>
+#include <latch>
 #include <thread>
 
 enum class [[nodiscard]] ServerWrapperTarget
@@ -39,5 +40,6 @@ private:
 private:
     mem::Rc<DependencyContainer> dic;
     std::atomic_bool serverEnabled;
+    std::latch serverBootLatch;
     std::thread serverThread;
 };

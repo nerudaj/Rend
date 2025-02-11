@@ -14,7 +14,8 @@ void serverLoop(
     ServerConfiguration config,
     bool enableDebug,
     std::atomic_bool& serverEnabled,
-    std::filesystem::path resourcesDir)
+    std::filesystem::path resourcesDir,
+    std::latch& started)
 {
     auto&& logger =
         LoggerFactory::createLogger(enableDebug, "./rend_server_log.csv");
@@ -29,6 +30,8 @@ void serverLoop(
         auto&& framerate = Framerate(FPS * 2);
         logger->log(0, "Server loop started");
 
+        started.count_down();
+
         while (serverEnabled)
         {
             server.update();
@@ -38,6 +41,7 @@ void serverLoop(
     catch (const std::exception& e)
     {
         logger->error(0, "error: {}", e.what());
+        started.count_down();
     }
 }
 
@@ -46,6 +50,7 @@ AppStateServerWrapper::AppStateServerWrapper(
     : dgm::AppState(app)
     , dic(dic)
     , serverEnabled(true)
+    , serverBootLatch(1)
     , serverThread(
           serverLoop,
           ServerConfiguration { .port = 10666,
@@ -54,8 +59,11 @@ AppStateServerWrapper::AppStateServerWrapper(
                                     target == ServerWrapperTarget::Editor },
           dic->settings->cmdSettings.enableDebug,
           std::ref(serverEnabled),
-          dic->settings->cmdSettings.resourcesDir)
+          dic->settings->cmdSettings.resourcesDir,
+          std::ref(serverBootLatch))
 {
+    serverBootLatch.wait();
+
     switch (target)
     {
         using enum ServerWrapperTarget;
