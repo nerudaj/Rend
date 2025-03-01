@@ -4,6 +4,7 @@
 #include <CoreTypes.hpp>
 #include <builder/SceneBuilder.hpp>
 #include <core/EntityDefinitions.hpp>
+#include <format>
 #include <utils/MathHelpers.hpp>
 
 #pragma region EventHandling

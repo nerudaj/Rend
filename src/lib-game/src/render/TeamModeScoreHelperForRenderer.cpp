@@ -1,4 +1,5 @@
 #include "render/TeamModeScoreHelperForRenderer.hpp"
+#include <format>
 
 std::string TeamModeScoreHelperForRenderer::getScoreString(
     const PlayerInventory& inventory) const

@@ -10,6 +10,7 @@
 #include <app/AppStateMainMenu.hpp>
 #include <core/Scene.hpp>
 #include <cxxopts.hpp>
+#include <format>
 #include <print>
 
 CmdParameters processCmdParameters(int argc, char* argv[])
@@ -177,7 +178,8 @@ int main(int argc, char* argv[])
             auto result =
                 resmgr->loadResource<LevelD>(mapPath, Loader::loadLevel);
             if (!result) throw Error(result.error());
-        });
+        },
+        mem::Rc<VirtualCursor>(app.window.getWindowContext(), *controller));
 
     app.pushState<AppStateMainMenu>(dic);
 

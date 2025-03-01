@@ -6,6 +6,7 @@
 #include "Jukebox.hpp"
 #include "LoggerInterface.hpp"
 #include "PhysicalController.hpp"
+#include "VirtualCursor.hpp"
 #include <DGM/classes/ResourceManager.hpp>
 #include <Dialogs/ErrorInfoDialog.hpp>
 #include <Memory.hpp>
@@ -21,4 +22,5 @@ struct [[nodiscard]] DependencyContainer final
     mem::Rc<LoggerInterface> logger;
     ErrorInfoDialog warningDialog;
     std::function<void(const std::filesystem::path&)> lateLoadMapIntoManager;
+    mem::Rc<VirtualCursor> virtualCursor;
 };

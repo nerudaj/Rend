@@ -1,4 +1,5 @@
 #include "logging/FileLogger.hpp"
+#include <format>
 #include <print>
 #include <ranges>
 

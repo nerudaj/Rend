@@ -5,6 +5,7 @@
 #include <builder/SceneBuilder.hpp>
 #include <chrono>
 #include <events/EventQueue.hpp>
+#include <format>
 #include <print>
 #include <thread>
 
@@ -424,10 +425,10 @@ void AppStateIngame::createPlayers()
             .blackboard =
                 playerSettings.kind == PlayerKind::LocalNpc
                     ? std::optional<AiBlackboard> { {
-                        .input = inputs[idx].castTo<AiController>(),
-                        .personality = static_cast<AiPersonality>(idx),
-                        .playerStateIdx = static_cast<size_t>(idx),
-                    } }
+                          .input = inputs[idx].castTo<AiController>(),
+                          .personality = static_cast<AiPersonality>(idx),
+                          .playerStateIdx = static_cast<size_t>(idx),
+                      } }
                     : std::nullopt,
             .autoswapOnPickup = playerSettings.kind == PlayerKind::LocalNpc
                                     ? false

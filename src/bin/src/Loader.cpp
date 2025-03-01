@@ -4,6 +4,7 @@
 #pragma warning(pop)
 #include "Playlist.hpp"
 #include <TGUI/TGUI.hpp>
+#include <format>
 #include <nlohmann/json.hpp>
 
 // Takes std::expected and throws exception if it contains error

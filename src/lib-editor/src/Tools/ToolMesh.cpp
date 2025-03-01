@@ -7,6 +7,7 @@
 #include "Utilities/Utilities.hpp"
 #include <enums/LevelItemId.hpp>
 #include <filesystem>
+#include <format>
 #include <ranges>
 
 void ToolMesh::penClicked(const sf::Vector2i& position)

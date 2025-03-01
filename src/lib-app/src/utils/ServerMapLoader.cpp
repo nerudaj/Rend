@@ -1,6 +1,7 @@
 #include "utils/ServerMapLoader.hpp"
 #include "utils/FileLoader.hpp"
 #include <base64.hpp>
+#include <format>
 
 std::expected<std::string, Error> ServerMapLoader::loadMapInBase64(
     const std::string& mapPackName, const std::string& mapName) const
