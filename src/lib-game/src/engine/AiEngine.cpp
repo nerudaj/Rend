@@ -289,10 +289,9 @@ void AiEngine::setPathToTargetLocation(
                 // what is happening, left for possible future diagnostics
                 if (path.isTraversed())
                 {
-                    std::println(
-                        std::cerr,
+                    std::cerr << std::format(
                         "AI Error: Path was found, but was already "
-                        "traversed. Going from {} to {}",
+                        "traversed. Going from {} to {}\n",
                         dgm::Utility::to_string(player.hitbox.getPosition()),
                         dgm::Utility::to_string(destination));
                 }
@@ -309,9 +308,8 @@ void AiEngine::setPathToTargetLocation(
         .or_else(
             [&]() -> std::optional<dgm::Path<dgm::WorldNavpoint>>
             {
-                std::println(
-                    std::cerr,
-                    "AI Error: No path was found! Going from {} to {}",
+                std::cerr << std::format(
+                    "AI Error: No path was found! Going from {} to {}\n",
                     dgm::Utility::to_string(player.hitbox.getPosition()),
                     dgm::Utility::to_string(destination));
                 return std::nullopt;

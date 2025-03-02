@@ -7,7 +7,7 @@ FileLogger::FileLogger(const std::filesystem::path& logfilePath)
     : logstream(logfilePath)
 {
     setLogLevel(LogLevel::All);
-    std::println(logstream, "Tick,Severity,Message,Time");
+    logstream << "Tick,Severity,Message,Time" << std::endl;
 }
 
 static inline std::string replaceAll(
@@ -40,9 +40,8 @@ void FileLogger::logImpl(
         seconds.count() % 60,
         milliseconds.count());
 
-    std::println(
-        logstream,
-        "{},{},\"{}\",{}",
+    logstream << std::format(
+        "{},{},\"{}\",{}\n",
         tick,
         severity == LogSeverity::Debug ? "Debug" : "Error",
         replaceAll(message, "\"", "\"\""),
