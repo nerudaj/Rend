@@ -398,14 +398,11 @@ bool AppStateIngame::isFrameConfirmed() const
 
 void AppStateIngame::lockMouse()
 {
-    auto& window = app.window.getWindowContext();
-    window.setMouseCursorVisible(false);
-    window.setMouseCursorGrabbed(true);
+    app.window.getWindowContext().setMouseCursorGrabbed(true);
 }
 
 void AppStateIngame::unlockMouse()
 {
-    app.window.getWindowContext().setMouseCursorVisible(true);
     app.window.getWindowContext().setMouseCursorGrabbed(false);
 }
 

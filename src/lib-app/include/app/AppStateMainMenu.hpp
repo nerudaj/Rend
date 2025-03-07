@@ -10,7 +10,7 @@ class [[nodiscard]] AppStateMainMenu final : public dgm::AppState
 public:
     AppStateMainMenu(dgm::App& app, mem::Rc<DependencyContainer> dic)
         : dgm::AppState(
-            app, dgm::AppStateConfig { .clearColor = sf::Color::White })
+              app, dgm::AppStateConfig { .clearColor = sf::Color::White })
         , dic(dic)
         , joinGameDialog(
               dic->gui,
@@ -30,6 +30,7 @@ public:
     void draw() override
     {
         dic->gui->draw();
+        dic->virtualCursor->draw(app.window);
     }
 
 private:

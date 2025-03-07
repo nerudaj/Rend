@@ -24,6 +24,7 @@ public:
     void draw() override
     {
         dic->gui->draw();
+        dic->virtualCursor->draw(app.window);
     }
 
 private:

@@ -46,12 +46,15 @@ AppStateEditor::AppStateEditor(
     buildLayout();
 
     updateWindowTitle();
+
+    app.window.getWindowContext().setMouseCursorVisible(true);
 }
 
 AppStateEditor::~AppStateEditor()
 {
     dic->gui->gui.setFont(
         dic->resmgr->get<tgui::Font>("pico-8.ttf").value().get());
+    app.window.getWindowContext().setMouseCursorVisible(false);
 }
 
 mem::Box<Editor>
@@ -222,22 +225,17 @@ tgui::MenuBar::Ptr AppStateEditor::buildMenuBarLayout(
 
     using namespace Strings::AppState::ContextMenu;
 
-    addFileMenuItem(
-        NEW, [this] { handleNewLevel(); }, sf::Keyboard::N);
-    addFileMenuItem(
-        LOAD, [this] { handleLoadLevel(); }, sf::Keyboard::O);
-    addFileMenuItem(
-        SAVE, [this] { handleSaveLevel(); }, sf::Keyboard::S);
+    addFileMenuItem(NEW, [this] { handleNewLevel(); }, sf::Keyboard::N);
+    addFileMenuItem(LOAD, [this] { handleLoadLevel(); }, sf::Keyboard::O);
+    addFileMenuItem(SAVE, [this] { handleSaveLevel(); }, sf::Keyboard::S);
     addFileMenuItem(SAVE_AS, [this] { handleSaveLevel(true); });
     addFileMenuItem(
         PLAY,
         [this] { handlePlayLevelWrapper("useBot"_false); },
         sf::Keyboard::F5);
     addFileMenuItem(PLAY2P, [this] { handlePlayLevelWrapper("useBot"_true); });
-    addFileMenuItem(
-        UNDO, [this] { handleUndo(); }, sf::Keyboard::Z);
-    addFileMenuItem(
-        REDO, [this] { handleRedo(); }, sf::Keyboard::Y);
+    addFileMenuItem(UNDO, [this] { handleUndo(); }, sf::Keyboard::Z);
+    addFileMenuItem(REDO, [this] { handleRedo(); }, sf::Keyboard::Y);
     addFileMenuItem(EXIT, [this] { handleExit(*dialogConfirmExit, false); });
 
     dic->gui->gui.add(menu, "TopMenuBar");

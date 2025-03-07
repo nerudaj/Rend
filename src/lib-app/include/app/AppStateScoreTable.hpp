@@ -19,7 +19,7 @@ public:
         const GameOptions& gameSettings,
         dgm::UniversalReference<std::vector<int>> auto&& scores)
         : dgm::AppState(
-            app, dgm::AppStateConfig { .clearColor = sf::Color::White })
+              app, dgm::AppStateConfig { .clearColor = sf::Color::White })
         , dic(dic)
         , client(client)
         , gameSettings(gameSettings)
@@ -39,6 +39,7 @@ public:
     void draw() override
     {
         dic->gui->draw();
+        dic->virtualCursor->draw(app.window);
     }
 
 private:

@@ -11,11 +11,11 @@ public:
         mem::Rc<DependencyContainer> dic,
         bool enteredFromGame = false)
         : dgm::AppState(
-            app,
-            dgm::AppStateConfig {
-                .clearColor = sf::Color::White,
-                .shouldUpdateUnderlyingState = enteredFromGame,
-            })
+              app,
+              dgm::AppStateConfig {
+                  .clearColor = sf::Color::White,
+                  .shouldUpdateUnderlyingState = enteredFromGame,
+              })
         , dic(dic)
         , enteredFromGame(enteredFromGame)
     {
@@ -30,6 +30,7 @@ public:
     void draw() override
     {
         dic->gui->draw();
+        dic->virtualCursor->draw(app.window);
     }
 
     static void buildPlayerOptionsLayout(

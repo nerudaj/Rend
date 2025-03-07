@@ -61,9 +61,7 @@ private:
             }
             else if (dic.controller->isConfirmPressed())
             {
-                emulateGuiClick(
-                    dic.gui->gui,
-                    sf::Mouse::getPosition(app.window.getWindowContext()));
+                dic.virtualCursor->emulateClick(dic.gui->gui);
             }
             else if (
                 flags.handleGoBackCase
@@ -75,17 +73,5 @@ private:
 
             dic.gui->gui.handleEvent(event);
         }
-    }
-
-    static void emulateGuiClick(tgui::Gui& gui, const sf::Vector2i& mousePos)
-    {
-        gui.handleEvent(sf::Event { .type = sf::Event::MouseButtonPressed,
-                                    .mouseButton = { .button = sf::Mouse::Left,
-                                                     .x = mousePos.x,
-                                                     .y = mousePos.y } });
-        gui.handleEvent(sf::Event { .type = sf::Event::MouseButtonReleased,
-                                    .mouseButton = { .button = sf::Mouse::Left,
-                                                     .x = mousePos.x,
-                                                     .y = mousePos.y } });
     }
 };

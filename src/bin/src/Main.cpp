@@ -179,8 +179,10 @@ int main(int argc, char* argv[])
                 resmgr->loadResource<LevelD>(mapPath, Loader::loadLevel);
             if (!result) throw Error(result.error());
         },
-        mem::Rc<VirtualCursor>(app.window.getWindowContext(), *controller));
+        mem::Rc<VirtualCursor>(
+            app.window.getWindowContext(), *controller, *resmgr));
 
+    window.getWindowContext().setMouseCursorVisible(false);
     app.pushState<AppStateMainMenu>(dic);
 
     try
