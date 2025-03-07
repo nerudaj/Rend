@@ -50,7 +50,6 @@ private:
     {
         if (flags.skipBecauseNoFocus) return;
 
-        dic.controller->update();
         dic.virtualCursor->update(app.time.getDeltaTime());
 
         sf::Event event;

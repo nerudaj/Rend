@@ -89,7 +89,7 @@ sf::Vector2f PhysicalController::getCursorDelta() const
                    + input.getInputValue(InputCode::CursorRight),
                -input.getInputValue(InputCode::CursorUp)
                    - input.getInputValue(InputCode::CursorDown))
-           * cursorSensitivity;
+           * cursorSensitivity_v2;
 }
 
 float PhysicalController::getSteer() const
@@ -109,7 +109,7 @@ void PhysicalController::updateSettings(const InputOptions& options)
     setMouseSensitivity(options.mouseSensitivity);
     turnSpeed = options.turnSpeed;
     input.setGamepadDeadzone(options.gamepadDeadzone);
-    cursorSensitivity = options.cursorSensitivity;
+    cursorSensitivity_v2 = options.cursorSensitivity_v2;
 }
 
 void PhysicalController::setMouseSensitivity(float value)

@@ -7,7 +7,7 @@ struct InputOptions
     float mouseSensitivity = 25.f;
     float turnSpeed = 1.f;
     float gamepadDeadzone = 0.05f;
-    float cursorSensitivity = 2.5f;
+    float cursorSensitivity_v2 = 250.f;
 };
 
 NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(
@@ -15,4 +15,4 @@ NLOHMANN_DEFINE_TYPE_NON_INTRUSIVE(
     mouseSensitivity,
     turnSpeed,
     gamepadDeadzone,
-    cursorSensitivity);
+    cursorSensitivity_v2);

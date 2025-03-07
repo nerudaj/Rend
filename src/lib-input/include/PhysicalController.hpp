@@ -86,5 +86,5 @@ private:
     mutable sf::Vector2i lastMousePos;
     float mouseSensitivity = 25.f;
     float turnSpeed = 1.f;
-    float cursorSensitivity = 5.f;
+    float cursorSensitivity_v2 = 5.f;
 };

@@ -2,6 +2,7 @@
 
 void VirtualCursor::update(const float dt)
 {
+    input.update();
     const auto delta = input.getCursorDelta();
     if (delta == sf::Vector2f(0.f, 0.f)) return;
 

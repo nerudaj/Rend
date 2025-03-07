@@ -7,8 +7,7 @@ class [[nodiscard]] VirtualCursor final
 {
 public:
     VirtualCursor(
-        const sf::RenderWindow& window,
-        const PhysicalController& input) noexcept
+        const sf::RenderWindow& window, PhysicalController& input) noexcept
         : window(window), input(input) {};
     VirtualCursor(const VirtualCursor&) = delete;
     VirtualCursor(VirtualCursor&&) = delete;
@@ -21,6 +20,6 @@ private:
 
 private:
     const sf::RenderWindow& window;
-    const PhysicalController& input;
+    PhysicalController& input;
     sf::Vector2f position;
 };

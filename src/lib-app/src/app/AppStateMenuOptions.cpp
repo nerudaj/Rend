@@ -199,17 +199,17 @@ void AppStateMenuOptions::buildInputOptionsLayout(FormBuilder& builder)
             .addOption(
                 Strings::AppState::Options::CURSOR_SENSITIVITY,
                 WidgetBuilder::createSlider(
-                    dic->settings->input.cursorSensitivity,
+                    dic->settings->input.cursorSensitivity_v2,
                     [this](float value)
                     {
-                        dic->settings->input.cursorSensitivity = value;
+                        dic->settings->input.cursorSensitivity_v2 = value;
                         dic->controller->updateSettings(dic->settings->input);
                     },
                     dic->gui->gui,
                     deadzoneFormatter,
-                    0.5f,
-                    5.f,
-                    0.1f));
+                    10.f,
+                    1000.f,
+                    10.f));
 }
 
 void AppStateMenuOptions::buildPlayerOptionsLayout(
