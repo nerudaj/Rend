@@ -59,19 +59,20 @@ private:
             {
                 app.exit();
             }
-            else if (dic.controller->isConfirmPressed())
-            {
-                dic.virtualCursor->emulateClick(dic.gui->gui);
-            }
-            else if (
-                flags.handleGoBackCase
-                && (dic.controller->isEscapePressed()
-                    || dic.controller->isCancelPressed()))
-            {
-                app.popState();
-            }
 
             dic.gui->gui.handleEvent(event);
+        }
+
+        if (dic.controller->isConfirmPressed())
+        {
+            dic.virtualCursor->emulateClick(dic.gui->gui);
+        }
+        else if (
+            flags.handleGoBackCase
+            && (dic.controller->isEscapePressed()
+                || dic.controller->isCancelPressed()))
+        {
+            app.popState();
         }
     }
 };
