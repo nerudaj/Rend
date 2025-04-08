@@ -26,7 +26,8 @@ tgui::Label::Ptr WidgetBuilder::createLabelInternal(
     label->setHorizontalAlignment(
         justify ? tgui::Label::HorizontalAlignment::Center
                 : tgui::Label::HorizontalAlignment::Left);
-    label->setTextSize(Sizers::getBaseTextSize() * sizeMultiplier);
+    label->setTextSize(
+        static_cast<unsigned>(Sizers::getBaseTextSize() * sizeMultiplier));
     label->setSize({ "100%", "100%" });
     return label;
 }

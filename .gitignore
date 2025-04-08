@@ -6,6 +6,7 @@ src/lib-app/.clang-format
 src/lib-settings/.clang-format
 src/tests/.clang-format
 _build
+build
 level-editor/bin/stdout.txt
 src/tests/include/TestHelpers/TestAssets.hpp
 src/benchmark/include/RootDir.hpp

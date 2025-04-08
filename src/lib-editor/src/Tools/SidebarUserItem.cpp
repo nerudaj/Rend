@@ -79,7 +79,8 @@ void SidebarUserItem::drawSprite(
     auto&& rd = renderData.at(spriteId);
 
     auto position = sf::Vector2f(pos);
-    rd.sprite.setColor(sf::Color(255, 255, 255, opacity));
+    rd.sprite.setColor(
+        sf::Color(255, 255, 255, static_cast<sf::Uint8>(opacity)));
     rd.sprite.setPosition(position);
     rd.sprite.setRotation(std::to_underlying(rotation) * 45.f);
     rd.sprite.setOrigin(rd.clip.width / 2.f, rd.clip.height / 2.f);

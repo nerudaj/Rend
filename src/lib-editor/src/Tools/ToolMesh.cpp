@@ -207,7 +207,8 @@ void ToolMesh::saveTo(LevelD& lvd) const
             for (unsigned tileX = 0; tileX < lvd.mesh.layerWidth; tileX++, i++)
             {
                 const auto coord = sf::Vector2u(tileX, tileY);
-                layer.tiles[i] = maps[l].getTileValue(coord);
+                layer.tiles[i] =
+                    static_cast<uint16_t>(maps[l].getTileValue(coord));
                 layer.blocks[i] = maps[l].isTileSolid(coord);
             }
         }
