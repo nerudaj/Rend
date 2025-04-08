@@ -20,6 +20,7 @@ public:
     {
         buildLayout();
         dic->jukebox->playTitleSong();
+        text.setFont(dic->resmgr->get<sf::Font>("pico-8.ttf").value().get());
     }
 
 public:
@@ -31,6 +32,9 @@ public:
     {
         dic->gui->draw();
         dic->virtualCursor->draw(app.window);
+        text.setString(dgm::Utility::to_string(
+            sf::Mouse::getPosition(app.window.getWindowContext())));
+        app.window.draw(text);
     }
 
 private:
@@ -45,4 +49,5 @@ private:
 private:
     mem::Rc<DependencyContainer> dic;
     JoinGameDialog joinGameDialog;
+    sf::Text text;
 };
