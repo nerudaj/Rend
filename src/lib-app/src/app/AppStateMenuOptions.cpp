@@ -190,7 +190,10 @@ void AppStateMenuOptions::buildInputOptionsLayout(FormBuilder& builder)
                 WidgetBuilder::createSlider(
                     dic->settings->input.gamepadDeadzone,
                     [this](float value)
-                    { dic->settings->input.gamepadDeadzone = value; },
+                    {
+                        dic->settings->input.gamepadDeadzone = value;
+                        dic->controller->updateSettings(dic->settings->input);
+                    },
                     dic->gui->gui,
                     deadzoneFormatter,
                     0.f,
