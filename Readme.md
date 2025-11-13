@@ -8,7 +8,7 @@ You can read about the development process in my [weekly devlogs](https://medium
 
 Gameplay footage:
 
-<iframe width="560" height="315" src="https://www.youtube.com/embed/aMyVuM34ce0?si=DiibBo4kRF9wWndX" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+[![Rend | Space Station Gameplay](https://img.youtube.com/vi/aMyVuM34ce0/0.jpg)](https://www.youtube.com/watch?v=aMyVuM34ce0)
 
 ## Dependencies
 
