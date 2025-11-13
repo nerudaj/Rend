@@ -6,6 +6,10 @@ Game releases are available for free on Itch.io: https://nerudaj.itch.io/Rend
 
 You can read about the development process in my [weekly devlogs](https://medium.com/@nerudaj/list/devlogs-rend-97b960bf3cbe).
 
+Gameplay footage:
+
+<iframe width="560" height="315" src="https://www.youtube.com/embed/aMyVuM34ce0?si=DiibBo4kRF9wWndX" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+
 ## Dependencies
 
  * cmake 3.26.1 (newest version are not guaranteed to work)
