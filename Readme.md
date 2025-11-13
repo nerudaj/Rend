@@ -6,7 +6,7 @@ Game releases are available for free on Itch.io: https://nerudaj.itch.io/Rend
 
 You can read about the development process in my [weekly devlogs](https://medium.com/@nerudaj/list/devlogs-rend-97b960bf3cbe).
 
-Gameplay footage:
+Gameplay footage (click to open on YouTube):
 
 [![Rend | Space Station Gameplay](https://img.youtube.com/vi/aMyVuM34ce0/0.jpg)](https://www.youtube.com/watch?v=aMyVuM34ce0)
 
